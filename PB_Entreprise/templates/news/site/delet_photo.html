@@ -1,0 +1,38 @@
+{% extends 'bases.html' %}
+{% load static %}
+
+{% block title %}P&BENTREPRISE{% endblock title %}
+
+
+{% block content %}
+  <div class="row">
+    <div class="col-md-12">
+      <div class="tile row">
+        <div class="col-md-2"></DIV>
+        <div class="col-md-8">
+          <div class="shadow-sm p-3 mb-3 bg-white rounded">
+            <div class="x_title">
+              <h2><a href="{% url 'addphoto' %}" class="btn btn-outline-light"><i style="color:red;" class="fa fa-reply-all"> Retour</i></a>Information De La Photo</h2>
+              <div class="clearfix"></div>
+            </div>
+            <div class="panel-body">
+              <div class="text-center">
+                <p><b>Tritre:</b> {{photo.title|upper}}</p>
+                <p class="title">Date: {{photo.date_phot}}</p>
+                <p class="title">Image: <br> <img style="height: 50%;width:50%" src="{{photo.photo.url}}" alt="image" srcset=""></p>
+              </div>
+              <div class="text-center mtop20">
+                <form method="POST">
+                  {% csrf_token %}
+                  <div class="col-md-6 col-sm-6 offset-md-3">
+                    <input type="submit" value="Supprimer" onclick="return confirm('Etes-vous sûre de vouloir supprimer les informations concernant {{ photo.title|upper }} - {{ photo.date|upper }}? car si vous supprimer toutes les informations liées seront perdues')" style="box-shadow: 0 0 3px 0 rgb(75, 75, 75); height:35px; width:100px; border-radius:8px; border-color: rgb(250, 186, 186);background:rgb(182, 1, 1); color:aliceblue">
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock content %}

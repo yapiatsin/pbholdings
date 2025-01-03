@@ -1,0 +1,19 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ouverture de Compte</title>
+</head>
+
+<body>
+    <legend><b>Ouverture de compte</b> <small>{{date}}</small></legend>
+    <br>
+    <strong style="color: #0a66c2">Bienvenue cher {{username}},
+        <p style=' color:rgb(103, 103, 103) '>Nous avons le plaisir de vous informer que votre compte a été créé avec succès. Vous pouvez dès à présent vous connecter avec le mot de passe ci-dessous:</p>
+        <p><li style="color: rgb(60, 60, 60);">Mot de passe: <i style="color: rgb(0, 54, 170);">{{password}}</i></li></p>
+        <p style="color: rgb(60, 60, 60);">Veuillez cliquer pour vous connecter</p> <a href="http://127.0.0.1:8000/users/sign_in"><i style="color: rgb(0, 54, 170);">Cliquer ici</i></a>
+</body>
+</html>

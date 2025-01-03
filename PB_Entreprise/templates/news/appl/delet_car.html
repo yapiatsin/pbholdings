@@ -1,0 +1,77 @@
+{% extends 'bases.html' %}
+{% load static %}
+
+{% block title %}Dashboard{% endblock title %}
+{% block breadcrumb %}
+  <ul class="app-breadcrumb breadcrumb">
+    <li class="breadcrumb-item" style="font-size: 24px;"><a href="{% url 'listvehi' %}" class="btn btn-outline-light"><i style="color:red;" class="fa fa-reply-all"></i></a> Supprimer vehicule</li>
+  </ul>
+{% endblock breadcrumb %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-md-12">
+      <div class="tile row">
+        <div class="col-md-8">
+          <div id="external-events">
+              <h4 class="mb-4 text-danger">Categorie: {{vehicule.category}}</h4>
+              <form method="get">
+                <img style="width: 100%;" src="{{vehicule.image.url}}" alt="" srcset="">
+              </form>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="shadow-sm p-3 mb-3 bg-white rounded">
+            <div class="x_title">
+              <h2>Description</h2>
+              <div class="clearfix"></div>
+            </div>
+            <div class="panel-body">
+              <h3 class="red"><i class="fa fa-car"></i> {{vehicule.marque}}</h3>
+              <div class="project_detail">
+              <p><b>Immatriculation:</b> {{vehicule.immatriculation}}</p>
+              <p class="text-left"><b>Coût Acquisition:</b> {{vehicule.cout_acquisition}} Frs</p>
+                <p class="title">Durée: {{vehicule.age}}
+                  {% if vehicule.age > 1 %}
+                    ans
+                  {% else %} 
+                    an
+                  {% endif %} </p>
+                <p class="title">Numero Carte Grise: {{vehicule.num_cart_grise}}</p>
+                <p class="title">Numero Chassis: {{vehicule.num_Chassis}}</p>
+                <p></p>
+              </div>
+              <h5 class="red"><b>Autres</b></h5>
+              <ul class="list-unstyled project_files">
+                <li>
+                  <a href=""><i class="fa fa-calendar"></i>Date Acquisition: {{vehicule.date_acquisition}}</a>
+                </li>
+                <li>
+                  <a href=""><i class="fa fa-calendar"></i>Date edit carte Grise: {{vehicule.dat_edit_carte_grise}}</a>
+                </li>
+                <li>
+                  <a href=""><i class="fa fa-calendar"></i>Date Mise en Service: {{vehicule.date_mis_service}}</a>
+                </li>
+                <li>
+                  <a style="font-size: 10px;" href="{{vehicule.photo_carte_grise.url}}"><i class="fa fa-picture-o"></i>Image Carte Grise: {{vehicule.photo_carte_grise}}</a>
+                </li>
+              </ul>
+              <br/>
+              <div class="text-center mtop20">
+                <form method="POST">
+                  {% csrf_token %}
+                  <div class="col-md-6 col-sm-6 offset-md-3">
+                    <input type="submit" value="Supprimer" onclick="return confirm('Etes-vous sûre de vouloir supprimer les informations concernant {{ vehicule.marque|upper }} - {{ vehicule.immatriculation|upper }}? car si vous supprimer toutes les informations liées seront perdues')" style="box-shadow: 0 0 3px 0 rgb(75, 75, 75); height:35px; width:100px; border-radius:8px; border-color: rgb(250, 186, 186);background:rgb(182, 1, 1); color:aliceblue">
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock content %}
+
+{% block extrascripts %}
+{% endblock extrascripts %}

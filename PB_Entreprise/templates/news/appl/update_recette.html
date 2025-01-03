@@ -1,0 +1,57 @@
+{% extends 'bases.html' %}
+{% load static %}
+
+{% block title %}Modifier Recette{% endblock title %}
+{% block breadcrumb %}
+	<ul class="app-breadcrumb breadcrumb">
+	<li class="breadcrumb-item text-danger"> <a href="{% url 'listrecet' %}" class="btn btn-outline-light"><i style="color:red;" class="fa fa-reply-all"></i></a><i class="fa fa fa-money fa-lg"> Liste des Recettes</i></li>
+	</ul>
+{% endblock breadcrumb %}
+{% block content %}	
+    <div class="tile row">
+        <div class="col-md-2"></div>
+        <div class="col-md-8">
+          	<div class="x_panel shadow-sm p-2 mb-2 bg-white rounded">
+          		{% if messages %}
+          		  {% for msg in messages %}
+          		    <div id="message" class="alert alert-success alert-dismissible fade show" role="alert">
+          		      <p style="font-size: 16px;" class="text-center">{{msg}}</p>
+          		    </div>
+          		  {% endfor %}
+          		{% endif %}
+				<br />
+				<form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left" method="POST" enctype="multipart/form-data">
+					{% csrf_token %}
+					<div class="col-md-6 col-sm-6  form-group">
+						<label for="fullname"><b>Chauffeur</b></label>
+						{{form.chauffeur}}
+					</div>
+					<div class="col-md-6 col-sm-6  form-group date" id="datetimepicker1" data-target-input="nearest">
+						<label for="fullname"><b>Date</b></label>
+						{{form.date}}
+					</div>
+					<div class="col-md-12 col-sm-6  form-group">
+						<label for="fullname"><b>Compte Comptable</b></label>
+						{{form.cpte_comptable}}
+					</div>
+					<div class="col-md-6 col-sm-6  form-group">
+						<label for="fullname"><b>N° Piece</b></label>
+						{{form.Num_piece}}
+					</div>
+					<div class="col-md-6 col-sm-6  form-group">
+						<label for="fullname"><b>N° Facture</b></label>
+						{{form.numero_fact}}
+					</div>
+					<div class="col-md-12 col-sm-6  form-group">
+						<label for="fullname"><b>Montant</b></label>
+						{{form.montant}}
+					</div>
+					<div class="text-center col-md-12 col-sm-3 ">
+						<input type="submit" value="Enregistrer" style="box-shadow: 0 0 3px 0 rgb(75, 75, 75); height:35px; width:100px; border-radius:8px; border-color: rgb(250, 186, 186);background:rgb(182, 1, 1); color:aliceblue">
+					</div>
+				</form>
+        	</div>
+        </div>
+        <div class="col-md-2"></div>
+    </div>
+{% endblock content %}

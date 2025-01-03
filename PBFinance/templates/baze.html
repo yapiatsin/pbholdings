@@ -1,0 +1,221 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+  <title>
+    {% block title %}
+    P&BENTREPRISE
+    {% endblock  %}
+  </title>
+  <meta content="" name="description">
+  <meta content="" name="keywords">
+
+  <!-- Favicons -->
+  <link href="{% static 'ass/img/icon.png' %}" rel="icon">
+  <link href="{% static 'ass/img/apple-touch-icon.png' %}" rel="apple-touch-icon">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,600;1,700&family=Roboto:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Work+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="{% static 'ass/vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="{% static 'ass/vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
+  <link href="{% static 'ass/vendor/fontawesome-free/css/all.min.css' %}" rel="stylesheet">
+  <link href="{% static 'ass/vendor/aos/aos.css' %} " rel="stylesheet">
+  <link href="{% static 'ass/vendor/glightbox/css/glightbox.min.css' %}" rel="stylesheet">
+  <link href="{% static 'ass/vendor/swiper/swiper-bundle.min.css' %}" rel="stylesheet">
+  <!-- Template Main CSS File -->
+  <link href="{% static 'ass/css/maini.css' %}" rel="stylesheet">
+</head>
+
+<body>
+  <!-- ======= Header ======= -->
+  {% block topbar %}
+  <div id="topbar" class="fixed-top d-flex align-items-center">
+    <div class="container-fluid container-xl d-flex align-items-center justify-content-between">
+      <a class="logo d-flex align-items-center me-auto">
+        <i style="color: black;" class="bi bi-telephone-fill"></i> <i class="tel">+225 27 21 73 78 96</i>
+      </a>
+      {% if user.is_authenticated %}
+        <a href="{% url 'log_out' %}" style="font-size: 15px; color: rgb(145, 2, 2); padding:0" class="bx">Deconnexion</a>
+      {% else %}
+        <a  class="link" href="{% url 'login' %}" style="font-size: 15px; color: rgb(145, 2, 2);padding:0" class="bx">Connexion</a>
+      {% endif %}
+      <nav id="navbar" class="navbar">
+        <div id="topba" class="d-flex align-items-center fixed-top">
+          <div class="container d-flex align-items-center justify-content-center justify-content-md-between">
+            <div class="align-items-center" >
+              <p id="slide1">
+                Nous sommes situé à Abidjan Koumassi en face du cimetière. Pour plus d'information appelez le +225 27 21 73 78 96 / 01 02 31 91 12 / 01 52 11 95 96
+              </p>
+            </div> 
+          </div>
+        </div>
+      </nav>
+    </div>
+  </div>
+  <header id="header" class="fixed-top d-flex align-items-center" >
+    <div class="container-fluid container-xl d-flex align-items-center justify-content-between">
+      <a href="{% url 'home' %}" class="logo d-flex align-items-center me-auto">
+        <img style="height: 50px; width:200px" src="{% static 'ass/img/pb.png' %}" alt="logo">
+      </a>
+      <i class="mobile-nav-toggle mobile-nav-show bi bi-list"></i>
+      <i class="mobile-nav-toggle mobile-nav-hide d-none bi bi-x"></i>
+      <nav id="navbar" class="navbar">
+        <ul>
+          <li><a href="{% url 'home' %}" class="active">Accueil</a></li>
+          <li class="dropdown"><a href="#"><span>Présentation</span> <i class="bi bi-chevron-down dropdown-indicator"></i></a>
+            <ul>
+              <li><a href="{% url 'Apropos' %}">Notre identité</a></li>
+              <li><a href="#">Politique qualité</a></li>
+              <li><a href="{% url 'equipes' %}">Equipe</a></li>
+            </ul>
+          <li class="dropdown"><a href="#"><span>Services</span> <i class="bi bi-chevron-down dropdown-indicator"></i></a>
+            <ul>
+              <li><a href="{% url 'service' %}">Nos Services</a></li>
+            </ul>
+          <li class="dropdown"><a href="#"><span>Media</span> <i class="bi bi-chevron-down dropdown-indicator"></i></a>
+            <ul>
+              <li><a href="{% url 'photo' %}">Photo</a></li>
+              <li><a href="{% url 'video' %}">Videos</a></li>
+              <li><a href="{% url 'event' %}">Evènements </a></li>
+            </ul>
+          </li>
+          <li><a href="{% url 'contact' %}">Contact</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  {% endblock topbar %}
+  <!-- End Header -->
+
+  <main id="main">
+    {% block breadcrumbs %}
+      <!-- ======= Breadcrumbs ======= -->
+        <div class="breadcrumbs d-flex align-items-center" style="background-image: url('{% static 'ass/img/breadcrumbs-bg.jpg' %} ');">
+          <div class="container position-relative d-flex flex-column align-items-center" data-aos="fade">
+            <h3>
+              {% block h3 %}
+              {% endblock h3 %}
+            </h3>
+            <ol>
+              <li><a href="index.html">Home</a></li>
+                <li>
+                  {% block li %}
+                    About
+                  {% endblock li %}
+                </li>
+            </ol>
+          </div>
+        </div>
+      <!-- End Breadcrumbs -->
+    {% endblock breadcrumbs %}
+    
+    {% block content %}
+      
+    {% endblock %}
+  </main>
+  <!-- End #main -->
+
+  <!-- ======= Footer ======= -->
+  <footer id="footer" class="footer">
+
+    <div class="footer-content position-relative">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-4 col-md-6">
+            <div class="footer-info">
+              <h3>P&BEntreprise</h3>
+              <p>
+                Abidjan Koumassi <br>
+                17 BP 204 ABIDJAN 17<br><br>
+                <strong>Phone1:</strong> +225 27 21 73 78 96<br>
+                <strong>Phone2:</strong> +225 01 02 31 91 12 <br>       
+                <strong>Phone3:</strong> +225 01 52 11 95 96 <br>
+                <strong>Email:</strong> pacomebertine@gmail.com<br>
+              </p>
+              <div class="social-links d-flex mt-3">
+                <a href="#" class="d-flex align-items-center justify-content-center"><i class="fa-brands fa-x-twitter"></i></a>
+                <a href="#" class="d-flex align-items-center justify-content-center"><i class="bi bi-facebook"></i></a>
+                <a href="#" class="d-flex align-items-center justify-content-center"><i class="bi bi-instagram"></i></a>
+                <a href="#" class="d-flex align-items-center justify-content-center"><i class="bi bi-linkedin"></i></a>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-2 col-md-3 footer-links">
+            <h4>Liens</h4>
+            <ul>
+              <li><a href="{% url 'home' %}">Accueil</a></li>
+              <li><a href="{% url 'Apropos' %}">Notre identité</a></li>
+              <li><a href="{% url 'politiq_pb' %}">Politique Qualité</a></li>
+              <li><a href="{% url 'equipes' %}">Equipe</a></li>
+            </ul>
+          </div>
+          <div class="col-lg-2 col-md-3 footer-links">
+            <h4>Nos Services</h4>
+            <ul>
+              <li><a href="{% url 'vtc' %}">VTC</a></li>
+              <li><a href="{% url 'locations' %}">Location de véhicule</a></li>
+              <li><a href="{% url 'hyrocarbures' %}">Service cargo</a></li>
+              <li><a href="{% url 'ventpiec' %}">Vente de pièces</a></li>
+            </ul>
+          </div>
+          <div class="col-lg-2 col-md-3 footer-links">
+            <h4>Media</h4>
+            <ul>
+              <li><a href="{% url 'photo' %}">Photo</a></li>
+              <li><a href="{% url 'video' %}">video</a></li>
+              <li><a href="{% url 'event' %}">Evènements</a></li>
+            </ul>
+          </div>
+          <div class="col-lg-2 col-md-3 footer-links">
+            <h4>NoS Partenaires</h4>
+            <ul>
+              <li><a href="https://www.suzukibycfao.ci/">Cfao Motor</a></li>
+              <li><a href="https://yango.com/fr_ci/">Yango</a></li>
+              <li><a href="https://suzuki-ci.com/">Suzuki</a></li>
+              <li><a href="https://bank-of-africa.net/">Bank Of Africa</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer-legal text-center position-relative">
+      <div class="container">
+        <div class="copyright">
+          &copy; Copyright <strong><span>P&BENTREPRISE</span></strong>. All Rights Reserved
+        </div>
+      </div>
+    </div>
+
+  </footer>
+  <!-- End Footer -->
+
+  <a href="#" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+  <div id="preloader"></div>
+
+  <!-- Vendor JS Files -->
+  <script src="{% static 'ass/vendor/bootstrap/js/bootstrap.bundle.min.js' %} "></script>
+  <script src="{% static 'ass/vendor/aos/aos.js' %}"></script>
+  <script src="{% static 'ass/vendor/glightbox/js/glightbox.min.js' %} "></script>
+  <script src="{% static 'ass/vendor/isotope-layout/isotope.pkgd.min.js' %} "></script>
+  <script src="{% static 'ass/vendor/swiper/swiper-bundle.min.js' %} "></script>
+  <script src="{% static 'ass/vendor/purecounter/purecounter_vanilla.js' %} "></script>
+  <script src="{% static 'ass/vendor/php-email-form/validate.js' %} "></script>
+
+  <!-- Template Main JS File -->
+  <script src="{% static 'ass/js/main.js' %} "></script>
+
+</body>
+
+</html>

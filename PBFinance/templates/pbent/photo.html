@@ -1,0 +1,65 @@
+{% extends 'baze.html' %}
+{% load static %}
+
+{% block title %}
+  Photo
+{% endblock  %}
+
+<main id="main">
+  {% block breadcrumbs %}
+    <!-- ======= Breadcrumbs ======= -->
+      <div class="breadcrumbs d-flex align-items-center" style="background-image: url('{% static 'ass/img/photo.jpg' %} ');">
+        <div class="container position-relative d-flex flex-column align-items-center" data-aos="fade">
+          <h3>
+            {% block h3 %}
+              Photo
+            {% endblock h3 %}
+          </h3>
+          <ol>
+            <li><a href="{% url 'home' %}">Home</a></li>
+            <li>
+              {% block li %}Photo{% endblock li %}
+            </li>
+          </ol>
+        </div>
+      </div>
+    <!-- End Breadcrumbs -->
+  {% endblock breadcrumbs %}
+  {% block content %}
+  <section id="blog" class="blog">
+    <div class="container" data-aos="fade-up" data-aos-delay="100">
+      <div class="row gy-4 posts-list">
+        
+        {% if tof %}
+          {% for ph in tof %}
+            <div class="col-xl-3 col-md-6">
+              <div class="post-item position-relative h-100">
+                <div class="post-img position-relative overflow-hidden">
+                  <a href="{{ph.photo.url}}"><img style="height:205px; width:100%" src="{{ph.photo.url}}" class="img-fluid" alt=""></a>
+                  <span class="post-date">{{ph.date_phot}}</span>
+                </div>
+                <div class="post-content d-flex flex-column">
+                  <div class="meta d-flex align-items-center">
+                    <div class="d-flex align-items-center">
+                      <i class="bi"></i> <span class="ps-2"><b>Titre</b>: {{ph.title}}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="text-center">
+            <h1>Aucune Photo Disponible!!!</h1>
+          </div>
+        {% endif %}
+        <script>
+          alert(phot)
+        </script>
+
+    </div>
+  </section>
+{% endblock %}
+     
+
+

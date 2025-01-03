@@ -1,0 +1,98 @@
+{% extends 'baze.html' %}
+{% load static %}
+
+{% block title %}
+  Evenements
+{% endblock  %}
+
+<main id="main">
+  {% block breadcrumbs %}
+    <!-- ======= Breadcrumbs ======= -->
+      <div class="breadcrumbs d-flex align-items-center" style="background-image: url('{% static 'ass/img/event.jpg' %} ');">
+        <div class="container position-relative d-flex flex-column align-items-center" data-aos="fade">
+          <h3>
+            {% block h3 %}
+              Evenements
+            {% endblock h3 %}
+          </h3>
+          <ol>
+            <li><a href="{% url 'home' %}">Home</a></li>
+            <li>
+              {% block li %}Evenements{% endblock li %}
+            </li>
+          </ol>
+        </div>
+      </div>
+    <!-- End Breadcrumbs -->
+  {% endblock breadcrumbs %}
+  {% block content %}
+    <section id="constructions" class="constructions">
+      <div class="container" data-aos="fade-up">
+        <div class="section-header">
+          <h2>Nos plus beaux moments</h2>
+          <p>Explorez notre historique d'événements pour revivre des moments mémorables et découvrir comment nous avons enrichi notre communauté à travers des rencontres inspirantes et des projets innovants.</p>
+        </div>
+        <div class="row gy-4">
+          {% if event %}
+            {% for ev in event %}
+            <div class="col-lg-6" data-aos="fade-up" data-aos-delay="100">
+              <div class="card-item">
+                <div class="row">
+                  <div class="col-xl-5">
+                    <div class="card-bg" style="background-image: url({{ev.image.url}}); height:100%"></div>
+                  </div>
+                  <div class="col-xl-7 d-flex align-items-center">
+                    <div class="card-body">
+                      <h4 class="card-title">{{ev.title}}.</h4>
+                      <p>{{ev.text|slice:"100"}}...</p>
+                      <footer>
+                        <small class="opacity-50">{{ev.date_saisie}}</small>
+                      </footer>
+                      <a href="{% url 'detailtevent' ev.pk %}" class="readmore stretched-link">Voir Plus</a>
+                      
+                    </div>
+                  </div>
+                  
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          {% else %}
+          <div class="text-center">
+            <h1>Aucun Evenement Disponible!!!</h1>
+          </div>
+          {% endif %}
+        </div>
+
+        
+      </div>
+      {% if event.has_other_pages %}
+        <div id="blog" class="blog">
+          <div class="container" data-aos="fade-up" data-aos-delay="100">
+            <div class="blog-pagination">
+              <ul class="justify-content-center">
+                {% if event.has_previous %}
+                  <li><a href="?page=1"><<</a></li>
+                  <li><a href="?page={{ event.previous_page_number }}"><</a></li>
+                {% endif %}
+
+                {% for i in event.paginator.page_range %}
+                  {% if event.number == i %}
+                    <li class="active"><a class="page-current">{{ i }}</a></li>  
+                  {% else %}
+                    <li><a href="?page={{ i }}">{{ i }}</a></li>
+                  {% endif %}
+                {% endfor %}
+
+                {% if event.has_next %}
+                  <li><a href="?page={{ event.next_page_number }}">></a></li>
+                  <li><a href="?page={{ event.paginator.num_pages }}">>></a></li>
+                {% endif %}
+              </ul>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+    </section>
+  {% endblock %}
+

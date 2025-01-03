@@ -1,0 +1,78 @@
+{% extends 'bases.html' %}
+{% block title %}
+  Liste Recette
+{% endblock title %}
+{% load static %}
+  {% block breadcrumb %}
+    <ul class="app-breadcrumb breadcrumb">
+      <li class="breadcrumb-item text-danger"> <i class="fa fa fa-car fa-lg"> Liste de categorie</i></li>
+    </ul>
+  {% endblock breadcrumb %}
+  {% block content %}
+        <h3 style="color: red;">
+          {{categorys.category}}
+        </h3>
+        <div class="clearfix"></div>
+          <div class="row">
+            <div class="col-md-12 col-sm-12 ">
+              <div class="x_panel">
+                <div class="x_content">
+                    <div class="row">
+                        <div class="col-sm-12">
+                          {% if messages %}
+						                {% for msg in messages %}
+						                  <div id="message" class="alert alert-success alert-dismissible fade show" role="alert">
+						                  	<p class="text-center">{{msg}}</p>
+						                  </div>
+						                {% endfor %}
+					                {% endif %}
+                          <div class="card-box table-responsive">
+                            <table id="datatable-buttons" class="table table-striped table-bordered text-center" style="width:100%">
+                              <thead>
+                                <tr>
+                                  <b>
+                                    <th style="color: red;">Immatriculation</th>
+                                    <th style="color: red;">Marque</th>
+                                    <th style="color: red;">Category</th>
+                                    <th style="color: red;">Numero Carte Grise</th>
+                                    <th style="color: red;">Numero Chassis</th>
+                                    <th style="color: red;">Date Acquisation</th>
+                                    <th style="color: red;">Action</th>
+                                  </b>
+                                  
+                                </tr>
+                              </thead>
+                              <tbody>
+                              {% if cars %}
+                                {% for v in cars %}
+                                  <tr>
+                                    <td><b><a style="color: rgb(197, 0, 0);" href="{% url 'detavehi' v.pk %}">{{v.immatriculation}}</a></b></td>
+                                    <td><b>{{v.marque}}</b></td>
+                                    <td><b>{{v.category}}</b></td>
+                                    <td><b>{{v.num_cart_grise}}</b></td>
+                                    <td><b>{{v.num_Chassis}}</b></td>
+                                    <td><b>{{v.date_acquisition}}</b></td>
+                                    <td>
+                                      <a title="Modifier" style="color: rgb(0, 119, 255);" href="{% url 'modifvehi' v.pk %}"><i style="font-size: 18px;" class="fa fa-edit"></i></a> &nbsp;&nbsp;
+                                      <a title="Supprimer" style="color: rgb(197, 0, 0);" href="{% url 'supvehi' v.pk %}"><i style="font-size: 18px;" class="fa fa-trash"></i></a>
+                                    </td>
+                                  </tr>
+                                {% endfor %}
+                              {% endif %}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+          </div>
+        </div>
+        </div>
+      </div>
+    </div>
+
+  {% endblock%}
+    

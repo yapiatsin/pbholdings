@@ -1,0 +1,210 @@
+{% extends 'perfect/base.html' %} 
+{% load static %} 
+{% block title %} 
+    Saisie comptable 
+{% endblock title %} 
+{% block navbar_nav %}
+
+{% endblock navbar_nav %} 
+{% block page_title %}
+<img class="profile-user-img" style="border:none; height:55px;width:55px" src="{% static 'journal_g.png' %}" alt="User profile picture">Journal de saisi garage
+{% endblock page_title %} 
+{% block page_a %}
+{% endblock page_a %}
+{% block active_page %} Saisie garage {% endblock active_page %}
+{% block main_content%}
+<div class="col-md-12">
+    <div class="card" style="color: #0176bf; border-radius: 20px; border-color: #00217b; font-weight: 700;">
+        <div class="card-body table-responsive p-0" style="border-radius:8px; border:none">
+            <table class="table table text-nowrap" >
+                <tr style="border-color:red">
+                    <div class="col-md-12">
+                        <div class="row ">
+                            <div class="col-md-2" >
+                                <td style="border:none">
+                                    <div style="display: flex; align-items: center;">
+                                        <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
+                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 7px; margin-left: 0px;" src="{% static 'assurance.png' %}" alt="" srcset="">
+                                        </div>
+                                        <div>
+                                            <div style="font-size: 15px;color: #06497C">Assurance{% if assu_all > 1  %}s{% endif %}</div>
+                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
+                                                {{ assu_all }}
+                                                <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td style="border:none">
+                                    <div style="display: flex; align-items: center;">
+                                        <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
+                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 9px; margin-left: 0px;" src="{% static 'vignette.png' %}" alt="" srcset="">
+                                        </div>
+                                        <div>
+                                            <div style="font-size: 15px;color: #06497C">Vignette{% if vign_all > 1  %}s{% endif %}</div>
+                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
+                                                {{ vign_all }}
+                                                <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td style="border:none">
+                                    <div style="display: flex; align-items: center;">
+                                        <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
+                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 9px; margin-left: px;" src="{% static 'gear.png' %}" alt="" srcset="">
+                                        </div>
+                                        <div>
+                                            <div class="mt-1" style="font-size:14px; font-weight: 700; line-height: 1;color: #06497C">Patente{% if pat_all > 1  %}s{% endif %}</div>
+
+                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
+                                                {{ patente_all}} 
+                                                <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td style="border:none">
+                                    <div style="display: flex; align-items: center;">
+                                        <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
+                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 9px; margin-left: 0px;" src="{% static 'update.png' %}" alt="" srcset="">
+                                        </div>
+                                        <div>
+                                            <div style="font-size: 15px; color: #06497C">Stationnement{% if stat_all > 1  %}s{% endif %}</div>
+                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">{{ stat_all }}  <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td style="border:none">
+                                    <div style="display: flex; align-items: center;">
+                                        <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
+                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 9px; margin-left: 1px;" src="{% static 'gear.png' %}" alt="" srcset="">
+                                            <a href="{% url 'list_repa' %}" style="font-size:20px"><i class="fa fa-plus-circle text-success" style="position:relative; font-size:20px;top:-10px"></i></a>
+                                        </div>
+                                        <div>
+                                            <div class="mt-1" style="font-size:14px; font-weight: 700; line-height: 1;color: #06497C">Pièces changées{% if pat_all > 1  %}s{% endif %}</div>
+                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
+                                                {{ patente_all}} 
+                                                <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </div>
+                        </div>
+                    </div>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+<!-- COURBES DE NIVEAUX -->
+<div class="col-md-12">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="" style="border-radius:20px">
+                <div id="" class="">
+                    <div class="row p-0 m-0">
+                        <div class="col-md-12 p-0">
+                            <div class="card" style="box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+                            backdrop-filter: blur(5.2px);
+                            -webkit-backdrop-filter: blur(5.2px);">
+                                <div class="card-header">
+                                    
+                                    <div class="card-tools">
+                                        <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+                                    </div>
+                                </div>
+                                <!-- /.card-header -->
+                                <div class="card-body">
+                                    <table id="example1" class="table table-bordered table-striped">
+                                        <thead>
+                                            <tr class=" text-center text-danger ">
+                                                <th>IMMATRICULATION</th>
+                                                <th>MARQUE</th>
+                                                <th>CATEGORIE</th>
+                                                <th>ASSURANCE</th>
+                                                <th>VIGNETTE</th>
+                                                <th>PATENTE</th>
+                                                <th>STATIONNEMENT</th>
+                                                <th>PIECES CHANGEES</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% if vehicule %}
+                                                {% for u in vehicule %}
+                                                <tr class="text-center">
+                                                    <td><a href="" title="Cliquez pour accéder à son tableau de bord garage" class="mr-3 text-primary" style='font-weight:700'>{{u.immatriculation}}</a></td>
+                                                    <td>{{u.marque}}</td>
+                                                    <td>{{u.category}}</td>
+                                                    <td>
+                                                        {% if user.user_type != '3' %}
+                                                                <a href="{% url 'add_assurance' u.pk %}" title="Saisissez l'assurance de {{u.immatriculation}}" class="text-primary">
+                                                                    <i style="font-size: 20px;" title="Saisissez l'assurance de {{u.immatriculation}}" class="fa fa-plus-circle "></i>
+                                                                </a>
+                                                            {% else %}
+                                                                <a class="text-danger">
+                                                                    <i style="font-size: 20px;" class="fa fa-close "></i>
+                                                                </a>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>
+                                                        {% if user.user_type != '3' %}
+                                                                <a href="{% url 'add_vignet' u.pk %}" class="text-primary">
+                                                                    <i style="font-size: 20px;" title="Saisissez la vignette de {{u.immatriculation}}" class="fa fa-plus-circle "></i>
+                                                                </a>
+                                                            {% else %}
+                                                                <a class="text-danger">
+                                                                    <i style="font-size: 20px; " class="fa fa-close "></i>
+                                                                </a>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>
+                                                        {% if user.user_type != '3' %}
+                                                            <a href="{% url 'add_patente' u.pk %}" class="text-primary">
+                                                                <i style="font-size: 20px;" title="Saisissez la patente de {{u.immatriculation}}" class="fa fa-plus-circle "></i>
+                                                            </a>
+                                                        {% else %}
+                                                            <a class="text-danger">
+                                                                <i style="font-size: 20px;" class="fa fa-close "></i>
+                                                            </a>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td class="text-center">
+                                                        {% if user.user_type != '3' %}
+                                                            <a href="{% url 'add_station' u.pk %}" class="text-primary">
+                                                                <i style="font-size: 20px;" title="Saisissez la carte de stationnement de {{u.immatriculation}}" class="fa fa-plus-circle "></i>
+                                                            </a>
+                                                        {% else %}
+                                                            <a class="text-danger">
+                                                                <i style="font-size: 20px; " class="fa fa-close "></i>
+                                                            </a>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td class="text-center">
+                                                        {% if user.user_type != '3' %}
+                                                            <a href="{% url 'add_piechange' u.pk %}" class="text-primary">
+                                                                <i style="font-size: 20px;" title="Saisissez la carte de stationnement de {{u.immatriculation}}" class="fa fa-plus-circle "></i>
+                                                            </a>
+                                                        {% else %}
+                                                            <a class="text-danger">
+                                                                <i style="font-size: 20px; " class="fa fa-close "></i>
+                                                            </a>
+                                                        {% endif %}
+                                                    </td>
+                                                </tr>
+                                                {% endfor %}
+                                            {% endif %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <!-- /.card-body -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock main_content %}

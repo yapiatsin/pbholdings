@@ -1,0 +1,112 @@
+{% extends 'bases.html' %}
+{% load static %}
+
+{% block title %}Journal Saisie Comptabilité{% endblock title %}
+
+{% block breadcrumb %}
+  <ul class="app-breadcrumb breadcrumb">
+    <li class="breadcrumb-item" style="font-size: 24px;">Journal de Saisie Comptabilité</li>
+  </ul>
+  <div style="font-size:14px">
+    <i class="fa fa-shopping-cart"></i>Charges Fixes
+    {{Total_charg_fix_format}}
+  </div>
+  <div style="font-size:14px">
+    <i class="fa fa-cart-arrow-down"></i>Charges Variables {{Total_charg_var_format}}
+  </div>
+  <div style="font-size:14px">
+    <i class="fa fa-gears"></i> Pieces {{totl_piece_format}}
+  </div>
+{% endblock breadcrumb %}
+
+  {% block content %}
+    {% if messages %}
+      {% for msg in messages %}
+        <div id="message" class="alert alert-success alert-dismissible fade show" role="alert">
+          <p style="font-size: 16px;" class="text-center">{{msg}}</p>
+        </div>
+      {% endfor %}
+    {% endif %}
+    <div class="row">
+      <div class="col-md-3 col-lg-3">
+        <div class="widget-small primary coloured">
+            <i style="font-size: 24px;" class="icon fa fa-dollar"></i>
+            <div class="info">
+                <b>Recette</b>
+                <p><b>{{Total_recette_format}}</b></p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-lg-3">
+        <div class="widget-small danger coloured" >
+            <i style="font-size: 24px;display:flex" class="icon fa fa-percent fa-3x"></i>
+            <div class="info">
+                <b>Marge de Contribution</b>
+                <p><b>{{taux_marge_format}}</b></p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-lg-3">
+        <div class="widget-small danger coloured" >
+            <i style="font-size: 24px;display:flex" class="icon fa fa-cart-arrow-down fa-3x">T</i>
+            <div class="info">
+                <b>Charges Totales</b>
+                <p><b>{{total_charge_format}}</b></p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-lg-3">
+        <div class="widget-small info coloured" >
+            <i style="font-size: 24px; display:flex" class="icon fa fa fa-3x">R</i>
+            <div class="info">
+                <b>Resultat</b>
+                <p><b>
+                    {{resultat_format}}
+                </b></p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-12">
+        <div class="tile row">
+            <div class="col-md-12">
+                <div id="external-events">
+                  <div class="card-box table-responsive">
+                    <table id="datatable" class="table table-striped table-bordered" style="width:100%;text-align:center">
+                      <thead>
+                        <tr>
+                          <b>
+                            <th style="color: red;">Immatriculation</th>
+                            <th style="color: red;">Marque</th>
+                            <th style="color: red;">Category</th>
+                            <th style="color: red;">Recette</th>
+                            <th style="color: red;">Charge Fixe</th>
+                            <th style="color: red;">Charge Varible</th>
+                          </b>
+                        </tr>
+                      </thead>
+                      <tbody>
+                      {% if vehicule %}
+                        {% for v in vehicule %}
+                          <tr>
+                            <td style="color: rgb(255, 0, 0);"><b>{{v.immatriculation}}</b></td>
+                            <td><b>{{v.marque}}</b></td>
+                            <td><b>{{v.category}}</b></td>
+                            <td><b><a style="color: rgb(0, 102, 255);" href="{% url 'add_recet' v.pk %}">Saisie</a></b></td>
+                            <td><b><a style="color: rgb(0, 102, 255);" href="{% url 'addcharg_fix' v.pk %}">Saisie</a></b></td>
+                            <td><b><a style="color: rgb(0, 102, 255);" href="{% url 'addcharg_var' v.pk %}">Saisie</a></b></td>
+                          </tr>
+                        {% endfor %}
+                      {% endif %}
+                      </tbody>
+                    </table>
+                    
+                  </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+{% endblock content %}

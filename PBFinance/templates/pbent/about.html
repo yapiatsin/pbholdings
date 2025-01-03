@@ -1,0 +1,150 @@
+{% extends 'baze.html' %}
+{% load static %}
+
+{% block title %}A Propos{% endblock  %}
+
+<main id="main">
+
+  {% block breadcrumbs %}
+    <!-- ======= Breadcrumbs ======= -->
+      <div class="breadcrumbs d-flex align-items-center" style="background-image: url('{% static 'ass/img/studio.jpg' %} ');">
+        <div class="container position-relative d-flex flex-column align-items-center" data-aos="fade">
+          <h3>
+            {% block h3 %}
+              Notre Identité
+            {% endblock h3 %}
+          </h3>
+          <ol>
+            <li><a href="{% url 'home' %}">Home</a></li>
+            <li>
+               {% block li %}Notre Identité{% endblock li %}
+            </li>
+          </ol>
+        </div>
+      </div>
+    <!-- End Breadcrumbs -->
+  {% endblock breadcrumbs %}
+  {% block content %}
+    <section id="about" class="about">
+      <div class="container" data-aos="fade-up">
+        <div class="row position-relative">
+          <div class="col-lg-7 about-img" style="border-radius: 8px;box-shadow:rgba(0, 0, 0, 0.35) 0px 5px 15px; background-image: url({% static 'ass/img/all.jpg' %} )"></div>
+          <div class="col-lg-7">
+            <div class="our-story">
+              <h3>Notre Histoire</h3>
+              <p>Bienvenue à P&B Entreprise, une société dynamique qui a été fondée en juin 2021 et qui s'est rapidement imposée comme un acteur majeur dans le secteur du transport et des services connexes. Nous sommes fiers de notre présence dans quatre segments d'activité clés:</p>
+              <ul>
+                <li><i class="bi bi-check-circle"></i> <span><b>Transport Urbain</b> : Nous assurons des services de transport urbain efficaces et fiables, contribuant ainsi à la mobilité quotidienne de milliers de personnes.</span></li>
+                <li><i class="bi bi-check-circle"></i> <span><b>Location de Véhicules</b> : Notre flotte de véhicules de location répond aux besoins divers de nos clients, qu'il s'agisse de déplacements professionnels ou de loisirs.</span></li>
+                <li><i class="bi bi-check-circle"></i> <span><b>Vente de Pièces Détachées</b> : En plus de nos services de transport, nous fournissons également des pièces détachées de qualité pour les véhicules, garantissant ainsi la durabilité et la sécurité de nos opérations et celles de nos clients.</span></li>
+                <li><i class="bi bi-check-circle"></i> <span><b>Transport d'Hydrocarbures</b>: Nous sommes spécialisés dans le transport sûr et efficace d'hydrocarbures, offrant des solutions logistiques adaptées aux besoins de nos clients dans ce domaine crucial.</span></li>
+              </ul>
+              <div class="watch-video d-flex align-items-center position-relative">
+                <i class="bi bi-play-circle"></i>
+                <a href="" class="glightbox stretched-link">Regarder la Video</a>
+              </div>
+            </div>
+          </div>
+        </div>
+        Avec une flotte de cinquante véhicules déployés dans diverses opérations interurbaines, nous nous engageons à fournir des services de haute qualité tout en maintenant un niveau d'efficacité optimal. Nos véhicules sont soigneusement sélectionnés et acquis en partenariat avec des concessionnaires automobiles de confiance, garantissant ainsi leur fiabilité et leur performance.
+        Chez P&B Entreprise, notre devise, inspirée du Livre de Job (22/28), résonne profondément avec notre philosophie d'entreprise : "A tes résolutions répondra le succès…". Cela reflète notre détermination à surmonter les défis et à avancer avec confiance, même face aux obstacles les plus difficiles dans notre secteur d'activité.
+        Nous sommes convaincus que notre engagement envers l'excellence opérationnelle, la fiabilité et le service à la clientèle nous permettra de continuer à prospérer et à répondre aux besoins en constante évolution de nos clients. Merci de votre attention et de votre intérêt pour P&B Entreprise. Nous sommes impatients de collaborer avec vous et de vous offrir des solutions de transport et de services de première classe.
+      </div>
+    </section>
+    <section id="stats-counter" class="stats-counter section-bg">
+      <div class="container">
+        <div class="row gy-4">
+          <div class="col-lg-3 col-md-6">
+            <div class="stats-item d-flex align-items-center w-100 h-100">
+              <i class="bi bi-emoji-smile color-blue flex-shrink-0"></i>
+              <div>
+                <span data-purecounter-start="0" data-purecounter-end="232" data-purecounter-duration="1" class="purecounter"></span>
+                <p>Nos Clients</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-6">
+            <div class="stats-item d-flex align-items-center w-100 h-100">
+              <i class="bi bi-gear color-orange flex-shrink-0"></i>
+              <div>
+                <span data-purecounter-start="0" data-purecounter-end="1521" data-purecounter-duration="1" class="purecounter"></span>
+                <p>Pieces en vente</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-6">
+            <div class="stats-item d-flex align-items-center w-100 h-100">
+              <i class="fa-solid fa-handshake"></i>
+              <div>
+                <span data-purecounter-start="0" data-purecounter-end="4" data-purecounter-duration="1" class="purecounter"></span>
+                <p>Partenaires</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-6">
+            <div class="stats-item d-flex align-items-center w-100 h-100">
+              <i class="bi bi-people color-pink flex-shrink-0"></i>
+              <div>
+                <span data-purecounter-start="0" data-purecounter-end="50" data-purecounter-duration="1" class="purecounter"></span>
+                <p>Employés</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- ======= Alt Services Section ======= -->
+    <section id="alt-services" class="alt-services">
+      <div class="container" data-aos="fade-up">
+        <div class="row justify-content-around gy-4">
+          <div class="col-lg-6 img-bg" style="box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px; border-radius: 10px;background-image: url({% static 'ass/img/m1.jpg' %})" data-aos="zoom-in" data-aos-delay="100"></div>
+          <div class="col-lg-5 d-flex flex-column justify-content-center">
+            <h3>Notre Vision</h3>
+            <p>
+              Notre Vision est d'ouvrir un garage qui fonctionne 7j/7 pour permettre a nos clients de bénéficier des prestations plus rapides. 
+              Ce garage sera conçu pour offrir des services de réparation et d'entretien automobiles de haute qualité, répondant aux besoins diversifiés de nos clients.
+            </p>
+            <div class="icon-box d-flex position-relative" data-aos="fade-up" data-aos-delay="100">
+              <i class="bi bi-easel flex-shrink-0"></i>
+              <div>
+                <h4><a href="" class="stretched-link">Réparation</a></h4>
+                <p>Notre équipe hautement qualifiée et expérimentée se consacre à la réparation de véhicules avec un engagement sans faille.
+                   Nous nous engageons à résoudre efficacement tous les problèmes mécaniques, électriques ou structurels que rencontrent nos clients.
+                  Chez P&B ENTREPRISE, nous comprenons l'importance de la fiabilité de votre véhicule et nous nous efforçons de le remettre sur la route en toute sécurité et rapidement.</p>
+              </div>
+            </div>
+            <div class="icon-box d-flex position-relative" data-aos="fade-up" data-aos-delay="200">
+              <i class="bi bi-patch-check flex-shrink-0"></i>
+              <div>
+                <h4><a href="" class="stretched-link">Entretien</a></h4>
+                <p>L'entretien régulier est essentiel pour assurer la longévité et les performances optimales de votre véhicule.
+                   Chez P&B ENTREPRISE, nous offrons une gamme complète de services d'entretien, allant de la vidange d'huile aux inspections approfondies,
+                    en passant par le remplacement des filtres et des liquides. Nous veillons à ce que votre véhicule
+                    reçoive les soins nécessaires pour fonctionner de manière optimale et pour éviter les pannes coûteuses à l'avenir.</p>
+              </div>
+            </div>
+            <div class="icon-box d-flex position-relative" data-aos="fade-up" data-aos-delay="300">
+              <i class="bi bi-brightness-high flex-shrink-0"></i>
+              <div>
+                <h4><a href="" class="stretched-link">Divers</a></h4>
+                <p>
+                  En plus de la réparation et de l'entretien, 
+                  notre garage propose une gamme de services diversifiés pour répondre à tous les besoins de nos clients.
+                  Que ce soit pour des services de nettoyage approfondi, des installations d'accessoires personnalisés ou des diagnostics avancés,
+                  notre équipe est prête à fournir des solutions adaptées à vos besoins spécifiques. Chez P&B ENTREPRISE,
+                  nous sommes là pour vous accompagner à chaque étape de votre parcours automobile.</p>
+              </div>
+            </div><br>
+            <div>
+              <p>
+                Nous sommes impatients de vous accueillir dans notre garage et de vous offrir une expérience exceptionnelle, où la qualité, la rapidité et la satisfaction du client sont notre priorité absolue.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  {% endblock %}
+</main>

@@ -1,0 +1,185 @@
+{% extends 'perfect/base.html' %} 
+{% load static %} 
+{% block title %} Saisie comptable {% endblock title %} 
+{% block navbar_nav %}
+{% endblock navbar_nav %} 
+{% block page_title %}
+<img class="profile-user-img" style="border:none; height:55px;width:55px" src="{% static 'accounting.png' %}" alt="User profile picture">Journal de saisi comptable
+{% endblock page_title %} 
+{% block page_a %}
+{% endblock page_a %}
+{% block active_page %} Saisie Comptable {% endblock active_page %}
+{% block main_content%}
+<div class="col-md-12">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card card-outline" style="border-radius:20px">
+                <div class="card-body box-profile">
+                    <div class="row p-0 m-0">
+                        <div class="col-md-12 p-0">
+                            <div class="row">
+                                <div class="col-md-2">
+                                    <div style="display: flex; align-items: center;">
+                                        <div style="height: 55px; width: 55px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
+                                            <a href="{% url 'list_recet' %}" title="Cliquer pour accéder à la liste" href=""><img style="height: 40px; width: 40px; position:relative; margin-top: 7px;" src="{% static 'recet.png' %}" alt="" srcset=""></a>
+                                        </div>
+                                        <div>
+                                            <div style="font-size:20px; font-weight: 700; line-height: 1; color: #06497C;">{{recette}} <small>Frscfa</small></div>
+                                            <div style="color: #06497C; font-weight: 700;font-size:14px">Recettes</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 mt-1">
+                                    <div style="display: flex; align-items: center;">
+                                        <div style="height: 55px; width: 55px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
+                                            <a title="Cliquer pour accéder à la liste" href="{% url 'list_charg_fix' %}"><img style="height: 40px; width: 40px; position:relative; margin-top: 8px;" src="{% static 'chargfix.png' %}" alt="" srcset=""></a>
+                                        </div>
+                                        <div>
+                                            <div style="font-size:20px; font-weight: 700; line-height: 1; color: #06497C;">{{charfixe}} <small>Frscfa</small></div>
+                                            <div style="color: #06497C; font-weight: 700;font-size:14px">Charges Fixes</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 mt-1">
+                                    <div style="display: flex; align-items: center;">
+                                        <div style="height: 55px; width: 55px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
+                                            <a title="Cliquer pour accéder à la liste" href="{% url 'list_charg_var' %}"><img style="height: 40px; width: 40px; position:relative; margin-top: 9px;" src="{% static 'chargfvar.png' %}" alt="" srcset=""></a>
+                                        </div>
+                                        <div>
+                                            <div style="font-size:20px; font-weight: 700; line-height: 1; color: #06497C;">{{charvars}} <small>Frscfa</small></div>
+                                            <div style="color: #06497C; font-weight: 700;font-size:14px">Charges Variables</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 mt-1">
+                                    <div style="display: flex; align-items: center;">
+                                        <div style="height: 55px; width: 55px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
+                                            <a><img style="height: 40px; width: 40px; position:relative; margin-top: 8px;" src="{% static 'marge.png' %}" alt="" srcset=""></a>
+                                        </div>
+                                        <div>
+                                            <div style="font-size:20px; font-weight: 700; line-height: 1; color: #06497C;">{{taux_marge}} <small>%</small></div>
+                                            <div style="color: #06497C; font-weight: 700;font-size:14px">Marge de contribution</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 mt-1">
+                                    <div style="display: flex; align-items: center;">
+                                        <div style="height: 55px; width: 55px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
+                                            <a><img style="height: 40px; width: 40px; position:relative; margin-top: 8px;" src="{% static 'som.png' %}" alt="" srcset=""></a>
+                                        </div>
+                                        <div>
+                                            <div style="font-size:20px; font-weight: 700; line-height: 1; color: #06497C;">{{taux_marge}} <small>%</small></div>
+                                            <div style="color: #06497C; font-weight: 700;font-size:14px">Marge de contribution</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 mt-1">
+                                    <div style="display: flex; align-items: center;">
+                                        <div style="height: 55px; width: 55px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
+                                            <a><img style="height: 40px; width: 40px; position:relative; margin-top: 6px;" src="{% static 'brute.png' %}" alt="" srcset=""></a>
+                                        </div>
+                                        <div>
+                                            <div style="font-size:20px; font-weight: 700; line-height: 1; color: #06497C;">{{taux_marge}} <small>%</small></div>
+                                            <div style="color: #06497C; font-weight: 700;font-size:14px">Marge de contribution</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- COURBES DE NIVEAUX -->
+<div class="col-md-12">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="" style="border-radius:20px">
+                <div id="" class="">
+                    <div class="row p-0 m-0">
+                        <div class="col-md-12 p-0">
+                            <div class="card" style="box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+                            backdrop-filter: blur(5.2px);-webkit-backdrop-filter: blur(5.2px);">
+                                <div class="card-header">
+                                    <h3 class="card-title">
+                                        <button type="button" class="btn btn-default" >PDF <i class='text-danger fa fa-file-pdf-o'></i></button>
+                                        <button type="button" class="btn btn-default" >Excell <i class='text-success fa fa-file-excel-o'></i></button>
+                                    </h3>
+                                    <div class="card-tools">
+                                        <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+                                    </div>
+                                </div>
+                                <!-- /.card-header -->
+                                <div class="card-body">
+                                    <table id="example1" class="table table-bordered table-striped">
+                                        <thead>
+                                            <tr class=" text-center text-danger ">
+                                                <th>IMMATRICULATION</th>
+                                                <th>MARQUE</th>
+                                                <th>CATEGORIE</th>
+                                                <th>RECETTE</th>
+                                                <th>CHARGE FIXE</th>
+                                                <th>CHARGE VARIABLE</th>
+                                                {% comment %}
+                                                <th>CSS grade</th> {% endcomment %}
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% if vehicules %}
+                                                {% for u in vehicules %}
+                                                <tr class="text-center">
+                                                    <td><a href="{% url 'detavehi' u.pk %}" title="Cliquez pour accéder à son tableau de bord financier" class="mr-3 text-primary" style='font-weight:700'>{{u.immatriculation}}</a></td>
+                                                    <td>{{u.marque}}</td>
+                                                    <td>{{u.category}}</td>
+                                                    <td>
+                                                        {% if user.user_type == '1' or user.user_type == '3' %}
+                                                                <a href="{% url 'add_recettes' u.pk %}" title="Saisissez la recette de {{u.immatriculation}}" class="text-primary">
+                                                                    <i style="font-size: 20px;" class="fa fa-plus-circle "></i>
+                                                                </a>
+                                                            {% else %}
+                                                                <a class="text-danger">
+                                                                    <i style="font-size: 20px;" class="fa fa-close "></i>
+                                                                </a>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>
+                                                        {% if user.user_type == '1' or user.user_type == '3' %}
+                                                                <a href="{% url 'addcharg_fix' u.pk %}" class="text-primary">
+                                                                    <i style="font-size: 20px;" title="Saisissez la vignette de {{u.immatriculation}}" class="fa fa-plus-circle "></i>
+                                                                </a>
+                                                            {% else %}
+                                                                <a class="text-danger">
+                                                                    <i style="font-size: 20px; " class="fa fa-close "></i>
+                                                                </a>
+                                                        {% endif %}
+                                                    </td>
+                                                    <td>
+                                                        {% if user.user_type == '1' or user.user_type == '3' %}
+                                                            <a href="{% url 'addcharg_var' u.pk %}" class="text-primary">
+                                                                <i style="font-size: 20px;" title="Saisissez la patente de {{u.immatriculation}}" class="fa fa-plus-circle "></i>
+                                                            </a>
+                                                        {% else %}
+                                                            <a class="text-danger">
+                                                                <i style="font-size: 20px; " class="fa fa-close "></i>
+                                                            </a>
+                                                        {% endif %}
+                                                    </td>
+                                                </tr>
+                                                {% endfor %}
+                                            {% endif %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <!-- /.card-body -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock main_content %}

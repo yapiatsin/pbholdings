@@ -1,0 +1,73 @@
+{% extends 'bases.html' %}
+{% load static %}
+{% block title %}Detail Entrée de caisse{% endblock title %}
+
+{% block breadcrumb %}
+  <ul class="app-breadcrumb breadcrumb">
+    <li class="breadcrumb-item text-danger">
+      <a href="{% url 'list_encaissement' %}" class="text-center"><i style="font-size: 20px;" class="fa fa-reply-all"></i></a>
+    </li>
+  </ul>
+  <div>
+    <a href="" onclick="window.print();"><i class="fa fa-print"></i>Imprimer</a>
+  </div>
+{% endblock breadcrumb %}
+
+{% block content %}
+<div class="right_col" role="main">
+  <div class="">
+    <div class="clearfix"></div>
+      <div class="row">
+        <div class="col-md-12">
+          <div class="x_panel">
+            <div class="x_content">
+              <section class="content invoice">
+                <div class="row invoice-info">
+                  <div class="col-sm-4 invoice-col">
+                    <address>
+                      <strong>P&BENTREPRISE, Inc.</strong>
+                      <br>795 Freedom Ave, Suite 600
+                      <br>Ab, KOUM 94107
+                      <br>Phone: 1 (804) 123-9876
+                      <br>Email: P&BENTREPRISE@GMAIL.COM
+                    </address>
+                  </div>
+                  <div class="col-sm-4 invoice-col">
+                    <address>
+                    </address>
+                  </div>
+                  <div class="col-sm-4 invoice-col">
+                    <br>Reçu du: {{encaissement_journalier.date}}
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="table">
+                    <table class="table table-striped text-center">
+                      <thead>
+                        <tr>
+                          <th>N° PIECE</th>
+                          <th>LIBELLE</th>
+                          <th>MONTANT</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>{{encaissement_journalier.Num_piece}}</td>
+                          <td>{{encaissement_journalier.libelle}}</td>
+                          <td>{{encaissement_journalier.montant}}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                
+              </section>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock content %}

@@ -1,0 +1,127 @@
+{% extends 'baze.html' %}
+{% load static %}
+
+{% block title %}
+    Equipe
+{% endblock  %}
+
+<main id="main">
+   {% block breadcrumbs %}
+      <!-- ======= Breadcrumbs ======= -->
+        <div class="breadcrumbs d-flex align-items-center" style="background-image: url('{% static 'ass/img/equipe.jpeg' %} ');">
+          <div class="container position-relative d-flex flex-column align-items-center" data-aos="fade">
+            <h3>
+              {% block h3 %}
+                Notre Equipe
+              {% endblock h3 %}
+            </h3>
+            <ol>
+              <li><a href="{% url 'home' %}">Home</a></li>
+              <li>
+                 {% block li %}Equipe{% endblock li %}
+              </li>
+            </ol>
+          </div>
+        </div>
+      <!-- End Breadcrumbs -->
+    {% endblock breadcrumbs %}
+
+    {% block content %}
+
+    <section id="team" class="team">
+      <div class="container" data-aos="fade-up">
+
+        <div class="section-header">
+          <h2>Notre Equipe</h2>
+          <p>
+            Notre équipe hautement qualifiée et expérimentée se consacre à la réparation de véhicules avec un engagement sans faille.
+            Nous nous engageons à résoudre efficacement tous les problèmes mécaniques, 
+            électriques ou structurels que rencontrent nos clients. Chez P&B ENTREPRISE,
+            nous comprenons l'importance de la fiabilité de votre véhicule et nous nous efforçons de le remettre sur la route en toute sécurité et rapidement.
+          </p>
+        </div>
+
+        <div class="row gy-5">
+
+          <div class="col-lg-4 col-md-6 member" data-aos="fade-up" data-aos-delay="100">
+            <!--<div class="member-img">
+              <img src="{% static 'assetts/img/team/team-1.jpg' %}" class="img-fluid" alt="">
+              <div class="social">
+                <a href="#"><i class="bi bi-twitter"></i></a>
+                <a href="#"><i class="bi bi-facebook"></i></a>
+                <a href="#"><i class="bi bi-instagram"></i></a>
+                <a href="#"><i class="bi bi-linkedin"></i></a>
+              </div>
+            </div>-->
+            <div class="member-info text-center">
+              <h4>Mr </h4>
+              <span>Chef d'exploitation</span>
+              <p>
+                Le chef d'exploitation est le moteur de notre entreprise,
+                coordonnant et supervisant efficacement toutes les opérations quotidiennes.
+                Doté d'une vision stratégique et d'un leadership inspirant,
+                il assure le bon fonctionnement de toutes les activités de P&B ENTREPRISE, garantissant ainsi une efficacité maximale et une satisfaction client exceptionnelle
+              </p>
+            </div>
+          </div><!-- End Team Member -->
+
+          <div class="col-lg-4 col-md-6 member" data-aos="fade-up" data-aos-delay="200">
+            <div class="member-info text-center">
+              <h4>Mlle</h4>
+              <span>Comptable</span>
+              <p>
+                Notre comptable est le pilier de notre entreprise, veillant à la santé financière de P&B ENTREPRISE. Avec une attention méticuleuse aux détails et une expertise approfondie en matière de finances, elle assure une gestion précise et transparente de nos comptes, garantissant ainsi notre stabilité et notre croissance continues.
+              </p>
+            </div>
+          </div><!-- End Team Member -->
+
+          <div class="col-lg-4 col-md-6 member" data-aos="fade-up" data-aos-delay="300">
+            <div class="member-info text-center">
+              <h4>Mr</h4>
+              <span>Gérants des flottes VTC</span>
+              <p>Notre gérant de la flottes de véhicules VTC est un expert dans le domaine,
+                chargé de gérer et d'optimiser notre précieux parc automobile. 
+                sa connaissance approfondie du marché, combinée au souci du détail et à sa capacité à anticiper les besoins, 
+                garantit que notre flotte reste opérationnelle, sûre et rentable à tout moment</p>
+            </div>
+          </div><!-- End Team Member -->
+
+          <div class="col-lg-4 col-md-6 member" data-aos="fade-up" data-aos-delay="400">
+            <div class="member-info text-center">
+              <h4>Mr</h4>
+              <span>Gérants des flottes Taxi</span>
+              <p>Notre gérant de la flottes de véhicules Taxi est un expert dans le domaine,
+                chargé de gérer et d'optimiser notre précieux parc automobile. 
+                sa connaissance approfondie du marché, combinée au souci du détail et à sa capacité à anticiper les besoins, 
+                garantit que notre flotte reste opérationnelle, sûre et rentable à tout moment</p>
+            </div>
+          </div><!-- End Team Member -->
+
+          <div class="col-lg-4 col-md-6 member" data-aos="fade-up" data-aos-delay="500">
+            <div class="member-info text-center">
+              <h4>Mr</h4>
+              <span>Marketing</span>
+              <p>
+                Nos deux vendeurs de pièces automobiles sont les visages amicaux derrière notre service de vente de pièces détachées. 
+                Avec leur expertise approfondie en pièces automobiles et leur engagement à fournir un service client exceptionnel, 
+                ils sont là pour répondre aux besoins de nos clients et assurer la disponibilité des pièces nécessaires pour maintenir leurs véhicules en parfait état.
+              </p>
+            </div>
+          </div><!-- End Team Member -->
+
+          <div class="col-lg-4 col-md-6 member" data-aos="fade-up" data-aos-delay="600">
+            <div class="member-info text-center">
+              <h4>Mlle</h4>
+              <span>Vendeuse</span>
+              <p>
+                Nos deux vendeurs de pièces automobiles sont les visages amicaux derrière notre service de vente de pièces détachées. 
+                Avec leur expertise approfondie en pièces automobiles et leur engagement à fournir un service client exceptionnel, 
+                ils sont là pour répondre aux besoins de nos clients et assurer la disponibilité des pièces nécessaires pour maintenir leurs véhicules en parfait état.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    {% endblock %}
+  </main>

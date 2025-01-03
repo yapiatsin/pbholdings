@@ -1,0 +1,73 @@
+{% extends 'bases.html' %}
+{% load static %}
+
+{% block title %}Saisie une Categorie Fixe{% endblock title %}
+{% block breadcrumb %}
+  <ul class="app-breadcrumb breadcrumb">
+    <li class="breadcrumb-item" style="font-size: 24px;">Enregistrer Nouvelle Categorie</li>
+  </ul>
+{% endblock breadcrumb %}
+
+  {% block content %}
+    <div class="col-md-12">
+        <div class="tile row">
+          	<div class="col-md-4">
+          	  	<div class="x_panel">
+          	    	{% if messages %}
+          	    	  {% for msg in messages %}
+          	    	    <div id="message" class="alert alert-success alert-dismissible fade show" role="alert">
+          	    	      <p style="font-size: 16px;" class="text-center">{{msg}}</p>
+          	    	    </div>
+          	    	  {% endfor %}
+          	    	{% endif %}
+					<br/>
+					<form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left" method="POST" enctype="multipart/form-data">
+					{% csrf_token %}
+						<div class="col-md-12 col-sm-6  form-group">
+							<label for="fullname"><b>Identifiant</b></label>
+							{{form.cid}}
+						</div>
+						<div class="col-md-12 col-sm-6  form-group">
+							<label for="fullname"><b>Categorie</b></label>
+							{{form.category}}
+						</div>
+						<div class="col-md-12 col-sm-6  form-group">
+							<label for="fullname"><b>Logo</b></label>
+							{{form.image}}
+						</div>
+						<div class="text-center col-md-12 col-sm-3 ">
+							<input type="submit" value="Enregistrer" style="box-shadow: 0 0 3px 0 rgb(75, 75, 75); height:35px; width:100px; border-radius:8px; border-color: rgb(250, 186, 186);background:rgb(182, 1, 1); color:aliceblue">
+						</div>
+					</form>
+          	  	</div>
+          	</div>
+          	<div class="col-md-8">
+          	  	<div class="x_panel">
+          	  	  	<div id="external-events">
+          	  	  	  	<div class="card-box table-responsive">
+          	  	  	  	  	<table id="datatable" class="table table-striped table-bordered" style="width:100%;text-align:center">
+								<thead>
+									<tr>
+									<th style="color: rgb(255, 0, 0);"><b>Category</b></th>
+									  <th style="color: rgb(255, 0, 0)"><b>Logo</b></th>
+									</tr>
+								</thead>
+								<tbody>
+								  	{% if categovehi %}
+										{% for cat in categovehi %}
+										  <tr>
+											<td><b><a style="" href="{% url 'catego_vehi_list' cat.cid %}">{{cat.category}}</a></b></td>
+												<td><a><img style="height: 30px; width:100px" src="{{cat.image.url}}" alt="" srcset=""></a></td>
+										  </tr>
+										{% endfor %}
+								  	{% endif %}
+								</tbody>
+          	  	  	  	  	</table>
+          	  	  	  	</div>
+          	  	  	</div>
+          	  	</div>
+          	</div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

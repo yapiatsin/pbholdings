@@ -1,0 +1,93 @@
+{% extends 'perfect/base.html' %} 
+{% load static %} 
+{% block title %} Tableau de bord {% endblock title %} 
+{% block navbar_nav %}
+
+{% endblock navbar_nav %} 
+{% block page_title %}
+<img class="profile-user-img" style="border:none; height:50px;width:50px" src="{% static 'temp_arret.png' %}" alt="User profile picture">Temps d'arrêt 
+{% endblock page_title %} 
+{% block page_a %}
+{% endblock page_a %}
+{% block active_page %} Tableau de bord {% endblock active_page %}
+{% block main_content%}
+<!-- COURBES DE NIVEAUX -->
+<div class="col-md-12">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="" style="border-radius:20px">
+                <div id="" class="">
+                    <div class="row p-0 m-0">
+                        <div class="col-md-12 p-0">
+                            <div class="card" style="background: rgba(255, 255, 255, 0.21);
+                            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+                            backdrop-filter: blur(5.2px);
+                            -webkit-backdrop-filter: blur(5.2px);">
+                                <div class="card-header">
+                                    <h3 class="card-title">
+                                        <button type="button" class="btn btn-default" >Marquer un temps d'arrêt <i class='fa fa-file-pdf-o'></i></button>
+                                        <button type="button" class="btn btn-default" >PDF <i class='fa fa-file-pdf-o'></i></button>
+                                        <button type="button" class="btn btn-default" >CSV <i class='fa fa-plus-square'></i></button>
+                                        <button type="button" class="btn btn-default" >CSV <i class='fa fa-files-o'></i></button>
+                                        <button type="button" class="btn btn-default" >Excell <i class='fa fa-file-excel-o'></i></button>
+                                    </h3>
+                                    <div class="card-tools">
+                                        <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+                                    </div>
+                                </div>
+                                <!-- /.card-header -->
+                                <div class="card-body">
+                                    <table id="example1" class="table table-bordered table-striped">
+                                        <thead>
+                                            <tr class="text-center text-danger">
+                                                <th>IMMATRICULATION</th>
+                                                <th>MARQUE</th>
+                                                <th>CATEGORIE</th>
+                                                <th>VISITE</th>
+                                                <th>ENTRETIEN</th>
+                                                <th>REPARATION</th>
+                                                <th>ACCIDENT</th>
+                                                <th>PERTE</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr class="text-center">
+                                                <td>Trident</td>
+                                                <td>Internet</td>
+                                                <td>Win 95+</td>
+                                                <td>Trident</td>
+                                                <td>Internet </td>
+                                                <td>Win 95+</td>
+                                                <td>Win 95+</td>
+                                                <td>Win 95+</td>
+                                                
+                                                {% comment %}
+                                                <td>X</td> {% endcomment %}
+                                            </tr>
+                                        </tbody>
+                                        <tfoot>
+                                            <tr class="text-center ">
+                                                <th>---</th>
+                                                <th>---</th>
+                                                <th>---</th>
+                                                <th>---</th>
+                                                <th>---</th>
+                                                <th>---</th>
+                                                <th>---</th>
+                                                <th>---</th>
+                                                {% comment %}
+                                                <th>CSS grade</th> {% endcomment %}
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                                <!-- /.card-body -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock main_content %}

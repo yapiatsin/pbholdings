@@ -1,0 +1,95 @@
+{% extends 'bases.html' %}
+
+{% block title %}
+  Create Profil
+{% endblock title %}
+{% load static %}
+{% block breadcrumb %}
+{% endblock breadcrumb %}
+
+{% block content %}
+
+<div class="right_col" role="main">
+  <div class="">
+
+    <div class="row">
+      <div class="col-md-12 col-sm-12 ">
+        <div class="x_panel">
+          <div class="x_content">
+            <div class="col-md-3 col-sm-3  profile_left">
+              <div class="profile_img">
+                <div id="crop-avatar">
+                  <!-- Current avatar -->
+                  {% if user.profile.profile_pic %}
+                      <img class="rounded-circle" style="height: 150px; width:150px" src="{{ user.profile.profile_pic.url }}" >
+                  {% else %} 
+                    {% if user.gender == 'Homme' %}
+                      <img class="rounded-circle" style="height: 150px; width:150px" src="{% static 'ass/img/profi_h.png' %}">
+                    {% else %}
+                      <img class="rounded-circle" style="height: 150px; width:150px" src="{% static 'ass/img/profi_f.png' %}">
+                    {% endif %}
+                  {% endif %}
+                </div>
+              </div>
+              <h3>{{user.username}}</h3>
+              <ul class="list-unstyled user_data">
+                <li><i class="fa fa-at user-profile-icon"></i> {{user.email}}
+                </li>
+                <li>
+                  <i class="fa fa-user user-profile-icon"></i> 
+                  {% if user.groups %}
+                    {{user.groups.name}}
+                  {% else %}
+                    Client
+                  {% endif %}
+              </ul>
+              
+            </div>
+            <div class="col-md-9 col-sm-9 ">
+              <div class="profile_title">
+                <div class="col-md-6">
+                  <h2>Créer un Profil</h2>
+                </div>
+              </div>
+              <!-- start of user-activity-graph -->
+              <div id="" style="width:100%; height:300px;">
+                <form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left" method="POST" enctype="multipart/form-data">
+                  {% csrf_token %}
+                  <div class="col-md-12 col-sm-6  form-group">
+                      <label for="fullname"></label>
+                      {{ form.as_p}}
+                  </div>
+                  <!--
+                  <div class="col-md-12 col-sm-6  form-group">
+                        <label for="fullname"></label>
+                        {{ form.email}}
+                    </div>
+                    <div class="col-md-12 col-sm-6  form-group">
+                        <label for="fullname"></label>
+                        {{ form.gender}}
+                    </div>
+                    <div class="col-md-12 col-sm-6  form-group">
+                        <label for="fullname"></label>
+                        {{form.profession}}
+                    </div>
+                    <div class="col-md-12 col-sm-6  form-group">
+                        <label for="fullname"></label>
+                        {{form.commune}}
+                    </div>
+                    <div class="col-md-12 col-sm-6  form-group">
+                        <label for="fullname"></label>
+                        {{ form.profile_pic}}
+                    </div>
+                  -->
+                    <div class="col-md-12 col-sm-6 form-group">
+                      <button class="text-center btn btn-outline-success" type="submit"><i class="fa fa-edit m-right-xs"></i> Enregistrer</button>
+                    </div>
+                </form>
+              </div>
+              <!-- end of user-activity-graph -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+{% endblock content %}      

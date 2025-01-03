@@ -1,0 +1,117 @@
+{% extends 'baze.html' %}
+{% load static %}
+
+{% block title %}
+  Transport Hydrocarbure
+{% endblock  %}
+
+<main id="main">
+  {% block breadcrumbs %}
+    <!-- ======= Breadcrumbs ======= -->
+      <div class="breadcrumbs d-flex align-items-center" style="background-image: url('{% static 'ass/img/c3.avif' %} ');">
+        <div class="container position-relative d-flex flex-column align-items-center" data-aos="fade">
+          <h3>
+            {% block h3 %}
+              Transport Hydrocarbure
+            {% endblock h3 %}
+          </h3>
+          <ol>
+            <li><a href="{% url 'home' %}">Home</a></li>
+            <li>
+              {% block li %}Transport Hydrocarbure{% endblock li %}
+            </li>
+          </ol>
+        </div>
+      </div>
+    <!-- End Breadcrumbs -->
+  {% endblock breadcrumbs %}
+  {% block content %}
+  <section id="project-details" class="project-details">
+    <div class="container" data-aos="fade-up" data-aos-delay="100">
+      <div class="row justify-content-between gy-4 mt-4">
+        <div class="col-lg-8">
+          <div class="portfolio-description">
+            <h2>Transport Hydrocarbure</h2>
+            <p>
+              Le transport d'hydrocarbures chez l'entreprise P&Bentreprise est une opération cruciale qui nécessite une planification minutieuse, des ressources spécialisées et un engagement envers la sécurité et l'environnement. Voici une présentation détaillée de cette activité :
+            </p>
+            <p>
+              <b>Infrastructure de transport</b>:
+              P&Bentreprise dispose d'une infrastructure solide pour le transport des hydrocarbures. Cela peut inclure des pipelines, des camions-citernes, des navires-citernes et des installations de stockage.
+            </p>
+            <p>
+              <b>Modes de transport </b> :
+              <b>Pipelines</b>: P&Bentreprise exploite un réseau étendu de pipelines pour transporter les hydrocarbures sur de longues distances de manière efficace et sécurisée.
+              <br><b>Camions-citernes</b>: Pour les trajets plus courts ou pour accéder à des zones non desservies par les pipelines, l'entreprise utilise des camions-citernes pour transporter les hydrocarbures.
+              <br><b>Navires-citernes</b>:  Pour le transport international ou maritime, P&Bentreprise peut faire appel à des navires-citernes pour acheminer les hydrocarbures vers les marchés mondiaux.
+            </p>
+            <p>
+              <b>Sécurité</b> :
+              La sécurité est une priorité absolue pour P&Bentreprise lors du transport des hydrocarbures. 
+              Des protocoles stricts sont mis en place pour prévenir les fuites, les déversements et les accidents. 
+              Cela comprend l'inspection régulière des pipelines, la formation des chauffeurs de camions-citernes et le respect des réglementations maritimes pour les navires-citernes.
+            </p>
+            <p>
+              <b>Gestion environnementale </b> :
+              P&Bentreprise s'engage à minimiser son impact environnemental tout au long du processus de transport des hydrocarbures. 
+              Cela peut inclure l'utilisation de technologies de pointe pour détecter et répondre rapidement aux fuites, 
+              ainsi que des programmes de surveillance environnementale le long des pipelines et dans les zones maritimes.
+            </p>
+            <p>
+              <b>Conformité réglementaire</b> :
+              L'entreprise se conforme aux réglementations locales, nationales et internationales en matière de transport d'hydrocarbures. 
+              Cela peut impliquer des permis et des licences spécifiques pour exploiter des pipelines ou des navires-citernes, 
+              ainsi que le respect des normes de sécurité et de protection de l'environnement établies par les autorités compétentes.
+            </p>
+            <p>
+              <b>Gestion des risques</b> :
+              P&Bentreprise a mis en place des mesures de gestion des risques pour identifier, 
+              évaluer et atténuer les risques associés au transport d'hydrocarbures. 
+              Cela peut inclure des plans d'intervention d'urgence en cas d'accident, 
+              des assurances spécialisées et des partenariats avec des experts en sécurité et en environnement.
+            </p>
+          </div>
+        </div>
+        <div class="col-lg-3">
+          <div class="portfolio-info">
+            <h3>Detail</h3>
+            <p>
+              <div class="slides-1 portfolio-details-slider swiper">
+                <div class="swiper-wrapper align-items-center">
+                  <div class="swiper-slide">
+                    <img style="height: 100%; width: 100%;" src="{% static 'ass/img/tanker.jpg' %}" alt="">
+                  </div>
+                  <div class="swiper-slide">
+                    <img style="height: 100%; width: 100%;" src="{% static 'ass/img/c4.avif' %}" alt="">
+                  </div>
+                  <div class="swiper-slide">
+                    <img style="height: 100%; width: 100%;" src="{% static 'ass/img/c3.avif' %}" alt="">
+                  </div>
+                  <div class="swiper-slide">
+                    <img style="height: 100%; width: 100%;" src="{% static 'ass/img/c6.avif' %}" alt="">
+                  </div>
+                  <div class="swiper-slide">
+                    <img style="height: 100%; width: 100%;" src="{% static 'ass/img/c2.avif' %}" alt="">
+                  </div>
+                  <div class="swiper-slide">
+                    <img style="height: 100%; width: 100%;" src="{% static 'ass/img/logis.jpg' %}" alt="">
+                  </div>
+                </div>
+              </div>
+            </p>
+            <ul>
+              <li><strong>Contactez-nous</strong> <span>+225 27 21 73 78 96</span></li>
+              <li><strong>Email</strong> <span>pacomebertine@gmail.com</span></li>
+              <li>
+                <a href="{% url 'service' %}" class="btn-visit align-self-start">Retour aux services</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+{% endblock %}
+     
+
+

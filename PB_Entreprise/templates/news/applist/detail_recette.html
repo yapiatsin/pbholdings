@@ -1,0 +1,78 @@
+{% extends 'bases.html' %}
+{% load static %}
+
+{% block title %}Detail Recette{% endblock title %}
+  {% block breadcrumb %}
+    <ul class="app-breadcrumb breadcrumb">
+      <li class="breadcrumb-item" style="font-size: 24px;"><a href="{% url 'listrecet' %}" class="btn btn-outline-light"><i style="color:red;" class="fa fa-reply-all"></i></a>Detail De La Recette</li>
+
+    </ul>
+    <div>
+      <a href="" onclick="window.print();"><i class="fa fa-print"></i>Imprimer</a>
+    </div>
+  {% endblock breadcrumb %}
+
+  {% block content %}
+  <div class="right_col" role="main">
+    <div class="">
+      <div class="clearfix"></div>
+        <div class="row">
+          <div class="col-md-12">
+            <div class="x_panel">
+              <div class="x_content">
+                <section class="content invoice">
+                  <div class="row invoice-info">
+                    <div class="col-sm-4 invoice-col">
+                      <address>
+                        <strong>P&BENTREPRISE, Inc.</strong>
+                        <br>795 Freedom Ave, Suite 600
+                        <br>Ab, KOUM 94107
+                        <br>Phone: 1 (804) 123-9876
+                        <br>Email: P&BENTREPRISE@GMAIL.COM
+                      </address>
+                    </div>
+                    <div class="col-sm-4 invoice-col">
+                      <address>
+                        <strong>Vehicule</strong>
+                        <br>immat: {{recette.vehicule.immatriculation}}
+                        <br>Marque {{recette.vehicule.marque}}
+                        <br>Categorie{{recette.vehicule.category}}
+                      </address>
+                    </div>
+                    <!-- /.col -->
+                    <div class="col-sm-4 invoice-col">
+                      <br>Reçu du: {{recette.date_saisie}}
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="table">
+                      <table class="table table-striped text-center">
+                        <thead>
+                          <tr>
+                            <th>Chauffeur</th>
+                            <th>N° Piece</th>
+                            <th>Montant</th>
+                            <th>Date</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td>{{recette.chauffeur}}</td>
+                            <td>{{recette.Num_piece}}</td>
+                            <td>{{recette.montant}}</td>
+                            <td>{{recette.date}}</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </section>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+</div>
+{% endblock content %}

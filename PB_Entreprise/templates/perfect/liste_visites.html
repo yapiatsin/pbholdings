@@ -1,0 +1,256 @@
+{% extends 'perfect/base.html' %} 
+{% load static %} 
+{% block title %} Table des visites {% endblock title %} 
+{% block navbar_nav %}
+
+{% endblock navbar_nav %} 
+{% block page_title %}
+<a href="{% url 'alerte' %}"><img class="profile-user-img" style="border:none; height:35px;width:35px" src="{% static 'retour.png' %}" alt="Retour"></a>
+<img class="profile-user-img" style="border:none; height:45px;width:45px" src="{% static 'depenses.png' %}" alt="User profile picture">Liste des visites
+{% endblock page_title %} 
+{% block page_a %}
+{% endblock page_a %}
+{% block active_page %} Visites{% endblock active_page%}
+{% block main_content %}
+
+<div class="col-md-12">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card card-outline" style="border-radius:20px">
+                <div class="card-body box-profile">
+                    <div class="row p-0 m-0">
+                        <div class="col-md-12 p-0">
+                            <div class="row">
+                                <div class="col-md-2">
+                                    <div style="display: flex; align-items: center;">
+                                        <div style="height: 55px; width: 55px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
+                                            <a title="Cliquer pour accéder à la liste" href=""><img style="height: 40px; width: 40px; position:relative; margin-top: 7px;" src="{% static 'recet.png' %}" alt="" srcset=""></a>
+                                        </div>
+                                        <div>
+                                            <div style="font-size:20px; font-weight: 700; line-height: 1; color: #06497C;">{{viste_jour}} <small>Frscfa</small></div>
+                                            <div style="color: #06497C; font-weight: 700;font-size:14px">Total visite</div>
+                                            <div style="color: #06497C; font-weight: 700;font-size:12px">{{dates}}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 mt-1">
+                                    <div style="display: flex; align-items: center;">
+                                        <div style="height: 55px; width: 55px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
+                                            <a><img style="height: 40px; width: 40px; position:relative; margin-top: 6px;" src="{% static 'taxi.png' %}" alt="" srcset=""></a>
+                                        </div>
+                                        <div>
+                                            <div style="font-size:20px; font-weight: 700; line-height: 1; color: #06497C;">{{viste_jour_taxi}} <small>Frscfa</small></div>
+                                            <div style="color: #06497C; font-weight: 700;font-size:14px">TAXI</div>
+                                            <div style="color: #06497C; font-weight: 700;font-size:12px">{{dates}}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 mt-1">
+                                    <div style="display: flex; align-items: center;">
+                                        <div style="height: 55px; width: 55px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
+                                            <a><img style="height: 40px; width: 40px; position:relative; margin-top: 8px;" src="{% static 'vtc.png' %}" alt="" srcset=""></a>
+                                        </div>
+                                        <div>
+                                            <div style="font-size:20px; font-weight: 700; line-height: 1; color: #06497C;">{{viste_jour_vtc}} <small>Frscfa</small></div>
+                                            <div style="color: #06497C; font-weight: 700;font-size:14px">VTC </div>
+                                            <div style="color: #06497C; font-weight: 700;font-size:12px">{{dates}}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 mt-1">
+                                    <div style="display: flex; align-items: center;">
+                                        <div style="height: 55px; width: 55px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
+                                            <a><img style="height: 40px; width: 40px; position:relative; margin-top: 6px;" src="{% static 'taxi.png' %}" alt="" srcset=""></a>
+                                        </div>
+                                        <div>
+                                            <div style="font-size:20px; font-weight: 700; line-height: 1; color: #06497C;">{{viste_mois_taxi}} <small>Frscfa</small></div>
+                                            <div style="color: #06497C; font-weight: 700;font-size:14px">TAXI </div>
+                                            <div style="color: #06497C; font-weight: 700;font-size:12px">{{libelles_mois}}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 mt-1">
+                                    <div style="display: flex; align-items: center;">
+                                        <div style="height: 55px; width: 55px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
+                                            <a title="Cliquer pour accéder à la liste"><img style="height: 40px; width: 40px; position:relative; margin-top: 8px;" src="{% static 'vtc.png' %}" alt="" srcset=""></a>
+                                        </div>
+                                        <div>
+                                            <div style="font-size:20px; font-weight: 700; line-height: 1; color: #06497C;">{{viste_mois_vtc}} <small>Frscfa</small></div>
+                                            <div style="color: #06497C; font-weight: 700;font-size:14px">VTC</div>
+                                            <div style="color: #06497C; font-weight: 700;font-size:12px">{{libelles_mois}}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 mt-1">
+                                    <div style="display: flex; align-items: center;">
+                                        <div style="height: 55px; width: 55px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
+                                            <a title="Cliquer pour accéder à la liste"><img style="height: 40px; width: 40px; position:relative; margin-top: 9px;" src="{% static 'calendar.png' %}" alt="" srcset=""></a>
+                                        </div>
+                                        <div>
+                                            <div style="font-size:20px; font-weight: 700; line-height: 1; color: #06497C;">{{viste_mois_all}} <small>Frscfa </small></div>
+                                            <div style="color: #06497C; font-weight: 700;font-size:14px">Total de {{libelles_mois}}</div>
+                                            <div style="color: #06497C; font-weight: 700;font-size:12px">{{annees}}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ---------------------------- MEILLEUR_RECETTE ---------------------------- -->
+
+<div class="col-md-2">
+    <div class="card card-outline" style="border-radius:20px">
+        <div class="card-body box-profile">
+            <div class="row p-0 m-0">
+                <div class="col-md-12 p-0">
+                    <div class="text-center" style="font-size:17px; font-weight: 700; line-height: 1; color: #8b1516; text-decoration: underline;">Resultat du filtre</div>
+                    <div class="row mt-2">
+                        <div class="col-md-12">
+                            <div style="display: flex; align-items: center;">
+                                <div style="height: 40px; width: 40px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-1 text-center">
+                                    <img style="height: 25px; width: 25px; position:relative; margin-top: 8px;" src="{% static 'vtc.png' %}" alt="" srcset="">
+                                </div>
+                                <div>
+                                    <div style="font-size:16px; font-weight: 700; line-height: 1; color: #06497C; text-decoration: underline;">VTC</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div style="display: flex; align-items: center;">
+                                <div class="text-center p-1 m-2">
+                                    <div class="text-center" style="font-size:16px; color: #06497C; text-align: center;font-weight:700">
+                                        <li>{{viste_an_fil_vtc}} Frscfa</li>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div style="display: flex; align-items: center;">
+                                <div style="height: 40px; width: 40px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-1 text-center">
+                                    <img style="height: 25px; width: 25px; position:relative; margin-top: 8px;" src="{% static 'taxi.png' %}" alt="" srcset="">
+                                </div>
+                                <div>
+                                    <div style="font-size:16px; font-weight: 700; line-height: 1; color: #06497C;text-decoration: underline;">TAXI</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div style="display: flex; align-items: center;">
+                                <div class="text-center p-1 m-2">
+                                    <div class="text-center" style="font-size:16px; color: #06497C; text-align: center;font-weight:700">
+                                        <li>{{viste_an_fil_taxi}} Frscfa</li>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div style="display: flex; align-items: center;">
+                                <div class="text-center m-2">
+                                    <div class="text-center" style="font-size:16px; color: #06497C; text-align: center;font-weight:400">
+                                        -------------------------------
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div style="display: flex; align-items: center;">
+                                <div class="text-center m-2">
+                                    <div class="text-center" style="font-size:16px; color: #06497C; text-align: center;font-weight:700">
+                                        = {{viste_all}} Frscfa
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+        <!-- FIN MEILLEUR RECETTE -->
+<div class="col-md-10">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="" style="border-radius:20px">
+                <div id="" class="">
+                    <div class="row p-0 m-0">
+                        <div class="col-md-12 p-0">
+                            <div class="card" style="box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);backdrop-filter: blur(5.2px);-webkit-backdrop-filter: blur(5.2px);">
+                                <div class="card-header">
+                                    <h3 class="card-title">
+                                        <button type="button" class="btn btn-default">PDF <i class='fa fa-file-pdf-o'></i></button>
+                                        <button type="button" class="btn btn-default">Excell <i class='fa fa-file-excel-o'></i></button>
+                                    </h3>
+
+                                    <div class="card-tools">
+                                        <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+                                    </div>
+                                </div>
+                                <!-- /.card-header -->
+                                <div class="card-body">
+                                    <table id="example1" class="table table-bordered table-striped">
+                                        <thead>
+                                            <tr class=" text-center text-danger ">
+                                                <th>IMMATRICULATION</th>
+                                                <th>MARQUE</th>
+                                                <th>CATEGORIE</th>
+                                                <th>N°CHASSIS</th>
+                                                <th>N°CARTE GRISE</th>
+                                                <th>COUT</th>
+                                                <th>ACTION</th>
+                                                {% comment %}
+                                                <th>CSS grade</th> {% endcomment %}
+                                            </tr>
+                                        </thead>
+                                        <tbody> 
+                                            {% if list_viste %} 
+                                                {% for u in list_viste %}
+                                                    <tr class="text-center">
+                                                        <td>
+                                                            <a href="{% url 'updatecar' u.pk %}" class="mr-3 text-primary">{{u.immatriculation}}</a>
+                                                        </td>
+                                                        <td>{{u.marque}}</td>
+                                                        <td>{{u.category}}</td>
+                                                        <td>{{u.num_Chassis}}</td>
+                                                        <td>{{u.num_cart_grise}}</td>
+                                                        <td>{{u.cout_acquisition}}</td>
+                                                        <td class="text-center">
+                                                            <a href="{% url 'delvehi' u.pk %}" class="text-danger" onclick="return confirm('Etes-vous sûre de vouloir supprimer le véhicule {{u.immatriculation}} - {{u.marque}} - {{u.category|upper}}? car si vous supprimer toutes les informations liées seront supprimées')">
+                                                                <i style="font-size: 20px; " class="fa fa-trash "></i>
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %} 
+                                            {% endif %}
+                                        </tbody>
+                                        <tfoot>
+                                            <tr class="text-center ">
+                                                <th>---</th>
+                                                <th>---</th>
+                                                <th>---</th>
+                                                <th>---</th>
+                                                <th>---</th>
+                                                <th>---</th>
+                                                <th>---</th>
+                                                {% comment %}
+                                                <th>CSS grade</th> {% endcomment %}
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                                <!-- /.card-body -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock main_content %}

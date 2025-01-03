@@ -1,0 +1,114 @@
+{% extends 'baze.html' %}
+{% load static %}
+
+{% block title %}
+  Location Véhicule
+{% endblock  %}
+<main id="main">
+  {% block breadcrumbs %}
+    <!-- ======= Breadcrumbs ======= -->
+      <div class="breadcrumbs d-flex align-items-center" style="background-image: url('{% static 'ass/img/v1.avif' %} ');">
+        <div class="container position-relative d-flex flex-column align-items-center" data-aos="fade">
+          <h3>
+            {% block h3 %}
+              Location Véhicule
+            {% endblock h3 %}
+          </h3>
+          <ol>
+            <li><a href="{% url 'home' %}">Home</a></li>
+            <li>
+               {% block li %}Location Véhicule{% endblock li %}
+            </li>
+          </ol>
+        </div>
+      </div>
+    <!-- End Breadcrumbs -->
+  {% endblock breadcrumbs %}
+  {% block content %}
+  <section id="project-details" class="project-details">
+    <div class="container" data-aos="fade-up" data-aos-delay="100">
+      <div class="row justify-content-between gy-4 mt-4">
+        <div class="col-lg-8">
+          <div class="portfolio-description">
+            <h2>Location de Vehicule</h2>
+            <p>
+              Chez P&Bentreprise, nous sommes fiers d'offrir une gamme complète de services de location de véhicules adaptés à vos besoins.
+              Que vous ayez besoin d'une voiture pour un déplacement professionnel, des vacances en famille ou tout simplement pour remplacer votre véhicule actuel en cas de réparation,
+              nous avons la solution parfaite pour vous.
+            </p>
+            <p>
+              <b>Flotte diversifiée</b>:
+              Nous disposons d'une vaste flotte de véhicules de toutes tailles et de toutes catégories pour répondre à vos besoins spécifiques. 
+              Que vous ayez besoin d'une petite voiture économique pour une courte escapade en ville ou d'un SUV spacieux pour une aventure en famille, 
+              nous avons le véhicule parfait pour vous.
+            </p>
+            <p>
+              <b>Tarifs compétitifs</b> :
+              Chez P&Bentreprise, nous nous engageons à vous offrir les meilleurs tarifs de location possible. 
+              Nous proposons des tarifs compétitifs et transparents, sans frais cachés ni mauvaises surprises. 
+              De plus, nous offrons régulièrement des promotions et des offres spéciales pour vous permettre d'économiser encore plus sur votre location de voiture.
+            </p>
+            <p>
+              <b>Réservation facile</b> :
+              Notre processus de réservation est simple et pratique. 
+              Vous pouvez réserver votre voiture en ligne, 
+              par téléphone ou en personne dans l'une de nos agences. 
+              Nous vous offrons également la possibilité de personnaliser votre réservation en ajoutant des extras tels que des sièges pour enfants, un système de navigation GPS ou une assurance supplémentaire.
+            </p>
+            <p>
+              <b>Service client de qualité</b> :
+              Chez P&Bentreprise, la satisfaction de nos clients est notre priorité absolue. 
+              Notre équipe dévouée de professionnels de la location automobile est là pour vous aider à trouver le véhicule parfait pour vos besoins et à répondre à toutes vos questions. 
+              Nous sommes disponibles pour vous assister à chaque étape de votre voyage, de la réservation à la restitution du véhicule.
+            </p>
+            <p>
+              <b>Flexibilité de location</b> :
+              Que vous ayez besoin d'une location de courte durée, d'une location à long terme ou d'une location aller-simple, nous avons des options flexibles pour répondre à vos besoins. 
+              Nous proposons également des services de livraison et de récupération à domicile pour plus de commodité.
+            </p>
+          </div>
+        </div>
+        <div class="col-lg-3">
+          <div class="portfolio-info">
+            <h3>Detail</h3>
+            <p>
+              <div class="slides-1 portfolio-details-slider swiper">
+                <div class="swiper-wrapper align-items-center">
+                  <div class="swiper-slide">
+                    <img style="height: 100%; width: 100%;" src="{% static 'ass/img/v1.avif' %}" alt="">
+                  </div>
+                  <div class="swiper-slide">
+                    <img style="height: 100%; width: 100%;" src="{% static 'ass/img/merco.avif' %}" alt="">
+                  </div>
+                  <div class="swiper-slide">
+                    <img style="height: 100%; width: 100%;" src="{% static 'ass/img/v4.avif' %}" alt="">
+                  </div>
+                  <div class="swiper-slide">
+                    <img style="height: 100%; width: 100%;" src="{% static 'ass/img/v8.avif' %}" alt="">
+                  </div>
+                  <div class="swiper-slide">
+                    <img style="height: 100%; width: 100%;" src="{% static 'ass/img/dzire-0.png' %}" alt="">
+                  </div>
+                  <div class="swiper-slide">
+                    <img style="height: 100%; width: 100%;" src="{% static 'ass/img/car0.jpg' %}" alt="">
+                  </div>
+                 
+                </div>
+              </div>
+            </p>
+            <ul>
+              <li><strong>Contactez-nous</strong> <span>+225 27 21 73 78 96</span></li>
+              <li><strong>Email</strong> <span> pacomebertine@gmail.com</span></li>
+              <li>
+                <a href="{% url 'service' %}" class="btn-visit align-self-start">Retour aux services</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+{% endblock %}
+     
+
+

@@ -1,0 +1,274 @@
+{% extends 'bases.html' %}
+{% load static %}
+{% block title %}Journal Saisie Comptabilité{% endblock title %}
+
+{% block breadcrumb %}
+
+{% if form_admin.is_valid %}
+<div style="font-size:14px">
+  <i class="fa fa-shopping-cart"></i> Charges Fixes
+  {{charges_fixes_totales}}
+</div>
+<div style="font-size:14px">
+  <i class="fa fa-cart-arrow-down"></i> Charges Variables {{charges_variables_totales}}
+</div>
+<div style="font-size:14px">
+  <i class="fa fa-gears"></i> Charges Administratives {{charges_adminis_totales}}
+</div>
+<div style="font-size:14px">
+  <i class="fa fa-gears"></i> Charges Totales {{Somme_charge_Totale}}
+</div>
+{% else %}
+<div style="font-size:14px">
+  <i class="fa fa-shopping-cart"></i> Charges Fixes
+  {{Total_charg_fix_format}}
+</div>
+<div style="font-size:14px">
+  <i class="fa fa-cart-arrow-down"></i> Charges Variables {{Total_charg_var_format}}
+</div>
+<div style="font-size:14px">
+  <i class="fa fa-gears"></i> Charges Administratives {{Total_charg_admin_format}}
+</div>
+<div style="font-size:14px">
+  <i class="fa fa-gears"></i> Charges Totales {{total_charge_format}}
+</div>
+{% endif %}
+{% endblock breadcrumb %}
+
+{% block content %}
+{% if form_admin.is_valid %}
+<div class="col-md-3 col-lg-3">
+  <div class="widget-small primary coloured">
+    <i style="font-size: 24px;" class="icon fa fa-dollar"></i>
+    <div class="info">
+      <b>Recette</b>
+      <p><b>{{recettes_totales}}</b></p>
+    </div>
+  </div>
+</div>
+<div class="col-md-3 col-lg-3">
+  <div class="widget-small info coloured">
+    <i style="font-size: 24px; display:flex" class="icon fa fa fa-3x">R</i>
+    <div class="info">
+      <b>Marge Brute</b>
+      <p><b>
+          {{resultat_total}}
+        </b></p>
+    </div>
+  </div>
+</div>
+<div class="col-md-3 col-lg-3">
+  <div class="widget-small warning coloured">
+    <i style="font-size: 24px;display:flex" class="icon fa fa-shopping-cart fa-3x"></i>
+    <div class="info">
+      <b>Marge de Contribution</b>
+      <p><b>{{taux_vehi}} %</b></p>
+    </div>
+  </div>
+</div>
+<div class="col-md-3 col-lg-3">
+  <div class="widget-small danger coloured">
+    <i style="font-size: 24px;display:flex" class="icon fa fa-cart-arrow-down fa-3x"></i>
+    <div class="info">
+      <b>Resultat</b>
+      <p><b>{{resultat_total}}</b></p>
+    </div>
+  </div>
+</div>
+{% else %}
+<div class="col-md-3 col-lg-3">
+  <div class="widget-small primary coloured">
+    <i style="font-size: 24px;" class="icon fa fa-dollar"></i>
+    <div class="info">
+      <b>Recette</b>
+      <p><b>{{Total_recette_format}}</b></p>
+    </div>
+  </div>
+</div>
+<div class="col-md-3 col-lg-3">
+  <div class="widget-small info coloured">
+    <i style="font-size: 24px; display:flex" class="icon fa fa fa-3x">R</i>
+    <div class="info">
+      <b>Marge Brute</b>
+      <p><b>
+          {{marg_brute_format}}
+        </b></p>
+    </div>
+  </div>
+</div>
+<div class="col-md-3 col-lg-3">
+  <div class="widget-small warning coloured">
+    <i style="font-size: 24px;display:flex" class="icon fa fa-percent fa-3x"></i>
+    <div class="info">
+      <b>Marge de Contribution</b>
+      <p><b>{{taux_marge_format}}</b></p>
+    </div>
+  </div>
+</div>
+<div class="col-md-3 col-lg-3">
+  <div class="widget-small danger coloured">
+    <i style="font-size: 24px;display:flex" class="icon fa fa-cart-arrow-down fa-3x">T</i>
+    <div class="info">
+      <b>Resultat</b>
+      <p><b>{{resultat_format}}</b></p>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<div class="col-md-12">
+  <div class="tile row">
+    <div class="col-md-4">
+      <a class="btn btn-primary text-light w-100" href="{% url 'list_charg_administ' %}">Historique des charges
+        administratives</a>
+      <div class="x_panel">
+        <h6 class="mb-4">Filtre</h6>
+        <form method="get" action="{% url 'add_charg_administ' %}">
+          {% csrf_token %}
+          De {{ form_admin.date_debut }}
+          A {{ form_admin.date_fin }}
+          <br>
+          <input class="text-center btn btn-outline-primary" style="display:flexbox; position:center" type="submit"
+            value="Afficher">
+          <a class="btn btn-outline-primary" href="{% url 'add_charg_administ' %}"><i class="fa fa-refresh"
+              style="height: 100%"></i></a>
+        </form>
+      </div>
+
+      <div class="x_panel">
+        {% if messages %}
+          {% for msg in messages %}
+            <div id="message" class="alert alert-success alert-dismissible fade show" role="alert">
+              <p style="font-size: 16px;" class="text-center">{{msg}}</p>
+            </div>
+          {% endfor %}
+        {% endif %}
+        <br />
+        <form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left" method="POST"
+          enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="col-md-6 col-sm-6  form-group date" id="datetimepicker1" data-target-input="nearest">
+            <label for="fullname"><b>Date</b></label>
+            {{form.date}}
+          </div>
+          <div class="col-md-6 col-sm-6  form-group">
+            <label for="fullname"><b>Cpte Comptable</b></label>
+            {{form.cpte_comptable}}
+          </div>
+          <div class="col-md-6 col-sm-6  form-group">
+            <label for="fullname"><b>N° Piece</b></label>
+            {{form.Num_piece}}
+          </div>
+          <div class="col-md-6 col-sm-6  form-group">
+            <label for="fullname"><b>N° Facture</b></label>
+            {{form.Num_fact}}
+          </div>
+          <div class="col-md-6 col-sm-6  form-group">
+            <label for="fullname"><b>Libelle</b></label>
+            {{form.libelle}}
+          </div>
+          <div class="col-md-6 col-sm-6  form-group">
+            <label for="fullname"><b>Montant</b></label>
+            {{form.montant}}
+          </div>
+          <div class="col-md-12 col-sm-6  form-group">
+            {{form.auteur}}
+          </div>
+          <div class="text-center col-md-12 col-sm-3 ">
+            <input type="submit" value="Enregistrer"
+              style="box-shadow: 0 0 3px 0 rgb(75, 75, 75); height:35px; width:100px; border-radius:8px; border-color: rgb(250, 186, 186);background:rgb(182, 1, 1); color:aliceblue">
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="col-md-8">
+
+      <div class="shadow-sm p-2 mb-2 bg-white rounded">
+        {% if form_admin.is_valid %}
+        <div>
+          <canvas id="CA">
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+          </canvas>
+        </div>
+        <script>
+          const cta = document.getElementById('CA');
+          var labels = {{ labels| safe}};
+          var chargadminData = {{ charg_administ_data| safe}};
+          new Chart(cta, {
+            type: 'line',
+            data: {
+              labels: labels,
+              datasets: [{
+                label: "Evolution Chiffre d'Affaire",
+                data: chargadminData,
+                fill: true,
+                borderColor: 'rgb(13,71,161)',
+                tension: 0.4,
+                backgroundColor: [
+                  'rgb(100,181,246)',
+                ],
+              }]
+            },
+            options: {
+              scales: {
+                y: {
+                  beginAtZero: true,
+                  easing: 'linear',
+                  from: 1,
+                }
+              }
+            }
+          });
+        </script>
+        {% else %}
+        <div>
+          <canvas id="CA">
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+          </canvas>
+        </div>
+        <script>
+          const cta = document.getElementById('CA');
+          new Chart(cta, {
+            type: 'line',
+            data: {
+              labels: {{ labels_mois| safe}},
+            datasets: [{
+              label: "Evolution De Charges Administratives",
+              data: {{ charg_administ_mois }},
+            fill: true,
+            borderColor: 'rgb(13,71,161)',
+            tension: 0.4,
+            backgroundColor: [
+              'rgb(100,181,246)',
+            ],
+                    }]
+                  },
+            options: {
+            scales: {
+              y: {
+                beginAtZero: true,
+                easing: 'linear',
+                from: 1,
+              }
+            }
+          }
+                });
+        </script>
+        {% endif %}
+      </div>
+
+
+
+    </div>
+  </div>
+</div>
+</div>
+{% endblock content %}
+
+{% block extrascripts %}
+<script>
+  var name = "{{user.id}}";
+  document.getElementById("elder").value = name;
+</script>
+{% endblock extrascripts %}

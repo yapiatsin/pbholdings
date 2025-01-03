@@ -1,0 +1,92 @@
+{% extends 'bases.html' %}
+{% load static %}
+
+{% block title %}Modifier un Véhicule{% endblock title %}
+{% block breadcrumb %}
+  <ul class="app-breadcrumb breadcrumb">
+    <li class="breadcrumb-item" style="font-size: 24px;"> <a title="Retour" href="{% url 'listvehi' %}" class="btn btn-outline-light"><i style="color:red;" class="fa fa-reply-all"></i></a> Modifier un Véhicule</li>
+  </ul>
+{% endblock breadcrumb %}
+
+{% block content %}
+<div class="col-md-12">
+    <div class="tile row">
+      	<div class="col-md-12">
+      	  	<div class="x_panel">
+      	    	{% if messages %}
+      	    	  	{% for msg in messages %}
+      	    	  	  	<div id="message" class="alert alert-success alert-dismissible fade show" role="alert">
+      	    	  	  	   <p style="font-size: 16px;" class="text-center">{{msg}}</p>
+      	    	  	  	</div>
+      	    	  	{% endfor %}
+      	    	{% endif %}
+				<br/>
+				<form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left" method="POST" enctype="multipart/form-data">
+				{% csrf_token %}
+					<div class="col-md-4 col-sm-6  form-group">
+						<label for="fullname"><b>Categorie</b></label>
+						{{form.category}}
+					</div>
+					<div class="col-md-4 col-sm-6 form-group">
+						<label for="fullname"><b>Immatriculation</b></label>
+						{{form.immatriculation}}
+					</div>
+					<div class="col-md-4 col-sm-6 form-group">
+						<label for="fullname"><b>Marque</b></label>
+						{{form.marque}}
+					</div>
+					<div class="col-md-4 col-sm-6 form-group">
+						<label for="fullname"><b>Durée</b></label>
+						{{form.duree}}
+					</div>
+					<div class="col-md-4 col-sm-6 form-group">
+						<label for="fullname"><b>Cout d'Acquisition</b></label>
+						{{form.cout_acquisition}}
+					</div>
+					<div class="col-md-4 col-sm-6 form-group">
+						<label for="fullname"><b>Numero chassis</b></label>
+						{{form.num_Chassis}}
+					</div>
+					<div class="col-md-6 col-sm-6 form-group">
+						<label for="fullname"><b>Photo</b></label>
+						{{form.image}}
+					</div>
+					<div class="col-md-6 col-sm-6 form-group">
+						<label for="fullname"><b>Photo Carte Grise</b></label>
+						{{form.photo_carte_grise}}
+					</div>
+					<div class="col-md-6 col-sm-6 form-group">
+						<label for="fullname"><b>Date d'Acquisition</b></label>
+						{{form.date_acquisition}}
+					</div>
+					<div class="col-md-6 col-sm-6 form-group">
+						<label for="fullname"><b>Numero Carte Grise</b></label>
+						{{form.num_cart_grise}}
+					</div>
+					<div class="col-md-6 col-sm-6 form-group">
+						<label for="fullname"><b>Date Edit Carte Grise</b></label>
+						{{form.dat_edit_carte_grise}}
+					</div>
+					<div class="col-md-6 col-sm-6 form-group">
+						<label for="fullname"><b>Date Mise en Service</b></label>
+						{{form.date_mis_service}}
+					</div>
+					<div class="col-md-12 col-sm-6  form-group">
+						{{form.auteur}}
+					</div>
+					<div class="text-center col-md-12 col-sm-3 ">
+						<input type="submit" value="Enregistrer" style="box-shadow: 0 0 3px 0 rgb(75, 75, 75); height:35px; width:100px; border-radius:8px; border-color: rgb(250, 186, 186);background:rgb(182, 1, 1); color:aliceblue">
+					</div>
+				</form>
+      	  	</div>
+      	</div>
+    </div>
+</div>
+{% endblock content %}
+{% block extrascripts %}
+    <script>
+      var name = "{{user.id}}";
+      document.getElementById("elder").value=name;
+    </script>
+{% endblock extrascripts %}
+

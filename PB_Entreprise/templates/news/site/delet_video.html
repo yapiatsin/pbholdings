@@ -1,0 +1,42 @@
+{% extends 'bases.html' %}
+{% load static %}
+
+{% block title %}P&BENTREPRISE{% endblock title %}
+{% block breadcrumb %}
+  <ul class="app-breadcrumb breadcrumb">
+    <li class="breadcrumb-item" style="font-size: 24px;"> Supprimer Video</li>
+  </ul>
+{% endblock breadcrumb %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-md-12">
+      <div class="tile row">
+        <div class="col-md-2"></DIV>
+        <div class="col-md-8">
+          <div class="shadow-sm p-3 mb-3 bg-white rounded">
+            <div class="x_title">
+              <h2><a href="{% url 'addvideo' %}" class="btn btn-outline-light"><i style="color:red;" class="fa fa-reply-all"> Retour</i></a>Information De La Video</h2>
+              <div class="clearfix"></div>
+            </div>
+            <div class="panel-body">
+              <div class="text-center">
+                <p><b>Tritre:</b> {{video.title|upper}}</p>
+                <p class="title">Date: {{video.date}}</p>
+                <p class="title">Video: <br> {{video.video.url}}
+              </div>
+              <div class="text-center mtop20">
+                <form method="POST">
+                  {% csrf_token %}
+                  <div class="col-md-6 col-sm-6 offset-md-3">
+                    <input type="submit" value="Supprimer" onclick="return confirm('Etes-vous sûre de vouloir supprimer les informations concernant {{ video.title|upper }} - {{ video.date|upper }}? car si vous supprimer toutes les informations liées seront perdues')" style="box-shadow: 0 0 3px 0 rgb(75, 75, 75); height:35px; width:100px; border-radius:8px; border-color: rgb(250, 186, 186);background:rgb(182, 1, 1); color:aliceblue">
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock content %}

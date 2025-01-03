@@ -1,0 +1,76 @@
+{% extends 'bases.html' %}
+{% load static %}
+
+{% block title %}Detail Piece{% endblock title %}
+  {% block breadcrumb %}
+    <ul class="app-breadcrumb breadcrumb">
+      <li class="breadcrumb-item" style="font-size: 24px;"><a href="{% url 'list_piece' %}" class="btn btn-outline-light"><i style="color:red;" class="fa fa-reply-all"></i></a>Detail De Piece</li>
+    </ul>
+    <div>
+      <a href="" onclick="window.print();"><i class="fa fa-print"></i>Imprimer</a>
+    </div>
+  {% endblock breadcrumb %}
+
+  {% block content %}
+  <div class="right_col" role="main">
+    <div class="">
+      <div class="clearfix"></div>
+        <div class="row">
+          <div class="col-md-12">
+            <div class="x_panel">
+              <div class="x_content">
+                <section class="content invoice">
+                  <div class="row invoice-info">
+                    <div class="col-sm-4 invoice-col">
+                      <address>
+                        <strong>P&BENTREPRISE, Inc.</strong>
+                        <br>795 Freedom Ave, Suite 600
+                        <br>Ab, KOUM 94107
+                        <br>Phone: 1 (804) 123-9876
+                        <br>Email: P&BENTREPRISE@GMAIL.COM
+                      </address>
+                    </div>
+                    <div class="col-sm-4 invoice-col">
+                      <address>
+                        <strong>Vehicule</strong>
+                        <br>immat: {{piece.reparation.vehicule.immatriculation}}
+                        <br>Marque {{piece.reparation.vehicule.marque}}
+                        <br>Categorie{{piece.reparation.vehicule.category}}
+                      </address>
+                    </div>
+                    <!-- /.col -->
+                    <div class="col-sm-4 invoice-col">
+                      <b>Nombre d'heure: {{decaissement_journalier.date}}</b>
+                      <br>Reçu du: {{piece.date_saisie}}
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="table">
+                      <table class="table table-striped text-center">
+                        <thead>
+                          <tr>
+                            <th>Libelle</th>
+                            <th>Cout</th>
+                            <th>Date Achat</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td>{{piece.libelle}}</td>
+                            <td>{{piece.cout}}</td>
+                            <td>{{piece.date_achat}}</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </section>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+</div>
+{% endblock content %}

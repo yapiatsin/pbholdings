@@ -1,0 +1,62 @@
+{% extends 'bases.html' %}
+{% load static %}
+
+{% block title %}Supprimer Recette{% endblock title %}
+	{% block breadcrumb %}
+	    <ul class="app-breadcrumb breadcrumb">
+	        <li class="breadcrumb-item text-danger"><i class="fa fa-trash fa-lg">/ Supprimer une recette</i></li>
+	    </ul>
+	{% endblock breadcrumb %}
+
+  	{% block content %}
+	<a href="{% url 'listrecet' %}" class="btn btn-outline-light"><i style="color:red;" class="fa fa-reply-all"> Retour</i></a>
+    <div class="col-md-12">
+        <div class="tile row">
+          	<div class="col-md-3"></div>
+          	<div class="col-md-6">
+          	  	<div class="x_panel">
+          	    	{% if messages %}
+          	    	  {% for msg in messages %}
+          	    	    <div id="message" class="alert alert-success alert-dismissible fade show" role="alert">
+          	    	      <p style="font-size: 16px;" class="text-center">{{msg}}</p>
+          	    	    </div>
+          	    	  {% endfor %}
+          	    	{% endif %}
+					<br />
+					<form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left" method="POST" enctype="multipart/form-data">
+						{% csrf_token %}
+						<div class="col-md-6 col-sm-6 form-group">
+							<label for="fullname"><b>Chauffeur:</b></label>
+							{{recette.chauffeur}}
+						</div>
+						<div class="col-md-6 col-sm-6 form-group">
+							<label for="fullname"><b>Date:</b></label>
+							{{recette.date}}
+						</div>
+						<div class="col-md-6 col-sm-6 form-group">
+							<label for="fullname"><b>Numero Facture:</b></label>
+							{{recette.numero_fact}}
+						</div>
+						<div class="col-md-6 col-sm-6 form-group">
+							<label for="fullname"><b>Numero Piece:</b></label>
+							{{recette.Num_piece}}
+						</div>
+						<div class="col-md-6 col-sm-6  form-group">
+							<label for="fullname"><b>Compte Comptable:</b></label>
+							{{recette.cpte_comptable}}
+						</div>
+						<div class="col-md-6 col-sm-6  form-group">
+							<label for="fullname"><b>Montant:</b></label>
+							{{recette.montant}} FCFA
+						</div>
+						<div class="text-center col-md-12 col-sm-3 ">
+							<input type="submit" value="Supprimer" onclick="return confirm('Etes-vous sûre de vouloir supprimer la recette concernant {{recette.chauffeur|upper}} - {{recette.montant}} FCFA? car si vous supprimer toutes les informations liées seront perdues')" style="box-shadow: 0 0 3px 0 rgb(75, 75, 75); height:35px; width:100px; border-radius:8px; border-color: rgb(250, 186, 186);background:rgb(182, 1, 1); color:aliceblue">
+						</div>
+					</form>
+          	  	</div>
+          	</div>
+          	<div class="col-md-3"></div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

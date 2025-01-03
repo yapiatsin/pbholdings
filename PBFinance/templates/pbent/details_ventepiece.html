@@ -1,0 +1,119 @@
+{% extends 'baze.html' %}
+{% load static %}
+
+{% block title %}
+  Ventes Pieces
+{% endblock  %}
+
+<main id="main">
+  {% block breadcrumbs %}
+    <!-- ======= Breadcrumbs ======= -->
+      <div class="breadcrumbs d-flex align-items-center" style="background-image: url('{% static 'ass/img/meca.jpg' %} ');">
+        <div class="container position-relative d-flex flex-column align-items-center" data-aos="fade">
+          <h3>
+            {% block h3 %}
+              Ventes Pieces
+            {% endblock h3 %}
+          </h3>
+          <ol>
+            <li><a href="{% url 'home' %}">Home</a></li>
+            <li>
+               {% block li %}Ventes Pieces{% endblock li %}
+            </li>
+          </ol>
+        </div>
+      </div>
+    <!-- End Breadcrumbs -->
+  {% endblock breadcrumbs %}
+  {% block content %}
+  <section id="project-details" class="project-details">
+    <div class="container" data-aos="fade-up" data-aos-delay="100">
+      <div class="row justify-content-between gy-4 mt-4">
+        <div class="col-lg-8">
+          <div class="portfolio-description">
+            <h2>Ventes de Pieces</h2>
+            <p>
+              P&Bentreprise est une entreprise spécialisée dans la vente de pièces automobiles pour une variété de marques et de modèles. Parmi les marques populaires qu'ils desservent, Suzuki est l'une des principales.
+              Les clients de P&Bentreprise peuvent compter sur une large gamme de pièces détachées d'origine et de qualité pour leurs véhicules Suzuki.
+              Que ce soit pour des modèles populaires comme la Swift, la Vitara, D-Zire, alto, S-presso ou d'autres modèles de la marque,
+              P&Bentreprise s'efforce de fournir une sélection complète de pièces pour répondre aux besoins de ses clients.
+              
+            </p>
+            <p>
+              <b>Pièces de moteur</b>:
+              Nous proposons une variété de pièces de moteur Suzuki, y compris des filtres à air, 
+              des filtres à huile, des bougies d'allumage, des courroies de distribution, des pompes à eau et bien plus encore.
+              Toutes nos pièces de moteur sont fabriquées selon les normes les plus strictes pour garantir des performances optimales et une longue durée de vie.
+            </p>
+            <p>
+              <b>Systèmes de freinage</b> :
+              Nous avons en stock une gamme complète de plaquettes de frein, de disques de frein, 
+              de tambours de frein et de liquide de frein adaptés à tous les modèles Suzuki. 
+              Nos pièces de freinage sont conçues pour offrir une excellente puissance de freinage et une durabilité exceptionnelle, 
+              assurant ainsi votre sécurité sur la route.
+            </p>
+            <p>
+              <b>Systèmes de suspension et direction</b> :
+              Nous fournissons des pièces de suspension et de direction de qualité supérieure, 
+              y compris des amortisseurs, des ressorts de suspension, des rotules, des barres stabilisatrices et des crémaillères de direction. 
+              Ces pièces garantissent une conduite confortable et une tenue de route précise pour votre Suzuki.
+            </p>
+            <p>
+              <b>Systèmes électriques et électroniques</b> :
+              Nous proposons une large sélection de pièces électriques et électroniques, 
+              telles que des alternateurs, des démarreurs, des batteries, des capteurs, des calculateurs et des systèmes d'allumage. 
+              Ces composants essentiels garantissent le bon fonctionnement de votre système électrique et électronique.
+            </p>
+            <p>
+              <b>Carrosserie et accessoires</b> :
+              Nous offrons également des pièces de carrosserie de qualité supérieure, 
+              y compris des pare-chocs, des rétroviseurs, des phares, des feux arrière, 
+              des portières et des capots. De plus, nous proposons une gamme d'accessoires pour personnaliser et améliorer l'apparence de votre Suzuki.
+            </p>
+          </div>
+        </div>
+        <div class="col-lg-3">
+          <div class="portfolio-info">
+            <h3>Detail</h3>
+            <p>
+              <div class="slides-1 portfolio-details-slider swiper">
+                <div class="swiper-wrapper align-items-center">
+                  <div class="swiper-slide">
+                    <img style="height: 100%; width: 100%;" src="{% static 'ass/img/m2.jpg' %}" alt="">
+                  </div>
+                  <div class="swiper-slide">
+                    <img style="height: 100%; width: 100%;" src="{% static 'ass/img/frein.jpg' %}" alt="">
+                  </div>
+                  <div class="swiper-slide">
+                    <img style="height: 100%; width: 100%;" src="{% static 'ass/img/rep1.jpg' %}" alt="">
+                  </div>
+                  <div class="swiper-slide">
+                    <img style="height: 100%; width: 100%;" src="{% static 'ass/img/electro.avif' %}" alt="">
+                  </div>
+                  <div class="swiper-slide">
+                    <img style="height: 100%; width: 100%;" src="{% static 'ass/img/being.jpg' %}" alt="">
+                  </div>
+                  <div class="swiper-slide">
+                    <img style="height: 100%; width: 100%;" src="{% static 'ass/img/vdg.jpg' %}" alt="">
+                  </div>
+                </div>
+              </div>
+            </p>
+            <ul>
+              <li><strong>Contactez-nous</strong> <span>+225 27 21 73 78 96</span></li>
+              <li><strong>Email</strong> <span> pacomebertine@gmail.com</span></li>
+              <li>
+                <a href="{% url 'service' %}" class="btn-visit align-self-start">Retour aux services</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+{% endblock %}
+     
+
+

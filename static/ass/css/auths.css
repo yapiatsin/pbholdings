@@ -1,0 +1,323 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+* {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+body{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    max-height: 100vh;
+    background-size: cover;
+    background-position: center;
+    background-color: #b4b4b4;
+}
+
+.wrapper-sigin{
+    margin-top: 20%;
+    position: relative;
+    width: 400px;
+    height: 460px;
+    background: transparent;
+    border: 2px solid rgb(225, 225, 255, .5);
+    border-radius: 20px;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 0 10px rgb(0, 0, 0, .5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+    overflow: hidden;
+    transition: transform .5s ease,height .2s ease;
+}
+.wrapper-sigin.active{
+    height: 580px;
+}
+.wrapper-sigin.active-popup{
+    transform: scale(1);
+}
+
+.wrapper-sigin .form-box{
+    width: 100%;
+    padding: 30px;
+}
+
+
+.wrapper-sigin .form-box.login{
+   transition: transform .18s ease;
+   transform: translateX(0);
+ }
+
+
+.wrapper-sigin.active .form-box.login{
+  transition: none;
+  transform: translateX(-400px);
+}
+
+.wrapper-sigin .form-box.register{
+    position: absolute;
+    transition: none;
+    transform: translateX(400px);
+}
+
+.wrapper-sigin.active .form-box.register{
+    transition: transform .18s ease;
+    transform: translateX(0);
+  }
+
+.wrapper-sigin .icon-close{
+    position:absolute;
+    top: 0;
+    right: 0;
+    width: 10%;
+    height: 10%;
+    background: #16293828;
+    font-size: 2em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 0 20px 0 20px;
+    z-index: 1;
+}
+
+.wrapper-sigup{
+    margin-top: 2%;
+    position: relative;
+    width: 400px;
+    height: 590px;
+    background: transparent;
+    border: 2px solid rgb(225, 225, 255, .5);
+    border-radius: 20px;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 0 10px rgb(0, 0, 0, .5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+    overflow: hidden;
+    transition: transform .5s ease,height .2s ease;
+}
+.wrapper-sigup.active{
+    height: 580px;
+}
+.wrapper-sigup.active-popup{
+    transform: scale(1);
+}
+
+.wrapper-sigup .form-box{
+    width: 100%;
+    padding: 30px;
+}
+
+
+.wrapper-sigup .form-box.login{
+   transition: transform .18s ease;
+   transform: translateX(0);
+ }
+
+
+.wrapper-sigup.active .form-box.login{
+  transition: none;
+  transform: translateX(-400px);
+}
+
+.wrapper-sigup .form-box.register{
+    position: absolute;
+    transition: none;
+    transform: translateX(400px);
+}
+
+.wrapper-sigup.active .form-box.register{
+    transition: transform .18s ease;
+    transform: translateX(0);
+  }
+
+.wrapper-sigup .icon-close{
+    position:absolute;
+    top: 0;
+    right: 0;
+    width: 10%;
+    height: 10%;
+    background: #16293828;
+    font-size: 2em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 0 20px 0 20px;
+    z-index: 1;
+}
+.wrapper-sigup #message {
+    color: red;
+    text-decoration: none;
+    font-size: 11px;
+    text-align: center;
+}
+.wrapper-sigup .input-box select{
+    display: block;
+    height: 40px;
+    width: 100%;
+    background-color:transparent;
+    border-radius: 3px;
+    padding: 0 10px;
+    margin-top: 8px;
+    font-size: 14px;
+    font-weight: 300;
+    color: rgb(206, 206, 206);
+    border: none;
+}
+.wrapper-sigup .form-box h2{
+    color: rgb(255, 255, 255);
+    margin-top: 8%;
+    position: relative;
+}
+.form-box h2{
+    font-size: 1.5em;
+    color: #ffffff;
+    text-align: center;
+}
+
+#message p{
+    font-size: 1em;
+    color: #ff0000;
+    text-align: center;
+    margin-top: 14px;
+}
+
+.input-box{
+    position: relative;
+    width: 100%;
+    height: 50px;
+    border-bottom: 2px solid #162938;
+    margin: 30px 0;
+}
+.input-box label{
+    position: absolute;
+    top: 50%;
+    left: 5px;
+    transform: translateY(-50%);
+    font-size: 1em;
+    color: #e6e6e6;
+    font-weight: 500;
+    pointer-events: none;
+    transition: .5s;
+}
+.input-box input{
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 1em;
+    color: #e6e6e6;
+    font-weight: 600;
+    padding: 0 25px 0 5px;
+}
+
+.input-box input:focus~label,
+.input-box input:valid~label{
+    top: -2px;
+}
+
+.input-box .icon{
+    position: absolute;
+    right: 8px;
+    font-size: 1.2em;
+    color: #e6e6e6;
+    line-height: 57px;
+}
+.remember-forgot{
+    font-size: .9em;
+    color: #162938;
+    font-weight: 500;
+    margin: -15px 0 15px;
+    display: flex;
+    justify-content: space-between;
+}
+.remember-forgot label input{
+    accent-color: #162938;
+    margin-right: 3px;
+}
+
+.remember-forgot a{
+    color: #162938;
+    text-decoration: none;
+}
+
+.remember-forgot a:hover{
+    text-decoration: underline;
+    color: #1a4f77;
+}
+
+.btn {
+    background-image: linear-gradient(to right, #2e2d2d, #3f3f3fd7, #3f3f3fd7,#9b9b9ba6,#3f3f3fd7, #3f3f3fd7, #2e2d2d);
+    
+}
+
+.buttons {
+    text-align: center;
+}
+
+.wrapper-sigup .btn {
+    margin-top:-18px;
+}
+.btn {
+    width: 100%;
+    font-size: 16px;
+    font-weight: 60;
+    color: #fff;
+    cursor: pointer;
+    height: 40px;
+    text-align:center;
+    border: none;
+    background-size: 300% 100%;
+    letter-spacing: 5px;
+    border-radius: 50px;
+    moz-transition: all .4s ease-in-out;
+    -o-transition: all .4s ease-in-out;
+    -webkit-transition: all .4s ease-in-out;
+    transition: all .4s ease-in-out;
+}
+
+.btn:hover {
+    background-position: 100% 0;
+    moz-transition: all .4s ease-in-out;
+    -o-transition: all .4s ease-in-out;
+    -webkit-transition: all .4s ease-in-out;
+    transition: all .4s ease-in-out;
+}
+
+.btn:focus {
+    outline: none;
+}
+
+.login-register{
+    font-size: .9em;
+    color: #162938;
+    text-align: center;
+    font-weight: 500;
+    margin: 25px 0 10px;
+}
+.wrapper-sigup .login-register {
+    margin-top:14px;
+}
+.login-register p a{
+    color: #fafafa;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.login-register p {
+    color: #fafafa93;
+    text-decoration: none;
+    font-weight: 600;
+}
+.login-register p a:hover{
+    text-decoration: underline;
+}
+

@@ -1,0 +1,150 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link href="{% static 'icn.png' %}" rel="icon">
+    <title>{% block title %}P&BENTREPRISE | Connexion{% endblock title %} </title>
+    <!-- Tell the browser to be responsive to screen width -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="{% static 'pb/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css' %}">
+    <!-- Toastr -->
+    <link rel="stylesheet" href="{% static 'pb/plugins/toastr/toastr.min.css' %}">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="{% static 'pb/plugins/fontawesome-free/css/all.min.css' %}">
+
+    <!-- Ionicons -->
+    <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <!-- icheck bootstrap -->
+    <link rel="stylesheet" href="{% static 'pb/plugins/icheck-bootstrap/icheck-bootstrap.min.css' %}">
+
+    <link rel="stylesheet" href="{% static 'pb/dists/css/adminlte.min.css' %}">
+    <!-- Google Font: Source Sans Pro -->
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+
+    <style>
+        .video-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+        }
+        
+        .login-box {
+            position: relative;
+            z-index: 1;
+        }
+        
+        body {
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body class="hold-transition login-page">
+    <video class="video-background" playsinline autoplay muted loop>
+        <source src="{% static 'ass/img/sld.mp4' %}" type="video/mp4">
+    </video>
+
+    <div class="login-box">
+        <div class="login-logo">
+            <a href="" class='text-light'><b>PBENTREPRISE</b></a>
+        </div>
+        <div class="card" style="border-radius: 10px; background: rgba(255, 255, 255, 0.2);border-radius: 16px;
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);backdrop-filter: blur(5px);
+        -webkit-backdrop-filter: blur(5px); border: 1px solid rgba(255, 255, 255, 0.3);">
+            <!-- <div class="card-body login-card-body" style="border-radius: 10px; background-image: radial-gradient(rgba(201, 201, 201, 0.514) 10px, rgb(240, 240, 240) 30%, #ffffffc0 50%);"> -->
+            <div class="card-body login-card-body" style="background: rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.3);">
+                <p class="login-box-msg text-light" style="font-weight:700">CONNECTEZ-VOUS</p>
+                <form method="POST" style="border-radius: 20px;">
+                    {% csrf_token %}
+                    <div class="input-group mb-3 ">
+                        <input type="email" class="form-control" placeholder="Email@gmail..." name="email" style="background: rgba(255, 255, 255, 0.2); border-radius: 16px 0px 0px 16px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); backdrop-filter:
+                    blur(5px); -webkit-backdrop-filter: blur(5px); border: 1px solid rgba(255, 255, 255, 0.3);" required>
+                        <div class="input-group-append">
+                            <div class="input-group-text" style="background-color: rgba(236, 236, 236, 0.479); border-radius: 0px 16px 16px 0px">
+                                <span class="fas fa-at" style="color: rgba(129, 129, 129, 0.479); "></span>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="{% url 'mot_passe_oublie' %}" class="text-left p-0" style="display: flex; margin-left: 175px; color: #ffffff; position:relative;font-weight:500;font-size:14px">Mot de passe oublié</a>
+                    <div class="input-group mb-3">
+                        <input type="password" class="form-control" placeholder="Mot de passe..." name="password" style="background: rgba(255, 255, 255, 0.2); border-radius: 16px 0px 0px 16px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); backdrop-filter:
+                    blur(5px); -webkit-backdrop-filter: blur(5px); border: 1px solid rgba(255, 255, 255, 0.3); " required>
+                        <div class="input-group-append">
+                            <div class="input-group-text" style="background-color: rgba(236, 236, 236, 0.479); border-radius: 0px 16px 16px 0px">
+                                <span class="fas fa-key" style="color: rgba(129, 129, 129, 0.479);"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3 text-center">
+                        <button type="submit" class="btn btn-default text-center" style="border-radius: 50px; background: rgba(255, 255, 255, 0.2); box-shadow: 0 1px 4px rgba(0, 0, 0, 0.397); color: #1403009d; backdrop-filter: blur(5px); -webkit-backdrop-filter:
+                    blur(5px); border: 1px solid rgba(255, 255, 255, 0.3); ">
+                        CONNEXION
+                        </button>
+                    </div>
+
+                    {% if messages %} 
+                        {% for msg in messages %} 
+                            {% if msg.tags == 'error' %}
+                                <div class="alert alert-danger alert-dismissible fade show text-center" role="alert">
+                                    {{msg}}
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                            {% else %}
+                                <div class="alert alert-success alert-dismissible fade show text-center" role="alert">
+                                    {{msg}}
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                            {% endif %} 
+                        {% endfor %} 
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- /.login-box -->
+    <script>
+        document.addEventListener("DOMContentLoaded ", function() {
+            var myModal = new bootstrap.Modal(document.getElementById('modal-default'));
+            myModal.show();
+
+            setTimeout(function() {
+                myModal.hide();
+            }, 4000);
+        });
+    </script>
+    <!-- jQuery -->
+    <script src="{% static 'pb/plugins/jquery/jquery.min.js' %} "></script>
+    <!-- Bootstrap 4 -->
+    <script src="{% static 'pb/plugins/bootstrap/js/bootstrap.bundle.min.js' %} "></script>
+    <!-- AdminLTE App -->
+    <script src="{% static 'pb/dists/js/adminlte.min.js' %} "></script>
+    <!-- SweetAlert2 -->
+    {% comment %}
+    <script src="{% static 'plugins/sweetalert2/sweetalert2.min.js' %} "></script> {% endcomment %}
+    <!-- Toastr -->
+    {% comment %}
+    <script src="{% static 'plugins/toastr/toastr.min.js' %} "></script> {% endcomment %}
+
+</body>
+
+</html>

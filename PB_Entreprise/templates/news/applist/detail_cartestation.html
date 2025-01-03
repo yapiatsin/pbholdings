@@ -1,0 +1,51 @@
+{% extends 'bases.html' %}
+{% load static %}
+
+{% block title %}Detail Carte de stationnement{% endblock title %}
+
+  {% block breadcrumb %}
+    <ul class="app-breadcrumb breadcrumb">
+      <li class="breadcrumb-item text-danger">
+        <a href="{% url 'listemp_arret' %}" class="btn btn-outline-danger text-center"><i class="fa fa-reply-all"></i>Retour</a>
+        <i class="fa fa fa-lg"></i>Detail Carte de stationnement
+      </li>
+    </ul>
+  {% endblock breadcrumb %}
+
+  {% block content %}
+    
+    <div class="col-md-12">
+      <div class="tile row">
+        <div class="col-md-12" style="font-size: 20px;">Detail du temps d'arrêt
+        </div>
+        <div class="col-md-4">
+          <img style="height: 260px;width:300px" src="{{tempsarret.vehicule.image.url}}" alt="" srcset="">
+        </div>
+
+        <div class="col-md-8">
+          <div class="x_panel" style="font-size: 20px;">
+            <div class="col-md-12 col-sm-6 form-group">
+              <b>Immatriculation:</b> {{tempsarret.vehicule.immatriculation}}
+            </div>
+            <div class="col-md-12 col-sm-6 form-group">
+              <b>Date Entrée:</b> {{tempsarret.date_debut}}
+            </div>
+            <div class="col-md-12 col-sm-6 form-group">
+              <b>Date Sortie:</b> {{tempsarret.date_fin}}
+            </div>
+            <div class="col-md-12 col-sm-6 form-group">
+              <b>Motif:</b> {{tempsarret.motif}}
+            </div>
+            <div class="col-md-12 col-sm-6 form-group">
+              <b>Autre Motif:</b> {{tempsarret.motif_autre}}
+            </div>
+            <div class="col-md-12 col-sm-6 form-group">
+              <b>Recette:</b> {{tempsarret.recet}} FCFA
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  <button class="btn btn-outline-info text-center" onclick="window.print();"><i class="fa fa-print"></i>Imprimer</button>
+</div>
+{% endblock content %}

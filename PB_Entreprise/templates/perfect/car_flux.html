@@ -1,0 +1,134 @@
+{% extends 'perfect/bases.html' %} 
+{% load static %} 
+{% block title %}Balance analytique{% endblock title %} 
+{% block page_title %}
+    Balance Analytique
+{% endblock page_title %} 
+
+{% block main_content %}
+<div class="col-md-12">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="" style="border-radius:20px">
+                <div id="" class="">
+                    <div class="row p-0 m-0">
+                        <div class="col-md-4">
+                        <div class="card" style="box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);backdrop-filter: blur(5.2px);-webkit-backdrop-filter: blur(5.2px);">
+                                <div class="card-header">
+                                <h3 class="card-title">
+                                        <button type="button" class="btn btn-default" id="printButton">PDF <i class='fa fa-file-pdf-o'></i></button>
+                                        <button type="button" class="btn btn-default">Excell <i class='fa fa-file-excel-o'></i></button>
+                                    </h3>
+                                    <div class="card-tools">
+                                        <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+                                    </div>
+                                </div>
+
+                                <div class="card-body">
+                                    <table id="example1" class="table table-bordered table-striped">
+                                        <thead>
+                                            <tr class=" text-center text-danger ">
+                                                <th>IMMATRICULATION</th>
+                                                <th>MARQUE-CATEGORIE</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody> 
+                                            {% if vehicule %} 
+                                                {% for u in vehicule %}
+                                                    <tr class="text-center">
+                                                        <td><a href="{% url 'bilan-car-detail' u.pk %}" class="mr-3 text-primary">{{u.immatriculation}}</a></td>
+                                                        <td>{{u.immatriculation}}-{{u.category}}</td>
+                                                    </tr>
+                                                {% endfor %} 
+                                            {% endif %}
+                                        </tbody>
+                                        <tfoot>
+                                            <tr class="text-center">
+                                                <th colspan="2"></th>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card" style="box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); backdrop-filter: blur(5.2px); -webkit-backdrop-filter: blur(5.2px);">
+                                <div class="card-header">
+                                    <h3 class="card-title text-danger" style="font-weight:700">
+                                    </h3>
+                                    <div class="card-tools">
+                                        <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <table id="example">
+                                        <thead>
+                                            <tr>
+                                                <th colspan="12" style="text-align: center; padding: 20px;">
+                                                    {{ car.immatriculation }}
+                                                </th>
+                                            </tr>
+                                            <tr>
+                                                <th colspan="2" rowspan="2" style="color: rgb(3, 92, 159); color:red">
+                                                    
+                                                    {% if car.image %}
+                                                        <img src="{{ car.image.url }}" style="height: 100px; width: 130px;">
+                                                    {% else %}
+                                                        <img src="{% static 'alto.png' %}" style="height: 100px; width: 130px;">
+                                                    {% endif %}
+                                                </th>
+                                                <th colspan="8" style="color: rgb(3, 92, 159)">Période du : 01/01/24 au 31/12/24</th>
+                                            </tr>
+                                            <tr>
+                                                <th colspan="2" style="color: rgb(3, 92, 159)">Mouvements</th>
+                                                <th colspan="2" style="color: rgb(3, 92, 159)">Tenue de compte : FCFA</th>
+                                            </tr>
+                                            <tr class="text-primary">
+                                                <th>SECTION</th>
+                                                <th>INTITULE</th>
+                                                <th>DEBIT</th>
+                                                <th>CREDIT</th>
+                                                <th>SOLDE</th>
+                                                <th>EXERCICE PRECEDENT</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>C-681810</td>
+                                                <td>C-Arrondi salaire</td>
+                                                <td></td>
+                                                <td>C-37,980</td>
+                                                <td>C--37,860</td>
+                                                <td></td>
+                                            </tr>
+                                            <tr>
+                                                <td>684300</td>
+                                                <td>INDEMNITE DE TRANSPORT</td>
+                                                <td>1,230,000</td>
+                                                <td></td>
+                                                <td>1,230,000</td>
+                                                <td></td>
+                                            </tr>
+                                            <!-- Continue adding rows similarly -->
+                                        </tbody>
+                                        <tfoot>
+                                            <tr style="font-weight:700;color: rgb(3, 92, 159)">
+                                                <td colspan="2">D</td>
+                                                <td>95,082,020</td>
+                                                <td>89,719,940</td>
+                                                <td>200000</td>
+                                                <td></td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock main_content %}
+

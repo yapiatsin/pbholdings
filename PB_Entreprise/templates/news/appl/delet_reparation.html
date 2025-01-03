@@ -1,0 +1,91 @@
+{% extends 'bases.html' %}
+{% load static %}
+
+{% block title %}Supprimer Réparation{% endblock title %}
+  {% block breadcrumb %}
+  <ul class="app-breadcrumb breadcrumb">
+    <li class="breadcrumb-item" style="font-size: 24px;"><a href="{% url 'list_repa' %}" class="btn btn-outline-light"><i style="color:red;" class="fa fa-reply-all"></i></a> Supprimer Réparation</li>
+  </ul>
+{% endblock breadcrumb %}
+
+  {% block content %}
+    <div class="col-md-12">
+      <div class="tile row">
+        <div class="col-md-3">
+        </div>
+
+        <div class="col-md-6">
+          <div class="x_panel">
+            {% if messages %}
+              {% for msg in messages %}
+                <div id="message" class="alert alert-success alert-dismissible fade show" role="alert">
+                  <p style="font-size: 16px;" class="text-center">{{msg}}</p>
+                </div>
+              {% endfor %}
+            {% endif %}
+					  <br />
+            <form id="demo-form2" data-parsley-validate class="form-horizontal form-label-left" method="POST" enctype="multipart/form-data">
+					  	{% csrf_token %}
+              <div class="col-md-6 col-sm-6  form-group">
+                <b>Vehicule:</b> {{reparation.vehicule.immatriculation}}
+              </div>
+              <div class="col-md-6 col-sm-6  form-group">
+                <b>Marque:</b> {{reparation.vehicule.marque}}
+              </div>
+              <div class="col-md-6 col-sm-6  form-group">
+                <b>Categorie:</b> {{reparation.vehicule.category}}
+              </div>
+              <div class="col-md-6 col-sm-6  form-group">
+                <b>N° Fiche de Réparation:</b> #{{reparation.num_fich_repat}}
+              </div>
+              <div class="col-md-6 col-sm-6  form-group">
+                <b>Date Entrée:</b> {{reparation.date_entree}}
+              </div>
+              <div class="col-md-6 col-sm-6  form-group">
+                <b>Date Sortie:</b> {{reparation.date_sortie}}
+              </div>
+
+              <div class="col-md-12 col-sm-6  form-group">
+                {% if not reparation.pieces.all %}
+                  <h4 class="text-info">Pas de pièce pour cette réparation</h4>
+                {% else %}
+                  <h4 class="text-center"><u> Piece de reparation</u></h4><br>
+                  <table class="text-center" style="width:100%">
+                    <thead>
+                      <tr>
+                        <b>
+                          <th style="color: red;">libelle</th>
+                          <th style="color: red;">Coût</th>
+                          <th style="color: red;">Date d'achat</th>
+                        </b>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for piece in reparation.pieces.all %}
+                        <tr>
+                          <td><b><a><b>{{piece.libelle}}</b></a></b></td>
+                          <td><b>{{piece.cout}}</td></b>
+                          <td><b>{{piece.date_achat}}</td></b>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>  
+                {% endif %}
+              </div>
+              <div class="text-center col-md-12 col-sm-3 ">
+                <input type="submit" value="Supprimer" onclick="return confirm('Etes-vous sûre de vouloir supprimer les informations concernant {{reparation.vehicule.marque|upper}} - {{reparation.cout}} FCFA? car si vous supprimer toutes les informations liées seront perdues')" style="box-shadow: 0 0 3px 0 rgb(75, 75, 75); height:35px; width:100px; border-radius:8px; border-color: rgb(250, 186, 186);background:rgb(182, 1, 1); color:aliceblue">
+              </div>
+				    </form>
+          </div>
+        </div>
+        <div class="col-md-3">
+        </div>
+        
+      </div>
+          
+        
+    </div>
+
+</div>
+
+{% endblock content %}

@@ -1,0 +1,336 @@
+{% extends 'perfect/base.html' %} 
+{% load static %}
+{% block title %} Caisse{% endblock title %} 
+{% block search_form %} 
+    <form class="col-md-12" method="get">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-12">
+                <label>Date </label> {{ forms.date_bilan }}
+            </div>
+            <div class="col-md-12 text-center p-2">
+                <button class="btn btn-primary" type="submit">Valider</button>
+            </div>
+        </div>
+    </form>
+{% endblock search_form %} 
+
+{% block page_title %}
+    <img class="profile-user-img" style="border:none; height:45px;width:45px" src="{% static 'caisse.png' %}" alt="User profile picture">Caisse 
+{% endblock page_title %} 
+{% block page_a %}
+{% endblock page_a %}
+{% block active_page %} Caisse {% endblock active_page%} 
+{% block main_content %}
+
+<div class="modal fade" id="modal-lg">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" style="font-weight:700;color: #06497C;">BILLETAGE DU DATE</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+                <form method='post' role="form" id="quickForm" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="row card-body text-secondary">
+                        <div class="col-md-4 col-sm-6  form-group">
+                            <label for="fullname"><b>Valeur</b></label> {{ form.valeur }}
+                        </div>
+                        <div class="col-md-4 col-sm-6 form-group">
+                            <label for="fullname"><b>Type</b></label> {{ form.type }}
+                        </div>
+                        <div class="col-md-4 col-sm-6 form-group">
+                            <label for="fullname"><b>Nombre</b></label> {{ form.nombre }}
+                        </div>
+                        <div class="col-md-12 col-sm-6  form-group">
+                            {{ form.auteur }}
+                        </div>
+                    </div>
+                    <div class="modal-footer justify-content-between">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-primary">Enregistrer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="col-md-12">
+    <div class="row">
+        <div class="col-md-9">
+            <div class="" style="border-radius:20px">
+                <div id="" class="">
+                    <div class="row p-0 m-0">
+                        <div class="col-md-12 p-0">
+                            <div class="card" style="box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+                            backdrop-filter: blur(5.2px);
+                            -webkit-backdrop-filter: blur(5.2px);">
+                                <div class="card-header text-center" style="font-size:18px; font-weight: 700; line-height: 1; color: #06497C;">
+                                    SITUATION DE LA CAISSE DU {{dates}}
+                                </div>
+                                <div class="card-header">
+                                    <h3 class="card-title text-center">
+                                        {% if forms.is_valid %}
+                                        {% else %} 
+                                            <a href="{% url 'add_solde' %}" id="lien_solde" type="button" class="btn btn border-primary text-primary" style="font-weight:700">Saisir le solde de fin de journée <i class='fa fa-plus-square'></i></a>
+                                            <a href="{% url 'addencaisse' %}" id="entrer" type="button" class="btn btn border-success text-success" style="font-weight:700">Entrée de caisse <i class='fa fa-plus-square'></i></a>
+                                            <a href="{% url 'add_decaisse' %}" id="sortir" type="button" class="btn btn border-danger text-danger" style="font-weight:700">Sortie de caisse <i class='fa fa-plus-square'></i></a>                                        {% comment %} <button type="button" class="btn btn-default" data-toggle="modal" data-target="#modal-lg">Sortie de caisse <i class='fa fa-plus-square'></i></button> {% endcomment %}
+                                        {% endif %}
+                                    </h3>
+                                     
+                                    <div class="card-tools">
+                                        <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+                                    </div>
+                                </div>
+                                <!-- /.card-header -->
+                                <div class="card-body">
+                                    <table id="example1" class="table table-bordered table-striped text-center">
+                                        <thead>
+                                            <tr class="text-center text-danger">
+                                                <th>DATE</th>
+                                                <th>LIBELLE</th>
+                                                <th>N°FACTURE</th>
+                                                <th>ENTREE</th>
+                                                <th>SORTIE</th>
+                                                <th>SOLDE</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>{{dates}}</td>
+                                                <td>SOLDE DE DEBUT DE JOURNEE</td>
+                                                <td></td>
+                                                <td>{{solde_initial}}</td>
+                                                <td></td>
+                                                <td>{{solde_initial}}</td>
+                                            </tr>
+                                            {% comment %} entree en caisse {% endcomment %}
+                                            {% for e in ent %}
+                                                <tr>
+                                                    <td>{{e.date}}</td>
+                                                    <td><a class="text-primary" type="button" data-toggle="tooltip" data-placement="top" title="{{e.libelle}}">{{e.libelle|slice:":30"}}{% if e.libelle|length > 20 %}...{% endif %}</a></td>
+                                                    <td>{{e.Num_piece}}</td>
+                                                    <td>{{e.montant}}</td>
+                                                    <td></td>
+                                                    <td></td>
+                                                </tr>
+                                            {% endfor %}
+
+                                            {% comment %} sortie en caisse {% endcomment %}
+                                            {% for s in sort %}
+                                                <tr>
+                                                    <td>{{s.date}}</td>
+                                                    <td><a class="text-primary" type="button" data-toggle="tooltip" data-placement="top" title="{{s.libelle}}">{{s.libelle|slice:":30"}}{% if s.libelle|length > 6 %}...{% endif %}</a></td>
+                                                    <td>{{s.Num_piece}}</td>
+                                                    <td></td>
+                                                    <td>{{s.montant}}</td>
+                                                    <td></td>
+                                                </tr>
+                                            {% endfor %}
+                                            
+                                        </tbody>
+                                        <tfoot>
+                                            <tr class="text-center">
+                                                <th colspan="6">
+                                                {% if forms.is_valid %} 
+                                                
+                                                {% else %} 
+                                                    {% if ecart == 0 %}
+                                                        <button id="fermerButton" type="submit" class="btn btn-outline-danger">
+                                                            <img class="profile-user-img" style="border:none; height:45px;width:45px;text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);" src="{% static 'fermcaisse.png' %}" alt="lock caisse">
+                                                            Fermer la Caisse
+                                                        </button> 
+                                                    {% endif %}
+                                                    <script>
+                                                        document.addEventListener('DOMContentLoaded', function() {
+                                                            const today = new Date().toISOString().split('T')[0];
+                                                            const closeButton = document.getElementById('fermerButton');
+                                                            const entrees = document.getElementById('entrer');
+                                                            const sorties = document.getElementById('sortir');
+                                                            const saisiesolde = document.getElementById('lien_solde');
+                                                            const billeta = document.getElementById('billetage');
+                                                            closeButton.addEventListener('click', function() {
+                                                                // Enregistrer la date de fermeture
+                                                                localStorage.setItem('dateFermeture', today);
+                                                                // Faire disparaître le bouton
+                                                                closeButton.style.display = 'none';
+                                                                entrees.style.display = 'none';
+                                                                sorties.style.display = 'none';
+                                                                saisiesolde.style.display = 'none';
+                                                                billeta.style.display = 'none';
+                                                            });
+                                                            // Vérifier si le bouton doit être masqué
+                                                            const dateFermeture = localStorage.getItem('dateFermeture');
+                                                            if (dateFermeture === today) {
+                                                                closeButton.style.display = 'none';
+                                                                entrees.style.display = 'none';
+                                                                sorties.style.display = 'none';
+                                                                saisiesolde.style.display = 'none';
+                                                                billeta.style.display = 'none';
+                                                            }
+                                                        });
+                                                    </script>
+                                                {% endif %}
+                                                </th>
+                                            </tr>
+                                        </tfoot>
+                                        <tfoot>
+                                            <tr class="text-center">
+                                                <th colspan="3">Total</th>
+                                                <th>{{tot_ent}}</th>
+                                                <th>{{tot_sor}}</th>
+                                                <th>{{solde_day}}</th>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                                <!-- /.card-body -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="" style="border-radius:20px">
+                <div class="">
+                    <div class="row p-0 m-0">
+                        <div class="col-md-12 p-0">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="card" style="box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+                                            backdrop-filter: blur(5.2px);
+                                            -webkit-backdrop-filter: blur(5.2px);">
+                                        
+                                        <div class="card-header text-center" style="font-size:15px; font-weight: 700; line-height: 1; color: #06497C;">
+                                            BILLETAGE
+                                            {% if forms.is_valid %}
+                                            {% else %} 
+                                                <a id="billetage" title="cliquer pour faire le billetage" data-toggle="modal" data-target="#modal-lg" ><i class='fa fa-plus-square text-danger'></i></a>
+                                            {% endif %}
+                                        </div>
+                                        <div class="card-header" style="font-weight:700;">
+                                            Billets
+                                            <div class="card-tools">
+                                                <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="card-body" style="background: rgba(255, 255, 255, 0.3);border-radius: 4px;box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+                                        backdrop-filter: blur(8px);
+                                        -webkit-backdrop-filter: blur(8px);">
+                                            <div class="card">
+                                                <div class="card-body table-responsive p-0" style="">
+                                                    <table class="table table-head-fixed text-nowrap">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Billet</th>
+                                                                <th>Nombre</th>
+                                                                <th>Total</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {% for b in biels %}
+                                                                <tr>
+                                                                    <td>{{b.val}}</td>
+                                                                    <td>{{b.nb}}</td>
+                                                                    <td>{{b.res}}</td>
+                                                                </tr>
+                                                            {% endfor %}
+                                                            <tr class="total">
+                                                                <td colspan="1" style="font-weight:700">Total</td>
+                                                                <td colspan="2" class="text-center">{{sombiels}}</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="card-header" style="font-weight:700;">
+                                            Pièce
+                                            <div class="card-tools">
+                                                <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+                                            </div>
+                                        </div>
+                                        <div class="card-body" style="background: rgba(255, 255, 255, 0.3);border-radius: 4px;box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+                                        backdrop-filter: blur(8px);
+                                        -webkit-backdrop-filter: blur(8px);">
+                                            <div class="card">
+                                                <div class="card-body table-responsive p-0" style="">
+                                                    <table class="table table-head-fixed text-nowrap">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Pièce</th>
+                                                                <th>Nombre</th>
+                                                                <th>Total</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {% for p in piecs %}
+                                                                <tr>
+                                                                    <td>{{p.val}}</td>
+                                                                    <td>{{p.nb}}</td>
+                                                                    <td>{{p.res}}</td>
+                                                                </tr>
+                                                            {% endfor %}
+                                                            
+                                                            <tr class="total">
+                                                                <td colspan="1" style="font-weight:700">Total</td>
+                                                                <td colspan="2" class="text-center">{{sompiecs}}</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        <div class="card-header" style="font-weight:700;">
+                                            Bielletage total
+                                            <div class="card-tools">
+                                                <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+                                            </div>
+                                        </div>
+                                        <div class="card-body" style="background: rgba(255, 255, 255, 0.3);border-radius: 4px;box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+                                        backdrop-filter: blur(8px);
+                                        -webkit-backdrop-filter: blur(8px);">
+                                            <div class="card">
+                                                <div class="card-body table-responsive p-0" style="">
+                                                    <table class="table table-head-fixed text-nowrap">
+                                                        <thead>
+                                                            <tr>
+                                                                <th colspan="1">Libelle</th>
+                                                                <th colspan="2" class="text-center">Valeur</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td colspan="1" style="font-weight:700">Total</td>
+                                                                <td colspan="2" class="text-center">{{tot_bi_pi}}</td>
+                                                            </tr>
+                                                            <tr class="total">
+                                                                <td colspan="1" style="font-weight:700">Ecart</td>
+                                                                <td colspan="2" class="text-center">{{ecart}}</td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock main_content %}

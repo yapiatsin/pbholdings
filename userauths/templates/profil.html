@@ -1,0 +1,180 @@
+{% extends "perfect\base.html" %} 
+{% load static %} 
+{% block search_form %} 
+{% endblock search_form %} 
+{% block page_title %} 
+
+{% endblock page_title %} 
+{% block page_title_info %}
+{% if user.gender == 'Homme' %}
+    <img src="{% static 'agent.png' %}" style="height: 50px; width: 50px;" class="img-circle elevation-2" alt="User Image"> 
+{% else %}
+<img src="{% static 'agente.png' %}" style="height: 50px; width: 50px;" class="img-circle elevation-2" alt="User Image"> 
+{% endif %} 
+{{user.username }} - {{user.email}} 
+{% endblock page_title_info %} 
+
+{% block active_page %}Profile{% endblock active_page %} 
+
+{% block main_content%}
+
+<div class="modal fade" id="modal-lg">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" style=" font-weight:700;color: rgb(6,73,124);">Changer de mot de passe</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+                <form method='post' role="form" id="quickForm">
+                    {% csrf_token %}
+                    <div class="row card-body">
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label text-secondary">Ancien</label> {{ form.old_password }}
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label text-secondary">Nouveau</label> {{ form.new_password1 }}
+                            <div class="text p-2 text-secondary">
+                                <p>Mot de passe doit contenir au moins 8 caractères.</p>
+                                <p>Ne pas le communiquer.</p>
+                                <p>Doit contenir au moins une lettre et un chiffre.</p>
+                            </div>
+                        </div><br>
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label text-secondary">Confirme</label> {{ form.new_password2 }}
+                        </div>
+                    </div>
+                    <div class="modal-footer justify-content-between">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-primary">Enregistrer</button>
+                    </div>
+                </form> 
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-md-12">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="" style="border-radius:20px">
+                <div id="" class="">
+                    <div class="row p-0 m-0">
+                        <div class="col-md-12 p-0">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">
+                                        <button type="button" class="btn btn-default" data-toggle="modal" data-target="#modal-lg" style=" font-weight:700;color: rgb(6,73,124);">Changer de mot de passe <i class='fa fa-plus-square text-success'></i></button>
+                                    </h3>
+
+                                    <div class="card-tools">
+                                        <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+                                    </div>
+                                </div>
+                                <!-- /.card-header -->
+                                <div class="row card-body">
+                                    {% if user.user_type == "1" %}
+                                            <div class="col-md-4 mb-3">
+                                                <label class="form-label text-secondary">NOM</label> <input type="text" class="form-control text-center" value="{{ admin_profil.nom|upper }}" style="font-weight:700" disabled>
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <label class="form-label text-secondary">PRENOMS</label> <input type="text" class="form-control text-center " value="{{ admin_profil.prenom|upper }}" style="font-weight:700" disabled>
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <label class="form-label text-secondary">COMMUNE</label> <input type="text" class="form-control text-center" value="{{ admin_profil.commune|upper }}" style="font-weight:700" disabled>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label text-secondary">CONTACT 1</label> <input type="text" class="form-control text-center" value="{{ admin_profil.tel1|upper }}" style="font-weight:700" disabled>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label text-secondary">CONTACT 2</label> <input type="text" class="form-control text-center" value="{{ admin_profil.tel2|upper }}" style="font-weight:700" disabled>
+                                            </div>
+                                        {% elif user.user_type == "2" %}
+                                            <div class="col-md-4 mb-3">
+                                                <label class="form-label text-secondary">NOM</label> <input type="text" class="form-control text-center" value="{{ chefexploit_profil.nom|upper }}" style="font-weight:700" disabled>
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <label class="form-label text-secondary">PRENOMS</label> <input type="text" class="form-control text-center " value="{{ chefexploit_profil.prenom|upper }}" style="font-weight:700" disabled>
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <label class="form-label text-secondary">COMMUNE</label> <input type="text" class="form-control text-center" value="{{ chefexploit_profil.commune|upper }}" style="font-weight:700" disabled>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label text-secondary">CONTACT 1</label> <input type="text" class="form-control text-center" value="{{ chefexploit_profil.tel1|upper }}" style="font-weight:700" disabled>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label text-secondary">CONTACT 2</label> <input type="text" class="form-control text-center" value="{{ chefexploit_profil.tel2|upper }}" style="font-weight:700" disabled>
+                                            </div>
+                                        {% elif user.user_type == "3" %}
+                                            <div class="col-md-4 mb-3">
+                                                <label class="form-label text-secondary">NOM</label> <input type="text" class="form-control text-center" value="{{ comptable_profil.nom|upper }}" style="font-weight:700" disabled>
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <label class="form-label text-secondary">PRENOMS</label> <input type="text" class="form-control text-center " value="{{ comptable_profil.prenom|upper }}" style="font-weight:700" disabled>
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <label class="form-label text-secondary">COMMUNE</label> <input type="text" class="form-control text-center" value="{{ comptable_profil.commune|upper }}" style="font-weight:700" disabled>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label text-secondary">CONTACT 1</label> <input type="text" class="form-control text-center" value="{{ comptable_profil.tel1|upper }}" style="font-weight:700" disabled>
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label text-secondary">CONTACT 2</label> <input type="text" class="form-control text-center" value="{{ comptable_profil.tel2|upper }}" style="font-weight:700" disabled>
+                                            </div>
+                                        {% elif user.user_type == "4" %}
+                                            <div class="col-md-4 mb-3">
+                                                <label class="form-label text-secondary">NOM</label> <input type="text" class="form-control text-center" value="{{ gerant_profil.nom|upper }}" style="font-weight:700" disabled>
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <label class="form-label text-secondary">PRENOMS</label> <input type="text" class="form-control text-center " value="{{ gerant_profil.prenom|upper }}" style="font-weight:700" disabled>
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <label class="form-label text-secondary">COMMUNE</label> <input type="text" class="form-control text-center" value="{{ gerant_profil.commune|upper }}" style="font-weight:700" disabled>
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <label class="form-label text-secondary">CONTACT 1</label> <input type="text" class="form-control text-center" value="{{ gerant_profil.tel1|upper }}" style="font-weight:700" disabled>
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <label class="form-label text-secondary">CONTACT 2</label> <input type="text" class="form-control text-center" value="{{ gerant_profil.tel2|upper }}" style="font-weight:700" disabled>
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <label class="form-label text-secondary">GERANT</label> <input type="text" class="form-control text-center" value="{{ gerant_profil.gerant_voiture|upper }}" style="font-weight:700" disabled>
+                                            </div>
+                                        {% else %}
+                                        {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock main_content %} 
+{% block custom_js %}
+<script>
+    var name = "{{user.id}}";
+    document.getElementById('elder').value = name;
+</script>
+<script type="text/javascript">
+    $(function() {
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000
+        });
+    });
+</script>
+
+<script>
+    setTimeout(function() {
+        $('#message').fadeOut('slow')
+    }, 3000);
+</script>
+{% endblock custom_js %}

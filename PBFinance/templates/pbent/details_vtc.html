@@ -1,0 +1,94 @@
+{% extends 'baze.html' %}
+{% load static %}
+
+{% block title %}
+    Activités
+{% endblock  %}
+
+<main id="main">
+  {% block breadcrumbs %}
+    <!-- ======= Breadcrumbs ======= -->
+      <div class="breadcrumbs d-flex align-items-center" style="background-image: url('{% static 'ass/img/alto-grey.jpg' %} ');">
+        <div class="container position-relative d-flex flex-column align-items-center" data-aos="fade">
+          <h3>
+            {% block h3 %}
+              Transport Urbain
+            {% endblock h3 %}
+          </h3>
+          <ol>
+            <li><a href="{% url 'home' %}">Home</a></li>
+            <li>
+               {% block li %}Transport Urbain{% endblock li %}
+            </li>
+          </ol>
+        </div>
+      </div>
+    <!-- End Breadcrumbs -->
+  {% endblock breadcrumbs %}
+  {% block content %}
+  <section id="project-details" class="project-details">
+    <div class="container" data-aos="fade-up" data-aos-delay="100">
+      <div class="row justify-content-between gy-4 mt-4">
+        <div class="col-lg-8">
+          <div class="portfolio-description">
+            <h2>Transport Urbain</h2>
+            <p>
+              P&BEntreprise est une entreprise de transport urbain qui propose deux types de services pour répondre aux besoins de ses clients : les Yango et les taxis.
+            </p>
+            <p>
+              <b>Les Yango </b>:
+              Les Yango sont des véhicules modernes et confortables qui sont utilisés pour des trajets partagés dans les zones urbaines. Voici quelques caractéristiques des Yango :
+              <br>Les Yango sont des voitures de type berline, équipées de la climatisation, de sièges confortables et de connexions Wi-Fi.
+              <br>Les Yango sont accessibles via une application mobile dédiée. Les clients peuvent réserver un Yango à partir de leur smartphone, en indiquant leur lieu de départ et leur destination.
+              <br>Les Yango sont des trajets partagés, ce qui signifie que plusieurs passagers peuvent partager le même véhicule pour se rendre à des destinations similaires ou proches les unes des autres.
+              <br>Les Yango offrent une solution de transport pratique, abordable et écologique pour les déplacements en ville.
+            </p>
+            <p>
+              <b>Les taxis</b> :
+              En plus des Yango, P&B Entreprise propose également des services de taxi traditionnels pour répondre aux besoins individuels de transport. Voici quelques caractéristiques des taxis de P&B Entreprise :
+              Les taxis sont des véhicules de différentes tailles, adaptés aux besoins des clients individuels ou de petits groupes.
+              Les taxis sont disponibles à la demande, que ce soit en réservant via l'application mobile ou en les appelant directement par téléphone.
+              Les taxis offrent une flexibilité totale en termes d'itinéraire et de destination. Les clients peuvent choisir leur point de départ, leur destination et leur heure de départ selon leurs besoins.
+              Les taxis de P&B Entreprise sont conduits par des chauffeurs professionnels et expérimentés, qui assurent un service sûr et fiable à leurs passagers.
+            
+          </div>
+        </div>
+        <div class="col-lg-3">
+          <div class="portfolio-info">
+            <h3>Detail</h3>
+            <p>
+              <div class="slides-1 portfolio-details-slider swiper">
+                <div class="swiper-wrapper align-items-center">
+                  <div class="swiper-slide">
+                    <img style="height: 100%; width: 100%;" src="{% static 'ass/img/car.jpg' %}" alt="">
+                  </div>
+                  <div class="swiper-slide">
+                    <img style="height: 100%; width: 100%;" src="{% static 'ass/img/v11.avif' %}" alt="">
+                  </div>
+                  <div class="swiper-slide">
+                    <img style="height: 100%; width: 100%;" src="{% static 'ass/img/alto.png' %}" alt="">
+                  </div>
+                  <div class="swiper-slide">
+                    <img style="height: 100%; width: 100%;" src="{% static 'ass/img/car0.jpg' %}" alt="">
+                  </div>
+                </div>
+              </div>
+            </p>
+            <ul>
+              <li><strong>Contactez-nous</strong> <span>+225 27 21 73 78 96</span></li>
+              <li><strong>Email</strong> <span> pacomebertine@gmail.com</span></li>
+              <li>
+                <a href="{% url 'service' %}" class="btn-visit align-self-start">Retour aux services</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+{% endblock %}
+     
+
+

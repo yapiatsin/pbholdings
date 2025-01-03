@@ -1,0 +1,423 @@
+{% extends 'bases.html' %}
+{% load static %}
+
+{% block title %}Statistique Garage{% endblock title %}
+
+{% block breadcrumb %}
+  <div style="font-size:28px">
+    Tableau de Bord Garage
+  </div>
+{% endblock breadcrumb %}
+{% block content %}
+<div class="row">
+  {% if form.is_valid %}
+    <div class="col-md-3 col-lg-3">
+      <div class="widget-small primary coloured">
+        <i style="font-size: 24px;" class="icon fa fa-gears"></i>
+        <div class="info">
+        <p style="font-size: 14px;"><b>Nb Réparation {{Nbreparation}}</b></p>
+        <p style="font-size: 14px;"><b>Coût {{reparat}} </b></p>
+        <p style="font-size: 14px;"><b>Nb Pièce {{Nbpiece}}</b></p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 col-lg-3">
+      <div class="widget-small danger coloured" >
+        <i style="font-size: 24px;display:flex" class="icon fa fa-search fa-3x"></i>
+        <div class="info">
+          <p style="font-size: 14px;"><b>Nb Visite {{Nbvisite}}</b></p>
+          <p style="font-size: 14px;"><b>Coût {{visit}} </b></p>
+          <p style="font-size: 14px;"><b>Nb Perte {{NbPerte}}</b></p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 col-lg-3">
+      <div class="widget-small danger coloured" >
+        <i style="font-size: 24px;display:flex" class="icon fa fa-refresh fa-3x"></i>
+        <div class="info">
+          <p style="font-size: 14px;"><b>Nb entretien {{Nbentretien}}</b></p>
+          <p style="font-size: 14px;"><b>Coût {{entret}} </b></p>
+          <p style="font-size: 14px;"><b>Station {{cart_stat}} </b></p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 col-lg-3">
+      <div class="widget-small info coloured" >
+        <i style="font-size: 24px; display:flex" class="icon fa fa-close fa-3x"></i>
+        <div class="info">
+          <p style="font-size: 14px;"><b>Pièces {{som_piece}} </b></p>
+          <p style="font-size: 14px;"><b>vignette {{vignet}} </b></p>
+          <p style="font-size: 14px;"><b>Patente  {{patent}} </b></p>
+        </div>
+      </div>
+    </div>
+  {% else %}
+    <div class="col-md-3 col-lg-3">
+      <div class="widget-small primary coloured">
+        <i style="font-size: 24px;" class="icon fa fa-gears"></i>
+        <div class="info">
+        <p style="font-size: 14px;"><b>Nb Réparation {{Nbreparation}}</b></p>
+        <p style="font-size: 14px;"><b>Coût {{reparat}} </b></p>
+        <p style="font-size: 14px;"><b>Nb Pièce {{Nbpiece}}</b></p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 col-lg-3">
+      <div class="widget-small danger coloured" >
+        <i style="font-size: 24px;display:flex" class="icon fa fa-search fa-3x"></i>
+        <div class="info">
+          <p style="font-size: 14px;"><b>Nb Visite {{Nbvisite}}</b></p>
+          <p style="font-size: 14px;"><b>Coût {{visit}} </b></p>
+          <p style="font-size: 14px;"><b>Nb Perte {{NbPerte}}</b></p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 col-lg-3">
+      <div class="widget-small danger coloured" >
+        <i style="font-size: 24px;display:flex" class="icon fa fa-refresh fa-3x"></i>
+        <div class="info">
+          <p style="font-size: 14px;"><b>Nb entretien {{Nbentretien}}</b></p>
+          <p style="font-size: 14px;"><b>Coût {{entret}} </b></p>
+          <p style="font-size: 14px;"><b>Station {{cart_stat}} </b></p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 col-lg-3">
+      <div class="widget-small info coloured" >
+        <i style="font-size: 24px; display:flex" class="icon fa fa-close fa-3x"></i>
+        <div class="info">
+          <p style="font-size: 14px;"><b>Pièces {{som_piece}} </b></p>
+          <p style="font-size: 14px;"><b>vignette {{vignet}} </b></p>
+          <p style="font-size: 14px;"><b>Patente  {{patent}} </b></p>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+  <div class="col-md-12">
+    <div class="tile row">
+      <div class="col-md-2">
+        <div id="external-events">
+          <form method="get">
+            <h4 class="mb-4">Filtre</h4>
+            {% csrf_token %}
+            De {{ form.date_debut }}
+            A {{ form.date_fin }}
+            <br>
+            <input class="text-center btn btn-outline-primary" style="display:flexbox; position:center" type="submit" value="Afficher">
+            <a href="{% url 'Tbgarag' %}"><i class="btn btn-outline-primary fa fa-refresh" ></i></a>
+          </form>
+        </div>
+      </div>
+
+      <div class="col-md-5">
+        <div class="shadow p-3 mb-3 bg-white rounded">
+          {% if form.is_valid %}
+            <div>
+              <canvas id="CA">
+                <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+              </canvas>
+            </div>
+            <script>
+              const cta = document.getElementById('CA');
+              var labels = {{labels|safe}};
+              var repData = {{rep_data|safe}};
+              new Chart(cta, {
+                type: 'line',
+                data: {
+                  labels: labels,
+                  datasets: [{
+                    label: "Evolution des réparations",
+                    data: repData,
+                    fill: true,
+                    borderColor: 'rgb(13,71,161)',
+                    tension: 0.4,
+                    backgroundColor: [
+                      'rgb(100,181,246)',
+                    ],
+                  }]
+                },
+                options: {
+                  scales: {
+                    y: {
+                      beginAtZero: true,
+                      easing: 'linear',
+                      from: 1,
+                    }
+                  }
+                }
+              });
+            </script>
+          {% else %}
+            <div>
+              <canvas id="CA">
+                <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+              </canvas>
+            </div>
+            <script>
+              const cta = document.getElementById('CA');
+              new Chart(cta, {
+                type: 'line',
+                data: {
+                  labels: {{labels_mois|safe}},
+                  datasets: [{
+                    label: "Evolution des réparations",
+                    data: {{rep_data}},
+                    fill: true,
+                    borderColor: 'rgb(13,71,161)',
+                    tension: 0.4,
+                    backgroundColor: [
+                      'rgb(100,181,246)',
+                    ],
+                  }]
+                },
+                options: {
+                  scales: {
+                    y: {
+                      beginAtZero: true,
+                      easing: 'linear',
+                      from: 1,
+                    }
+                  }
+                }
+              });
+            </script>
+          {% endif %}
+        </div>
+        <div class="shadow p-3 mb-3 bg-white rounded">
+          {% if form.is_valid %}
+          <div>
+            <canvas id="myCc"></canvas>
+          </div>
+          <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            <script>
+              const ctb = document.getElementById('myCc');
+              var labels = {{labels|safe}};
+              var entretData = {{ent_data|safe}};
+              new Chart(ctb, {
+                type: 'line',
+                data: {
+                  labels: labels,
+                  datasets: [{
+                    label: 'Evolution des entretiens',
+                    data: entretData,
+                    fill: true,
+                    borderColor: 'rgb(179,19,18)',
+                    tension: 0.4,
+                    backgroundColor: [
+                    'rgb(179,19,18,0.7)',
+                  ],
+                  }]
+                },
+                options: {
+                  scales: {
+                    y: {
+                      beginAtZero: true,
+                      easing: 'linear',
+                      from: 1,
+                    }
+                  }
+                }
+              });
+            </script>
+          {% else %}
+          <div>
+            <canvas id="myCc">
+              <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            </canvas>
+          </div>
+          <script>
+            alert({{labels_mois}})
+            alert({{ent_data}})
+            console.log({{ent_data}})
+          </script>
+          <script>
+            const ctm = document.getElementById('myCc');
+            new Chart(ctm, {
+              type: 'line',
+              data: {
+                labels: {{labels_mois|safe}},
+                datasets: [{
+                  label: "Evolution des entretiens",
+                  data: {{ent_data|safe}},
+                  fill: true,
+                  borderColor: 'rgb(179,19,18)',
+                  tension: 0.4,
+                  backgroundColor: [
+                    'rgb(179,19,18,0.7)',
+                  ],
+                }]
+              },
+              options: {
+                scales: {
+                  y: {
+                    beginAtZero: true,
+                    easing: 'linear',
+                    from: 1,
+                  }
+                }
+              }
+            });
+          </script>
+          {% endif %}
+        </div>
+      </div>
+      <div class="col-md-5">
+          <div id="calendar">
+            <div class="shadow p-3 mb-3 bg-white rounded">
+            {% if form.is_valid %}
+              <div>
+                <canvas id="myChart"></canvas>
+              </div>
+              <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+              <script>
+                const ctx = document.getElementById('myChart');
+                var labels = {{labels|safe}};
+                var visitData = {{vis_data|safe}};
+                new Chart(ctx, {
+                  type: 'bar',
+                  data: {
+                    labels: labels,
+                    datasets: [{
+                      label: 'Evolution Des Visites',
+                      data: visitData,
+                      borderWidth: 1,
+                      backgroundColor: [
+                      'rgb(0,131,143)',
+                    ],
+                    borderColor: [
+                      'rgb(0,131,143)',
+                    ],
+                      borderWidth: 2,
+                    }]
+                  },options: {
+                    scales: {
+                      y: {
+                        beginAtZero: true
+                      }
+                    }
+                  }
+                });
+              </script>
+            {% else %}
+              <div>
+                <canvas id="myChart"></canvas>
+              </div>
+              <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+              <script>
+                const ctx = document.getElementById('myChart');
+                new Chart(ctx, {
+                  type: 'bar',
+                  data: {
+                    labels: {{labels_mois|safe}},
+                    datasets: [{
+                      label: 'Evolution Des Visites',
+                      data: {{visit_data}},
+                      borderWidth: 1,
+                      backgroundColor: [
+                        'rgb(0,131,143)',
+                      ],
+                      borderColor: [
+                        'rgb(25,150,136)',
+                        
+                      ],
+                      borderWidth: 2,
+                    }]
+                  },options: {
+                    scales: {
+                      y: {
+                        beginAtZero: true
+                      }
+                    }
+                  }
+                });
+              </script>
+            {% endif %}
+            </div>
+          </div>
+          <div id="calendar">
+            <div class="shadow p-3 mb-5 bg-white rounded">
+            {% if form.is_valid %}
+              <div>
+                <canvas id="xd"></canvas>
+              </div>
+              <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+              <script>
+                const c = document.getElementById('xd');
+                var labels = {{labels|safe}};
+                var pieceData = {{piece_vehi_data}};
+                new Chart(c, {
+                  type: 'bar',
+                  data: {
+                    labels: labels,
+                    datasets: [{
+                      label: 'Evolution Des Pièces',
+                      data: pieceData,
+                      borderWidth: 1,
+                      backgroundColor: [
+                      'rgb(0,131,143)',
+                    ],
+                    borderColor: [
+                      'rgb(0,131,143)',
+                    ],
+                      borderWidth: 2,
+                    }]
+                  },options: {
+                    scales: {
+                      y: {
+                        beginAtZero: true
+                      }
+                    }
+                  }
+                });
+              </script>
+              {% else %}
+              
+              <div>
+                <canvas id="xd"></canvas>
+              </div>
+              <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+              <script>
+                const c = document.getElementById('xd');
+                new Chart(c, {
+                  type: 'bar',
+                  data: {
+                    labels: {{labels_mois|safe}},
+                    datasets: [{
+                      label: 'Evolution Des Pièces',
+                      data: {{piece_vehi_data}},
+                      borderWidth: 1,
+                      backgroundColor: [
+                        'rgb(0,131,143)',
+                      ],
+                      borderColor: [
+                        'rgb(25,150,136)',
+                      ],
+                      borderWidth: 2,
+                    }]
+                  },options: {
+                    scales: {
+                      y: {
+                        beginAtZero: true
+                      }
+                    }
+                  }
+                });
+              </script>
+            {% endif %}
+            </div>
+          </div>
+
+          <div class="col-md-2"></div>
+      </div>
+      
+    </div>
+  </div>
+
+</div>
+{% endblock content %}
+
+{% block extrascripts %}
+    <script type="text/javascript" src="{% static 'js/plugins/jquery.dataTables.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/plugins/dataTables.bootstrap.min.js' %}"></script>
+    <script type="text/javascript">$('#sampleTable').DataTable();</script>
+{% endblock extrascripts %}

@@ -1,0 +1,148 @@
+{% extends 'perfect/base.html' %} 
+{% load static %} 
+{% block title %} Nouveau compte {% endblock title %} 
+{% block navbar_nav %}
+
+{% endblock navbar_nav %} 
+{% block page_title %}
+<img class="profile-user-img" style="border:none; height:55px;width:55px" src="{% static 'add-user.png' %}" alt="User profile picture">Créer un compte
+{% endblock page_title %} 
+{% block active_page %} Nouveau compte {% endblock active_page%} 
+{% block main_content %}
+<div class="modal fade" id="modal-lg">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" style=" font-weight:700;color: rgb(6,73,124);">Créer un compte comptable</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+                <form method='post' role="form" id="quickForm">
+                    {% csrf_token %}
+                    <div class="row card-body">
+                        <div class="col-md-12 form-group ">
+                            <input type="TEXT" value="INFORMATION DE CONNEXION" class="form-control text-center" disabled>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label>USERNAME</label> {{user_form.username}}
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label>EMAIL</label> {{user_form.email}}
+                        </div>
+                        <div class="col-md-12 form-group">
+                            <label>GENDER</label> {{user_form.gender}}
+                        </div>
+                        <div class="col-md-12 form-group">
+                            <input type="TEXT" value="INFORMATION DU PROFIL" class="form-control text-center" disabled>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label>NOM</label> {{comptable_form.nom}}
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label>PRENOMS</label> {{comptable_form.prenom}}
+                        </div>
+                        <div class="col-md-4 form-group">
+                            <label>COMMUNE</label> {{comptable_form.commune}}
+                        </div>
+                        <div class="col-md-4 form-group">
+                            <label>TEL 1</label> {{comptable_form.tel1}}
+                        </div>
+                        <div class="col-md-4 form-group">
+                            <label>TEL 2</label> {{comptable_form.tel2}}
+                        </div>
+                        <div class="col-md-12 form-group">
+                            {{comptable_form.create_by}}
+                        </div>
+                    </div>
+                    <div class="modal-footer justify-content-between">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-primary">Enregistrer</button>
+                    </div>
+                </form> 
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-md-12">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="" style="border-radius:20px">
+                <div id="" class="">
+                    <div class="row p-0 m-0">
+                        <div class="col-md-12 p-0">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">
+                                        <button type="button" class="btn btn-default" >PDF <i class='fa fa-file-pdf-o'></i></button>
+                                        <button type="button" class="btn btn-default" >Excell <i class='fa fa-file-excel-o'></i></button>
+                                        <button type="button" class="btn btn-default" data-toggle="modal" data-target="#modal-lg">Créer <i class='fa fa-plus-square'></i></button>
+                                    </h3>
+
+                                    <div class="card-tools">
+                                        <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+                                    </div>
+                                </div>
+                                <!-- /.card-header -->
+                                <div class="card-body">
+                                    <table id="example1" class="table table-bordered table-striped">
+                                        <thead>
+                                            <tr class=" text-center text-danger ">
+                                                <th>NOM</th>
+                                                <th>PRENOMS</th>
+                                                <th>COMMUNE</th>
+                                                <th>CONTACT 1</th>
+                                                <th>CONTACT 2</th>
+                                                <th>ACTION</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% if list_compt %}
+                                                {% for u in list_compt %}
+                                                    <tr class="text-center">
+                                                        <td>{{u.nom}}</td>
+                                                        <td>{{u.prenom}}</td>
+                                                        <td>{{u.commune}}</td>
+                                                        <td>{{u.tel1}}</td>
+                                                        <td>{{u.tel2}}</td>
+                                                        <td class="text-center ">
+                                                            <a href=" " class="mr-3 text-warning ">
+                                                                <i style="font-size: 20px; " class="fa fa-edit "></i>
+                                                            </a>
+                                                            <a href="{% url 'del_comptable' u.pk %}" class="text-danger" onclick="return confirm('Etes-vous sûre de vouloir supprimer les informations concernant {{u.nom|upper}} - {{u.prenom}}? car si vous supprimer toutes les informations liées seront perdues')">
+                                                                <i style="font-size: 20px; " class="fa fa-trash "></i>
+                                                            </a>
+                                                        </td>
+                                                        {% comment %}
+                                                        <td>X</td> {% endcomment %}
+                                                    </tr>
+                                                {% endfor %}
+                                            {% endif %}
+                                        </tbody>
+                                        <tfoot>
+                                            <tr class="text-center ">
+                                                <th>---</th>
+                                                <th>---</th>
+                                                <th>---</th>
+                                                <th>---</th>
+                                                <th>---</th>
+                                                <th>---</th>
+                                                {% comment %}
+                                                <th>CSS grade</th> {% endcomment %}
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                                <!-- /.card-body -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock main_content %}
