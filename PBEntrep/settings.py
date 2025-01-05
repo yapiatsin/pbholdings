@@ -10,7 +10,7 @@ TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
 SECRET_KEY = config('SECRET_KEY')
 # DEBUG = True
 
-ALLOWED_HOSTS = ['pbholdingsite.com', 'www.pbholdingsite.com']
+ALLOWED_HOSTS = ['pbholdingsite.com', 'www.pbholdingsite.com','45.92.109.86']
 CSRF_TRUSTED_ORIGINS = [
     'https://pbholdingsite.com',
 ]
