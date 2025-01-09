@@ -62,9 +62,12 @@
                                     <h3 class="card-title">
                                         <button type="button" class="btn btn-default text-danger">PDF <i class='fa fa-file-pdf-o'></i></button>
                                         <button type="button" class="btn btn-default text-success">Excell <i class='fa fa-file-excel-o'></i></button>
-                                        <button type="button" class="btn btn-default text-primary" data-toggle="modal" data-target="#modal-lg">Saisir <i class='fa fa-plus-square'></i></button>
+                                        {% if user.user_type == '1' or user.user_type == '3' %}
+                                            <button type="button" class="btn btn-default text-primary" data-toggle="modal" data-target="#modal-lg">Saisir <i class='fa fa-plus-square'></i></button>
+                                        {% else %}
+                                            <button type="button" class="btn btn-default text-primary">Saisir <i class='fa fa-plus-square'></i></button>
+                                        {% endif %}
                                     </h3>
-
                                     <div class="card-tools">
                                         <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
                                     </div>

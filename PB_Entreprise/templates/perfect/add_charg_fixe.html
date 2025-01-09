@@ -11,7 +11,8 @@
 {% endblock page_a %}
 {% block active_page %} Etat des recettes {% endblock active_page%}
 {% block main_content %}
-
+{% if user.user_type == '4' %}
+{% else %}
 <div class="col-md-12">
     <div class="card" style="color: #0176bf; border-radius: 20px; border-color: #00217b; font-weight: 700;">
         <div class="card-body table-responsive p-0" style="border-radius:8px; border:none">
@@ -185,10 +186,10 @@
                                     <h3 class="card-title">
                                         <button type="button" class="btn btn-default" id="printButton">PDF <i class='text-danger fa fa-file-pdf-o'></i></button>
                                         <button type="button" class="btn btn-default">Excell <i class='text-success fa fa-file-excel-o'></i></button>
-                                        {% if user.user_type == '1' or user.user_type == '2' %}
-                                            <button type="button" class="btn btn-default text-danger" style="font-weight:700" data-toggle="modal" data-target="#modal-lg">Ajouter un véhicule <i class='fa fa-plus-square'></i></button>
+                                        {% if user.user_type == '1' or user.user_type == '3' %}
+                                            <button type="button" class="btn btn-default text-danger" style="font-weight:700" data-toggle="modal" data-target="#modal-lg">Saisir <i class='fa fa-plus-square'></i></button>
                                         {% else %}
-                                            <button type="button" class="btn btn-default text-danger" style="font-weight:700">Ajouter un Véhicule <i class='fa fa-plus-square'></i></button>
+                                            <button type="button" class="btn btn-default text-danger" style="font-weight:700">Saisir <i class='fa fa-plus-square'></i></button>
                                         {% endif %}
                                     </h3>
                                     <div class="card-tools">
@@ -246,4 +247,5 @@
         </div>
     </div>
 </div>
+{% endif %}
 {% endblock main_content %}

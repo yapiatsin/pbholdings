@@ -1153,11 +1153,9 @@ class DashboardView(TemplateView):
             #################---###############-----Graphiq-----#################---###############
             'recet_mois_vtc_data':recet_mois_vtc_data,
             'recet_mois_taxi_data':recet_mois_taxi_data,
-             
-            # 'piece_mois_data':piece_mois_data,
-            # 'piechang_mois_data':piechang_mois_data,
+            
             'chargevar_data':chargvar_mois_data,
-            # 'chargefix_data':chargfix_mois_data,
+            
             'taux_data_vtc':taux_data_vtc,
             'taux_data_taxi':taux_data_taxi,
             
@@ -1204,6 +1202,7 @@ class BilletageView(CreateView):
         return reponse
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        dates = date.today()
         form = self.get_form()
         forms = DatebilanForm(self.request.GET)
         if forms.is_valid():
@@ -1345,6 +1344,7 @@ class BilletageView(CreateView):
             
             'solde_day':solde_jour,
             'tot_bi_pi':Total_piec_bill,
+            'dates':dates,
         }
         return context
 

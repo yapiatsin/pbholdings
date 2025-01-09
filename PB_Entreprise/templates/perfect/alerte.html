@@ -2,28 +2,16 @@
 {% load static %} 
 {% block title %} Alerte Garage {% endblock title %} 
 {% block navbar_nav %}
-{% comment %} 
-    <li class="nav-item d-none d-sm-inline-block">
-        <a href="index3.html" style="font-weight: 700; color: #06497C;" class="nav-link">
-        <i class="fa fa-shopping-cart" style="font-size: 22px; color: #06497C; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);"></i> Charge Fixe: 10.925.612 </a>
-    </li>
-    <li class="nav-item d-none d-sm-inline-block">
-        <a href="#" style="font-weight: 700; color: #06497C;" class="nav-link">
-        <i class="fa fa-cart-arrow-down" style="font-size: 22px; color: #06497C; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);"></i> Charge Variable:</a>
-    </li>
-    <li class="nav-item d-none d-sm-inline-block">
-        <a href="#" style="font-weight: 700; color: #06497C;" class="nav-link">
-        <i style="font-size: 22px; color: #06497C; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);" class="fa fa-gears"></i> Pièces:</a>
-    </li> 
-{% endcomment %}
 {% endblock navbar_nav %} 
 {% block page_title %}
     <img class="profile-user-img" style="border:none; height:50px;width:50px" src="{% static 'alerte.png' %}" alt="User profile picture"> Alerte Garage 
 {% endblock page_title %} 
 {% block page_a %}
 {% endblock page_a %}
-{% block active_page %} Alertes {% endblock active_page %}
 {% block main_content%}
+{% if user.user_type == '3' %}
+{% else %}
+
 <div class="col-md-12">
     <div class="card" style="color: #0176bf; border-radius: 20px; border-color: #00217b; font-weight: 700;">
         <div class="card-body table-responsive p-0" style="border-radius:8px; border:none">
@@ -38,11 +26,11 @@
                                             <img style="height: 35px; width: 35px; position:relative; margin-top: 9px; margin-left: 0px;" src="{% static 'visit.png' %}" alt="" srcset="">
                                         </div>
                                         <div>
+                                        <div style="font-size: 15px;color: #06497C">Visite</div>
                                             <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
                                                 {{ visites }}
                                                 <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
                                             </div>
-                                            <div style="font-size: 15px;color: #06497C">Visite</div>
                                         </div>
                                     </div>
                                 </td>
@@ -52,11 +40,11 @@
                                             <img style="height: 35px; width: 35px; position:relative; margin-top: 9px; margin-left: 0px;" src="{% static 'clean.png' %}" alt="" srcset="">
                                         </div>
                                         <div>
+                                            <div style="font-size: 15px;color: #06497C">Entretien{% if entr_all > 1  %}s{% endif %}</div>
                                             <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
                                                 {{ entr_all }}
                                                 <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
                                             </div>
-                                            <div style="font-size: 15px;color: #06497C">Entretien{% if entr_all > 1  %}s{% endif %}</div>
                                         </div>
                                     </div>
                                 </td>
@@ -66,11 +54,11 @@
                                             <img style="height: 35px; width: 35px; position:relative; margin-top: 7px; margin-left: 0px;" src="{% static 'assurance.png' %}" alt="" srcset="">
                                         </div>
                                         <div>
+                                            <div style="font-size: 15px;color: #06497C">Assurance{% if assu_all > 1  %}s{% endif %}</div>
                                             <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
                                                 {{ assu_all }}
                                                 <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
                                             </div>
-                                            <div style="font-size: 15px;color: #06497C">Assurance{% if assu_all > 1  %}s{% endif %}</div>
                                         </div>
                                     </div>
                                 </td>
@@ -80,11 +68,11 @@
                                             <img style="height: 35px; width: 35px; position:relative; margin-top: 9px; margin-left: 0px;" src="{% static 'vignette.png' %}" alt="" srcset="">
                                         </div>
                                         <div>
+                                            <div style="font-size: 15px;color: #06497C">Vignette{% if vign_all > 1  %}s{% endif %}</div>
                                             <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
                                                 {{ vign_all }}
                                                 <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
                                             </div>
-                                            <div style="font-size: 15px;color: #06497C">Vignette{% if vign_all > 1  %}s{% endif %}</div>
                                         </div>
                                     </div>
                                 </td>
@@ -94,11 +82,11 @@
                                             <img style="height: 35px; width: 35px; position:relative; margin-top: 9px; margin-left: px;" src="{% static 'gear.png' %}" alt="" srcset="">
                                         </div>
                                         <div>
+                                            <div style="font-size: 15px;color: #06497C">Patente{% if pat_all > 1  %}s{% endif %}</div>
                                             <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
                                                 {{ pat_all}} 
                                                 <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
                                             </div>
-                                            <div class="mt-1" style="font-size:14px; font-weight: 700; line-height: 1;color: #06497C">Patente{% if pat_all > 1  %}s{% endif %}</div>
                                         </div>
                                     </div>
                                 </td>
@@ -108,8 +96,8 @@
                                             <img style="height: 35px; width: 35px; position:relative; margin-top: 9px; margin-left: 0px;" src="{% static 'update.png' %}" alt="" srcset="">
                                         </div>
                                         <div>
+                                            <div style="font-size: 15px;color: #06497C">Stationnement{% if stat_all > 1  %}s{% endif %}</div>
                                             <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">{{ stat_all }}  <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small></div>
-                                            <div style="font-size: 15px; color: #06497C">Stationnement{% if stat_all > 1  %}s{% endif %}</div>
                                         </div>
                                     </div>
                                 </td>
@@ -122,9 +110,6 @@
     </div>
 </div>
 
-
-<!-- COURBES DE NIVEAUX -->
-
 <div class="col-md-12">
     <div class="row">
         <div class="col-md-12">
@@ -135,9 +120,8 @@
                             <div class="card" style="box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);backdrop-filter: blur(5.2px);-webkit-backdrop-filter: blur(5.2px);">
                                 <div class="card-header">
                                     <h3 class="card-title">
-                                        <button type="button" class="btn btn-default" id="printButton">PDF <i class='fa fa-file-pdf-o'></i></button>
-                                        <button type="button" class="btn btn-default">CSV <i class='fa fa-files-o'></i></button>
-                                        <button type="button" class="btn btn-default">Excell <i class='fa fa-file-excel-o'></i></button>
+                                        <button type="button" class="btn btn-default text-danger" id="printButton">PDF <i class='fa fa-file-pdf-o'></i></button>
+                                        <button type="button" class="btn btn-default text-success">Excell <i class='fa fa-file-excel-o'></i></button>
                                     </h3>
 
                                     <div class="card-tools">
@@ -151,7 +135,6 @@
                                             <tr class="text-center text-danger">
                                                 <th>IMMATRICULATION</th>
                                                 <th>MARQUE</th>
-                                                {% comment %} <th>CATEGORIE</th> {% endcomment %}
                                                 <th>VISITE</th>
                                                 <th>ENTRETIEN</th>
                                                 <th>ASSURANCE</th>
@@ -166,7 +149,6 @@
                                                 <tr class="text-center">
                                                     <td><span  style="font-weight:700;"><a class="text-danger" href="" title="{{v.vehicule.category}}" >{{v.vehicule.immatriculation}}</a></span></td>
                                                     <td><span>{{v.vehicule.marque}}</span></td>
-                                                    {% comment %} <td><span>{{v.vehicule.category}}</span></td> {% endcomment %}
                                                     <td><span class="spinner p-2" style="color:white;font-weight:700;border-radius:50px; background-color: {{ v.alert_color }}">{{v.jours_restant}}</span></td>
                                                     <td><span class="spinner p-2" style="color:white;font-weight:700;border-radius:50px; background-color: {{ v.alert_ent_color }}">{{v.jours_ent_restant}}</span></td>
                                                     <td><span class="spinner p-2" style="color:white;font-weight:700;border-radius:50px; background-color: {{ v.alert_assu_color }}">{{v.jours_assu_restant}}</span></td>
@@ -189,5 +171,5 @@
         </div>
     </div>
 </div>
-
+{% endif %}
 {% endblock main_content %}

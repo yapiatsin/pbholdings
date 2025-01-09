@@ -10,7 +10,8 @@
 {% endblock page_a %}
 {% block active_page %} Statistique véhicule {% endblock active_page %} 
 {% block main_content%}
-
+{% if user.user_type == '4' %}
+{% else %}
 <div class="col-md-4">
     <div class="card" style="color: #0176bf; border-radius: 20px; border-color: #00217b; font-weight: 700;">
     {% if vehicules %}
@@ -606,4 +607,5 @@
     </div>
 </div>
 
+{% endif %} 
 {% endblock main_content %} 

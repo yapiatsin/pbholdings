@@ -22,12 +22,13 @@
 {% endblock page_a %}
 {% block active_page %} Caisse {% endblock active_page%} 
 {% block main_content %}
-
+{% if user.user_type == '4' %}
+{% else %}
 <div class="modal fade" id="modal-lg">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title" style="font-weight:700;color: #06497C;">BILLETAGE DU DATE</h4>
+                <h4 class="modal-title" style="font-weight:700;color: #06497C;">BILLETAGE DU {{dates}}</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -208,12 +209,13 @@
                                     <div class="card" style="box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
                                             backdrop-filter: blur(5.2px);
                                             -webkit-backdrop-filter: blur(5.2px);">
-                                        
                                         <div class="card-header text-center" style="font-size:15px; font-weight: 700; line-height: 1; color: #06497C;">
                                             BILLETAGE
                                             {% if forms.is_valid %}
-                                            {% else %} 
-                                                <a id="billetage" title="cliquer pour faire le billetage" data-toggle="modal" data-target="#modal-lg" ><i class='fa fa-plus-square text-danger'></i></a>
+                                            {% else %}
+                                                {% if user.user_type == '1' or user.user_type == '3' %} 
+                                                    <a id="billetage" title="cliquer pour faire le billetage" data-toggle="modal" data-target="#modal-lg" ><i class='fa fa-plus-square text-danger'></i></a>
+                                                {% endif %}
                                             {% endif %}
                                         </div>
                                         <div class="card-header" style="font-weight:700;">
@@ -333,4 +335,5 @@
         </div>
     </div>
 </div>
+{% endif %}
 {% endblock main_content %}

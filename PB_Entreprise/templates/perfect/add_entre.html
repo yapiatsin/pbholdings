@@ -1,8 +1,10 @@
 {% extends 'perfect/base.html' %} 
 {% load static %} 
-{% block title %}Saisie & Etat des entretiens  {% endblock title %} 
+{% block title %}Saisie & Etat des entretiens {% endblock title %} 
 {% block navbar_nav %}{% endblock navbar_nav %} 
-{% block page_title %}<img class="profile-user-img" style="border:none; height:45px;width:45px" src="{% static 'clean.png' %}" alt="User profile picture">Saisie & Etat des entretiens du <b class="text-danger"> {{vehicule}}</b> {% endblock page_title %} 
+{% block page_title %}
+    <img class="profile-user-img" style="border:none; height:45px;width:45px" src="{% static 'clean.png' %}" alt="User profile picture">Saisie & Etat des entretiens du <b class="text-danger"> {{vehicule}}</b> 
+{% endblock page_title %} 
 {% block page_a %}{% endblock page_a %}
 {% block active_page %} Etat des recettes {% endblock active_page%}
 {% block main_content %}
