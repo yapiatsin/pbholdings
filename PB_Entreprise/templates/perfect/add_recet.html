@@ -65,7 +65,7 @@
                                 <td style="border: none;">
                                     <div style="display: flex; align-items: center;">
                                         <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 9px;margin-left: 3px;" src="{% static 'chargfix.png' %}" alt="" srcset="">
+                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 9px;margin-left: 3px;" src="{% static 'rech.png' %}" alt="" srcset="">
                                         </div>
                                         <div>
                                             <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">{{recets_result}}
@@ -185,10 +185,10 @@
                                     <h3 class="card-title">
                                         <button type="button" class="btn btn-default" id="printButton">PDF <i class='text-danger fa fa-file-pdf-o'></i></button>
                                         <button type="button" class="btn btn-default">Excell <i class='text-success fa fa-file-excel-o'></i></button>
-                                        {% if user.user_type == '1' or user.user_type == '2' %}
-                                            <button type="button" class="btn btn-default text-danger" style="font-weight:700" data-toggle="modal" data-target="#modal-lg">Ajouter un véhicule <i class='fa fa-plus-square'></i></button>
+                                        {% if user.user_type == '1' or user.user_type == '3' %}
+                                            <button type="button" class="btn btn-default text-danger" style="font-weight:700" data-toggle="modal" data-target="#modal-lg">Saisir <i class='fa fa-plus-square'></i></button>
                                         {% else %}
-                                            <button type="button" class="btn btn-default text-danger" style="font-weight:700">Ajouter un Véhicule <i class='fa fa-plus-square'></i></button>
+                                            <button type="button" class="btn btn-default text-danger" style="font-weight:700">Saisir <i class='fa fa-plus-square'></i></button>
                                         {% endif %}
                                     </h3>
                                     <div class="card-tools">

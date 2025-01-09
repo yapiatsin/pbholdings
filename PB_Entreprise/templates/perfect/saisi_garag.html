@@ -1,7 +1,7 @@
 {% extends 'perfect/base.html' %} 
 {% load static %} 
 {% block title %} 
-    Saisie comptable 
+    Saisie Garage 
 {% endblock title %} 
 {% block navbar_nav %}
 
@@ -139,24 +139,24 @@
                                                     <td>{{u.category}}</td>
                                                     <td>
                                                         {% if user.user_type != '3' %}
-                                                                <a href="{% url 'add_assurance' u.pk %}" title="Saisissez l'assurance de {{u.immatriculation}}" class="text-primary">
-                                                                    <i style="font-size: 20px;" title="Saisissez l'assurance de {{u.immatriculation}}" class="fa fa-plus-circle "></i>
-                                                                </a>
-                                                            {% else %}
-                                                                <a class="text-danger">
-                                                                    <i style="font-size: 20px;" class="fa fa-close "></i>
-                                                                </a>
+                                                            <a href="{% url 'add_assurance' u.pk %}" title="Saisissez l'assurance de {{u.immatriculation}}" class="text-primary">
+                                                                <i style="font-size: 20px;" title="Saisissez l'assurance de {{u.immatriculation}}" class="fa fa-plus-circle "></i>
+                                                            </a>
+                                                        {% else %}
+                                                            <a class="text-danger">
+                                                                <i style="font-size: 20px;" class="fa fa-close "></i>
+                                                            </a>
                                                         {% endif %}
                                                     </td>
                                                     <td>
                                                         {% if user.user_type != '3' %}
-                                                                <a href="{% url 'add_vignet' u.pk %}" class="text-primary">
-                                                                    <i style="font-size: 20px;" title="Saisissez la vignette de {{u.immatriculation}}" class="fa fa-plus-circle "></i>
-                                                                </a>
-                                                            {% else %}
-                                                                <a class="text-danger">
-                                                                    <i style="font-size: 20px; " class="fa fa-close "></i>
-                                                                </a>
+                                                            <a href="{% url 'add_vignet' u.pk %}" class="text-primary">
+                                                                <i style="font-size: 20px;" title="Saisissez la vignette de {{u.immatriculation}}" class="fa fa-plus-circle "></i>
+                                                            </a>
+                                                        {% else %}
+                                                            <a class="text-danger">
+                                                                <i style="font-size: 20px; " class="fa fa-close "></i>
+                                                            </a>
                                                         {% endif %}
                                                     </td>
                                                     <td>

@@ -9,7 +9,8 @@
     {% block page_a %} {% endblock page_a %} 
     {% block active_page %} Ajouter un véhicule {% endblock active_page%} 
 {% block main_content %}
-
+{% if user.user_type == '4' %}
+{% else %}
 <div class="col-md-12">
     <div class="card" style="color: #0176bf; border-radius: 20px; border-color: #00217b; font-weight: 700;">
         <div class="card-body table-responsive p-0" style="border-radius:8px; border:none">
@@ -245,4 +246,5 @@
         </div>
     </div>
 </div>
+{% endif %}
 {% endblock main_content %}

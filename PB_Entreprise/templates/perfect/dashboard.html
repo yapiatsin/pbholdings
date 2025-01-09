@@ -12,7 +12,8 @@
 {% endblock page_title %} 
 {% block active_page %} Tableau de bord {% endblock active_page %} 
 {% block main_content%}
-
+{% if user.user_type == '4' %}
+{% else %}
 <div class="modal fade" id="modal-lg">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -47,7 +48,6 @@
         </div>
     </div>
 </div>
-
 
 <div class="col-md-12">
     <div class="card" style="color: #0176bf; border-radius: 20px; border-color: #00217b; font-weight: 700;">
@@ -624,4 +624,5 @@
         </div>
     </div>
 </div>
+{% endif %}
 {% endblock main_content %} 
