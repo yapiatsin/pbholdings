@@ -4,7 +4,7 @@
 {% block navbar_nav %}
 {% endblock navbar_nav %} 
 {% block page_title %}
-    <a href="{% url 'billetage' %}"><img class="profile-user-img" style="border:none; height:25px;width:25px" src="{% static 'retour.png' %}" alt="Retour"></a>
+    <a href="{% url 'billetage' %}"><img class="profile-user-img" style="border:none; height:35px;width:35px" src="{% static 'retour.png' %}" alt="Retour"></a>
     <img class="profile-user-img" style="border:none; height:45px;width:45px" src="{% static 'depenses.png' %}" alt="User profile picture">Saisie une sortie de caisse 
 {% endblock page_title %} 
 {% block page_a %}
@@ -125,7 +125,6 @@
     </div>
 </div>
 
-
 <div class="col-md-12">
     <div class="row">
         <div class="col-md-12">
@@ -138,14 +137,12 @@
                                     <h3 class="card-title">
                                         <button type="button" class="btn btn-default text-danger">PDF <i class='fa fa-file-pdf-o'></i></button>
                                         <button type="button" class="btn btn-default text-success">Excell <i class='fa fa-file-excel-o'></i></button>
-                                        <button type="button" class="btn btn-default text-danger" data-toggle="modal" data-target="#modal-lg">Saisir <i class='fa fa-plus-square'></i></button>
+                                        <button type="button" class="btn btn-default text-primary" data-toggle="modal" data-target="#modal-lg">Saisir <i class='fa fa-plus-square'></i></button>
                                     </h3>
-
                                     <div class="card-tools">
                                         <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
                                     </div>
                                 </div>
-                                <!-- /.card-header -->
                                 <div class="card-body">
                                     <table id="example1" class="table table-bordered table-striped">
                                         <thead>
@@ -156,8 +153,6 @@
                                                 <th>DATE</th>
                                                 <th>ENREGISTRER PAR</th>
                                                 <th>ACTION</th>
-                                                {% comment %}
-                                                <th>CSS grade</th> {% endcomment %}
                                             </tr>
                                         </thead>
                                         <tbody> 

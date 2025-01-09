@@ -183,7 +183,6 @@
                                 {% endif %}
                             </ul>
                         </li>
-                        
                         {% if user.user_type == '4' %}
                         {% else %}
                             <li class="nav-item ">
@@ -199,7 +198,6 @@
                                 </a>
                             </li>
                         {% endif %}
-                        
                         <li class="nav-item has-treeview ">
                             <a href="" class="nav-link ">
                                 <i class="nav-icon fa fa-plus-circle"></i>
@@ -287,12 +285,14 @@
                                     </p>
                                 </a>
                                 <ul class="nav nav-treeview ">
-                                    <li class="nav-item ">
-                                        <a href="{% url 'add_catego_vehi' %}" class="nav-link ">
-                                            <i style="font-size: 10px;" class="far fa-circle nav-icon "></i>
-                                            <p>Nouvelle catégorie</p>
-                                        </a>
-                                    </li>
+                                    {% if user.is_staff %}
+                                        <li class="nav-item ">
+                                            <a href="{% url 'add_catego_vehi' %}" class="nav-link ">
+                                                <i style="font-size: 10px;" class="far fa-circle nav-icon "></i>
+                                                <p>Nouvelle catégorie</p>
+                                            </a>
+                                        </li>
+                                    {% endif %}
                                     <li class="nav-item ">
                                         <a href="{% url 'add_car' %}" class="nav-link ">
                                             <i style="font-size: 10px;" class="far fa-circle nav-icon "></i>

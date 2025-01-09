@@ -707,8 +707,6 @@ class MyRecetteView(TemplateView):
             
             sum_motif_arrets += som_des_motifs
             
-            print('***************Motif**************:', sum_motif_arrets)
-            
             sum_recets_jours += recettes_vehicule_jour
             
             daily_actions = [0] * days_in_month
@@ -1233,11 +1231,8 @@ class BilletageView(CreateView):
             som_entree = tot_entree + solde_initial
             solde_fin_journee = som_entree - tot_sortie
             
-            print(som_entree,"**************************************",solde_fin_journee)
-            
             som_billets = Billetage.objects.filter(type='Billet', date_saisie=date_bilan).aggregate(somme=Sum('valeur'))['somme'] or 0
-            # nb_bill = Billetage.objects.filter(type='Billet', date_saisie=date_bilan).count() 
-
+            
             som_pieces = Billetage.objects.filter(type='Pièce', date_saisie=date_bilan).aggregate(somme=Sum('valeur'))['somme'] or 0
             som_billets = som_billets
             som_pieces = som_pieces
@@ -1286,16 +1281,12 @@ class BilletageView(CreateView):
                 if solde_temp:
                     solde_initial = solde_temp.montant
                     break
-                
             # Si aucun solde trouvé dans les 3 derniers jours, utiliser le premier solde initial enregistré
             if not solde_initial:
                 solde_initial_record = SoldeJour.objects.filter(date_saisie=date.today() - timedelta(days=1)).first()
                 solde_initial = solde_initial_record.montant if solde_initial_record else 0
-                
             som_entree = tot_entree + solde_initial
             solde_fin_journee = som_entree - tot_sortie
-            
-            print(som_entree,"**************************************",solde_fin_journee)
             
             som_billets = Billetage.objects.filter(type='Billet', date_saisie=date.today()).aggregate(somme=Sum('valeur'))['somme'] or 0
             nb_bill = Billetage.objects.filter(type='Billet', date_saisie=date.today()).count() 
@@ -1548,7 +1539,7 @@ class AddSoldeJourView(CreateView):
     model = SoldeJour
     form_class = Solde_JourForm
     template_name = 'perfect/solde.html'
-    success_message = 'Solde de la journée enregistrée avec succès👍✓✓'
+    success_message = 'le solde de la journée a été enregistré avec succès.👍✓✓'
     error_message = "Un solde existe deja pour cette journée ✘✘ "
     success_url = reverse_lazy ('add_solde')
     timeout_minutes = 200
@@ -1563,8 +1554,9 @@ class AddSoldeJourView(CreateView):
         return super().dispatch(request, *args, **kwargs)
     def form_valid(self, form):
         # Vérifie si un solde existe déjà pour la date spécifiée
-        date = form.cleaned_data['date']
-        solde_exist = SoldeJour.objects.filter(date=date).exists()
+        date = form.cleaned_data['date_saisie']
+        messages.success(self.request, self.success_message)
+        solde_exist = SoldeJour.objects.filter(date_saisie=date).exists()
         if solde_exist:
             # Si un solde existe déjà pour cette date, renvoie une erreur
             form.add_error('date', 'Un solde existe déjà pour cette date.')
@@ -1628,153 +1620,7 @@ class UpdatEncaissementView(UpdateView):
         context['user_group'] = user_group.name if user_group else None
         context['catego_vehi'] = CategoVehi.objects.all()
         return context
-
-
-class BilanJournalierView(TemplateView):
-    template_name = 'perfect/bilan_journalier.html'
-    form_class = DatebilanForm
-    timeout_minutes = 120
-    def dispatch(self, request, *args, **kwargs):
-        last_activity = request.session.get('last_activity')
-        if last_activity:
-            last_activity = datetime.strptime(last_activity, '%Y-%m-%d %H:%M:%S')
-            if datetime.now() - last_activity > timedelta(minutes=self.timeout_minutes):
-                logout(request)
-                messages.warning(request, "Vous avez été déconnecté ")
-                return redirect("login")
-        return super().dispatch(request, *args, **kwargs)
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        user_group = self.request.user.groups.first()
-        context['user_group'] = user_group.name if user_group else None
-        context['catego_vehi'] = CategoVehi.objects.all()
-        #recettes_taxi = Recette.objects.filter(vehicule__category__category='Taxi', date=date.today()).aggregate(Sum('montant'))['montant__sum'] or 0
-        #recettes_yango = Recette.objects.filter(vehicule__category__category='Yango', date=date.today()).aggregate(Sum('montant'))['montant__sum'] or 0
-        
-        form = DatebilanForm(self.request.GET)
-        if form.is_valid():
-            date_bilan = form.cleaned_data['date_bilan']
-            context['total_entrees'] = Encaissement.objects.filter(date=date_bilan).aggregate(Sum('montant'))['montant__sum'] or 0
-            context['total_sorties'] = Decaissement.objects.filter(date=date_bilan).aggregate(Sum('montant'))['montant__sum'] or 0
-            context['en_caisser'] = Encaissement.objects.filter(date=date_bilan)
-            context['de_caisser'] = Decaissement.objects.filter(date=date_bilan)
-            
-            # Récupérer le solde de début de journée du jour précédent
-            solde_debut_jour = SoldeJour.objects.filter(date=date_bilan - timedelta(days=1)).first()
-            context['solde_deb_jour'] = solde_debut_jour.montant if solde_debut_jour else 0
-            
-            solde_init = SoldeJour.objects.filter(date=date_bilan - timedelta(days=2)).last()
-            #solde_init = SoldeJour.objects.order_by('date').last()
-            solde_init = solde_init.montant if solde_init else 0
-            # Récupérer le solde initial du jour précédent
-            solde_initial_preced = SoldeJour.objects.filter(date=date_bilan - timedelta(days=1)).aggregate(Sum('montant'))['montant__sum'] or 0
-            solde_initial_preced = solde_initial_preced if solde_initial_preced else solde_init
-
-            context['solde_init'] = solde_init
-            context['solde_initial_preced'] = solde_initial_preced
-            context['tot_entree_jour'] = context['total_entrees'] + context['solde_initial_preced']
-            context['solde_final'] = context['total_entrees'] + context['solde_initial_preced'] - context['total_sorties']
-            
-            billet = Billetage.objects.filter(type_valeur='Billet', date_saisie=date_bilan)
-            bille = []              
-            som_tot_bill = 0
-            for b in billet:
-                val = b.valeur
-                nb = b.nombre   
-                res = b.valeur * b.nombre   
-                som_tot_bill += res or 0    
-                bille.append({'val': val, 'nb':nb,'res':res})
-            context['som_tot_bill'] = som_tot_bill
-            context['bille'] = bille
-
-            piece = Billetage.objects.filter(type_valeur='Piece', date_saisie=date_bilan)
-            piec = []
-            som_tot_piece = 0
-            for p in piece:
-                val = p.valeur or 0
-                nb = p.nombre or 0
-                res = p.valeur * p.nombre
-                som_tot_piece += res or 0
-                piec.append({'val': val, 'nb':nb,'res':res})
-            context['som_tot_piece'] = som_tot_piece
-            context['piec'] = piec
-
-            context['data'] = date_bilan
-            context['billet'] = billet
-            context['piece'] = piece
-            context['total_piece_bille'] = context['som_tot_piece'] + context['som_tot_bill']
-            context['diff'] = context['solde_final'] - context['total_piece_bille']
-
-        context['form'] = form
-        context['encaisser'] = Encaissement.objects.filter(date=date.today())
-        context['decaisser'] = Decaissement.objects.filter(date=date.today())
-        
-        jour = SoldeJour.objects.filter(date=date.today()).aggregate(Sum('montant'))['montant__sum'] or 0
-        
-        context['Date'] = date.today()
-        
-        # Calculer le total des encaissements pour la journée actuelle
-        context['entree'] = Encaissement.objects.filter(date=date.today()).aggregate(Sum('montant'))['montant__sum'] or 0
-        context['sortie'] = Decaissement.objects.filter(date=date.today()).aggregate(Sum('montant'))['montant__sum'] or 0
-        date_courante = date.today()
-
-        # Récupérer le solde de début de journée du jour précédent
-        solde_debut_jour = SoldeJour.objects.filter(date=date_courante - timedelta(days=1)).first()
-        context['solde_deb_jour'] = solde_debut_jour.montant if solde_debut_jour else 0
-        
-        # Récupérer le solde initial (le premier solde enregistré)
-        #solde_initializ = SoldeJour.objects.order_by('date').last()
-        solde_initializ = SoldeJour.objects.filter(date=date_courante - timedelta(days=2)).last()
-        
-        solde_initializ = solde_initializ.montant if solde_initializ else 0
-        # Récupérer le solde initial du jour précédent
-        solde_initial_precedent = SoldeJour.objects.filter(date=date_courante - timedelta(days=1)).aggregate(Sum('montant'))['montant__sum'] or 0
-        solde_initial_precedent = solde_initial_precedent if solde_initial_precedent else solde_initializ
-        
-        context['solde_initializ'] = solde_initializ
-        context['solde_deb_jour'] =  context['solde_deb_jour']
-        context['solde_initial_precedent'] = solde_initial_precedent
-        context['Tot_entree'] = context['entree'] + context['solde_initial_precedent']
-        
-        context['solde_fin_journee'] = context['entree'] + context['solde_initial_precedent'] - context['sortie']
-        
-        som_billets = Billetage.objects.filter(type_valeur='Billet', date_saisie=date.today()).aggregate(Sum('valeur'))['valeur__sum'] or 0
-        nb_bill = Billetage.objects.filter(type_valeur='Billet', date_saisie=date.today()).count() 
-        
-        som_pieces = Billetage.objects.filter(type_valeur='Piece', date_saisie=date.today()).aggregate(Sum('valeur'))['valeur__sum'] or 0
-        context['som_billets'] = som_billets
-        context['som_pieces'] = som_pieces
-        
-        bill = Billetage.objects.filter(type_valeur='Billet', date_saisie=date.today())
-        bil = []
-        som_tot_bil = 0
-        for b in bill:
-            val = b.valeur
-            nb = b.nombre
-            res = b.valeur * b.nombre
-            som_tot_bil += res or 0
-            bil.append({'val': val, 'nb':nb,'res':res})
-        context['som_tot_bil'] = som_tot_bil
-        context['bil'] = bil
-        
-        piece = Billetage.objects.filter(type_valeur='Piece', date_saisie=date.today())
-        pie = []
-        som_tot_piec = 0
-        for p in piece:
-            val = p.valeur or 0
-            nb = p.nombre or 0
-            res = p.valeur * p.nombre
-            som_tot_piec += res or 0
-            pie.append({'val': val, 'nb':nb,'res':res})
-        context['som_tot_piec'] = som_tot_piec
-        context['pie'] = pie
-        context['Total_piec_bill'] = context['som_tot_piec'] + context['som_tot_bil']
-        context['ecart'] = context['solde_fin_journee'] - context['Total_piec_bill']
-        
-        #self.request.user.last_login_solde = solde_init
-        self.request.user.save()
-        return context
-
+    
 from django.core.mail import send_mail
 class GestionalerteView(TemplateView):                                                                          
     template_name = 'perfect/alerte.html'
@@ -1788,13 +1634,6 @@ class GestionalerteView(TemplateView):
                 messages.warning(request, "Vous avez été déconnecté ")
                 return redirect("login")
         return super().dispatch(request, *args, **kwargs)
-    
-    # def send_alert_email(self, vehicle_reference):
-    #     subject = "Alert: Vehicle Maintenance Due Soon"
-    #     message = f"The vehicle with reference {vehicle_reference} requires maintenance soon. Please review the alerts."
-    #     recipient_list = ['pbeexp3@yopmail.com', 'yapiatsin0@gmail.com']
-    #     send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, recipient_list)
-    
     def send_alert_email(self, vehicle_reference, alert_types):
         today_date = datetime.now().strftime("%Y-%m-%d")
         
@@ -1811,14 +1650,13 @@ class GestionalerteView(TemplateView):
             f"Le véhicule avec l'immatriculation {vehicle_reference} requiert une attention pour : {alert_message}. "
             "Veuillez vérifier les alertes associées."
         )
-        recipient_list = ['pbeexp3@yopmail.com', 'yapiatsin0@gmail.com']
+        recipient_list = ['sorothodaniel@gmail.com', 'yapiatsin0@gmail.com']
         send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, recipient_list)
         
         # Mettre à jour la session pour éviter un envoi multiple le même jour
         last_sent_alerts[vehicle_reference] = today_date
         self.request.session['last_sent_alerts'] = last_sent_alerts
         
-        print("+++++++++++++++++++",send_mail, last_sent_alerts[vehicle_reference])
     def get_context_data(self,*args, **kwargs):  
         context = super().get_context_data(*args,**kwargs)  
         dates = date.today()
@@ -1831,24 +1669,19 @@ class GestionalerteView(TemplateView):
         if user.user_type == "4":
             try:
                 gerant = user.gerants.get()
-                print("----------",gerant.tel1)
                 if gerant.gerant_voiture == "VTC":
                     vehicules = Vehicule.objects.filter(category__category="VTC")
-                    print("************",vehicules)
                 else:
                     vehicules = Vehicule.objects.filter(category__category="TAXI")
-                    print("************",vehicules)
             except Gerant.DoesNotExist:
                 vehicules = Vehicule.objects.none()  # No vehicles if no Gerant linked
         elif user:
             try:
                 vehicules = Vehicule.objects.all()
-                print("******OKLM******",vehicules)
             except:
                 vehicules = Vehicule.objects.none() 
-                print("*****sorry*******",vehicules)# No vehicles if no user linked
         else:
-            print("*****ALL*******",vehicules)
+            print("*****ALL*******")
         resultat_vehicule = []
         alert_color = " "
         forms = DateForm(self.request.GET)
@@ -1940,22 +1773,21 @@ class GestionalerteView(TemplateView):
                 
                 alert_types = []
                 # Ajoutez les types d'alerte en fonction des jours restants
-                if safe_int(jours_restant) <= 5:
+                if 1 <= safe_int(jours_restant) <= 5:
                     alert_types.append("visite technique")
-                if safe_int(jours_ent_restant) <= 5:
+                if 1 <= safe_int(jours_ent_restant) <= 5:
                     alert_types.append("entretien")
-                if safe_int(jours_assu_restant) <= 5:
+                if 1 <= safe_int(jours_assu_restant) <= 5:
                     alert_types.append("assurance")
-                if safe_int(jours_vign_restant) <= 5:
+                if 1 <= safe_int(jours_vign_restant) <= 5:
                     alert_types.append("vignette")
-                if safe_int(jours_pate_restant) <= 5:
+                if 1 <= safe_int(jours_pate_restant) <= 5:
                     alert_types.append("patente")
-                if safe_int(jours_cartsta_restant) <= 5:
+                if 1 <= safe_int(jours_cartsta_restant) <= 5:
                     alert_types.append("stationnement")
                 # Envoie l'email d'alerte si nécessaire
                 if alert_types:
                     self.send_alert_email(vehicule.immatriculation, alert_types) 
-                print('---------------------', alert_types,'------------------',self.send_alert_email)  
                 resultat_vehicule.append({'vehicule': vehicule, 'jours_restant':jours_restant, 'alert_color':alert_color, 'alert_ent_color':alert_ent_color, 'jours_ent_restant':jours_ent_restant,'alert_assu_color':alert_assu_color,'jours_assu_restant':jours_assu_restant,'jours_vign_restant':jours_vign_restant,'alert_vign_color':alert_vign_color, 'jours_pate_restant':jours_pate_restant,'alert_pate_color':alert_pate_color, 'jours_cartsta_restant':jours_cartsta_restant,'alert_cartsta_color':alert_cartsta_color,})
             
         else:
@@ -2057,9 +1889,7 @@ class GestionalerteView(TemplateView):
                 # Envoie l'email d'alerte si nécessaire
                 if alert_types:
                     self.send_alert_email(vehicule.immatriculation, alert_types) 
-                print('---------------------', alert_types,'------------------',self.send_alert_email) 
                 resultat_vehicule.append({'vehicule': vehicule, 'jours_restant':jours_restant, 'alert_color':alert_color, 'alert_ent_color':alert_ent_color, 'jours_ent_restant':jours_ent_restant,'alert_assu_color':alert_assu_color,'jours_assu_restant':jours_assu_restant,'jours_vign_restant':jours_vign_restant,'alert_vign_color':alert_vign_color, 'jours_pate_restant':jours_pate_restant,'alert_pate_color':alert_pate_color, 'jours_cartsta_restant':jours_cartsta_restant,'alert_cartsta_color':alert_cartsta_color,})
-
         context={
             'dates':dates,
             'vehicules':vehicules,
@@ -2074,7 +1904,6 @@ class GestionalerteView(TemplateView):
             'form':forms,
             'mois_en_cours':libelle_mois_en_cours,
         }
-        print("********************************", context)
         return context 
 
 class AddVehiculeView(CreateView):
@@ -2114,13 +1943,10 @@ class AddVehiculeView(CreateView):
         if user.user_type == "4":
             try:
                 gerant = user.gerants.get()
-                print("----------",gerant.tel1)
                 if gerant.gerant_voiture == "VTC":
                     vehicules = Vehicule.objects.filter(category__category="VTC")
-                    print("************",vehicules)
                 else:
                     vehicules = Vehicule.objects.filter(category__category="TAXI")
-                    print("************",vehicules)
             except Gerant.DoesNotExist:
                 vehicules = Vehicule.objects.none()  # No vehicles if no Gerant linked
         else:
@@ -2239,13 +2065,10 @@ class DashboardGaragView(TemplateView):
         if user.user_type == "4":
             try:
                 gerant = user.gerants.get()
-                print("----------",gerant.tel1)
                 if gerant.gerant_voiture == "VTC":
                     vehicules = Vehicule.objects.filter(category__category="VTC")
-                    print("************",vehicules)
                 else:
                     vehicules = Vehicule.objects.filter(category__category="TAXI")
-                    print("************",vehicules)
             except Gerant.DoesNotExist:
                 vehicules = Vehicule.objects.none()  # No vehicles if no Gerant linked
         else:
@@ -2446,13 +2269,10 @@ class DashboardGaragecarView(DetailView):
         if user.user_type == "4":
             try:
                 gerant = user.gerants.get()
-                print("----------",gerant.tel1)
                 if gerant.gerant_voiture == "VTC":
                     vehicules = Vehicule.objects.filter(category__category="VTC")
-                    print("************",vehicules)
                 else:
                     vehicules = Vehicule.objects.filter(category__category="TAXI")
-                    print("************",vehicules)
             except Gerant.DoesNotExist:
                 vehicules = Vehicule.objects.none()  # No vehicles if no Gerant linked
         else:
@@ -2582,24 +2402,19 @@ class CarFinanceView(TemplateView):
         if user.user_type == "4":
             try:
                 gerant = user.gerants.get()
-                print("----------",gerant.tel1)
                 if gerant.gerant_voiture == "VTC":
                     vehicules = Vehicule.objects.filter(category__category="VTC")
-                    print("************",vehicules)
                 else:
                     vehicules = Vehicule.objects.filter(category__category="TAXI")
-                    print("************",vehicules)
             except Gerant.DoesNotExist:
                 vehicules = Vehicule.objects.none()  # No vehicles if no Gerant linked
         elif user:
             try:
                 vehicules = Vehicule.objects.all()
-                print("******OKLM******",vehicules)
             except:
                 vehicules = Vehicule.objects.none() 
-                print("*****sorry*******",vehicules)
         else:
-            print("*****ALL*******",vehicules)
+            print("*****ALL*******")
         context={
             'vehicule':vehicules,
         }
@@ -2690,10 +2505,6 @@ class DetailVehiculeView(DetailView):
             marge_data = [recet_mois_data[i] - chargvar_mois_data[i] for i in range(12)]
             # Calcul des taux mensuels
             taux_data = [(marge_data[i] * 100) / recet_mois_data[i] if recet_mois_data[i] > 0 else 0 for i in range(12)]
-
-            # Ajustement des taux pour éviter les erreurs d'indexation
-            # taux_data = [0 if taux_data[i] == 0 else taux_data[i - 1] for i in range(len(taux_data))]
-            
         else:
             recettes = Recette.objects.filter(vehicule = vehicules, date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 1
             charge_fix = ChargeFixe.objects.filter(vehicule = vehicules, date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
@@ -2750,11 +2561,6 @@ class DetailVehiculeView(DetailView):
             # Calcul des taux mensuels
             taux_data = [(marge_data[i] * 100) / recet_mois_data[i] if recet_mois_data[i] > 0 else 0 for i in range(12)]
 
-            # Ajustement des taux pour éviter les erreurs d'indexation
-            # taux_data = [0 if taux_data[i] == 0 else taux_data[i - 1] for i in range(len(taux_data))]
-            # label = [calendar.month_name[month][0] for month in range(1, 13)]
-            
-            print(taux_marge,"**********",marge_data,"--------------",taux_data,"--------------", label, '-------------',taux_marge_format, "------------------",resultat)
         context.update({
             'recettes':recettes,
             'charge_fix':charge_fix,
@@ -2786,34 +2592,6 @@ class DetailVehiculeView(DetailView):
         })    
         return context 
     
-
-    
-# class DeletVehiculeView(DeleteView):
-#     model = Vehicule
-#     template_name = 'news/appl/delet_car.html' 
-#     success_message = 'véhicule Supprimé avec succès👍✓✓'
-#     success_url =reverse_lazy ('listvehi')
-#     timeout_minutes = 500
-#     def dispatch(self, request, *args, **kwargs):
-#         last_activity = request.session.get('last_activity')
-#         if last_activity:
-#             last_activity = datetime.strptime(last_activity, '%Y-%m-%d %H:%M:%S')
-#             if datetime.now() - last_activity > timedelta(minutes=self.timeout_minutes):
-#                 logout(request)
-#                 messages.warning(request, "Vous avez été déconnecté ")
-#                 return redirect("login")
-#         return super().dispatch(request, *args, **kwargs)
-#     def form_valid(self, form):
-#         reponse =  super().form_valid(form)
-#         messages.success(self.request, self.success_message)
-#         return reponse
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         user_group = self.request.user.groups.first()
-#         context['user_group'] =user_group.name if user_group else None
-#         context['catego_vehi'] = CategoVehi.objects.all()
-#         return context
-    
 class SaisieGaragView(TemplateView):
     template_name = 'perfect/saisi_garag.html'
     timeout_minutes = 120
@@ -2836,24 +2614,19 @@ class SaisieGaragView(TemplateView):
         if user.user_type == "4":
             try:
                 gerant = user.gerants.get()
-                print("----------",gerant.tel1)
                 if gerant.gerant_voiture == "VTC":
                     vehicules = Vehicule.objects.filter(category__category="VTC")
-                    print("************",vehicules)
                 else:
                     vehicules = Vehicule.objects.filter(category__category="TAXI")
-                    print("************",vehicules)
             except Gerant.DoesNotExist:
                 vehicules = Vehicule.objects.none()  # No vehicles if no Gerant linked
         elif user:
             try:
                 vehicules = Vehicule.objects.all()
-                print("******OKLM******",vehicules)
             except:
                 vehicules = Vehicule.objects.none() 
-                print("*****sorry*******",vehicules)# No vehicles if no user linked
         else:
-            print("*****ALL*******",vehicules)
+            print("*****ALL*******")
         
         libelle_mois= calendar.month_name[mois]
         forms = DateForm(self.request.GET)
@@ -2906,24 +2679,19 @@ class TempsArretsView(TemplateView):
         if user.user_type == "4":
             try:
                 gerant = user.gerants.get()
-                print("----------",gerant.tel1)
                 if gerant.gerant_voiture == "VTC":
                     vehicules = Vehicule.objects.filter(category__category="VTC")
-                    print("************",vehicules)
                 else:
                     vehicules = Vehicule.objects.filter(category__category="TAXI")
-                    print("************",vehicules)
             except Gerant.DoesNotExist:
                 vehicules = Vehicule.objects.none()  # No vehicles if no Gerant linked
         elif user:
             try:
                 vehicules = Vehicule.objects.all()
-                print("******OKLM******",vehicules)
             except:
                 vehicules = Vehicule.objects.none() 
-                print("*****sorry*******",vehicules)# No vehicles if no user linked
         else:
-            print("*****ALL*******",vehicules)
+            print("*****ALL*******")
         
         libelle_mois= calendar.month_name[mois]
         forms = DateForm(self.request.GET)
@@ -2966,8 +2734,6 @@ class SaisiComptaView(TemplateView):
                 messages.warning(request, "Vous avez été déconnecté ")
                 return redirect("login")
         return super().dispatch(request, *args, **kwargs)
-    
-    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         dates = date.today()
@@ -2978,7 +2744,6 @@ class SaisiComptaView(TemplateView):
         if user.user_type == "4":
             try:
                 gerant = user.gerants.get()
-                print("----------",gerant.tel1)
                 if gerant.gerant_voiture == "VTC":
                     vehicules = Vehicule.objects.filter(category__category="VTC")
                 else:
@@ -2991,7 +2756,7 @@ class SaisiComptaView(TemplateView):
             except:
                 vehicules = Vehicule.objects.none() 
         else:
-            print("*****ALL*******",vehicules)
+            print("*****ALL*******")
         libelle_mois= calendar.month_name[mois]
         forms = DateForm(self.request.GET)
         if forms.is_valid():
@@ -3038,6 +2803,7 @@ class SaisiComptaView(TemplateView):
             
             'margcontrib':margcontrib,
             'taux_marge':taux_marge,
+            'chargtot':chargtot,
             'result':result,
             
             'form':forms,
@@ -3085,24 +2851,19 @@ class AddRecetteView(CreateView):
         if user.user_type == "4":
             try:
                 gerant = user.gerants.get()
-                print("----------",gerant.tel1)
                 if gerant.gerant_voiture == "VTC":
                     vehicules = Vehicule.objects.filter(category__category="VTC")
-                    print("************",vehicules)
                 else:
                     vehicules = Vehicule.objects.filter(category__category="TAXI")
-                    print("************",vehicules)
             except Gerant.DoesNotExist:
                 vehicules = Vehicule.objects.none()  # No vehicles if no Gerant linked
         elif user:
             try:
                 vehicules = Vehicule.objects.all()
-                print("******OKLM******",vehicules)
             except:
                 vehicules = Vehicule.objects.none() 
-                print("*****sorry*******",vehicules)# No vehicles if no user linked
         else:
-            print("*****ALL*******",vehicules)
+            print("*****ALL*******")
 
         if form.is_valid():
             date_debut = form.cleaned_data['date_debut'] 
@@ -3135,7 +2896,6 @@ class AddRecetteView(CreateView):
             'form': form,
             'forms': forms,
         }   
-        print(context)   
         return context  
     def get_success_url(self):
         return reverse('add_recettes', kwargs={'pk': self.kwargs['pk']})
@@ -3333,24 +3093,19 @@ class AddChargeFixView(CreateView):
         if user.user_type == "4":
             try:
                 gerant = user.gerants.get()
-                print("----------",gerant.tel1)
                 if gerant.gerant_voiture == "VTC":
                     vehicules = Vehicule.objects.filter(category__category="VTC")
-                    print("************",vehicules)
                 else:
                     vehicules = Vehicule.objects.filter(category__category="TAXI")
-                    print("************",vehicules)
             except Gerant.DoesNotExist:
                 vehicules = Vehicule.objects.none()  # No vehicles if no Gerant linked
         elif user:
             try:
                 vehicules = Vehicule.objects.all()
-                print("******OKLM******",vehicules)
             except:
                 vehicules = Vehicule.objects.none() 
-                print("*****sorry*******",vehicules)# No vehicles if no user linked
         else:
-            print("*****ALL*******",vehicules)
+            print("*****ALL*******")
 
         if form.is_valid():
             date_debut = form.cleaned_data['date_debut'] 
@@ -3383,7 +3138,6 @@ class AddChargeFixView(CreateView):
             'form': form,
             'forms': forms,
         }   
-        print(context)   
         return context  
     def get_success_url(self):
         return reverse('addcharg_fix', kwargs={'pk': self.kwargs['pk']})
@@ -3575,26 +3329,20 @@ class AddChargeVarView(CreateView):
         if user.user_type == "4":
             try:
                 gerant = user.gerants.get()
-                print("----------",gerant.tel1)
                 if gerant.gerant_voiture == "VTC":
                     vehicules = Vehicule.objects.filter(category__category="VTC")
-                    print("************",vehicules)
                 else:
                     vehicules = Vehicule.objects.filter(category__category="TAXI")
-                    print("************",vehicules)
             except Gerant.DoesNotExist:
                 vehicules = Vehicule.objects.none()  
                 # No vehicles if no Gerant linked
         elif user:
             try:
                 vehicules = Vehicule.objects.all()
-                print("******OKLM******",vehicules)
             except:
-                vehicules = Vehicule.objects.none() 
-                print("*****sorry*******",vehicules)
-                # No vehicles if no user linked
+                vehicules = Vehicule.objects.none()
         else:
-            print("*****ALL*******",vehicules)
+            print("*****ALL*******")
 
         if form.is_valid():
             date_debut = form.cleaned_data['date_debut'] 
@@ -3626,7 +3374,6 @@ class AddChargeVarView(CreateView):
             'form': form,
             'forms': forms,
         }   
-        print(context)   
         return context  
     def get_success_url(self):
         return reverse('addcharg_fix', kwargs={'pk': self.kwargs['pk']})
@@ -3970,9 +3717,7 @@ class AddChargeAdminisView(CreateView):
             
             'charg_adm_result':charg_adm_result,
             'chargadmin_data':chargadmin_mois_data,
-        }   
-        print(context)
-        
+        }  
         return context   
     
 def delete_chargadmin(request, pk):
@@ -4022,24 +3767,19 @@ class AddCartStationView(CreateView):
         if user.user_type == "4":
             try:
                 gerant = user.gerants.get()
-                print("----------",gerant.tel1)
                 if gerant.gerant_voiture == "VTC":
                     vehicules = Vehicule.objects.filter(category__category="VTC")
-                    print("************",vehicules)
                 else:
                     vehicules = Vehicule.objects.filter(category__category="TAXI")
-                    print("************",vehicules)
             except Gerant.DoesNotExist:
                 vehicules = Vehicule.objects.none()  # No vehicles if no Gerant linked
         elif user:
             try:
                 vehicules = Vehicule.objects.all()
-                print("******OKLM******",vehicules)
             except:
                 vehicules = Vehicule.objects.none() 
-                print("*****sorry*******",vehicules)# No vehicles if no user linked
         else:
-            print("*****ALL*******",vehicules)
+            print("*****ALL*******")
 
         if form.is_valid():
             date_debut = form.cleaned_data['date_debut'] 
@@ -4072,7 +3812,6 @@ class AddCartStationView(CreateView):
             'form': form,
             'forms': forms,
         }   
-        print(context)   
         return context  
     def get_success_url(self):
         return reverse('add_station', kwargs={'pk': self.kwargs['pk']})
@@ -4239,24 +3978,19 @@ class AddPatenteView(CreateView):
         if user.user_type == "4":
             try:
                 gerant = user.gerants.get()
-                print("----------",gerant.tel1)
                 if gerant.gerant_voiture == "VTC":
                     vehicules = Vehicule.objects.filter(category__category="VTC")
-                    print("************",vehicules)
                 else:
                     vehicules = Vehicule.objects.filter(category__category="TAXI")
-                    print("************",vehicules)
             except Gerant.DoesNotExist:
-                vehicules = Vehicule.objects.none()  # No vehicles if no Gerant linked
+                vehicules = Vehicule.objects.none()
         elif user:
             try:
                 vehicules = Vehicule.objects.all()
-                print("******OKLM******",vehicules)
             except:
                 vehicules = Vehicule.objects.none() 
-                print("*****sorry*******",vehicules)# No vehicles if no user linked
         else:
-            print("*****ALL*******",vehicules)
+            print("*****ALL*******")
 
         if form.is_valid():
             date_debut = form.cleaned_data['date_debut'] 
@@ -4289,7 +4023,6 @@ class AddPatenteView(CreateView):
             'form': form,
             'forms': forms,
         }   
-        print(context)   
         return context  
     def get_success_url(self):
         return reverse('add_patente', kwargs={'pk': self.kwargs['pk']})
@@ -4457,24 +4190,19 @@ class AddVignetteView(CreateView):
         if user.user_type == "4":
             try:
                 gerant = user.gerants.get()
-                print("----------",gerant.tel1)
                 if gerant.gerant_voiture == "VTC":
                     vehicules = Vehicule.objects.filter(category__category="VTC")
-                    print("************",vehicules)
                 else:
                     vehicules = Vehicule.objects.filter(category__category="TAXI")
-                    print("************",vehicules)
             except Gerant.DoesNotExist:
                 vehicules = Vehicule.objects.none()  # No vehicles if no Gerant linked
         elif user:
             try:
                 vehicules = Vehicule.objects.all()
-                print("******OKLM******",vehicules)
             except:
                 vehicules = Vehicule.objects.none() 
-                print("*****sorry*******",vehicules)# No vehicles if no user linked
         else:
-            print("*****ALL*******",vehicules)
+            print("*****ALL*******")
 
         if form.is_valid():
             date_debut = form.cleaned_data['date_debut'] 
@@ -4506,8 +4234,7 @@ class AddVignetteView(CreateView):
             'annee': annee,
             'form': form,
             'forms': forms,
-        }   
-        print(context)   
+        }     
         return context  
     def get_success_url(self):
         return reverse('add_vignet', kwargs={'pk': self.kwargs['pk']})
@@ -4708,25 +4435,20 @@ class AddVisitView(CreateView):
         if user.user_type == "4":
             try:
                 gerant = user.gerants.get()
-                print("----------",gerant.tel1)
                 if gerant.gerant_voiture == "VTC":
                     vehicules = Vehicule.objects.filter(category__category="VTC")
-                    print("************",vehicules)
                 else:
                     vehicules = Vehicule.objects.filter(category__category="TAXI")
-                    print("************",vehicules)
             except Gerant.DoesNotExist:
                 vehicules = Vehicule.objects.none()  
                 # No vehicles if no Gerant linked
         elif user:
             try:
                 vehicules = Vehicule.objects.all()
-                print("******OKLM******",vehicules)
             except:
                 vehicules = Vehicule.objects.none() 
-                print("*****sorry*******",vehicules)
         else:
-            print("*****ALL*******",vehicules)
+            print("*****ALL*******")
 
         if form.is_valid():
             date_debut = form.cleaned_data['date_debut'] 
@@ -4929,24 +4651,19 @@ class AddAssuranceView(CreateView):
         if user.user_type == "4":
             try:
                 gerant = user.gerants.get()
-                print("----------",gerant.tel1)
                 if gerant.gerant_voiture == "VTC":
                     vehicules = Vehicule.objects.filter(category__category="VTC")
-                    print("************",vehicules)
                 else:
                     vehicules = Vehicule.objects.filter(category__category="TAXI")
-                    print("************",vehicules)
             except Gerant.DoesNotExist:
                 vehicules = Vehicule.objects.none()  # No vehicles if no Gerant linked
         elif user:
             try:
                 vehicules = Vehicule.objects.all()
-                print("******OKLM******",vehicules)
             except:
                 vehicules = Vehicule.objects.none() 
-                print("*****sorry*******",vehicules)# No vehicles if no user linked
         else:
-            print("*****ALL*******",vehicules)
+            print("*****ALL*******")
 
         if form.is_valid():
             date_debut = form.cleaned_data['date_debut'] 
@@ -4978,8 +4695,7 @@ class AddAssuranceView(CreateView):
             'annee': annee,
             'form': form,
             'forms': forms,
-        }   
-        print(context)   
+        }    
         return context  
     def get_success_url(self):
         return reverse('add_assurance', kwargs={'pk': self.kwargs['pk']})
@@ -5141,7 +4857,6 @@ class AddReparationView(CreateView):
         if user.user_type == "4":
             try:
                 gerant = user.gerants.get()
-                print("----------",gerant.tel1)
                 if gerant.gerant_voiture == "VTC":
                     vehicules = Vehicule.objects.filter(category__category="VTC")
                 else:
@@ -5154,7 +4869,7 @@ class AddReparationView(CreateView):
             except:
                 vehicules = Vehicule.objects.none() 
         else:
-            print("*****ALL*******",vehicules)
+            print("*****ALL*******")
         if form.is_valid():
             date_debut = form.cleaned_data['date_debut'] 
             date_fin = form.cleaned_data['date_fin']
@@ -5251,24 +4966,19 @@ class AddPiecEchangeView(CreateView):
         if user.user_type == "4":
             try:
                 gerant = user.gerants.get()
-                print("----------",gerant.tel1)
                 if gerant.gerant_voiture == "VTC":
                     vehicules = Vehicule.objects.filter(category__category="VTC")
-                    print("************",vehicules)
                 else:
                     vehicules = Vehicule.objects.filter(category__category="TAXI")
-                    print("************",vehicules)
             except Gerant.DoesNotExist:
                 vehicules = Vehicule.objects.none()  # No vehicles if no Gerant linked
         elif user:
             try:
                 vehicules = Vehicule.objects.all()
-                print("******OKLM******",vehicules)
             except:
                 vehicules = Vehicule.objects.none() 
-                print("*****sorry*******",vehicules)# No vehicles if no user linked
         else:
-            print("*****ALL*******",vehicules)
+            print("*****ALL*******")
 
         if form.is_valid():
             date_debut = form.cleaned_data['date_debut'] 
@@ -5591,26 +5301,20 @@ class AddEntretienView(CreateView):
         if user.user_type == "4":
             try:
                 gerant = user.gerants.get()
-                print("----------",gerant.tel1)
                 if gerant.gerant_voiture == "VTC":
                     vehicules = Vehicule.objects.filter(category__category="VTC")
-                    print("************",vehicules)
                 else:
                     vehicules = Vehicule.objects.filter(category__category="TAXI")
-                    print("************",vehicules)
             except Gerant.DoesNotExist:
                 vehicules = Vehicule.objects.none()  
                 # No vehicles if no Gerant linked
         elif user:
             try:
                 vehicules = Vehicule.objects.all()
-                print("******OKLM******",vehicules)
             except:
                 vehicules = Vehicule.objects.none() 
-                print("*****sorry*******",vehicules)
         else:
-            print("*****ALL*******",vehicules)
-
+            print("*****ALL*******")
         if form.is_valid():
             date_debut = form.cleaned_data['date_debut'] 
             date_fin = form.cleaned_data['date_fin']

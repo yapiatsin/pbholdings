@@ -78,12 +78,11 @@
                                             <a href="{ url 'addpoid' patient.pk %}" style="font-size:20px"><i class="fa fa-plus-circle text-success" style="position:relative; font-size:20px;top:-10px"></i></a>
                                         </div>
                                         <div>
+                                            <div style="font-size: 16px;color: #06497C"><small style="color: #06497C; font-weight: 700; line-height: 1;">Aujourd'hui</small></div>
                                             <div style="font-size:14px; font-weight: 700; line-height: 1; color: #fa7832;">
                                                 {{charg_adm_jour_format}}
                                                 <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
                                             </div>
-                                                
-                                            <div style="font-size: 14px;color: #06497C"><small style="color: #06497C; font-weight: 700; line-height: 1;">Aujourd'hui</small></div>
                                         </div>
                                     </div>
                                 </td>
@@ -123,11 +122,11 @@
                                             <img style="height: 30px; width: 30px; position:relative; margin-top: 9px; margin-left: 7px;" src="{% static 'brute.png' %}" alt="" srcset="">
                                         </div>
                                         <div>
+                                            <div style="font-size: 16px;color: #06497C">Marge Brute</div>
                                             <div style="font-size:14px; font-weight: 700; line-height: 1; color: #fa7832;">
                                                 {{ marge_brute_format }}
                                                 <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
                                             </div>
-                                            <div style="font-size: 14px;color: #06497C">Marge Brute</div>
                                         </div>
                                     </div>
                                 </td>
@@ -137,11 +136,11 @@
                                             <img style="height: 30px; width: 30px; position:relative; margin-top: 8px; margin-left: 3px;" src="{% static 'marge.png' %}" alt="" srcset="">
                                         </div>
                                         <div>
+                                            <div style="font-size: 16px;color: #06497C"><small style="color: #06497C; font-weight: 700; line-height: 1;">M de contribution</small></div>
                                             <div style="font-size:14px; font-weight: 700; line-height: 1; color: #fa7832;">
                                                 {{taux_marge_format}}
                                                 <small style="color: #06497C; font-weight: 700; line-height: 1;">%</small>
                                             </div>
-                                            <div style="font-size: 14px;color: #06497C"><small style="color: #06497C; font-weight: 700; line-height: 1;">M de contribution</small></div>
                                         </div>
                                     </div>
                                 </td>
@@ -152,8 +151,8 @@
                                             <a href="{ url 'addtaille' patient.pk %}" style="font-size:20px"><i class="fa fa-plus-circle text-success" style="position:relative; font-size:20px;top:-10px"></i></a>
                                         </div>
                                         <div>
-                                            <div style="font-size:14px; font-weight: 700; line-height: 1; color: #fa7832;">{{ total_chargfix_format }}  <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small></div>
                                             <div style="font-size: 14px;color: #06497C">Charges Fixes</div>
+                                            <div style="font-size:14px; font-weight: 700; line-height: 1; color: #fa7832;">{{ total_chargfix_format }}  <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small></div>
                                         </div>
                                     </div>
                                 </td>
@@ -164,12 +163,11 @@
                                             <a href="{ url 'addtemperature' patient.pk %}" style="font-size:20px"><i class="fa fa-plus-circle text-success" style="position:relative; font-size:20px;top:-10px"></i></a>
                                         </div>
                                         <div>
+                                            <div style="font-size: 14px; color: #06497C">Charges Variables</div>
                                             <div style="font-size:14px; font-weight: 700; line-height: 1; color: #fa7832;">
                                                 {{ total_chargvar_format }}
                                                 <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
                                             </div>
-                                                
-                                            <div style="font-size: 14px; color: #06497C">Charges Variables</div>
                                         </div>
                                     </div>
                                 </td>
@@ -180,11 +178,11 @@
                                             <a href="{ url 'addtension' patient.pk %}" style="font-size:20px"><i class="fa fa-plus-circle text-success" style="position:relative; font-size:20px;top:-10px"></i></a>
                                         </div>
                                         <div>
+                                            <div class="mt-1" style="font-size:14px; font-weight: 700; line-height: 1;color: #06497C">Pièces réparations</div>
                                             <div style="font-size:14px; font-weight: 700; line-height: 1; color: #fa7832;">
                                                 {{ total_piece_format}} 
                                                 <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
                                             </div>
-                                            <div class="mt-1" style="font-size:14px; font-weight: 700; line-height: 1;color: #06497C">Pièces réparations</div>
                                         </div>
                                     </div>
                                 </td>
@@ -195,8 +193,8 @@
                                             <a href="{ url 'addperibras' patient.pk %}" style="font-size:20px"><i class="fa fa-plus-circle text-success" style="position:relative; font-size:20px;top:-10px"></i></a>
                                         </div>
                                         <div>
+                                            <div class="mt-1" style="font-size:14px; font-weight: 700; line-height: 1;color: #06497C">Pièces échanges</div>
                                             <div style="font-size:14px; font-weight: 700; line-height: 1; color: #fa7832;">{{ total_piece_echang_format }}  <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small></div>
-                                            <div style="font-size: 14px; color: #06497C">Pièces échanges</div>
                                         </div>
                                     </div>
                                 </td>
@@ -206,8 +204,8 @@
                                             <img style="height: 30px; width: 30px; position:relative; margin-top: 7px; margin-left: 4px;" src="{% static 'result.png' %}" alt="" srcset="">
                                         </div>
                                         <div>
+                                            <div class="mt-1" style="font-size:14px; font-weight: 700; line-height: 1;color: #06497C">Résultats</div>
                                             <div style="font-size:14px; font-weight: 700; line-height: 1; color: #fa7832;">{{resultat_format}} <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small></div>
-                                            <div style="font-size: 14px; color: #06497C">Résultats</div>
                                         </div>
                                     </div>
                                 </td>

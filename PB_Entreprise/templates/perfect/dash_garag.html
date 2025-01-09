@@ -24,11 +24,11 @@
                                             <a href="{% url 'list_repa' %}" style="font-size:20px"><i class="fa fa-plus-circle text-success" style="position:relative; font-size:20px;top:-10px"></i></a>
                                         </div>
                                         <div>
+                                            <div style="font-size: 15px;color: #06497C">Réparations</div>
                                             <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
                                                 {{ total_reparat_format }}
                                                 <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
                                             </div>
-                                            <div style="font-size: 15px;color: #06497C">Réparations</div>
                                         </div>
                                     </div>
                                 </td>
@@ -38,11 +38,11 @@
                                             <img style="height: 35px; width: 35px; position:relative; margin-top: 9px; margin-left: 0px;" src="{% static 'clereparat.png' %}" alt="" srcset="">
                                         </div>
                                         <div>
+                                            <div style="font-size: 15px;color: #06497C">Nb réparatons</div>
                                             <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
                                                 {{ total_reparat_format }}
                                                 <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
                                             </div>
-                                            <div style="font-size: 15px;color: #06497C">Nb réparatons</div>
                                         </div>
                                     </div>
                                 </td>
@@ -53,11 +53,11 @@
                                             <a href="{% url 'list_visit' %}" style="font-size:20px"><i class="fa fa-plus-circle text-success" style="position:relative; font-size:20px;top:-10px"></i></a>
                                         </div>
                                         <div>
+                                            <div style="font-size: 15px;color: #06497C">Visites Techniques</div>
                                             <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
                                                 {{ total_visit_format }}
                                                 <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
                                             </div>
-                                            <div style="font-size: 15px;color: #06497C">Visites Techniques</div>
                                         </div>
                                     </div>
                                 </td>
@@ -68,11 +68,11 @@
                                             <a href="{% url 'list_entretien' %}" style="font-size:20px"><i class="fa fa-plus-circle text-success" style="position:relative; font-size:20px;top:-10px"></i></a>
                                         </div>
                                         <div>
+                                            <div style="font-size: 15px;color: #06497C">Entretiens</div>
                                             <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
                                                 {{ total_ent_format }}
                                                 <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
                                             </div>
-                                            <div style="font-size: 15px;color: #06497C">Entretiens</div>
                                         </div>
                                     </div>
                                 </td>
@@ -83,12 +83,11 @@
                                             <a href="{ url 'addtension' patient.pk %}" style="font-size:20px"><i class="fa fa-plus-circle text-success" style="position:relative; font-size:20px;top:-10px"></i></a>
                                         </div>
                                         <div>
+                                            <div class="mt-1" style="font-size:14px; font-weight: 700; line-height: 1;color: #06497C">Pièces réparations</div>
                                             <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
                                                 {{ total_piece_format}} 
                                                 <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
                                             </div>
-                                            
-                                            <div class="mt-1" style="font-size:14px; font-weight: 700; line-height: 1;color: #06497C">Pièces réparations</div>
                                         </div>
                                     </div>
                                 </td>
@@ -99,8 +98,8 @@
                                             <a href="{% url 'list_piechange' %}" style="font-size:20px"><i class="fa fa-plus-circle text-success" style="position:relative; font-size:20px;top:-10px"></i></a>
                                         </div>
                                         <div>
-                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">{{ total_piececha_format }}  <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small></div>
                                             <div style="font-size: 15px; color: #06497C">Pièces changées</div>
+                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">{{ total_piececha_format }}  <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small></div>
                                         </div>
                                     </div>
                                 </td>
@@ -111,9 +110,11 @@
                                             <img style="height: 35px; width: 35px; position:relative; margin-top: 9px; margin-left: 8px;" src="{% static 'chargfix.png' %}" alt="" srcset="">
                                             <a href="{ url 'addtaille' patient.pk %}" style="font-size:20px"><i class="fa fa-plus-circle text-success" style="position:relative; font-size:20px;top:-10px"></i></a>
                                         </div>
-                                        <div>
-                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">{{ total_piece_format }}  <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small></div>
-                                            <div style="font-size: 15px;color: #06497C">Pièce inter</div>
+                                        <div><div style="font-size: 15px;color: #06497C">Pièce inter</div>
+                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
+                                                {{ total_piece_format }}  
+                                                <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
+                                            </div>
                                         </div>
                                     </div>
                                 </td>

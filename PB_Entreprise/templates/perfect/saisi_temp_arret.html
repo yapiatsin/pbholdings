@@ -26,11 +26,11 @@
                                             <a href="{% url 'list_recet' %}" style="font-size:20px"><i class="fa fa-plus-circle text-success" style="position:relative; font-size:20px;top:-10px"></i></a>
                                         </div>
                                         <div>
+                                            <div style="font-size: 15px;color: #06497C">Visites</div>
                                             <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
                                                 {{vis_all}}
                                                 <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
                                             </div>
-                                            <div style="font-size: 15px;color: #06497C">Visites</div>
                                         </div>
                                     </div>
                                 </td>
@@ -41,11 +41,11 @@
                                             <a href="{% url 'list_recet' %}" style="font-size:20px"><i class="fa fa-plus-circle text-success" style="position:relative; font-size:20px;top:-10px"></i></a>
                                         </div>
                                         <div>
+                                            <div style="font-size: 15px;color: #06497C">Entretiens</div>
                                             <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
                                                 {{ent_all}}
                                                 <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
                                             </div>
-                                            <div style="font-size: 15px;color: #06497C">Entretiens</div>
                                         </div>
                                     </div>
                                 </td>
@@ -56,11 +56,11 @@
                                             <a href="{% url 'list_repa' %}" style="font-size:20px"><i class="fa fa-plus-circle text-success" style="position:relative; font-size:20px;top:-10px"></i></a>
                                         </div>
                                         <div>
+                                            <div style="font-size: 15px;color: #06497C">Réparation TAXI</div>
                                             <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
                                                 {{rep_taxi}}
                                                 <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
                                             </div>
-                                            <div style="font-size: 15px;color: #06497C">Réparation TAXI</div>
                                         </div>
                                     </div>
                                 </td>
@@ -71,25 +71,25 @@
                                             <a href="{% url 'list_repa' %}" style="font-size:20px"><i class="fa fa-plus-circle text-success" style="position:relative; font-size:20px;top:-10px"></i></a>
                                         </div>
                                         <div>
+                                            <div style="font-size: 15px;color: #06497C">Réparations VTC</div>
                                             <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
                                                 {{rep_vtc}}
                                                 <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
                                             </div>
-                                            <div style="font-size: 15px;color: #06497C">Réparations VTC</div>
                                         </div>
                                     </div>
                                 </td>
                                 <td style="border: none;">
                                     <div style="display: flex; align-items: center;">
                                         <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 6px;margin-left: 8px;" src="{% static 'other.png' %}" alt="" srcset="">
-                                            <a href="{ url 'addtaille' patient.pk %}" style="font-size:20px"><i class="fa fa-plus-circle text-success" style="position:relative; font-size:20px;top:-10px"></i></a>
+                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 8px;margin-left: 0px;" src="{% static 'other.png' %}" alt="" srcset="">
+                                            {% comment %} <a href="{ url 'addtaille' patient.pk %}" style="font-size:20px"><i class="fa fa-plus-circle text-success" style="position:relative; font-size:20px;top:-10px"></i></a> {% endcomment %}
                                         </div>
                                         <div>
+                                            <div style="font-size: 15px;color: #06497C">Autres <small>{{libelles_mois}}</small></div>
                                             <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">{{recets_mois_vtc}}
                                             0
                                             </div>
-                                            <div style="font-size: 15px;color: #06497C">Autres <small>{{libelles_mois}}</small></div>
                                         </div>
                                     </div>
                                 </td>

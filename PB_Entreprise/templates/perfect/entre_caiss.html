@@ -3,7 +3,7 @@
 {% block title %} Entrée de caisse {% endblock title %} 
 {% block navbar_nav %} {% endblock navbar_nav %} 
 {% block page_title %}
-<a href="{% url 'billetage' %}"><img class="profile-user-img" style="border:none; height:25px;width:25px" src="{% static 'retour.png' %}" alt="Retour"></a>
+<a href="{% url 'billetage' %}"><img class="profile-user-img" style="border:none; height:35px;width:35px" src="{% static 'retour.png' %}" alt="Retour"></a>
 <img class="profile-user-img" style="border:none; height:55px;width:55px" src="{% static 'dp.png' %}" alt="User profile picture">Saisie une entrée de caisse {% endblock page_title %} {% block page_a %} {% endblock page_a %} {% block active_page %} Sortie
 de caisse 
 {% endblock active_page%} 
@@ -13,7 +13,7 @@ de caisse
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title" style="font-weight:700;color: #06497C;">Enrégistrer une sortie de caisse</h4>
+                <h4 class="modal-title" style="font-weight:700;color: #06497C;">Enrégistrer une entrée de caisse</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -135,11 +135,10 @@ de caisse
                             <div class="card" style="box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);backdrop-filter: blur(5.2px);-webkit-backdrop-filter: blur(5.2px);">
                                 <div class="card-header">
                                     <h3 class="card-title">
-                                        <button type="button" class="btn btn-default">PDF <i class='fa fa-file-pdf-o'></i></button>
-                                        <button type="button" class="btn btn-default">Excell <i class='fa fa-file-excel-o'></i></button>
-                                        <button type="button" class="btn btn-default text-danger" data-toggle="modal" data-target="#modal-lg">Saisir <i class='fa fa-plus-square'></i></button>
+                                        <button type="button" class="btn btn-default text-danger">PDF <i class='fa fa-file-pdf-o'></i></button>
+                                        <button type="button" class="btn btn-default text-success">Excell <i class='fa fa-file-excel-o'></i></button>
+                                        <button type="button" class="btn btn-default text-primary" data-toggle="modal" data-target="#modal-lg">Saisir <i class='fa fa-plus-square'></i></button>
                                     </h3>
-
                                     <div class="card-tools">
                                         <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
                                     </div>

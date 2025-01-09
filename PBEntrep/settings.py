@@ -10,6 +10,7 @@ TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
 SECRET_KEY = config('SECRET_KEY')
 # DEBUG = True
 
+# ALLOWED_HOSTS = ['*']
 ALLOWED_HOSTS = ['pbholdingsite.com', 'www.pbholdingsite.com','45.92.109.86']
 CSRF_TRUSTED_ORIGINS = [
     'https://pbholdingsite.com',
@@ -84,12 +85,6 @@ DATABASES = {
         'PORT':config('DB_PORT'),
     }
 }
-print("DEBUG:", config('DEBUG'))
-print("DB_NAME:", config('DB_NAME'))
-print("DB_USER:", config('DB_USER'))
-print("DB_PASSWORD:", config('DB_PASSWORD'))
-print("DB_HOST:", config('DB_HOST'))
-print("DB_PORT:", config('DB_PORT'))
 
 
 AUTH_PASSWORD_VALIDATORS = [

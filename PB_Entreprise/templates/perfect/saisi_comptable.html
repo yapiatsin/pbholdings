@@ -11,84 +11,99 @@
 {% block active_page %} Saisie Comptable {% endblock active_page %}
 {% block main_content%}
 <div class="col-md-12">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card card-outline" style="border-radius:20px">
-                <div class="card-body box-profile">
-                    <div class="row p-0 m-0">
-                        <div class="col-md-12 p-0">
-                            <div class="row">
-                                <div class="col-md-2">
+    <div class="card" style="color: #0176bf; border-radius: 20px; border-color: #00217b; font-weight: 700;">
+        <div class="card-body table-responsive p-0" style="border-radius:8px; border:none">
+            <table class="table table text-nowrap" >
+                <tr style="border-color:red">
+                    <div class="col-md-12">
+                        <div class="row ">
+                            <div class="col-md-2" >
+                                <td style="border:none">
                                     <div style="display: flex; align-items: center;">
-                                        <div style="height: 55px; width: 55px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <a href="{% url 'list_recet' %}" title="Cliquer pour accéder à la liste" href=""><img style="height: 40px; width: 40px; position:relative; margin-top: 7px;" src="{% static 'recet.png' %}" alt="" srcset=""></a>
+                                        <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
+                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 7px; margin-left: 0px;" src="{% static 'recet.png' %}" alt="" srcset="">
                                         </div>
                                         <div>
-                                            <div style="font-size:20px; font-weight: 700; line-height: 1; color: #06497C;">{{recette}} <small>Frscfa</small></div>
-                                            <div style="color: #06497C; font-weight: 700;font-size:14px">Recettes</div>
+                                            <div style="font-size: 15px;color: #06497C">Recette{% if recette > 1  %}s{% endif %}</div>
+                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
+                                                {{ recette }}
+                                                <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="col-md-2 mt-1">
+                                </td>
+                                <td style="border:none">
                                     <div style="display: flex; align-items: center;">
-                                        <div style="height: 55px; width: 55px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <a title="Cliquer pour accéder à la liste" href="{% url 'list_charg_fix' %}"><img style="height: 40px; width: 40px; position:relative; margin-top: 8px;" src="{% static 'chargfix.png' %}" alt="" srcset=""></a>
+                                        <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
+                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 9px; margin-left: 0px;" src="{% static 'chargfix.png' %}" alt="" srcset="">
                                         </div>
                                         <div>
-                                            <div style="font-size:20px; font-weight: 700; line-height: 1; color: #06497C;">{{charfixe}} <small>Frscfa</small></div>
-                                            <div style="color: #06497C; font-weight: 700;font-size:14px">Charges Fixes</div>
+                                            <div style="font-size: 15px;color: #06497C">Charge{% if charfixe > 1  %}s{% endif %} Fixe{% if charfixe > 1  %}s{% endif %}</div>
+                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
+                                                {{ charfixe }}
+                                                <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="col-md-2 mt-1">
+                                </td>
+                                <td style="border:none">
                                     <div style="display: flex; align-items: center;">
-                                        <div style="height: 55px; width: 55px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <a title="Cliquer pour accéder à la liste" href="{% url 'list_charg_var' %}"><img style="height: 40px; width: 40px; position:relative; margin-top: 9px;" src="{% static 'chargfvar.png' %}" alt="" srcset=""></a>
+                                        <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
+                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 9px; margin-left: px;" src="{% static 'chargfvar.png' %}" alt="" srcset="">
                                         </div>
                                         <div>
-                                            <div style="font-size:20px; font-weight: 700; line-height: 1; color: #06497C;">{{charvars}} <small>Frscfa</small></div>
-                                            <div style="color: #06497C; font-weight: 700;font-size:14px">Charges Variables</div>
+                                            <div class="mt-1" style="font-size:14px; font-weight: 700; line-height: 1;color: #06497C">Charge{% if charvars > 1  %}s{% endif %} Variable{% if charvars > 1  %}s{% endif %}</div>
+                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
+                                                {{ charvars}} 
+                                                <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="col-md-2 mt-1">
+                                </td>
+                                <td style="border:none">
                                     <div style="display: flex; align-items: center;">
-                                        <div style="height: 55px; width: 55px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <a><img style="height: 40px; width: 40px; position:relative; margin-top: 8px;" src="{% static 'marge.png' %}" alt="" srcset=""></a>
+                                        <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
+                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 9px; margin-left: px;" src="{% static 'marge.png' %}" alt="" srcset="">
                                         </div>
                                         <div>
-                                            <div style="font-size:20px; font-weight: 700; line-height: 1; color: #06497C;">{{taux_marge}} <small>%</small></div>
-                                            <div style="color: #06497C; font-weight: 700;font-size:14px">Marge de contribution</div>
+                                            <div class="mt-1" style="font-size:14px; font-weight: 700; line-height: 1;color: #06497C">Marge de contribution</div>
+                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
+                                                {{ taux_marge }} 
+                                                <small style="color: #06497C; font-weight: 700; line-height: 1;">%</small>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="col-md-2 mt-1">
+                                </td>
+                                <td style="border:none">
                                     <div style="display: flex; align-items: center;">
-                                        <div style="height: 55px; width: 55px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <a><img style="height: 40px; width: 40px; position:relative; margin-top: 8px;" src="{% static 'som.png' %}" alt="" srcset=""></a>
+                                        <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
+                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 9px; margin-left: 0px;" src="{% static 'sum.png' %}" alt="" srcset="">
                                         </div>
                                         <div>
-                                            <div style="font-size:20px; font-weight: 700; line-height: 1; color: #06497C;">{{taux_marge}} <small>%</small></div>
-                                            <div style="color: #06497C; font-weight: 700;font-size:14px">Marge de contribution</div>
+                                            <div style="font-size: 15px; color: #06497C">Total charge</div>
+                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">{{ chargtot }}  <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small></div>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="col-md-2 mt-1">
+                                </td>
+                                <td style="border:none">
                                     <div style="display: flex; align-items: center;">
-                                        <div style="height: 55px; width: 55px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <a><img style="height: 40px; width: 40px; position:relative; margin-top: 6px;" src="{% static 'brute.png' %}" alt="" srcset=""></a>
+                                        <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
+                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 9px; margin-left: 0px;" src="{% static 'rech.png' %}" alt="" srcset="">
                                         </div>
                                         <div>
-                                            <div style="font-size:20px; font-weight: 700; line-height: 1; color: #06497C;">{{taux_marge}} <small>%</small></div>
-                                            <div style="color: #06497C; font-weight: 700;font-size:14px">Marge de contribution</div>
+                                            <div class="mt-1" style="font-size:14px; font-weight: 700; line-height: 1;color: #06497C">Résultat</div>
+                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
+                                                {{ result}} 
+                                                <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                                </td>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
+                </tr>
+            </table>
         </div>
     </div>
 </div>
@@ -105,8 +120,8 @@
                             backdrop-filter: blur(5.2px);-webkit-backdrop-filter: blur(5.2px);">
                                 <div class="card-header">
                                     <h3 class="card-title">
-                                        <button type="button" class="btn btn-default" >PDF <i class='text-danger fa fa-file-pdf-o'></i></button>
-                                        <button type="button" class="btn btn-default" >Excell <i class='text-success fa fa-file-excel-o'></i></button>
+                                        <button type="button" class="btn btn-default text-danger" >PDF <i class='text-danger fa fa-file-pdf-o'></i></button>
+                                        <button type="button" class="btn btn-default text-success" >Excell <i class='text-success fa fa-file-excel-o'></i></button>
                                     </h3>
                                     <div class="card-tools">
                                         <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>

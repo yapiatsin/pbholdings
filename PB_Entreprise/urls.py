@@ -26,7 +26,6 @@ urlpatterns = [
     path('chargadminist/<int:pk>/modifier', UpdateChargeAdminView.as_view(), name='updat_charg_administ'),
     
     path('caisse', BilletageView.as_view(), name='billetage'),
-    # path('bilanjournalier', BilanJournalierView.as_view(), name='bilan_journalier'),
     path('addsoldejour', AddSoldeJourView.as_view(), name='add_solde'),
     path('soldejour/<int:pk>/supprimer', delete_solde, name='delet_solde'),
     # path('tabtempsarret', TableauTempsArretView.as_view(), name='tabletemparret'),
