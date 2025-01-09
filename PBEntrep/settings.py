@@ -16,7 +16,6 @@ CSRF_TRUSTED_ORIGINS = [
     'https://pbholdingsite.com',
 ]
 
-
 # Application definition
 INSTALLED_APPS = [
     'jazzmin',
