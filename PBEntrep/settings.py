@@ -10,11 +10,11 @@ TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
 SECRET_KEY = config('SECRET_KEY')
 # DEBUG = True
 
-ALLOWED_HOSTS = ['*']
-# ALLOWED_HOSTS = ['pbholdingsite.com', 'www.pbholdingsite.com','45.92.109.86']
-# CSRF_TRUSTED_ORIGINS = [
-#     'https://pbholdingsite.com',
-# ]
+# ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['pbholdingsite.com', 'www.pbholdingsite.com','45.92.109.86']
+CSRF_TRUSTED_ORIGINS = [
+    'https://pbholdingsite.com',
+]
 
 
 # Application definition
@@ -64,17 +64,6 @@ WSGI_APPLICATION = 'PBEntrep.wsgi.application'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DEBUG = config('DEBUG') 
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'pbholding',
-#         'USER':'postgres',
-#         'PASSWORD':'admin',
-#         'HOST':'localhost', 
-#     }
-# }
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -138,7 +127,7 @@ JAZZMIN_SETTINGS = {
     "copyright" : "P&BEntreprise 2024", 
     "topmenu_links": [
         # Url that gets reversed (Permissions can be added)
-        {"name": "Mon Site", "url": "dash", "permissions": ["userauths.User"]},
+        {"name": "Tableau de bord", "url": "dash", "permissions": ["userauths.User"]},
         # model admin to link to (Permissions checked against model)
         {"model": "userauths.User"},
     ],
