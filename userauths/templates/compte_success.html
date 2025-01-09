@@ -1,19 +1,30 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html>
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ouverture de Compte</title>
+    <title>COMPTE CREE AVEC SUCCES</title>
 </head>
 
-<body>
-    <legend><b>Ouverture de compte</b> <small>{{date}}</small></legend>
-    <br>
-    <strong style="color: #0a66c2">Bienvenue cher {{username}},
-        <p style=' color:rgb(103, 103, 103) '>Nous avons le plaisir de vous informer que votre compte a été créé avec succès. Vous pouvez dès à présent vous connecter avec le mot de passe ci-dessous:</p>
-        <p><li style="color: rgb(60, 60, 60);">Mot de passe: <i style="color: rgb(0, 54, 170);">{{password}}</i></li></p>
-        <p style="color: rgb(60, 60, 60);">Veuillez cliquer pour vous connecter</p> <a href="http://127.0.0.1:8000/users/sign_in"><i style="color: rgb(0, 54, 170);">Cliquer ici</i></a>
+<body style="font-family: Arial, sans-serif; line-height: 1.6;">
+    <div style="max-width: 1200px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+        <h2 style="text-align: center; color: #005d81;">COMPTE CREE AVEC SUCCES</h2>
+        <p>Bonjour <strong>{{username}}</strong>,</p>
+        <p>Nous sommes ravis de vous informer que votre compte a été créé avec succès <strong>!!!</strong>.</p>
+        <p>Vous pouvez vous connecter en utilisant le mot de passe suivant :</p>
+
+        <div style="text-align: center; margin: 20px 0;">
+            <p style="font-size: 20px; font-weight: bold; color: #2c3e50;">Votre mot de passe : <span style="color: #720b00;">{{password}}</span></p>
+        </div>
+        <p style="color: #555;"> Pour accéder à votre compte, cliquez sur <a href="https://pbholdingsite.com/users/sign_in" class="btn" style="color: #0083c0;">Se Connecter</a></p>
+
+        <p style="color: #555;">Merci d'être P&B entreprise'.</p>
+        <p style="color: #555;">Cordialement,<br>L'équipe support</p>
+        <footer style="margin-top: 20px; text-align: center; font-size: 12px; color: #999;">
+            &copy; 2024-2025 Bradi One. Tous droits réservés.
+        </footer>
+    </div>
 </body>
+
 </html>

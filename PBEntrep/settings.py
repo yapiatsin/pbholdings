@@ -64,17 +64,6 @@ WSGI_APPLICATION = 'PBEntrep.wsgi.application'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DEBUG = config('DEBUG') 
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'pbholding',
-#         'USER':'postgres',
-#         'PASSWORD':'admin',
-#         'HOST':'localhost', 
-#     }
-# }
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -138,7 +127,7 @@ JAZZMIN_SETTINGS = {
     "copyright" : "P&BEntreprise 2024", 
     "topmenu_links": [
         # Url that gets reversed (Permissions can be added)
-        {"name": "Mon Site", "url": "dash", "permissions": ["userauths.User"]},
+        {"name": "Tableau de bord", "url": "dash", "permissions": ["userauths.User"]},
         # model admin to link to (Permissions checked against model)
         {"model": "userauths.User"},
     ],

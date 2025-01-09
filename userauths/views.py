@@ -487,10 +487,10 @@ class RequestEmailView(View):
             
                     <p>Merci de votre confiance.</p>
             
-                    <p>Cordialement,<br>L'équipe bradisteff</p>
+                    <p>Cordialement,<br>L'équipe support</p>
             
                     <footer style="margin-top: 20px; text-align: center; font-size: 12px; color: #999;">
-                        &copy; 2024-2025 Bradisteff. Tous droits réservés.
+                        &copy; 2024-2025 Bradi One. Tous droits réservés.
                     </footer>
                 </div>
             </body>
