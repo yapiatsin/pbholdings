@@ -3,7 +3,8 @@
 {% block title %}Saisie & Etat des entretiens {% endblock title %} 
 {% block navbar_nav %}{% endblock navbar_nav %} 
 {% block page_title %}
-    <img class="profile-user-img" style="border:none; height:45px;width:45px" src="{% static 'clean.png' %}" alt="User profile picture">Saisie & Etat des entretiens du <b class="text-danger"> {{vehicule}}</b> 
+<a href="{% url 'temps_arrets' %}"><img class="profile-user-img" style="border:none; height:35px;width:35px" src="{% static 'retour.png' %}" alt="Retour"></a>
+<img class="profile-user-img" style="border:none; height:45px;width:45px" src="{% static 'clean.png' %}" alt="User profile picture">Saisie & Etat des entretiens du <b class="text-danger"> {{vehicule}}</b> 
 {% endblock page_title %} 
 {% block page_a %}{% endblock page_a %}
 {% block active_page %} Etat des recettes {% endblock active_page%}
@@ -176,9 +177,9 @@
                                         <button type="button" class="btn btn-default text-danger" id="printButton">PDF <i class='text-danger fa fa-file-pdf-o'></i></button>
                                         <button type="button" class="btn btn-default text-success">Excell <i class='text-success fa fa-file-excel-o'></i></button>
                                         {% if user.user_type == '1' or user.user_type == '2' %}
-                                            <button type="button" class="btn btn-default text-danger" style="font-weight:700" data-toggle="modal" data-target="#modal-lg">Ajouter <i class='fa fa-plus-square'></i></button>
+                                            <button type="button" class="btn btn-default text-primary" style="font-weight:700" data-toggle="modal" data-target="#modal-lg">Ajouter <i class='fa fa-plus-square'></i></button>
                                         {% else %}
-                                            <button type="button" class="btn btn-default text-danger" style="font-weight:700">Ajouter <i class='fa fa-plus-square'></i></button>
+                                            <button type="button" class="btn btn-default text-primary" style="font-weight:700">Ajouter <i class='fa fa-plus-square'></i></button>
                                         {% endif %}
                                     </h3>
                                     <div class="card-tools">

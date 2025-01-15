@@ -497,13 +497,13 @@ class TableaustopView(TemplateView):
                     daily_actions[day - 1] += count
             
             repairs_by_motif = {
-                'visite': Reparation.objects.filter(vehicule=vehicule, motif="1", date_saisie__month=month, date_saisie__year=year).count(),
-                'panne': Reparation.objects.filter(vehicule=vehicule, motif="2", date_saisie__month=month, date_saisie__year=year).count(),
-                'accident': Reparation.objects.filter(vehicule=vehicule, motif="3", date_saisie__month=month, date_saisie__year=year).count(),
+                'Prepa-vis': Reparation.objects.filter(vehicule=vehicule, motif="1", date_saisie__month=month, date_saisie__year=year).count(),
+                'pan': Reparation.objects.filter(vehicule=vehicule, motif="2", date_saisie__month=month, date_saisie__year=year).count(),
+                'acc': Reparation.objects.filter(vehicule=vehicule, motif="3", date_saisie__month=month, date_saisie__year=year).count(),
             }
             motif_arret = {
-                'visites': VisiteTechnique.objects.filter(vehicule=vehicule,date_saisie__month=month, date_saisie__year=year).count(),
-                'entrets': Entretien.objects.filter(vehicule=vehicule, date_saisie__month=month, date_saisie__year=year).count(),
+                'vis': VisiteTechnique.objects.filter(vehicule=vehicule,date_saisie__month=month, date_saisie__year=year).count(),
+                'ent': Entretien.objects.filter(vehicule=vehicule, date_saisie__month=month, date_saisie__year=year).count(),
             }
             
             all_rep_visit = Reparation.objects.filter(vehicule=vehicule, motif="1", date_saisie__month=month, date_saisie__year=year).count()
@@ -696,9 +696,9 @@ class MyRecetteView(TemplateView):
             sum_difference += difference
             
             motif_arrets = {
-                'visites': VisiteTechnique.objects.filter(vehicule=vehicule,date_saisie=date.today()).count(),
-                'entrets': Entretien.objects.filter(vehicule=vehicule, date_saisie=date.today()).count(),
-                'reparation': Reparation.objects.filter(vehicule=vehicule, date_saisie=date.today()).count(),
+                'vis': VisiteTechnique.objects.filter(vehicule=vehicule,date_saisie=date.today()).count(),
+                'ent': Entretien.objects.filter(vehicule=vehicule, date_saisie=date.today()).count(),
+                'rep': Reparation.objects.filter(vehicule=vehicule, date_saisie=date.today()).count(),
             }
             visite = VisiteTechnique.objects.filter(vehicule=vehicule,date_saisie=date.today()).count()
             entretien = Entretien.objects.filter(vehicule=vehicule, date_saisie=date.today()).count()
@@ -1175,6 +1175,7 @@ class DashboardView(TemplateView):
             'dates':dates
         }
         return context
+    
 class BilletageView(CreateView):
     model = Billetage
     form_class = BilletageForm
@@ -1321,7 +1322,6 @@ class BilletageView(CreateView):
             Total_piec_bill = som_tot_piec + som_tot_bil
             ecart = solde_fin_journee - Total_piec_bill
 
-            #self.request.user.last_login_solde = solde_init
             self.request.user.save()
             
         context={
@@ -3035,6 +3035,25 @@ def delete_recette(request, pk):
         messages.error(request, f"Erreur lors de la suppression : {str(e)}")
     return redirect('list_recet')
 
+def delete_charg_var(request, pk):
+    try:
+        charg_variables = get_object_or_404(ChargeVariable, id=pk)
+        charg_variables.delete()
+        messages.success(request, f"la Charge variable du véhicule {charg_variables.vehicule.immatriculation} a été supprimés avec succès.")
+    except Exception as e:
+        messages.error(request, f"Erreur lors de la suppression : {str(e)}")
+    return redirect('list_charg_var')
+
+def delete_charg_fixe(request, pk):
+    try:
+        charg_fixes = get_object_or_404(ChargeFixe, id=pk)
+        charg_fixes.delete()
+        messages.success(request, f"la Charge fixe du véhicule {charg_fixes.vehicule.immatriculation} a été supprimés avec succès.")
+    except Exception as e:
+        messages.error(request, f"Erreur lors de la suppression : {str(e)}")
+    return redirect('list_charg_fix')
+    
+
 class DetailRecetteView(DetailView):
     model = Recette
     template_name = "news/applist/detail_recette.html"
@@ -3110,7 +3129,6 @@ class AddChargeFixView(CreateView):
         if form.is_valid():
             date_debut = form.cleaned_data['date_debut'] 
             date_fin = form.cleaned_data['date_fin']
-            
             chargfix_result = ChargeFixe.objects.filter(vehicule=vehicule, date__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0 
             chargfix_list = ChargeFixe.objects.filter(vehicule=vehicule, date__range=[date_debut, date_fin]).all()
             chargfix_jours = ChargeFixe.objects.filter(vehicule=vehicule, date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0 
@@ -3348,17 +3366,17 @@ class AddChargeVarView(CreateView):
             date_debut = form.cleaned_data['date_debut'] 
             date_fin = form.cleaned_data['date_fin']
             
-            chargvar_result = ChargeFixe.objects.filter(vehicule=vehicule, date__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0 
-            chargvar_list = ChargeFixe.objects.filter(vehicule=vehicule, date__range=[date_debut, date_fin]).all()
-            chargvar_jours = ChargeFixe.objects.filter(vehicule=vehicule, date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0 
-            chargvar_mois = ChargeFixe.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0 
-            chargvar_an = ChargeFixe.objects.filter(vehicule=vehicule, date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0   
+            chargvar_result = ChargeVariable.objects.filter(vehicule=vehicule, date__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0 
+            chargvar_list = ChargeVariable.objects.filter(vehicule=vehicule, date__range=[date_debut, date_fin]).all()
+            chargvar_jours = ChargeVariable.objects.filter(vehicule=vehicule, date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0 
+            chargvar_mois = ChargeVariable.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0 
+            chargvar_an = ChargeVariable.objects.filter(vehicule=vehicule, date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0   
         else:
-            chargvar_list = ChargeFixe.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month)
-            chargvar_result = ChargeFixe.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0 
-            chargvar_jours = ChargeFixe.objects.filter(vehicule=vehicule, date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0 
-            chargvar_mois = ChargeFixe.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0 
-            chargvar_an = ChargeFixe.objects.filter(vehicule=vehicule, date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
+            chargvar_list = ChargeVariable.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month)
+            chargvar_result = ChargeVariable.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0 
+            chargvar_jours = ChargeVariable.objects.filter(vehicule=vehicule, date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0 
+            chargvar_mois = ChargeVariable.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0 
+            chargvar_an = ChargeVariable.objects.filter(vehicule=vehicule, date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
 
         context = {
             "vehicules": vehicules,
@@ -3376,9 +3394,7 @@ class AddChargeVarView(CreateView):
         }   
         return context  
     def get_success_url(self):
-        return reverse('addcharg_fix', kwargs={'pk': self.kwargs['pk']})
-
-
+        return reverse('addcharg_var', kwargs={'pk': self.kwargs['pk']})
 
 class DetailChargeVarView(DetailView):
     model = ChargeVariable
@@ -3416,10 +3432,9 @@ class ListChargeVarView(ListView):
         return super().dispatch(request, *args, **kwargs)
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        dates =date.today()
-        annee =date.today().year
-        mois =date.today().month
-        
+        dates = date.today()
+        annee = date.today().year
+        mois = date.today().month
         libelle_mois= calendar.month_name[mois]
         forms = DateForm(self.request.GET)
         if forms.is_valid():
@@ -3485,7 +3500,6 @@ class ListChargeVarView(ListView):
             'dates':dates,
             'libelles_mois':libelle_mois,
             'annees':annee,
-            
             
             'chargvar_all':chargvar_all,
             
@@ -3644,7 +3658,7 @@ class AddChargeAdminisView(CreateView):
             
         else:
             
-            charg_administ = ChargeAdminis.objects.filter(date_saisie=date.today())
+            charg_administ = ChargeAdminis.objects.filter(date_saisie__month=date.today().month)
             
             charg_adm_jour = ChargeAdminis.objects.filter(date_saisie=date.today()).aggregate(Sum('montant'))['montant__sum'] or 0
             charg_adm_jour_format ='{:,}'.format(charg_adm_jour).replace('',' ')

@@ -212,7 +212,7 @@
                                                 {% for u in list_patente %}
                                                     <tr class="text-center">
                                                         <td>
-                                                            <a href="{% url 'updatecar' u.pk %}" class="mr-3 text-primary">{{u.immatriculation}}</a>
+                                                            <a class="mr-3 text-primary">{{u.immatriculation}}</a>
                                                         </td>
                                                         <td>{{u.marque}}</td>
                                                         <td>{{u.category}}</td>
@@ -220,9 +220,15 @@
                                                         <td>{{u.num_cart_grise}}</td>
                                                         <td>{{u.cout_acquisition}}</td>
                                                         <td class="text-center">
-                                                            <a href="{% url 'delvehi' u.pk %}" class="text-danger" onclick="return confirm('Etes-vous sûre de vouloir supprimer le véhicule {{u.immatriculation}} - {{u.marque}} - {{u.category|upper}}? car si vous supprimer toutes les informations liées seront supprimées')">
-                                                                <i style="font-size: 20px; " class="fa fa-trash "></i>
-                                                            </a>
+                                                            {% if user.user_type == '1' %}
+                                                                <a href="" class="text-danger" onclick="return confirm('Etes-vous sûre de vouloir supprimer la recette du véhicule {{u.vehicule.immatriculation}} - Receete {{u.montant}} - {{u.date_saisie}}? car si vous supprimer toutes les informations liées seront supprimées')">
+                                                                    <i style="font-size: 20px; " class="fa fa-trash "></i>
+                                                                </a>
+                                                            {% else %}
+                                                                <a class="text-danger">
+                                                                    <i style="font-size: 20px; " class="fa fa-trash "></i>
+                                                                </a>
+                                                            {% endif %}
                                                         </td>
                                                     </tr>
                                                 {% endfor %} 

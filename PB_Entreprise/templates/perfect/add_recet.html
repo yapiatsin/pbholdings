@@ -5,6 +5,7 @@
 
 {% endblock navbar_nav %} 
 {% block page_title %}
+<a href="{% url 'saisi_compta' %}"><img class="profile-user-img" style="border:none; height:35px;width:35px" src="{% static 'retour.png' %}" alt="Retour"></a>
 <img class="profile-user-img" style="border:none; height:45px;width:45px" src="{% static 'recet.png' %}" alt="User profile picture">Saisie & Etat des recettes du <b class="text-danger"> {{vehicule}}</b> 
 {% endblock page_title %} 
 {% block page_a %}
@@ -186,9 +187,9 @@
                                         <button type="button" class="btn btn-default" id="printButton">PDF <i class='text-danger fa fa-file-pdf-o'></i></button>
                                         <button type="button" class="btn btn-default">Excell <i class='text-success fa fa-file-excel-o'></i></button>
                                         {% if user.user_type == '1' or user.user_type == '3' %}
-                                            <button type="button" class="btn btn-default text-danger" style="font-weight:700" data-toggle="modal" data-target="#modal-lg">Saisir <i class='fa fa-plus-square'></i></button>
+                                            <button type="button" class="btn btn-default text-primary" style="font-weight:700" data-toggle="modal" data-target="#modal-lg">Saisir <i class='fa fa-plus-square'></i></button>
                                         {% else %}
-                                            <button type="button" class="btn btn-default text-danger" style="font-weight:700">Saisir <i class='fa fa-plus-square'></i></button>
+                                            <button type="button" class="btn btn-default text-primary" style="font-weight:700">Saisir <i class='fa fa-plus-square'></i></button>
                                         {% endif %}
                                     </h3>
                                     <div class="card-tools">
@@ -205,7 +206,6 @@
                                                 <th>MONTANT</th>
                                                 <th>DATE SAISIE</th>
                                                 <th>SAISIR PAR</th>
-                                                <th>ACTION</th>
                                             </tr>
                                         </thead>
                                         <tbody> 
@@ -219,17 +219,6 @@
                                                         <td>{{u.montant}}</td>
                                                         <td>{{u.date_saisie}}</td>
                                                         <td>{{u.auteur.username}}</td>
-                                                        <td class="text-center">
-                                                            {% if user.user_type == '1' %}
-                                                                <a href="{% url 'delvehi' u.pk %}" class="text-danger" onclick="return confirm('Etes-vous sûre de vouloir supprimer le véhicule {{u.immatriculation}} - {{u.marque}} - {{u.category|upper}}? car si vous supprimer toutes les informations liées seront supprimées')">
-                                                                    <i style="font-size: 20px; " class="fa fa-trash "></i>
-                                                                </a>
-                                                            {% else %}
-                                                                <a class="text-danger">
-                                                                    <i style="font-size: 20px; " class="fa fa-trash "></i>
-                                                                </a>
-                                                            {% endif %}
-                                                        </td>
                                                     </tr>
                                                 {% endfor %} 
                                             {% endif %}

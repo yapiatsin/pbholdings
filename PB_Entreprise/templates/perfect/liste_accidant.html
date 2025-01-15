@@ -168,12 +168,18 @@
                                                         <td>{{e.montant}}</td>
                                                         <td>{{e.date_saisie}}</td>
                                                         <td>
-                                                            <a href="{ url 'updatecar' u.pk %}" class="mr-3 text-primary">{{e.auteur.username}}</a>
+                                                            <a href="" class="mr-3 text-primary">{{e.auteur.username}}</a>
                                                         </td>
                                                         <td class="text-center">
-                                                            <a href="{% url 'delet_socaisse' e.pk %}" class="text-danger" onclick="return confirm('Etes-vous sûre de vouloir supprimer l\'entrée de caisse  {{e.Num_piece}} - {{e.libelle}} - {{e.montant}} frscfa? car si vous supprimer toutes les informations liées seront supprimées')">
-                                                                <i style="font-size: 20px; " class="fa fa-trash "></i>
-                                                            </a>
+                                                            {% if user.user_type == '1' %}
+                                                                <a href="" class="text-danger" onclick="return confirm('Etes-vous sûre de vouloir supprimer la recette du véhicule {{u.vehicule.immatriculation}} - Receete {{u.montant}} - {{u.date_saisie}}? car si vous supprimer toutes les informations liées seront supprimées')">
+                                                                    <i style="font-size: 20px; " class="fa fa-trash "></i>
+                                                                </a>
+                                                            {% else %}
+                                                                <a class="text-danger">
+                                                                    <i style="font-size: 20px; " class="fa fa-trash "></i>
+                                                                </a>
+                                                            {% endif %}
                                                         </td>
                                                     </tr>
                                                 {% endfor %} 

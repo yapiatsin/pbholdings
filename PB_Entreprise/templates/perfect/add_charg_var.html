@@ -5,7 +5,8 @@
 
 {% endblock navbar_nav %} 
 {% block page_title %}
-<img class="profile-user-img" style="border:none; height:45px;width:45px" src="{% static 'recet.png' %}" alt="User profile picture">Saisie & Etat des charges variables du <b class="text-danger"> {{vehicule}}</b> 
+<a href="{% url 'saisi_compta' %}"><img class="profile-user-img" style="border:none; height:35px;width:35px" src="{% static 'retour.png' %}" alt="Retour"></a>
+<img class="profile-user-img" style="border:none; height:35px;width:35px" src="{% static 'chargfvar.png' %}" alt="User profile picture">Saisie & Etat des charges variables du <b class="text-danger"> {{vehicule}}</b> 
 {% endblock page_title %} 
 {% block page_a %}
 {% endblock page_a %}
@@ -203,7 +204,6 @@
                                                 <th>MONTANT</th>
                                                 <th>DATE SAISIE</th>
                                                 <th>SAISIR PAR</th>
-                                                <th>ACTION</th>
                                             </tr>
                                         </thead>
                                         <tbody> 
@@ -215,17 +215,6 @@
                                                         <td>{{u.montant}}</td>
                                                         <td>{{u.date_saisie}}</td>
                                                         <td>{{u.auteur.username}}</td>
-                                                        <td class="text-center">
-                                                            {% if user.user_type == '1' %}
-                                                                <a href="{% url 'delvehi' u.pk %}" class="text-danger" onclick="return confirm('Etes-vous sûre de vouloir supprimer le véhicule {{u.immatriculation}} - {{u.marque}} - {{u.category|upper}}? car si vous supprimer toutes les informations liées seront supprimées')">
-                                                                    <i style="font-size: 20px; " class="fa fa-trash "></i>
-                                                                </a>
-                                                            {% else %}
-                                                                <a class="text-danger">
-                                                                    <i style="font-size: 20px; " class="fa fa-trash "></i>
-                                                                </a>
-                                                            {% endif %}
-                                                        </td>
                                                     </tr>
                                                 {% endfor %} 
                                             {% endif %}

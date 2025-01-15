@@ -207,7 +207,7 @@ Information et Modification du véhicule
                     <tr>
                         <td colspan="7" class="text-primary">
                             {% if vehicule.photo_carte_grise %}
-                                <img src="{{ vehicule.photo_carte_grise.url }}" style="height: 100px; width: 130px;">
+                                <img src="{{ vehicule.photo_carte_grise.url }}" style="height: 800px; width: 800px; border-radius:8px">
                             {% else %}
                                 <img src="{% static 'alto.png' %}" style="height: 100px; width: 130px;">
                             {% endif %}

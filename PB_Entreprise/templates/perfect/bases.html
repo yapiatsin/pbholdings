@@ -82,10 +82,17 @@
                     <div class="collapse navbar-collapse order-3" id="navbarCollapse">
                         <ul class="navbar-nav">
                             {% block liste %}
-                                <li class="nav-item">
-                                    <a href="{% url 'dash' %}" class="nav-link">Accueil</a>
-                                </li>
-                                {% if user.is_staff %}
+
+                                {% if user.user_type == '1' %}
+                                    <li class="nav-item">
+                                        <a href="{% url 'dash' %}" class="nav-link">Accueil</a>
+                                    </li>
+                                {% else %}   
+                                    <li class="nav-item">
+                                        <a href="{% url 'dashgarage' %}" class="nav-link">Accueil</a>
+                                    </li>
+                                {% endif %}
+                                {% if user.is_staff %} 
                                     <li class="nav-item dropdown">
                                         <a id="dropdownSubMenu1" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="nav-link dropdown-toggle">Menu</a>
                                         <ul aria-labelledby="dropdownSubMenu1" class="dropdown-menu border-0 shadow">
@@ -118,11 +125,11 @@
                     </div>
                     <!-- Right navbar links -->
                     <ul class="order-1 order-md-3 navbar-nav navbar-no-expand ml-auto">
-                        <li class="nav-item">
+                        {% comment %} <li class="nav-item">
                             <a class="nav-link" data-widget="control-sidebar" data-slide="true" href="#">
                                 <i class="fa fa-calendar" style="font-size:20px"> {{dates}}</i>
                             </a>
-                        </li>
+                        </li> {% endcomment %}
                         <li class="nav-item">
                             <a class="nav-link" data-widget="control-sidebar" data-slide="true" href="#">
                                 <i class="fa fa-user-circle" style="font-size:20px"></i>
@@ -193,8 +200,9 @@
             <!-- /.content-wrapper -->
 
             <!-- Control Sidebar -->
-            <aside class="control-sidebar " style="border-radius: 4px; max-height: 100px; background: rgba(255, 255, 255, 0.22); border-radius: 16px;box-shadow: 0 5px 5px rgba(0, 0, 0, 0.1); backdrop-filter: blur(12.5px); -webkit-backdrop-filter: blur(12.5px);
-                                        border: 1px solid rgba(255, 255, 255, 0.03); ">
+            <aside class="control-sidebar " style="border-radius: 4px; max-height: 100px; background: rgba(255, 255, 255, 0.22); 
+                border-radius: 16px;box-shadow: 0 5px 5px rgba(0, 0, 0, 0.1); backdrop-filter: blur(12.5px); 
+                --webkit-backdrop-filter: blur(12.5px); border: 1px solid rgba(255, 255, 255, 0.03); ">
                 <div class="p-3 text-center header ">
                     {% if user.is_authenticated %}
                     <p><i class="fa fa-key "></i> <a href="{% url 'change_password' %}">Profil & mot de passe</a></p>

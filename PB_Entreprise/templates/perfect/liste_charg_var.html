@@ -227,30 +227,22 @@
                                                         <td>{{u.date_saisie}}</td>
                                                         <td>{{u.auteur.username}}</td>
                                                         <td class="text-center">
-                                                            <a href="{% url 'delvehi' u.pk %}" class="text-danger" onclick="return confirm('Etes-vous sûre de vouloir supprimer le véhicule {{u.immatriculation}} - {{u.marque}} - {{u.category|upper}}? car si vous supprimer toutes les informations liées seront supprimées')">
-                                                                <i style="font-size: 20px; " class="fa fa-trash "></i>
-                                                            </a>
+                                                            {% if user.user_type == '1' %}
+                                                                <a href="{% url 'delete_chargvar' u.pk %}" class="text-danger" onclick="return confirm('Etes-vous sûre de vouloir supprimer la charge variable du {{u.immatriculation}} - {{u.marque}} - {{u.category|upper}}? car si vous supprimer toutes les informations liées seront supprimées')">
+                                                                    <i style="font-size: 20px; " class="fa fa-trash "></i>
+                                                                </a>
+                                                            {% else %}
+                                                                <a class="text-danger">
+                                                                    <i style="font-size: 20px; " class="fa fa-trash "></i>
+                                                                </a>
+                                                            {% endif %}
                                                         </td>
                                                     </tr>
                                                 {% endfor %} 
                                             {% endif %}
                                         </tbody>
-                                        <tfoot>
-                                            <tr class="text-center ">
-                                                <th>---</th>
-                                                <th>---</th>
-                                                <th>---</th>
-                                                <th>---</th>
-                                                <th>---</th>
-                                                <th>---</th>
-                                                <th>---</th>
-                                                {% comment %}
-                                                <th>CSS grade</th> {% endcomment %}
-                                            </tr>
-                                        </tfoot>
                                     </table>
                                 </div>
-                                <!-- /.card-body -->
                             </div>
                         </div>
                     </div>

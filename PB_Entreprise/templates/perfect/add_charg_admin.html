@@ -246,6 +246,7 @@
                                                 <th>MONTANT</th>
                                                 <th>COMPTE</th>
                                                 <th>N°PIECE</th>
+                                                <th>DATE</th>
                                                 <th>ACTION</th>
                                             </tr>
                                         </thead>
@@ -258,10 +259,8 @@
                                                     <td>{{c.montant}}</td>
                                                     <td>{{c.cpte_comptable}}</td>
                                                     <td>{{c.Num_piece}}</td>
+                                                    <td>{{c.date_saisie}}</td>
                                                     <td class="text-center ">
-                                                        <a href=" " class="mr-3 text-warning ">
-                                                            <i style="font-size: 20px;" class="fa fa-edit"></i>
-                                                        </a>
                                                         <a href="{% url 'delet_charge_admin' c.pk %}" class="text-danger" onclick="return confirm('Etes-vous sûre de vouloir supprimer la charge administrative {{c.Num_fact}} - {{c.montant}} frscfa? car si vous supprimer toutes les informations liées seront supprimées.')">
                                                             <i style="font-size: 20px; " class="fa fa-trash "></i>
                                                         </a>

@@ -60,11 +60,13 @@ urlpatterns = [
     path('vehicule/<int:pk>/acharg_fix',AddChargeFixView.as_view(), name="addcharg_fix"),
     path('acharg_fix/<int:pk>/modifier',UpdateChargFixView.as_view(), name="upd_charg_fix"),
     path('acharg_fix/<int:pk>/detail',DetailChargeFixeView.as_view(), name="detail_charg_fix"),
+    path('charg_fix/<int:pk>/delet', delete_charg_fixe, name='delete_chargfix'),
     #path('acharg_fix/<int:pk>/supprimer',DeletChargFixView.as_view(), name="del_charg_fix"),
     
     path('vehicule/<int:pk>/charg_var',AddChargeVarView.as_view(), name="addcharg_var"),
     path('charg_var/<int:pk>/modifier',UpdateChargeVarView.as_view(), name="updat_charg_var"),
     path('charg_var/<int:pk>/detail',DetailChargeVarView.as_view(), name="detail_charg_var"),
+    path('charg_var/<int:pk>/delet', delete_charg_var, name='delete_chargvar'),
     #path('charg_var/<int:pk>/supprimer',DeletChargeVarView.as_view(), name="del_charg_var"),
     
     path('listcharfix',ListChargeFixView.as_view(), name="list_charg_fix"),
