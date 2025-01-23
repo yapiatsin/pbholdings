@@ -82,14 +82,13 @@
                     <div class="collapse navbar-collapse order-3" id="navbarCollapse">
                         <ul class="navbar-nav">
                             {% block liste %}
-
-                                {% if user.user_type == '1' %}
+                                {% if user.user_type == '4' %}
                                     <li class="nav-item">
-                                        <a href="{% url 'dash' %}" class="nav-link">Accueil</a>
+                                        <a href="{% url 'dashgarage' %}" class="nav-link">Accueil</a>
                                     </li>
                                 {% else %}   
                                     <li class="nav-item">
-                                        <a href="{% url 'dashgarage' %}" class="nav-link">Accueil</a>
+                                        <a href="{% url 'dash' %}" class="nav-link">Accueil</a>
                                     </li>
                                 {% endif %}
                                 {% if user.is_staff %} 

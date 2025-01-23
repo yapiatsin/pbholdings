@@ -925,24 +925,24 @@ class DashboardView(TemplateView):
         else:
             catego_vehi = CategoVehi.objects.all().annotate(vehicule_count=Count("category"))
             ################################----Recettes----#############################
-            total_recettes = Recette.objects.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 1
+            total_recettes = Recette.objects.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 1
             total_recette_format ='{:,}'.format(total_recettes).replace('',' ')
             
-            total_recettes_vtc = Recette.objects.filter(vehicule__category__category="VTC",date_saisie=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 1
+            total_recettes_vtc = Recette.objects.filter(vehicule__category__category="VTC",date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 1
             total_recette_vtc_format ='{:,}'.format(total_recettes_vtc).replace('',' ')
-            total_recettes_taxi = Recette.objects.filter(vehicule__category__category="TAXI",date_saisie=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 1
+            total_recettes_taxi = Recette.objects.filter(vehicule__category__category="TAXI",date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 1
             total_recette_taxi_format ='{:,}'.format(total_recettes_taxi).replace('',' ')
             
             ################################----Pieces----#############################
-            total_piece= Piece.objects.filter(date_saisie=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
+            total_piece= Piece.objects.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
             total_piece_format ='{:,}'.format(total_piece).replace('',' ')
             ################################-----#----Pieces echanges----#-----#############################
-            total_piec_echange= PiecEchange.objects.filter(date_saisie=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
+            total_piec_echange= PiecEchange.objects.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
             total_piece_echang_format ='{:,}'.format(total_piec_echange).replace('',' ')
             ################################----Charges----#############################
-            total_charg_fix = ChargeFixe.objects.filter(date_saisie=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
+            total_charg_fix = ChargeFixe.objects.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
             total_chargfix_format ='{:,}'.format(total_charg_fix).replace('',' ')
-            total_charg_var = ChargeVariable.objects.filter(date_saisie=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
+            total_charg_var = ChargeVariable.objects.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
             total_chargvar_format ='{:,}'.format(total_charg_var).replace('',' ')
             ################################----Charge Totale----#############################
             total_charg = total_charg_fix + total_charg_var
@@ -951,11 +951,12 @@ class DashboardView(TemplateView):
             # marge_contribution = total_recettes - total_charg
             marge_contribution = total_recettes - total_charg_var
             ################################----Taux----#############################
-            if total_recettes == 0:
+            if total_recettes == 1:
                 taux_marge = 0
             else:
                 taux_marge = (marge_contribution*100/(total_recettes))
             taux_marge_format ='{:.2f}'.format(taux_marge)
+            
             ################################----Marge brute----#############################
             marge_brute = total_recettes - total_charg
             marge_brute_format ='{:,}'.format(marge_brute).replace('',' ')
@@ -2868,69 +2869,40 @@ class ListRecetView(ListView):
             date_debut = forms.cleaned_data['date_debut'] 
             date_fin = forms.cleaned_data['date_fin']
             
-            recets_all = Recette.objects.filter(date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
-            
-            recets_all_taxi = Recette.objects.filter(vehicule__category__category = 'TAXI',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
-            recets_all_vtc = Recette.objects.filter(vehicule__category__category = 'VTC',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
-            
-            recets_jour = Recette.objects.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
-            recets_jour_vtc = Recette.objects.filter(vehicule__category__category = 'VTC',date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
-            recets_mois_vtc = Recette.objects.filter(vehicule__category__category='VTC',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
-            
-            recets_jour_taxi = Recette.objects.filter(vehicule__category__category = 'TAXI',date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
-            recets_mois_taxi = Recette.objects.filter(vehicule__category__category='TAXI',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
-            
-            recets_mois_all = Recette.objects.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
-            
-            recets_an_fil_vtc = Recette.objects.filter(vehicule__category__category = 'VTC', date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
-            recets_an_fil_taxi = Recette.objects.filter(vehicule__category__category = 'TAXI', date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
-
-            list_recettes = Recette.objects.filter(date_saisie__range=[date_debut, date_fin])
-        else:
-            recets_all = Recette.objects.filter(date_saisie__month=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
-            
-            recets_all_taxi = Recette.objects.filter(vehicule__category__category = 'TAXI',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
-            recets_all_vtc = Recette.objects.filter(vehicule__category__category = 'VTC',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
-            
-            recets_jour = Recette.objects.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
-            recets_jour_vtc = Recette.objects.filter(vehicule__category__category = 'VTC',date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
-            recets_mois_vtc = Recette.objects.filter(vehicule__category__category='VTC',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
-            
-            recets_jour_taxi = Recette.objects.filter(vehicule__category__category = 'TAXI',date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
-            recets_mois_taxi = Recette.objects.filter(vehicule__category__category='TAXI',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
-            
-            recets_mois_all = Recette.objects.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
+            recets_mois_all = Recette.objects.filter(date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
+            recets_mois_taxi = Recette.objects.filter(vehicule__category__category='TAXI',date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
+            recets_mois_vtc = Recette.objects.filter(vehicule__category__category='VTC',date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
             
             recets_an_fil_vtc = Recette.objects.filter(vehicule__category__category = 'VTC', date_saisie__month=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
             recets_an_fil_taxi = Recette.objects.filter(vehicule__category__category = 'TAXI', date_saisie__month=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
             
-            list_recettes = Recette.objects.filter(date_saisie=date.today())
+            recets_an_all = Recette.objects.filter(date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
+            list_mois_recettes = Recette.objects.filter(date_saisie__range=[date_debut, date_fin])
+        else:
+            recets_mois_all = Recette.objects.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
+            recets_mois_taxi = Recette.objects.filter(vehicule__category__category='TAXI',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
+            recets_mois_vtc = Recette.objects.filter(vehicule__category__category='VTC',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
+            
+            recets_an_fil_vtc = Recette.objects.filter(vehicule__category__category='VTC', date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
+            recets_an_fil_taxi = Recette.objects.filter(vehicule__category__category='TAXI', date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
+            recets_an_all = Recette.objects.filter(date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
+            list_mois_recettes = Recette.objects.filter(date_saisie__month=date.today().month)
             
         context={
-            'list_recettes':list_recettes,
-            'recets_jours':recets_jour,
-            'recets_jours_vtc':recets_jour_vtc,
+            'list_mois_recettes':list_mois_recettes,
+            
+            'recets_mois_all':recets_mois_all,
+            'recets_mois_taxi':recets_mois_taxi,
             'recets_mois_vtc':recets_mois_vtc,
             
-            'recets_mois_taxi':recets_mois_taxi,
-            
-            'recets_jours_taxi':recets_jour_taxi,
-            # 'recets_an_cour':recets_an_cour,
-            
-            'recets_alls':recets_all,
+            'recets_an_fil_vtc':recets_an_fil_vtc,
+            'recets_an_fil_taxi':recets_an_fil_taxi,
+            'recets_an_all':recets_an_all,
             
             'dates':dates,
             'libelles_mois':libelle_mois,
             'annees':annee,
-            
-            'recets_mois_all':recets_mois_all,
-            
-            'recets_all_vtc':recets_all_vtc,
-            'recets_all_taxi':recets_all_taxi,
             'form':forms,
-            
-            'recets_an_fil_vtc' : recets_an_fil_vtc,
-            'recets_an_fil_taxi': recets_an_fil_taxi,
             }
         return context 
     
@@ -3185,7 +3157,7 @@ class ListChargeFixView(ListView):
             recets_an_fil_vtc = ChargeFixe.objects.filter(vehicule__category__category = 'VTC', date_saisie__month=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
             recets_an_fil_taxi = ChargeFixe.objects.filter(vehicule__category__category = 'TAXI', date_saisie__month=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
             
-            list_chargefixe = ChargeFixe.objects.filter(date_saisie=date.today())
+            list_chargefixe = ChargeFixe.objects.filter(date_saisie__month=date.today().month)
             
         context={
             'recets_an_fil_vtc' : recets_an_fil_vtc,
@@ -3422,7 +3394,7 @@ class ListChargeVarView(ListView):
             chargevar_an_fil_vtc = ChargeFixe.objects.filter(vehicule__category__category = 'VTC', date_saisie__month=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
             chargevar_an_fil_taxi = ChargeFixe.objects.filter(vehicule__category__category = 'TAXI', date_saisie__month=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
             
-            list_chargevar = ChargeFixe.objects.filter(date_saisie=date.today())
+            list_chargevar = ChargeFixe.objects.filter(date_saisie__month=date.today().month)
             
         context={
             'chargevar_an_fil_vtc' : chargevar_an_fil_vtc,
@@ -3871,7 +3843,7 @@ class ListCartStationView(ListView):
             station_mois_all = Patente.objects.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
             station_an_fil_vtc = Patente.objects.filter(vehicule__category__category = 'VTC', date_saisie__month=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
             station_an_fil_taxi = Patente.objects.filter(vehicule__category__category = 'TAXI', date_saisie__month=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
-            list_station = Patente.objects.filter(date_saisie=date.today())
+            list_station = Patente.objects.filter(date_saisie__month=date.today().month)
             
         context={
             'list_station':list_station,
@@ -4829,7 +4801,6 @@ class AddReparationView(CreateView):
         if form.is_valid():
             date_debut = form.cleaned_data['date_debut'] 
             date_fin = form.cleaned_data['date_fin']
-            
             repare_result = Reparation.objects.filter(vehicule=vehicule, date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 1 
             repare_list = Reparation.objects.filter(vehicule=vehicule, date_saisie__range=[date_debut, date_fin]).all()
             repare_jours = Reparation.objects.filter(vehicule=vehicule, date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 1 
