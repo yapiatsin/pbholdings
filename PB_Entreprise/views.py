@@ -39,13 +39,11 @@ class CarFluxView(TemplateView):
     template_name = 'perfect/car_flux.html'
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        
         vehicule = Vehicule.objects.all()
         context={
             'vehicule':vehicule,
         }
         return context
-
 
 class CarFluxDetailsView(DetailView):
     model = Vehicule
@@ -69,8 +67,6 @@ class CarFluxDetailsView(DetailView):
             
             ################################----Recettes----#############################
             total_recettes = Recette.objects.filter(vehicule=vehi, date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 1
-            ################################----Pieces----#############################
-            
             ################################----Pieces echanges----#############################
             total_piec_echange= PiecEchange.objects.filter(vehicule=vehi,date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
             list_piec_echange= PiecEchange.objects.filter(vehicule=vehi,date_saisie__range=[date_debut, date_fin])
@@ -124,7 +120,6 @@ class CarFluxDetailsView(DetailView):
         else:
             ################################----Recettes----#############################
             total_recettes = Recette.objects.filter(vehicule=vehi, date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 1
-            
             ################################----Pieces echanges----#############################
             total_piec_echange= PiecEchange.objects.filter(vehicule=vehi,date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
             list_piec_echange= PiecEchange.objects.filter(vehicule=vehi,date_saisie=date.today())
@@ -137,7 +132,6 @@ class CarFluxDetailsView(DetailView):
             #-------------------------------------------------------------------------------------------------------------------------------
             total_charg_admin = ChargeVariable.objects.filter(vehicule=vehi,date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
             list_charg_admin = ChargeVariable.objects.filter(vehicule=vehi,date_saisie=date.today())
-            
             #-------------------------------------------------------------------------------------------------------------------------------
             total_reparation = Reparation.objects.filter(vehicule=vehi,date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
             list_reparation =Reparation.objects.filter(vehicule=vehi,date_saisie=date.today())
@@ -159,12 +153,6 @@ class CarFluxDetailsView(DetailView):
             
             total_vignette = Vignette.objects.filter(vehicule=vehi,date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
             list_vignette = Vignette.objects.filter(vehicule=vehi,date_saisie=date.today())
-            
-            # total_encaissement = Encaissement.objects.filter(vehicule=vehicule,date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
-            # list_encaissement = Encaissement.objects.filter(vehicule=vehicule,date_saisie=date.today())
-            
-            # total_decaissement = Decaissement.objects.filter(vehicule=vehicule,date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
-            # list_decaissement = Decaissement.objects.filter(vehicule=vehicule,date_saisie=date.today())
             
             ################################----Charge Totale----#############################
             total_charg = total_charg_fix + total_charg_var
@@ -220,12 +208,6 @@ class CarFluxDetailsView(DetailView):
             
             'total_vignette':total_vignette,
             'list_vignette':list_vignette,
-            
-            # 'total_encaissement':total_encaissement,
-            # 'list_encaissement':list_encaissement,
-            
-            # 'total_decaissement':total_decaissement,
-            # 'list_decaissement':list_decaissement,
             
             'labels':label,
             'form':form,
@@ -840,18 +822,6 @@ class DashboardView(TemplateView):
                 recet_mois_taxi_data[commande.date_saisie.month] += commande.montant
             recet_mois_taxi_data = [recet_mois_taxi_data[month] for month in range(1, 13)]
             
-            # piece_data = Piece.objects.filter(date_saisie__range=[date_debut, date_fin])
-            # piece_mois_data = {month: 0 for month in range(1, 13)}
-            # for commande in piece_data:
-            #     piece_mois_data[commande.date_saisie.month] += commande.montant
-            # piece_mois_data = [piece_mois_data[month] for month in range(1, 13)]
-            
-            # piechang_data = PiecEchange.objects.filter(date_saisie__range=[date_debut, date_fin])
-            # piechang_mois_data = {month: 0 for month in range(1, 13)}
-            # for commande in piechang_data:
-            #     piechang_mois_data[commande.date_saisie.month] += commande.montant
-            # piechang_mois_data = [piechang_mois_data[month] for month in range(1, 13)]
-            
             rep_vtc_data = Reparation.objects.filter(vehicule__category__category="VTC",date_saisie__range=[date_debut, date_fin])
             rep_mois_vtc_data = {month: 0 for month in range(1, 13)}
             for commande in rep_vtc_data:
@@ -884,12 +854,6 @@ class DashboardView(TemplateView):
             for commande in piecha_taxi_data:
                 piecha_mois_taxi_data[commande.date_saisie.month] += 1
             piecha_mois_taxi_data = [piecha_mois_taxi_data[month] for month in range(1, 13)]
-            ###########################################################################################################################################################
-            # chargfix_data = ChargeFixe.objects.filter(date_saisie__range=[date_debut, date_fin])
-            # chargfix_mois_data = {month: 0 for month in range(1, 13)}
-            # for commande in chargfix_data:
-            #     chargfix_mois_data[commande.date_saisie.month] += commande.montant
-            # chargfix_mois_data = [chargfix_mois_data[month] for month in range(1, 13)]
             
             chargfix_vtc_data = ChargeFixe.objects.filter(vehicule__category__category ='VTC', date_saisie__range=[date_debut, date_fin])
             chargfix_mois_vtc_data = {month: 0 for month in range(1, 13)}
@@ -964,22 +928,21 @@ class DashboardView(TemplateView):
             total_recettes = Recette.objects.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 1
             total_recette_format ='{:,}'.format(total_recettes).replace('',' ')
             
-            total_recettes_vtc = Recette.objects.filter(vehicule__category__category="VTC",date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 1
+            total_recettes_vtc = Recette.objects.filter(vehicule__category__category="VTC",date_saisie=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 1
             total_recette_vtc_format ='{:,}'.format(total_recettes_vtc).replace('',' ')
-            
-            total_recettes_taxi = Recette.objects.filter(vehicule__category__category="TAXI",date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 1
+            total_recettes_taxi = Recette.objects.filter(vehicule__category__category="TAXI",date_saisie=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 1
             total_recette_taxi_format ='{:,}'.format(total_recettes_taxi).replace('',' ')
             
             ################################----Pieces----#############################
-            total_piece= Piece.objects.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
+            total_piece= Piece.objects.filter(date_saisie=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
             total_piece_format ='{:,}'.format(total_piece).replace('',' ')
-            ################################----Pieces echanges----#############################
-            total_piec_echange= PiecEchange.objects.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
+            ################################-----#----Pieces echanges----#-----#############################
+            total_piec_echange= PiecEchange.objects.filter(date_saisie=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
             total_piece_echang_format ='{:,}'.format(total_piec_echange).replace('',' ')
             ################################----Charges----#############################
-            total_charg_fix = ChargeFixe.objects.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
+            total_charg_fix = ChargeFixe.objects.filter(date_saisie=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
             total_chargfix_format ='{:,}'.format(total_charg_fix).replace('',' ')
-            total_charg_var = ChargeVariable.objects.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
+            total_charg_var = ChargeVariable.objects.filter(date_saisie=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
             total_chargvar_format ='{:,}'.format(total_charg_var).replace('',' ')
             ################################----Charge Totale----#############################
             total_charg = total_charg_fix + total_charg_var
@@ -1010,19 +973,6 @@ class DashboardView(TemplateView):
                 recet_mois_taxi_data[commande.date_saisie.month] += commande.montant
             recet_mois_taxi_data = [recet_mois_taxi_data[month] for month in range(1, 13)]
             
-            # piece_data = Piece.objects.filter(date_saisie__year=datetime.now().year)
-            # piece_mois_data = {month: 0 for month in range(1, 13)}
-            # for commande in piece_data:
-            #     piece_mois_data[commande.date_saisie.month] += commande.montant
-            # piece_mois_data = [piece_mois_data[month] for month in range(1, 13)]
-            
-            # piechang_data = PiecEchange.objects.filter(date_saisie__year=datetime.now().year)
-            # piechang_mois_data = {month: 0 for month in range(1, 13)}
-            # for commande in piechang_data:
-            #     piechang_mois_data[commande.date_saisie.month] += commande.montant
-            # piechang_mois_data = [piechang_mois_data[month] for month in range(1, 13)]
-            
-            ###########                 #############################################################                   ########################
             rep_vtc_data = Reparation.objects.filter(vehicule__category__category="VTC",date_saisie__year=datetime.now().year)
             rep_mois_vtc_data = {month: 0 for month in range(1, 13)}
             for commande in rep_vtc_data:
@@ -1055,12 +1005,6 @@ class DashboardView(TemplateView):
             for commande in piecha_taxi_data:
                 piecha_mois_taxi_data[commande.date_saisie.month] += 1
             piecha_mois_taxi_data = [piecha_mois_taxi_data[month] for month in range(1, 13)]
-            
-            # chargfix_data = ChargeFixe.objects.filter(date_saisie__year=datetime.now().year)
-            # chargfix_mois_data = {month: 0 for month in range(1, 13)}
-            # for commande in chargfix_data:
-            #     chargfix_mois_data[commande.date_saisie.month] += commande.montant
-            # chargfix_mois_data = [chargfix_mois_data[month] for month in range(1, 13)]
             
             chargvar_data = ChargeVariable.objects.filter(date_saisie__year=datetime.now().year)
             chargvar_mois_data = {month: 0 for month in range(1, 13)}
@@ -1125,7 +1069,6 @@ class DashboardView(TemplateView):
                 else:
                     taux = round((marge*100)/rece_all,2)
                     taux = taux if taux is not None else 0
-                    
                 best_taux.append({'vehicule': vehicule, 'taux':taux})
                 best_marge.append({'vehicule': vehicule, 'marge_cont':marge_cont})
                 best_recets.append({'vehicule': vehicule, 'recs':recs})
@@ -1803,8 +1746,7 @@ class GestionalerteView(TemplateView):
             vignette = Vignette.objects.filter(Q(date__lte=now) & Q(date_proch__gte=now)).count()                
             patente = Patente.objects.filter(Q(date__lte=now) & Q(date_proch__gte=now)).count()                 
             cartstation = Stationnement.objects.filter(Q(date__lte=now) & Q(date_proch__gte=now)).count()
-            # resultat_vehicule = []
-            # alert_color = ""
+            # -------------------------#-*-#------------------------- #
             for vehicule in vehicules:
                 visite = VisiteTechnique.objects.filter(vehicule = vehicule).order_by('date_saisie')
                 entretien = Entretien.objects.filter(vehicule = vehicule).order_by('date_saisie')
@@ -1874,17 +1816,17 @@ class GestionalerteView(TemplateView):
                 
                 alert_types = []
                 # Ajoutez les types d'alerte en fonction des jours restants
-                if safe_int(jours_restant) <= 5:
+                if 1 <= safe_int(jours_restant) <= 5:
                     alert_types.append("visite technique")
-                if safe_int(jours_ent_restant) <= 5:
+                if 1 <= safe_int(jours_ent_restant) <= 5:
                     alert_types.append("entretien")
-                if safe_int(jours_assu_restant) <= 5:
+                if 1 <= safe_int(jours_assu_restant) <= 5:
                     alert_types.append("assurance")
-                if safe_int(jours_vign_restant) <= 5:
+                if 1 <= safe_int(jours_vign_restant) <= 5:
                     alert_types.append("vignette")
-                if safe_int(jours_pate_restant) <= 5:
+                if 1 <= safe_int(jours_pate_restant) <= 5:
                     alert_types.append("patente")
-                if safe_int(jours_cartsta_restant) <= 5:
+                if 1 <= safe_int(jours_cartsta_restant) <= 5:
                     alert_types.append("stationnement")
                 # Envoie l'email d'alerte si nécessaire
                 if alert_types:
@@ -2869,8 +2811,8 @@ class AddRecetteView(CreateView):
             date_debut = form.cleaned_data['date_debut'] 
             date_fin = form.cleaned_data['date_fin']
             
-            recets_result = Recette.objects.filter(vehicule=vehicule, date__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 1 
-            recets_list = Recette.objects.filter(vehicule=vehicule, date__range=[date_debut, date_fin]).all()
+            recets_result = Recette.objects.filter(vehicule=vehicule, date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 1 
+            recets_list = Recette.objects.filter(vehicule=vehicule, date_saisie__range=[date_debut, date_fin]).all()
             recets_jours = Recette.objects.filter(vehicule=vehicule, date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 1 
             recets_mois = Recette.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 1 
             recets_an = Recette.objects.filter(vehicule=vehicule, date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 1 
@@ -4888,8 +4830,8 @@ class AddReparationView(CreateView):
             date_debut = form.cleaned_data['date_debut'] 
             date_fin = form.cleaned_data['date_fin']
             
-            repare_result = Reparation.objects.filter(vehicule=vehicule, date__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 1 
-            repare_list = Reparation.objects.filter(vehicule=vehicule, date__range=[date_debut, date_fin]).all()
+            repare_result = Reparation.objects.filter(vehicule=vehicule, date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 1 
+            repare_list = Reparation.objects.filter(vehicule=vehicule, date_saisie__range=[date_debut, date_fin]).all()
             repare_jours = Reparation.objects.filter(vehicule=vehicule, date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 1 
             repare_mois = Reparation.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 1 
             repare_an = Reparation.objects.filter(vehicule=vehicule, date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 1 
