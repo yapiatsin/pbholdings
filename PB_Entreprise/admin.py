@@ -49,9 +49,9 @@ class VehiculeAdmin(admin.ModelAdmin):
     list_display = ['immatriculation', 'marque', "category",'photo_carte_grise' ,'date_saisie','auteur']
     list_filter = ['immatriculation','marque', 'category']
        
-class PerteAdmin(admin.ModelAdmin):
-    list_display = ['vehicule', 'status_recherche','auteur']
-    list_filter = ['vehicule',"status_recherche"]
+class AutrarretAdmin(admin.ModelAdmin):
+    list_display = ['vehicule', 'libelle', 'auteur', 'date_arret', 'date_saisie']
+    list_filter = ['vehicule','libelle', 'date_arret', 'date_saisie']
 
 class CategoVehiAdmin(admin.ModelAdmin):
     list_display =['cid','category','recette_defaut' ]
@@ -92,7 +92,7 @@ class SoldeJourAdmin(admin.ModelAdmin):
     list_display = ['montant', 'date', 'date_saisie', 'auteur']
     list_filter = ['montant', 'date']
 
-admin.site.register(Perte, PerteAdmin)
+admin.site.register(Autrarret, AutrarretAdmin)
 admin.site.register(SoldeJour, SoldeJourAdmin)
 admin.site.register(Billetage, BilletageAdmin)
 admin.site.register(Encaissement, EncaissementAdmin)

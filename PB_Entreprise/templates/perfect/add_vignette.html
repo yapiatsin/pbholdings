@@ -178,8 +178,8 @@
                             <div class="card" style="box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);backdrop-filter: blur(5.2px);-webkit-backdrop-filter: blur(5.2px);">
                                 <div class="card-header">
                                     <h3 class="card-title">
-                                        <button type="button" class="btn btn-default" id="printButton">PDF <i class='text-danger fa fa-file-pdf-o'></i></button>
-                                        <button type="button" class="btn btn-default">Excell <i class='text-success fa fa-file-excel-o'></i></button>
+                                        <button type="button" class="btn btn-default text-danger" id="printButton">PDF <i class='fa fa-file-pdf-o'></i></button>
+                                        <button type="button" class="btn btn-default text-success">Excell <i class='fa fa-file-excel-o'></i></button>
                                         {% if user.user_type == '1' or user.user_type == '2' or user.user_type == '4' %}
                                             <button type="button" class="btn btn-default text-primary" style="font-weight:700" data-toggle="modal" data-target="#modal-lg">Saisie <i class='fa fa-plus-square'></i></button>
                                         {% else %}
@@ -195,8 +195,7 @@
                                     <table id="example2" class="table table-bordered table-striped">
                                         <thead>
                                             <tr class=" text-center text-danger ">
-                                                <th>IMMATRICULATION</th>
-                                                
+                                                <th>IMMAT</th>
                                                 <th>MONTANT</th>
                                                 <th>DATE SAISIE</th>
                                                 <th>DATE PROCHAINE</th>
@@ -218,7 +217,7 @@
                                                         <td>{{u.auteur.username}}</td>
                                                         <td class="text-center">
                                                             {% if user.user_type == '1' %}
-                                                                <a href="{% url 'delvehi' u.pk %}" class="text-danger" onclick="return confirm('Etes-vous sûre de vouloir supprimer le véhicule {{u.immatriculation}} - {{u.marque}} - {{u.category|upper}}? car si vous supprimer toutes les informations liées seront supprimées')">
+                                                                <a href="{% url 'delete_vignets' u.pk %}" class="text-danger" onclick="return confirm('Etes-vous sûre de vouloir supprimer le véhicule {{u.vehicule.immatriculation}} - {{u.vehicule.marque}} - Montant: {{u.montant}} frscfa ? car si vous supprimer toutes les informations liées seront supprimées')">
                                                                     <i style="font-size: 20px; " class="fa fa-trash "></i>
                                                                 </a>
                                                             {% else %}

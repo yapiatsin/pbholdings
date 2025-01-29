@@ -16,7 +16,7 @@
                 <tr style="border-color:red">
                     <div class="col-md-12">
                         <div class="row ">
-                            <div class="col-md-2" >
+                            <div class="col-md-2">
                                 <td style="border:none">
                                     <div style="display: flex; align-items: center;">
                                         <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
@@ -25,9 +25,39 @@
                                         </div>
                                         <div>
                                             <div style="font-size: 15px;color: #06497C">Réparations</div>
-                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
+                                            <div style="font-size:16px; font-weight: 700; line-height: 1; color: #fa7832;">
                                                 {{ total_reparat_format }}
                                                 <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td style="border:none">
+                                    <div style="display: flex; align-items: center;">
+                                        <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
+                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 9px; margin-left: 0px;" src="{% static 'clereparat.png' %}" alt="" srcset="">
+                                        </div>
+                                        <div>
+                                            <div style="font-size: 15px;color: #06497C">T réparations</div>
+                                            <div style="font-size:16px; font-weight: 700; line-height: 1; color: #fa7832;">
+                                                {{ nb_reparat }}
+                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <td style="border:none">
+                                    <div style="display: flex; align-items: center;">
+                                        <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
+                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 9px; margin-left: 0px;" src="{% static 'clereparat.png' %}" alt="" srcset="">
+                                        </div>
+                                        <div>
+                                            <div style="font-size: 15px;color: #06497C">Réparations VTC</div>
+                                            <div style="font-size:15px; font-weight: 700; line-height: 1; color: #fa7832;">
+                                                T: {{ nb_reparatvtc }}-{{total_reparatvtc_format}}
+                                                <small style="color: #06497C; font-weight: 700; line-height: 1;">frscfa</small>
                                             </div>
                                         </div>
                                     </div>
@@ -38,14 +68,15 @@
                                             <img style="height: 35px; width: 35px; position:relative; margin-top: 9px; margin-left: 0px;" src="{% static 'clereparat.png' %}" alt="" srcset="">
                                         </div>
                                         <div>
-                                            <div style="font-size: 15px;color: #06497C">Nb réparatons</div>
-                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
-                                                {{ total_reparat_format }}
-                                                <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
+                                            <div style="font-size: 15px;color: #06497C">Réparations TAXI</div>
+                                            <div style="font-size:15px; font-weight: 700; line-height: 1; color: #fa7832;">
+                                                T: {{ nb_reparataxi }}-{{total_reparataxi_format}}
+                                                <small style="color: #06497C; font-weight: 700; line-height: 1;">frscfa</small>
                                             </div>
                                         </div>
                                     </div>
                                 </td>
+
                                 <td style="border:none">
                                     <div style="display: flex; align-items: center;">
                                         <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
@@ -54,7 +85,7 @@
                                         </div>
                                         <div>
                                             <div style="font-size: 15px;color: #06497C">Visites Techniques</div>
-                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
+                                            <div style="font-size:15px; font-weight: 700; line-height: 1; color: #fa7832;">
                                                 {{ total_visit_format }}
                                                 <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
                                             </div>
@@ -69,7 +100,7 @@
                                         </div>
                                         <div>
                                             <div style="font-size: 15px;color: #06497C">Entretiens</div>
-                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
+                                            <div style="font-size:15px; font-weight: 700; line-height: 1; color: #fa7832;">
                                                 {{ total_ent_format }}
                                                 <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
                                             </div>
@@ -83,7 +114,7 @@
                                         </div>
                                         <div>
                                             <div class="mt-1" style="font-size:14px; font-weight: 700; line-height: 1;color: #06497C">Pièces réparations</div>
-                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
+                                            <div style="font-size:15px; font-weight: 700; line-height: 1; color: #fa7832;">
                                                 {{ total_piece_format}} 
                                                 <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
                                             </div>
@@ -98,7 +129,7 @@
                                         </div>
                                         <div>
                                             <div style="font-size: 15px; color: #06497C">Pièces changées</div>
-                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">{{ total_piececha_format }}  <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small></div>
+                                            <div style="font-size:15px; font-weight: 700; line-height: 1; color: #fa7832;">{{ total_piececha_format }}  <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small></div>
                                         </div>
                                     </div>
                                 </td>
@@ -107,11 +138,11 @@
                                     <div style="display: flex; align-items: center;">
                                         <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
                                             <img style="height: 35px; width: 35px; position:relative; margin-top: 9px; margin-left: 8px;" src="{% static 'chargfix.png' %}" alt="" srcset="">
-                                            <a href="{ url 'addtaille' patient.pk %}" style="font-size:20px"><i class="fa fa-plus-circle text-success" style="position:relative; font-size:20px;top:-10px"></i></a>
+                                            <a href="" style="font-size:20px"><i class="fa fa-plus-circle text-success" style="position:relative; font-size:20px;top:-10px"></i></a>
                                         </div>
-                                        <div><div style="font-size: 15px;color: #06497C">Pièce inter</div>
-                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
-                                                {{ total_piece_format }}  
+                                        <div><div style="font-size: 15px;color: #06497C">Pièce interne</div>
+                                            <div style="font-size:15px; font-weight: 700; line-height: 1; color: #fa7832;">
+                                                {{ total_pieces_format_int }}  
                                                 <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
                                             </div>
                                         </div>
@@ -136,7 +167,7 @@
                         <div class="col-md-12 p-0">
                             <div class="card" style="box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);backdrop-filter: blur(5.2px);-webkit-backdrop-filter: blur(5.2px);">
                                 <div class="card-header">
-                                    <h3 class="card-title">STATISTIQUE PAR VEHICULE</h3>
+                                    <h3 class="card-title text-danger" style="font-weight: 700;">STATISTIQUE PAR VEHICULE</h3>
 
                                     <div class="card-tools">
                                         <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>

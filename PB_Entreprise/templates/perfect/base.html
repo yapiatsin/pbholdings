@@ -147,7 +147,6 @@
                         <a href="#" class="d-flex text-center font-weight-700 mt-3">{{user.username}}</a>
                     </div>
                 </div>
-
                 <nav class="mt-2">
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                         <li class="nav-item has-treeview">
@@ -179,43 +178,56 @@
                                             <p>Garage</p>
                                         </a>
                                     </li>
+                                    
                                 {% endif %}
                             </ul>
+                            <li class="nav-item">
+                                <a href="{% url 'alerte' %}" class="nav-link ">
+                                    <i style="font-size: 16px;" class="nav-icon fas fa-exclamation-circle"></i>
+                                    <p>Alertes</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{% url 'temps' %}" class="nav-link ">
+                                    <i class="nav-icon fas fa-clock-o "></i>
+                                    <p>Temps d'arrêts</p>
+                                </a>
+                            </li>
                         </li>
                         {% if user.user_type == '4' %}
                         {% else %}
-                            <li class="nav-item ">
-                                <a href="{% url 'rec_day' %}" class="nav-link ">
+                            <li class="nav-item">
+                                <a href="{% url 'rec_day' %}" class="nav-link">
                                     <i class="nav-icon fas fa-coins "></i>
                                     <p>Recettes</p>
                                 </a>
                             </li>
-                            <li class="nav-item ">
-                                <a href="{% url 'billetage' %}" class="nav-link ">
+                            <li class="nav-item">
+                                <a href="{% url 'billetage' %}" class="nav-link">
                                     <i class="nav-icon fas fa-wallet "></i>
                                     <p>Caisse</p>
                                 </a>
                             </li>
                         {% endif %}
-                            <li class="nav-item has-treeview ">
+                            <li class="nav-item has-treeview">
                                 <a href="" class="nav-link ">
                                     <i class="nav-icon fa fa-plus-circle"></i>
                                     <p>
                                         Saisie
-                                        <i class="fas fa-angle-left right "></i>
+                                        <i class="fas fa-angle-left right"></i>
                                     </p>
                                 </a>
                                 {% if user.user_type == '3' %}
-                                    <ul class="nav nav-treeview ">
-                                        <li class="nav-item ">
-                                            <a href="{% url 'saisi_compta' %}" class="nav-link ">
-                                                <i style="font-size: 10px;" class="far fa-circle nav-icon "></i>
+                                    <ul class="nav nav-treeview">
+                                        <li class="nav-item">
+                                            <a href="{% url 'saisi_compta' %}" class="nav-link">
+                                                <i style="font-size: 10px;" class="far fa-circle nav-icon"></i>
                                                 <p>Financière</p>
                                             </a>
                                         </li>
                                     </ul>
-                                    <ul class="nav nav-treeview ">
-                                        <li class="nav-item ">
+                                    <ul class="nav nav-treeview">
+                                        <li class="nav-item">
                                             <a href="{% url 'add_chargadminist' %}" class="nav-link ">
                                                 <i style="font-size: 10px;" class="far fa-circle nav-icon "></i>
                                                 <p>Administrative</p>
@@ -223,10 +235,10 @@
                                         </li>
                                     </ul>
                                 {% elif user.user_type == '4' %}
-                                    <ul class="nav nav-treeview ">
-                                        <li class="nav-item ">
-                                            <a href="{% url 'saisi_garag' %}" class="nav-link ">
-                                                <i style="font-size: 10px;" class="far fa-circle nav-icon "></i>
+                                    <ul class="nav nav-treeview">
+                                        <li class="nav-item">
+                                            <a href="{% url 'saisi_garag' %}" class="nav-link">
+                                                <i style="font-size: 10px;" class="far fa-circle nav-icon"></i>
                                                 <p>Garage</p>
                                             </a>
                                         </li>
@@ -236,14 +248,6 @@
                                             <a href="{% url 'temps_arrets' %}" class="nav-link ">
                                                 <i style="font-size: 10px;" class="far fa-circle nav-icon "></i>
                                                 <p>Temps d'arrêt</p>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                    <ul class="nav nav-treeview">
-                                        <li class="nav-item">
-                                            <a href="{% url 'alerte' %}" class="nav-link ">
-                                                <i class="nav-icon fas fa-exclamation-circle "></i>
-                                                <p>Alertes</p>
                                             </a>
                                         </li>
                                     </ul>
@@ -307,18 +311,6 @@
                                         </a>
                                     </li>
                                 </ul>
-                            </li>
-                            <li class="nav-item ">
-                                <a href="{% url 'alerte' %}" class="nav-link ">
-                                    <i class="nav-icon fas fa-exclamation-circle "></i>
-                                    <p>Alertes</p>
-                                </a>
-                            </li>
-                            <li class="nav-item ">
-                                <a href="{% url 'temps' %}" class="nav-link ">
-                                    <i class="nav-icon fas fa-clock-o "></i>
-                                    <p>Temps arrêt</p>
-                                </a>
                             </li>
                         {% endif %}
                         {% if user.is_staff %}

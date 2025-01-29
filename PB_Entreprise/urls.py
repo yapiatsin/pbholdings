@@ -28,7 +28,6 @@ urlpatterns = [
     path('caisse', BilletageView.as_view(), name='billetage'),
     path('addsoldejour', AddSoldeJourView.as_view(), name='add_solde'),
     path('soldejour/<int:pk>/supprimer', delete_solde, name='delet_solde'),
-    # path('tabtempsarret', TableauTempsArretView.as_view(), name='tabletemparret'),
     
     path('adddecaissement', AddDecaissementView.as_view(), name='add_decaisse'),
     path('decaissement/<int:pk>/modifier', UpdatDecaissementView.as_view(), name='updat_decaisse'),
@@ -61,29 +60,28 @@ urlpatterns = [
     path('acharg_fix/<int:pk>/modifier',UpdateChargFixView.as_view(), name="upd_charg_fix"),
     path('acharg_fix/<int:pk>/detail',DetailChargeFixeView.as_view(), name="detail_charg_fix"),
     path('charg_fix/<int:pk>/delet', delete_charg_fixe, name='delete_chargfix'),
-    #path('acharg_fix/<int:pk>/supprimer',DeletChargFixView.as_view(), name="del_charg_fix"),
     
     path('vehicule/<int:pk>/charg_var',AddChargeVarView.as_view(), name="addcharg_var"),
     path('charg_var/<int:pk>/modifier',UpdateChargeVarView.as_view(), name="updat_charg_var"),
     path('charg_var/<int:pk>/detail',DetailChargeVarView.as_view(), name="detail_charg_var"),
     path('charg_var/<int:pk>/delet', delete_charg_var, name='delete_chargvar'),
-    #path('charg_var/<int:pk>/supprimer',DeletChargeVarView.as_view(), name="del_charg_var"),
-    
     path('listcharfix',ListChargeFixView.as_view(), name="list_charg_fix"),
     path('listcharvar',ListChargeVarView.as_view(), name="list_charg_var"),
     
     #---------ENTRETIEN-------VISITE------REPARATION-------ASSURANCE-------PIECE-----VIGNETTE-----PATENTE--------PERTE-------ACCIDENT#
     
+    path('vehicule/<int:pk>/addautarret',AddAutrarretView.as_view(), name="add_autarrets"), 
+    path('autarret/<int:pk>/delet', delete_autarret, name='delete_autarret'),
+    
     path('vehicule/<int:pk>/addvisite',AddVisitView.as_view(), name="add_visit"), 
     path('visite/<int:pk>/modifier',UpdateVisiteView.as_view(), name="updat_visit"), 
     path('visite/<int:pk>/detail',DetailVisiteView.as_view(), name="detail_visit"), 
-    #path('visite/<int:pk>/supprimer',DeletVisiteView.as_view(), name="delet_visit"),
     path('vehicule/liste/visites',ListVisitView.as_view(), name="list_visit"), 
+    path('visite/<int:pk>/delet', delete_visite, name='delete_visit'),
     
     path('vehicule/<int:pk>/entretien',AddEntretienView.as_view(), name="add_entretien"),
     path('entretien/<int:pk>/modifier',UpdatEntretienView.as_view(), name="updat_entretien"),
     path('entretien/<int:pk>/detail',DetailEntretienView.as_view(), name="detail_entretien"),
-    #path('entretien/<int:pk>/supprimer',DeletEntretienView.as_view(), name="delet_entretien"),
     path('liste/entretiens',ListEntretienView.as_view(), name="list_entretien"),
     
     path('vehicule/<int:pk>/reparation',AddReparationView.as_view(), name="add_reparation"),
@@ -92,7 +90,6 @@ urlpatterns = [
     path('reparation/<int:pk>/detail', DetailReparatView.as_view(), name="detail_reparat"),
     path('reparation/<int:pk>/delete', delete_reparation, name='delete_reparation'),
     
-    #path('piece/<int:pk>/supprimer',DeletPieceView.as_view(), name="delet_piece"),
     path('liste/pieces/changees', ListPiechangeView.as_view(), name="list_piechange"),
     
     path('piechange/<int:pk>/vehicule', AddPiecEchangeView.as_view(), name='add_piechange'),
@@ -101,27 +98,26 @@ urlpatterns = [
     path('vehicule/<int:pk>/assurance',AddAssuranceView.as_view(), name="add_assurance"),
     path('assurance/<int:pk>/modifier',UpdateAssuranceView.as_view(), name="updat_assurance"),
     path('assurance/<int:pk>/detail',DetailAssuranceView.as_view(), name="detail_assurance"),
-   # path('assurance/<int:pk>/supprimer',DeletAssuranceView.as_view(), name="delet_assurance"),
     path('liste/assurance',ListAssuranceView.as_view(), name="liste_assurance"),
-
+    path('assurance/<int:pk>/delete', delete_assurance, name='delete_ass'),
+    
     path('vehicule/<int:pk>/vignette',AddVignetteView.as_view(), name="add_vignet"),
     path('vignette/<int:pk>/modifier',UpdatVignetteView.as_view(), name="updat_vignet"),
     path('vignette/<int:pk>/detail',DetailVignetteView.as_view(), name="detail_vignet"),
-   # path('vignette/<int:pk>/supprimer',DeletVignetteView.as_view(), name="delet_vignet"),
     path('vignette/<int:pk>/detail',DetailCartStationView.as_view(), name="detail_vignet"),
     path('liste/vignette',ListVignetteView.as_view(), name="liste_vignette"),
+    path('vignette/<int:pk>/delete', delete_vignette, name='delete_vignets'),    
     
     path('vehicule/<int:pk>/cartestation',AddCartStationView.as_view(), name="add_station"),
     path('cartestation/<int:pk>/modifier',UpdatCartStationView.as_view(), name="updat_station"),
-   # path('cartestation/<int:pk>supprimer',DeletCartStationView.as_view(), name="delet_cart_station"),
     path('cartestation/<int:pk>detail',DetailCartStationView.as_view(), name="detail_station"),
     path('liste-Carte-Stationnement',ListCartStationView.as_view(), name="liste_stationnement"),
+    path('cartestation/<int:pk>/delete', delete_stat, name='delete_stations'),    
     
     path('vehicule/<int:pk>/patente',AddPatenteView.as_view(), name="add_patente"),
     path('patente/<int:pk>/modifier', UpdatPatenteView.as_view(), name="updat_patente"),
     path('patente/<int:pk>/detail', DetailPatenteView.as_view(), name="detail_patente"),
-    #path('patente/<int:pk>/supprimer', DeletPatenteView.as_view(), name="delet_patente"),
     path('patente/<int:pk>/detail', DetailPatenteView.as_view(), name="detail_patente"),
     path('liste-patente', ListPatenteView.as_view(), name="liste_patente"),
-    
+    path('patente/<int:pk>/delete', delete_patente, name='delete_patentes'),     
 ]

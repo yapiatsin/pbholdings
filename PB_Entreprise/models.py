@@ -169,10 +169,10 @@ class Vignette(models.Model):
         jours_vign_restant = (self.date_proch - timezone.now().date()).days
         return jours_vign_restant
 
-MOTIF_REPARATION = (
-    ('1', 'Visite'),
-    ('2', 'Panne'),
-    ('3', 'Accident'),
+MOTIF_REPARATION=(
+    ('Visite', 'Visite'),
+    ('Panne', 'Panne'),
+    ('Accident', 'Accident'),
 )
 class Reparation(models.Model):
     auteur = models.ForeignKey(CustomUser,on_delete=models.SET_NULL, null=True, blank=True, related_name='user_add_rep')
@@ -232,35 +232,17 @@ class Entretien(models.Model):
         jours_ent_restant = (self.date_proch - timezone.now().date()).days
         return jours_ent_restant
 
-
 class Autrarret(models.Model):
     auteur = models.ForeignKey(CustomUser,on_delete=models.SET_NULL, null=True, blank=True, related_name='user_add_aut')
     vehicule = models.ForeignKey(Vehicule, on_delete=models.CASCADE, related_name="autrarrets")
-    motif = models.DateTimeField()
+    libelle = models.CharField(max_length=50, null=True, blank=True)
+    date_arret = models.DateTimeField()
     date_sortie = models.DateTimeField()
-    numfich = models.IntegerField()
-    
-    # montant = models.IntegerField(default=0)
+    numfich = models.CharField(max_length=100, null=True, blank=True)
+    montant = models.IntegerField(default=0)
     date_saisie = models.DateField(auto_now_add=True)
-    date = models.DateTimeField(auto_now_add=True)
     def __str__(self):
         return '%s ' % (self.vehicule.immatriculation)
-
-class Perte(models.Model):
-    STATUS = [
-        ('Cours..','Cours..'),
-        ('Retrouver','Retrouver'),
-        ('Egarer','Egarer'),
-        ]
-    vehicule = models.ForeignKey(Vehicule,on_delete=models.CASCADE, related_name='perte')
-    auteur = models.ForeignKey(CustomUser,on_delete=models.CASCADE, related_name='user_add_pert')
-    libelle = models.TextField()
-    date_saisie = models.DateTimeField()
-    status_recherche = models.CharField(max_length=20,choices = STATUS)
-    date = models.DateField(auto_now_add=True)
-
-    def __str__(self):
-        return '%s - %s - %s' % (self.vehicule.immatriculation, self.auteur.username, self.status_recherche)
 
 class VisiteTechnique(models.Model):
     auteur = models.ForeignKey(CustomUser,on_delete=models.SET_NULL, null=True, blank=True, related_name='user_add_vis')

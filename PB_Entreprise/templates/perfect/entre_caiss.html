@@ -175,11 +175,11 @@ de caisse
                                                         <td class="text-center">
                                                             {% if user.user_type == '1' %}
                                                                 <a href="{% url 'delet_encaisse' e.pk %}" class="text-danger" onclick="return confirm('Etes-vous sûre de vouloir supprimer l\'entrée de caisse  {{e.Num_piece}} - {{e.libelle}} - {{e.montant}} frscfa? car si vous supprimer toutes les informations liées seront supprimées')">
-                                                                    <i style="font-size: 20px; " class="fa fa-trash "></i>
+                                                                    <i style="font-size: 20px;" class="fa fa-trash "></i>
                                                                 </a>
                                                             {% else %}
                                                                 <a href="" class="text-danger">
-                                                                    <i style="font-size: 20px; " class="fa fa-trash "></i>
+                                                                    <i style="font-size: 20px;" class="fa fa-trash "></i>
                                                                 </a>
                                                             {% endif %}
                                                         </td>

@@ -367,7 +367,6 @@ class Bilanday(TemplateView):
             'list_recettes_vtc':list_recettes_vtc,
             
             'total_recettes':total_recettes,
-            
             'total_piece':total_piece,
             'list_piece':list_piece,
             
@@ -437,8 +436,9 @@ class TableaustopView(TemplateView):
         total_visit_sum = 0
         total_panne_sum = 0
         total_accident_sum = 0
+        total_autrarret_sum = 0
         
-        total_visitechique_sum = 0
+        total_visitechique_sum = 0 
         total_entretien_sum = 0 
         
         vehicule_data = []
@@ -446,9 +446,10 @@ class TableaustopView(TemplateView):
             total_actions = (
                 Entretien.objects.filter(vehicule=vehicule, date_saisie__month=month, date_saisie__year=year).count() +
                 VisiteTechnique.objects.filter(vehicule=vehicule, date_saisie__month=month, date_saisie__year=year).count() +
-                Reparation.objects.filter(vehicule=vehicule,motif="1", date_saisie__month=month, date_saisie__year=year).count() +
-                Reparation.objects.filter(vehicule=vehicule,motif="2", date_saisie__month=month, date_saisie__year=year).count() +
-                Reparation.objects.filter(vehicule=vehicule,motif="3", date_saisie__month=month, date_saisie__year=year).count()
+                Autrarret.objects.filter(vehicule=vehicule, date_saisie__month=month, date_saisie__year=year).count() +
+                Reparation.objects.filter(vehicule=vehicule,motif="Visite", date_saisie__month=month, date_saisie__year=year).count() +
+                Reparation.objects.filter(vehicule=vehicule,motif="Panne", date_saisie__month=month, date_saisie__year=year).count() +
+                Reparation.objects.filter(vehicule=vehicule,motif="Accident", date_saisie__month=month, date_saisie__year=year).count()
             )
             total_cost_parts = Piece.objects.filter(
                 reparation__vehicule=vehicule, date_saisie__month=month, date_saisie__year=year
@@ -472,25 +473,27 @@ class TableaustopView(TemplateView):
 
             daily_actions = [0] * days_in_month
             for day in range(1, days_in_month + 1):
-                for model in [Reparation, VisiteTechnique, Entretien]:
+                for model in [Reparation, VisiteTechnique, Entretien, Autrarret]:
                     count = model.objects.filter(
                         vehicule=vehicule, date_saisie__day=day, date_saisie__month=month, date_saisie__year=year
                     ).count()
                     daily_actions[day - 1] += count
             
             repairs_by_motif = {
-                'Prepa-vis': Reparation.objects.filter(vehicule=vehicule, motif="1", date_saisie__month=month, date_saisie__year=year).count(),
-                'pan': Reparation.objects.filter(vehicule=vehicule, motif="2", date_saisie__month=month, date_saisie__year=year).count(),
-                'acc': Reparation.objects.filter(vehicule=vehicule, motif="3", date_saisie__month=month, date_saisie__year=year).count(),
+                'P-vis': Reparation.objects.filter(vehicule=vehicule, motif="Visite", date_saisie__month=month, date_saisie__year=year).count(),
+                'pan': Reparation.objects.filter(vehicule=vehicule, motif="Panne", date_saisie__month=month, date_saisie__year=year).count(),
+                'acc': Reparation.objects.filter(vehicule=vehicule, motif="Accident", date_saisie__month=month, date_saisie__year=year).count(),
             }
             motif_arret = {
                 'vis': VisiteTechnique.objects.filter(vehicule=vehicule,date_saisie__month=month, date_saisie__year=year).count(),
                 'ent': Entretien.objects.filter(vehicule=vehicule, date_saisie__month=month, date_saisie__year=year).count(),
+                'aut': Autrarret.objects.filter(vehicule=vehicule, date_saisie__month=month, date_saisie__year=year).count(),
             }
             
-            all_rep_visit = Reparation.objects.filter(vehicule=vehicule, motif="1", date_saisie__month=month, date_saisie__year=year).count()
-            all_rep_panne = Reparation.objects.filter(vehicule=vehicule, motif="2", date_saisie__month=month, date_saisie__year=year).count()
-            all_rep_accident = Reparation.objects.filter(vehicule=vehicule, motif="3", date_saisie__month=month, date_saisie__year=year).count()
+            all_rep_visit = Reparation.objects.filter(vehicule=vehicule, motif="Visite", date_saisie__month=month, date_saisie__year=year).count()
+            all_rep_panne = Reparation.objects.filter(vehicule=vehicule, motif="Panne", date_saisie__month=month, date_saisie__year=year).count()
+            all_rep_accident = Reparation.objects.filter(vehicule=vehicule, motif="Accident", date_saisie__month=month, date_saisie__year=year).count()
+            all_autre_arret = Autrarret.objects.filter(vehicule=vehicule, date_saisie__month=month, date_saisie__year=year).count()
             
             vehicule_data.append({
                 'immatriculation': vehicule.immatriculation,
@@ -514,12 +517,14 @@ class TableaustopView(TemplateView):
             total_visit_sum += all_rep_visit
             total_panne_sum += all_rep_panne
             total_accident_sum += all_rep_accident
+            total_autrarret_sum += all_autre_arret
     
         context['vehicule_data'] = vehicule_data
         
         context['total_visit_sum'] = total_visit_sum
         context['total_panne_sum'] = total_panne_sum
         context['total_accident_sum'] = total_accident_sum
+        context['total_autrarret_sum'] = total_autrarret_sum
         
         context['total_visitechique_sum'] = total_visitechique_sum
         context['total_entretien_sum'] = total_entretien_sum
@@ -887,7 +892,6 @@ class DashboardView(TemplateView):
             ###########################################################################################################################################################
             recet_taux_data = {month: 0 for month in range(1, 13)}
             chargvar_taux_data = {month: 0 for month in range(1, 13)}
-
             marge_data_vtc = [recet_mois_vtc_data[i] - chargvar_mois_data[i] for i in range(12)]
             taux_data_vtc = [(marge_data_vtc[i] * 100) / recet_mois_vtc_data[i] if recet_mois_vtc_data[i] > 0 else 0 for i in range(12)]
             
@@ -1087,7 +1091,7 @@ class DashboardView(TemplateView):
             'tot_piec_echang':total_piece_echang_format,
             'tot_chargfix':total_chargfix_format,
             'tot_chargvar':total_chargvar_format,
-            'tot_chargtotal':total_charge_format,
+            'charge_totale':total_charge_format,
             'marge_brute_format':marge_brute_format,
             'taux_marge':taux_marge_format,
             'best_recettes':best_recets,
@@ -1514,9 +1518,9 @@ class AddSoldeJourView(CreateView):
         if form.is_valid():
             date_debut = form.cleaned_data['date_debut'] 
             date_fin = form.cleaned_data['date_fin'] 
-            solde_liste = SoldeJour.objects.filter(date_saisie__range=[date_debut, date_fin])  
+            solde_liste = SoldeJour.objects.filter(date_saisie__range=[date_debut, date_fin]).order_by('-id')
         else:
-            solde_liste = SoldeJour.objects.filter(date_saisie=date.today())  
+            solde_liste = SoldeJour.objects.filter(date_saisie__month=date.today().month).order_by('-id')
         context = {
             'form': form,
             'soldes_liste': solde_liste,
@@ -1877,9 +1881,9 @@ class AddVehiculeView(CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         forms = self.get_form()
-        annee_en_cours =date.today().year
-        today =date.today()
-        mois_en_cours =date.today().month
+        annee_en_cours = date.today().year
+        today = date.today()
+        mois_en_cours = date.today().month
         libelle_mois_en_cours = calendar.month_name[mois_en_cours]
         user = self.request.user
         # Define the filtering based on user type and gerant_voiture condition
@@ -2021,6 +2025,15 @@ class DashboardGaragView(TemplateView):
             date_debut = form.cleaned_data['date_debut'] 
             date_fin = form.cleaned_data['date_fin'] 
             
+            nb_reparatvtc = Reparation.objects.filter(date_saisie__range=[date_debut, date_fin], vehicule__category__category ='VTC').count()
+            total_reparatvtc = Reparation.objects.filter(date_saisie__range=[date_debut, date_fin], vehicule__category__category ='VTC').aggregate(somme=Sum('montant'))['somme'] or 0
+            total_reparatvtc_format ='{:,}'.format(total_reparatvtc).replace('',' ')
+            
+            nb_reparataxi = Reparation.objects.filter(date_saisie__range=[date_debut, date_fin], vehicule__category__category ='TAXI').count()
+            total_reparataxi = Reparation.objects.filter(date_saisie__range=[date_debut, date_fin], vehicule__category__category ='TAXI').aggregate(somme=Sum('montant'))['somme'] or 0
+            total_reparataxi_format ='{:,}'.format(total_reparataxi).replace('',' ')
+            
+            nb_reparat = Reparation.objects.filter(date_saisie__range=[date_debut, date_fin]).count()
             total_reparat = Reparation.objects.filter(date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
             total_reparat_format ='{:,}'.format(total_reparat).replace('',' ')
             
@@ -2036,6 +2049,11 @@ class DashboardGaragView(TemplateView):
             total_piecechang = PiecEchange.objects.filter(date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
             total_piececha_format ='{:,}'.format(total_piecechang).replace('',' ')
             
+            total_piece_int = Piece.objects.filter(date_saisie__range=[date_debut, date_fin], lieu="INTERNE").aggregate(somme=Sum('montant'))['somme'] or 0
+            total_piecechang_int = PiecEchange.objects.filter(date_saisie__range=[date_debut, date_fin], lieu="INTERNE").aggregate(somme=Sum('montant'))['somme'] or 0
+            total_pieces_int = total_piece_int + total_piecechang_int
+            total_pieces_format_int = '{:,}'.format(total_pieces_int).replace('',' ')
+            
             total_patent = Patente.objects.filter(date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
             total_pat_format ='{:,}'.format(total_patent).replace('',' ')
             
@@ -2046,39 +2064,76 @@ class DashboardGaragView(TemplateView):
             total_vign_format ='{:,}'.format(total_vigne).replace('',' ')
             
             ################################----Graphiques----#############################
-            rep_data = Reparation.objects.filter(date_saisie__range=[date_debut, date_fin])
-            rep_mois_data = {month: 0 for month in range(1, 13)}
-            for commande in rep_data:
-                rep_mois_data[commande.date_saisie.month] += 1
-            rep_mois_data = [rep_mois_data[month] for month in range(1, 13)]
+            rep_vtc_data = Reparation.objects.filter(vehicule__category__category="VTC",date_saisie__range=[date_debut, date_fin])
+            rep_mois_vtc_data = {month: 0 for month in range(1, 13)}
+            for commande in rep_vtc_data:
+                rep_mois_vtc_data[commande.date_saisie.month] += 1
+            rep_mois_vtc_data = [rep_mois_vtc_data[month] for month in range(1, 13)]
             
-            vis_data = VisiteTechnique.objects.filter(date_saisie__range=[date_debut, date_fin])
-            vis_mois_data = {month: 0 for month in range(1, 13)}
-            for commande in vis_data:
-                vis_mois_data[commande.date_saisie.month] += 1
-            vis_mois_data = [vis_mois_data[month] for month in range(1, 13)]
+            rep_taxi_data = Reparation.objects.filter(vehicule__category__category="TAXI",date_saisie__range=[date_debut, date_fin])
+            rep_mois_taxi_data = {month: 0 for month in range(1, 13)}
+            for commande in rep_taxi_data:
+                rep_mois_taxi_data[commande.date_saisie.month] += 1
+            rep_mois_taxi_data = [rep_mois_taxi_data[month] for month in range(1, 13)]
             
-            ent_data = Entretien.objects.filter(date_saisie__range=[date_debut, date_fin])
-            ent_mois_data = {month: 0 for month in range(1, 13)}
-            for commande in ent_data:
-                ent_mois_data[commande.date_saisie.month] += 1
-            ent_mois_data = [ent_mois_data[month] for month in range(1, 13)]
+            vis_vtc_data = VisiteTechnique.objects.filter(vehicule__category__category="VTC",date_saisie__range=[date_debut, date_fin])
+            vis_mois_vtc_data = {month: 0 for month in range(1, 13)}
+            for commande in vis_vtc_data:
+                vis_mois_vtc_data[commande.date_saisie.month] += 1
+            vis_mois_vtc_data = [vis_mois_vtc_data[month] for month in range(1, 13)]
+            vis_taxi_data = VisiteTechnique.objects.filter(vehicule__category__category="TAXI",date_saisie__range=[date_debut, date_fin])
+            vis_mois_taxi_data = {month: 0 for month in range(1, 13)}
+            for commande in vis_taxi_data:
+                vis_mois_taxi_data[commande.date_saisie.month] += 1
+            vis_mois_taxi_data = [vis_mois_taxi_data[month] for month in range(1, 13)]
             
-            piec_data = Piece.objects.filter(date_saisie__range=[date_debut, date_fin])
-            piec_mois_data = {month: 0 for month in range(1, 13)}
-            for commande in piec_data:
-                piec_mois_data[commande.date_saisie.month] += 1
-            piec_mois_data = [piec_mois_data[month] for month in range(1, 13)]
+            ent_vtc_data = Entretien.objects.filter(vehicule__category__category="VTC", date_saisie__range=[date_debut, date_fin])
+            ent_mois_vtc_data = {month: 0 for month in range(1, 13)}
+            for commande in ent_vtc_data:
+                ent_mois_vtc_data[commande.date_saisie.month] += 1
+            ent_mois_vtc_data = [ent_mois_vtc_data[month] for month in range(1, 13)]
             
-            piecha_data = PiecEchange.objects.filter(date_saisie__range=[date_debut, date_fin])
-            piecha_mois_data = {month: 0 for month in range(1, 13)}
-            for commande in piecha_data:
-                piecha_mois_data[commande.date_saisie.month] += 1
-            piecha_mois_data = [piecha_mois_data[month] for month in range(1, 13)]
+            ent_taxi_data = Entretien.objects.filter(vehicule__category__category="TAXI", date_saisie__range=[date_debut, date_fin])
+            ent_mois_taxi_data = {month: 0 for month in range(1, 13)}
+            for commande in ent_taxi_data:
+                ent_mois_taxi_data[commande.date_saisie.month] += 1
+            ent_mois_taxi_data = [ent_mois_taxi_data[month] for month in range(1, 13)]
+            
+            piec_vtc_data = Piece.objects.filter(reparation__in=rep_vtc_data,date_saisie__range=[date_debut, date_fin])
+            piec_mois_vtc_data = {month: 0 for month in range(1, 13)}
+            for commande in piec_vtc_data:
+                piec_mois_vtc_data[commande.date_saisie.month] += 1
+            piec_mois_vtc_data = [piec_mois_vtc_data[month] for month in range(1, 13)]
+            piec_taxi_data = Piece.objects.filter(reparation__in=rep_taxi_data,date_saisie__range=[date_debut, date_fin])
+            piec_mois_taxi_data = {month: 0 for month in range(1, 13)}
+            for commande in piec_taxi_data:
+                piec_mois_taxi_data[commande.date_saisie.month] += 1
+            piec_mois_taxi_data = [piec_mois_taxi_data[month] for month in range(1, 13)]
+            
+            piecha_vtc_data = PiecEchange.objects.filter(vehicule__category__category="VTC",date_saisie__range=[date_debut, date_fin])
+            piecha_mois_vtc_data = {month: 0 for month in range(1, 13)}
+            for commande in piecha_vtc_data:
+                piecha_mois_vtc_data[commande.date_saisie.month] += 1
+            piecha_mois_vtc_data = [piecha_mois_vtc_data[month] for month in range(1, 13)]
+            piecha_taxi_data = PiecEchange.objects.filter(vehicule__category__category="TAXI",date_saisie__range=[date_debut, date_fin])
+            piecha_mois_taxi_data = {month: 0 for month in range(1, 13)}
+            for commande in piecha_taxi_data:
+                piecha_mois_taxi_data[commande.date_saisie.month] += 1
+            piecha_mois_taxi_data = [piecha_mois_taxi_data[month] for month in range(1, 13)]
+            
             
         else:
+            nb_reparat = Reparation.objects.filter(date_saisie__month=date.today().month).count()
             total_reparat = Reparation.objects.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
             total_reparat_format ='{:,}'.format(total_reparat).replace('',' ')
+            
+            nb_reparatvtc = Reparation.objects.filter(date_saisie__month=date.today().month, vehicule__category__category ='VTC').count()
+            total_reparatvtc = Reparation.objects.filter(date_saisie__month=date.today().month, vehicule__category__category ='VTC').aggregate(somme=Sum('montant'))['somme'] or 0
+            total_reparatvtc_format ='{:,}'.format(total_reparatvtc).replace('',' ')
+            
+            nb_reparataxi = Reparation.objects.filter(date_saisie__month=date.today().month, vehicule__category__category ='TAXI').count()
+            total_reparataxi = Reparation.objects.filter(date_saisie__month=date.today().month, vehicule__category__category ='TAXI').aggregate(somme=Sum('montant'))['somme'] or 0
+            total_reparataxi_format ='{:,}'.format(total_reparataxi).replace('',' ')
             
             total_visit = VisiteTechnique.objects.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
             total_visit_format ='{:,}'.format(total_visit).replace('',' ')
@@ -2086,11 +2141,16 @@ class DashboardGaragView(TemplateView):
             total_entret = Entretien.objects.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
             total_ent_format ='{:,}'.format(total_entret).replace('',' ')
             
-            total_piece = Piece.objects.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
+            total_piece = Piece.objects.filter(date_saisie__month=date.today().month,).aggregate(somme=Sum('montant'))['somme'] or 0
             total_piece_format ='{:,}'.format(total_piece).replace('',' ')
             
             total_piecechang = PiecEchange.objects.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
             total_piececha_format ='{:,}'.format(total_piecechang).replace('',' ')
+            
+            total_piece_int = Piece.objects.filter(date_saisie__month=date.today().month, lieu="INTERNE").aggregate(somme=Sum('montant'))['somme'] or 0
+            total_piecechang_int = PiecEchange.objects.filter(date_saisie__month=date.today().month, lieu="INTERNE").aggregate(somme=Sum('montant'))['somme'] or 0
+            total_pieces_int = total_piece_int + total_piecechang_int
+            total_pieces_format_int = '{:,}'.format(total_pieces_int).replace('',' ')
             
             total_patent = Patente.objects.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
             total_pat_format ='{:,}'.format(total_patent).replace('',' ')
@@ -2107,6 +2167,7 @@ class DashboardGaragView(TemplateView):
             for commande in rep_vtc_data:
                 rep_mois_vtc_data[commande.date_saisie.month] += 1
             rep_mois_vtc_data = [rep_mois_vtc_data[month] for month in range(1, 13)]
+            
             rep_taxi_data = Reparation.objects.filter(vehicule__category__category="TAXI",date_saisie__year=datetime.now().year)
             rep_mois_taxi_data = {month: 0 for month in range(1, 13)}
             for commande in rep_taxi_data:
@@ -2174,6 +2235,7 @@ class DashboardGaragView(TemplateView):
                 'piecha_mois_vtc_data':piecha_mois_vtc_data,
                 'piecha_mois_taxi_data':piecha_mois_taxi_data,
                 
+                'nb_reparat':nb_reparat,
                 'total_reparat_format':total_reparat_format,
                 'total_visit_format':total_visit_format,
                 'total_ent_format':total_ent_format,
@@ -2182,6 +2244,14 @@ class DashboardGaragView(TemplateView):
                 'total_pat_format':total_pat_format,
                 'total_sta_format':total_sta_format,
                 'total_vign_format':total_vign_format, 
+                
+                'nb_reparatvtc':nb_reparatvtc,
+                'total_reparatvtc_format':total_reparatvtc_format,
+
+                'nb_reparataxi':nb_reparataxi,
+                'total_reparataxi_format':total_reparataxi_format,
+                'total_pieces_format_int':total_pieces_format_int,
+                
                 'labels':label,
                 'form':form,
                 'dates':dates,
@@ -2642,25 +2712,38 @@ class TempsArretsView(TemplateView):
             date_debut = forms.cleaned_data['date_debut'] 
             date_fin = forms.cleaned_data['date_fin']
             
+            autarre_som = Autrarret.objects.filter(date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
+            autarre_cpt = Autrarret.objects.filter(date_saisie__range=[date_debut, date_fin]).count()
+            
             vis_all = VisiteTechnique.objects.filter(date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
             ent_all = Entretien.objects.filter(date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
             rep_vtc = Reparation.objects.filter(vehicule__category__category="VTC",date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
+            rep_vtc_cpte = Reparation.objects.filter(vehicule__category__category="VTC",date_saisie__range=[date_debut, date_fin]).count()
+            rep_taxi_count = Reparation.objects.filter(vehicule__category__category="TAXI",date_saisie__range=[date_debut, date_fin]).count()
             rep_taxi = Reparation.objects.filter(vehicule__category__category="TAXI",date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
         else:
-            vis_all = VisiteTechnique.objects.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
-            ent_all = Entretien.objects.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
+            autarre_som = Autrarret.objects.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
+            autarre_cpt = Autrarret.objects.filter(date_saisie__month=date.today().month).count()
+            
+            vis_all = VisiteTechnique.objects.filter(date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
+            ent_all = Entretien.objects.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
+            
+            rep_vtc_cpte = Reparation.objects.filter(vehicule__category__category="VTC",date_saisie__month=date.today().month).count()
+            rep_taxi_count = Reparation.objects.filter(vehicule__category__category="TAXI",date_saisie__month=date.today().month).count()
             rep_vtc = Reparation.objects.filter(vehicule__category__category="VTC",date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
             rep_taxi = Reparation.objects.filter(vehicule__category__category="TAXI", date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
             
         context={
             'dates':dates,
             'vehicules':vehicules,
-            
             'vis_all':vis_all,
             'ent_all':ent_all,
             'rep_vtc':rep_vtc,
             'rep_taxi':rep_taxi,
-            
+            'autarre_som':autarre_som,
+            'autarre_cpt':autarre_cpt,
+            'rep_vtc_cpte':rep_vtc_cpte,
+            'rep_taxi_count': rep_taxi_count,
             'form':forms,
         }
         return context
@@ -2743,7 +2826,6 @@ class SaisiComptaView(TemplateView):
             'recette':recettes,
             'charvars':charvars,
             'charfixe':charfixe,
-            
             'margcontrib':margcontrib,
             'taux_marge':taux_marge,
             'chargtot':chargtot,
@@ -2813,13 +2895,13 @@ class AddRecetteView(CreateView):
             date_fin = form.cleaned_data['date_fin']
             
             recets_result = Recette.objects.filter(vehicule=vehicule, date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 1 
-            recets_list = Recette.objects.filter(vehicule=vehicule, date_saisie__range=[date_debut, date_fin]).all()
+            recets_list = Recette.objects.filter(vehicule=vehicule, date_saisie__range=[date_debut, date_fin]).order_by('-id')
             recets_jours = Recette.objects.filter(vehicule=vehicule, date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 1 
             recets_mois = Recette.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 1 
             recets_an = Recette.objects.filter(vehicule=vehicule, date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 1 
            
         else:
-            recets_list = Recette.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month)
+            recets_list = Recette.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).order_by('-id')
             recets_result = Recette.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 1 
             recets_jours = Recette.objects.filter(vehicule=vehicule, date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 1 
             recets_mois = Recette.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 1 
@@ -2842,6 +2924,94 @@ class AddRecetteView(CreateView):
         return context  
     def get_success_url(self):
         return reverse('add_recettes', kwargs={'pk': self.kwargs['pk']})
+
+class AddAutrarretView(CreateView):
+    model = Autrarret
+    form_class = AutrarretForm
+    template_name= "perfect/add_autarret.html"
+    success_message = "Autre d'arrêt Ajouté avec succès ✓✓"
+    error_message = "Erreur de saisie ✘✘ "
+    # success_url = reverse_lazy('journal_compta')
+    timeout_minutes = 200
+    def dispatch(self, request, *args, **kwargs):
+        last_activity = request.session.get('last_activity')
+        if last_activity:
+            last_activity = datetime.strptime(last_activity, '%Y-%m-%d %H:%M:%S')
+            if datetime.now() - last_activity > timedelta(minutes=self.timeout_minutes):
+                logout(request)
+                messages.warning(request, "Vous avez été déconnecté ")
+                return redirect("login")
+        return super().dispatch(request, *args, **kwargs)
+    def form_valid(self, form):
+        form.instance.vehicule_id = self.kwargs['pk']
+        messages.success(self.request, self.success_message)
+        return super().form_valid(form)  
+    def form_invalid(self, form):
+        reponse =  super().form_invalid(form)
+        messages.success(self.request, self.error_message)
+        return reponse    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        dates = date.today()
+        annee = date.today().year
+        now = datetime.now()
+        mois_en_cours = date.today().month
+        libelle_mois = calendar.month_name[mois_en_cours]
+        vehicule = get_object_or_404(Vehicule, pk=self.kwargs['pk'])
+        form = DateForm(self.request.GET)
+        forms = self.get_form()
+        user = self.request.user
+        if user.user_type == "4":
+            try:
+                gerant = user.gerants.get()
+                if gerant.gerant_voiture == "VTC":
+                    vehicules = Vehicule.objects.filter(category__category="VTC")
+                else:
+                    vehicules = Vehicule.objects.filter(category__category="TAXI")
+            except Gerant.DoesNotExist:
+                vehicules = Vehicule.objects.none()  # No vehicles if no Gerant linked
+        elif user:
+            try:
+                vehicules = Vehicule.objects.all()
+            except:
+                vehicules = Vehicule.objects.none() 
+        else:
+            print("*****ALL*******")
+
+        if form.is_valid():
+            date_debut = form.cleaned_data['date_debut'] 
+            date_fin = form.cleaned_data['date_fin']
+            
+            autarret_result = Autrarret.objects.filter(vehicule=vehicule, date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 1 
+            autarret_list = Autrarret.objects.filter(vehicule=vehicule, date_saisie__range=[date_debut, date_fin]).order_by('-id')
+            autarret_jours = Autrarret.objects.filter(vehicule=vehicule, date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 1 
+            autarret_mois = Autrarret.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 1 
+            autarret_an = Autrarret.objects.filter(vehicule=vehicule, date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 1 
+           
+        else:
+            autarret_list = Autrarret.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).order_by('-id')
+            autarret_result = Autrarret.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 1 
+            autarret_jours = Autrarret.objects.filter(vehicule=vehicule, date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 1 
+            autarret_mois = Autrarret.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 1 
+            autarret_an = Autrarret.objects.filter(vehicule=vehicule, date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 1
+
+        context = {
+            "vehicules": vehicules,
+            "vehicule": vehicule,
+            "autarret_result": autarret_result,
+            "autarret_list": autarret_list,
+            "autarret_jours": autarret_jours,
+            "autarret_mois": autarret_mois,
+            "autarret_an": autarret_an,
+            'dates': dates,
+            'mois': libelle_mois,
+            'annee': annee,
+            'form': form,
+            'forms': forms,
+        }   
+        return context  
+    def get_success_url(self):
+        return reverse('add_autarrets', kwargs={'pk': self.kwargs['pk']})
 
 class ListRecetView(ListView):
     model = Recette
@@ -2877,7 +3047,7 @@ class ListRecetView(ListView):
             recets_an_fil_taxi = Recette.objects.filter(vehicule__category__category = 'TAXI', date_saisie__month=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
             
             recets_an_all = Recette.objects.filter(date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
-            list_mois_recettes = Recette.objects.filter(date_saisie__range=[date_debut, date_fin])
+            list_mois_recettes = Recette.objects.filter(date_saisie__range=[date_debut, date_fin]).order_by('-id')
         else:
             recets_mois_all = Recette.objects.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
             recets_mois_taxi = Recette.objects.filter(vehicule__category__category='TAXI',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
@@ -2886,7 +3056,7 @@ class ListRecetView(ListView):
             recets_an_fil_vtc = Recette.objects.filter(vehicule__category__category='VTC', date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
             recets_an_fil_taxi = Recette.objects.filter(vehicule__category__category='TAXI', date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
             recets_an_all = Recette.objects.filter(date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
-            list_mois_recettes = Recette.objects.filter(date_saisie__month=date.today().month)
+            list_mois_recettes = Recette.objects.filter(date_saisie__month=date.today().month).order_by('-id')
             
         context={
             'list_mois_recettes':list_mois_recettes,
@@ -2940,6 +3110,15 @@ class UpdateRecetView(UpdateView):
         context['catego_vehi'] = CategoVehi.objects.all()
         return context 
     
+def delete_visite(request, pk):
+    try:
+        visites = get_object_or_404(VisiteTechnique, id=pk)
+        visites.delete()
+        messages.success(request, f"la recette du véhicule {visites.vehicule.immatriculation} a été supprimés avec succès.")
+    except Exception as e:
+        messages.error(request, f"Erreur lors de la suppression : {str(e)}")
+    return redirect('list_visit')
+
 def delete_recette(request, pk):
     try:
         recettres = get_object_or_404(Recette, id=pk)
@@ -3044,13 +3223,13 @@ class AddChargeFixView(CreateView):
             date_debut = form.cleaned_data['date_debut'] 
             date_fin = form.cleaned_data['date_fin']
             chargfix_result = ChargeFixe.objects.filter(vehicule=vehicule, date__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0 
-            chargfix_list = ChargeFixe.objects.filter(vehicule=vehicule, date__range=[date_debut, date_fin]).all()
+            chargfix_list = ChargeFixe.objects.filter(vehicule=vehicule, date__range=[date_debut, date_fin]).order_by('-id')
             chargfix_jours = ChargeFixe.objects.filter(vehicule=vehicule, date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0 
             chargfix_mois = ChargeFixe.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0 
             chargfix_an = ChargeFixe.objects.filter(vehicule=vehicule, date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0 
            
         else:
-            chargfix_list = ChargeFixe.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month)
+            chargfix_list = ChargeFixe.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).order_by('-id')
             chargfix_result = ChargeFixe.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0 
             chargfix_jours = ChargeFixe.objects.filter(vehicule=vehicule, date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0 
             chargfix_mois = ChargeFixe.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0 
@@ -3136,7 +3315,7 @@ class ListChargeFixView(ListView):
             recets_an_fil_vtc = ChargeFixe.objects.filter(vehicule__category__category = 'VTC', date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
             recets_an_fil_taxi = Recette.objects.filter(vehicule__category__category = 'TAXI', date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
 
-            list_chargefixe = ChargeFixe.objects.filter(date_saisie__range=[date_debut, date_fin])
+            list_chargefixe = ChargeFixe.objects.filter(date_saisie__range=[date_debut, date_fin]).order_by('-id')
              
         else:
             
@@ -3157,7 +3336,7 @@ class ListChargeFixView(ListView):
             recets_an_fil_vtc = ChargeFixe.objects.filter(vehicule__category__category = 'VTC', date_saisie__month=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
             recets_an_fil_taxi = ChargeFixe.objects.filter(vehicule__category__category = 'TAXI', date_saisie__month=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
             
-            list_chargefixe = ChargeFixe.objects.filter(date_saisie__month=date.today().month)
+            list_chargefixe = ChargeFixe.objects.filter(date_saisie__month=date.today().month).order_by('-id')
             
         context={
             'recets_an_fil_vtc' : recets_an_fil_vtc,
@@ -3281,12 +3460,12 @@ class AddChargeVarView(CreateView):
             date_fin = form.cleaned_data['date_fin']
             
             chargvar_result = ChargeVariable.objects.filter(vehicule=vehicule, date__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0 
-            chargvar_list = ChargeVariable.objects.filter(vehicule=vehicule, date__range=[date_debut, date_fin]).all()
+            chargvar_list = ChargeVariable.objects.filter(vehicule=vehicule, date__range=[date_debut, date_fin]).order_by('-id')
             chargvar_jours = ChargeVariable.objects.filter(vehicule=vehicule, date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0 
             chargvar_mois = ChargeVariable.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0 
             chargvar_an = ChargeVariable.objects.filter(vehicule=vehicule, date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0   
         else:
-            chargvar_list = ChargeVariable.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month)
+            chargvar_list = ChargeVariable.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).order_by('-id')
             chargvar_result = ChargeVariable.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0 
             chargvar_jours = ChargeVariable.objects.filter(vehicule=vehicule, date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0 
             chargvar_mois = ChargeVariable.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0 
@@ -3373,7 +3552,7 @@ class ListChargeVarView(ListView):
             chargevar_an_fil_vtc = ChargeFixe.objects.filter(vehicule__category__category = 'VTC', date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
             chargevar_an_fil_taxi = Recette.objects.filter(vehicule__category__category = 'TAXI', date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
 
-            list_chargevar = ChargeFixe.objects.filter(date_saisie__range=[date_debut, date_fin])
+            list_chargevar = ChargeFixe.objects.filter(date_saisie__range=[date_debut, date_fin]).order_by('-id')
              
         else:
             
@@ -3394,7 +3573,7 @@ class ListChargeVarView(ListView):
             chargevar_an_fil_vtc = ChargeFixe.objects.filter(vehicule__category__category = 'VTC', date_saisie__month=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
             chargevar_an_fil_taxi = ChargeFixe.objects.filter(vehicule__category__category = 'TAXI', date_saisie__month=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
             
-            list_chargevar = ChargeFixe.objects.filter(date_saisie__month=date.today().month)
+            list_chargevar = ChargeFixe.objects.filter(date_saisie__month=date.today().month).order_by('-id')
             
         context={
             'chargevar_an_fil_vtc' : chargevar_an_fil_vtc,
@@ -3522,7 +3701,7 @@ class AddChargeAdminisView(CreateView):
         if form_admin.is_valid():
             date_debut = form_admin.cleaned_data['date_debut']       
             date_fin = form_admin.cleaned_data['date_fin']
-            charg_administ = ChargeAdminis.objects.filter(date_saisie__range=[date_debut, date_fin])
+            charg_administ = ChargeAdminis.objects.filter(date_saisie__range=[date_debut, date_fin]).order_by('-id')
             
             charg_adm_jour = ChargeAdminis.objects.filter(date_saisie__range=[date_debut, date_fin]).aggregate(Sum('montant'))['montant__sum'] or 0
             charg_adm_jour_format ='{:,}'.format(charg_adm_jour).replace('',' ')
@@ -3572,7 +3751,7 @@ class AddChargeAdminisView(CreateView):
             
         else:
             
-            charg_administ = ChargeAdminis.objects.filter(date_saisie__month=date.today().month)
+            charg_administ = ChargeAdminis.objects.filter(date_saisie__month=date.today().month).order_by('-id')
             
             charg_adm_jour = ChargeAdminis.objects.filter(date_saisie=date.today()).aggregate(Sum('montant'))['montant__sum'] or 0
             charg_adm_jour_format ='{:,}'.format(charg_adm_jour).replace('',' ')
@@ -3663,7 +3842,7 @@ class AddCartStationView(CreateView):
     model = Stationnement
     form_class = CartStationForm
     template_name= "perfect/add_station.html"
-    success_message = 'Vignette enregistré avec succès👍✓✓'
+    success_message = 'Carte de Stationnement enregistrée avec succès👍✓✓'
     error_message = "Erreur de saisie✘✘"
     timeout_minutes = 500
     def dispatch(self, request, *args, **kwargs):
@@ -3714,13 +3893,12 @@ class AddCartStationView(CreateView):
             date_fin = form.cleaned_data['date_fin']
             
             stat_result = Stationnement.objects.filter(vehicule=vehicule, date__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 1 
-            stat_list = Stationnement.objects.filter(vehicule=vehicule, date__range=[date_debut, date_fin]).all()
+            stat_list = Stationnement.objects.filter(vehicule=vehicule, date__range=[date_debut, date_fin]).order_by('-id')
             stat_jours = Stationnement.objects.filter(vehicule=vehicule, date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 1 
             stat_mois = Stationnement.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 1 
             stat_an = Stationnement.objects.filter(vehicule=vehicule, date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 1 
-           
         else:
-            stat_list = Stationnement.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month)
+            stat_list = Stationnement.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).order_by('-id')
             stat_result = Stationnement.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 1 
             stat_jours = Stationnement.objects.filter(vehicule=vehicule, date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 1 
             stat_mois = Stationnement.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 1 
@@ -3757,7 +3935,7 @@ class UpdatCartStationView(UpdateView):
             last_activity = datetime.strptime(last_activity, '%Y-%m-%d %H:%M:%S')
             if datetime.now() - last_activity > timedelta(minutes=self.timeout_minutes):
                 logout(request)
-                messages.warning(request, "Vous avez été déconnecté ")
+                messages.warning(request, "Vous avez été déconnecté")
                 return redirect("login")
         return super().dispatch(request, *args, **kwargs)
     def form_valid(self, form):
@@ -3791,7 +3969,6 @@ class DetailCartStationView(DetailView):
         context['catego_vehi'] = CategoVehi.objects.all()
         return context 
          
-
 class ListCartStationView(ListView):
     model = Stationnement
     template_name = 'perfect/liste_stationnement.html'
@@ -3830,7 +4007,7 @@ class ListCartStationView(ListView):
             station_an_fil_vtc = Patente.objects.filter(vehicule__category__category = 'VTC', date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
             station_an_fil_taxi = Patente.objects.filter(vehicule__category__category = 'TAXI', date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
 
-            list_station = Patente.objects.filter(date_saisie__range=[date_debut, date_fin])
+            list_station = Patente.objects.filter(date_saisie__range=[date_debut, date_fin]).order_by('-id')
         else:
             station_all = Patente.objects.filter(date_saisie__month=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
             station_all_taxi = Patente.objects.filter(vehicule__category__category = 'TAXI',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
@@ -3843,7 +4020,7 @@ class ListCartStationView(ListView):
             station_mois_all = Patente.objects.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
             station_an_fil_vtc = Patente.objects.filter(vehicule__category__category = 'VTC', date_saisie__month=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
             station_an_fil_taxi = Patente.objects.filter(vehicule__category__category = 'TAXI', date_saisie__month=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
-            list_station = Patente.objects.filter(date_saisie__month=date.today().month)
+            list_station = Patente.objects.filter(date_saisie__month=date.today().month).order_by('-id')
             
         context={
             'list_station':list_station,
@@ -3874,7 +4051,7 @@ class AddPatenteView(CreateView):
     model = Patente
     form_class = PatenteForm
     template_name= "perfect/add_patente.html"
-    success_message = 'Vignette enregistré avec succès👍✓✓'
+    success_message = 'Patente enregistrée avec succès👍✓✓'
     error_message = "Erreur de saisie✘✘"
     timeout_minutes = 500
     def dispatch(self, request, *args, **kwargs):
@@ -3925,13 +4102,13 @@ class AddPatenteView(CreateView):
             date_fin = form.cleaned_data['date_fin']
             
             pate_result = Patente.objects.filter(vehicule=vehicule, date__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 1 
-            pate_list = Patente.objects.filter(vehicule=vehicule, date__range=[date_debut, date_fin]).all()
+            pate_list = Patente.objects.filter(vehicule=vehicule, date__range=[date_debut, date_fin]).order_by('-id')
             pate_jours = Patente.objects.filter(vehicule=vehicule, date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 1 
             pate_mois = Patente.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 1 
             pate_an = Patente.objects.filter(vehicule=vehicule, date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 1 
            
         else:
-            pate_list = Patente.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month)
+            pate_list = Patente.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).order_by('-id')
             pate_result = Patente.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 1 
             pate_jours = Patente.objects.filter(vehicule=vehicule, date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 1 
             pate_mois = Patente.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 1 
@@ -3954,7 +4131,37 @@ class AddPatenteView(CreateView):
         return context  
     def get_success_url(self):
         return reverse('add_patente', kwargs={'pk': self.kwargs['pk']})
- 
+
+def delete_patente(request, pk):
+    try:
+        patentes = get_object_or_404(Patente, id=pk)
+        vehicule_pk = patentes.vehicule.id 
+        patentes.delete()
+        messages.success(request, f"La patente du véhicule {patentes.vehicule.immatriculation} a été supprimée avec succès.")
+    except Exception as e:
+        messages.error(request, f"Erreur lors de la suppression : {str(e)}")
+    return redirect('add_patente', pk=vehicule_pk)
+
+def delete_stat(request, pk):
+    try:
+        stat = get_object_or_404(Stationnement, id=pk)
+        vehicule_pk = stat.vehicule.id 
+        stat.delete()
+        messages.success(request, f"Le carte de stationnement du véhicule {stat.vehicule.immatriculation} a été supprimée avec succès.")
+    except Exception as e:
+        messages.error(request, f"Erreur lors de la suppression : {str(e)}")
+    return redirect('add_station', pk=vehicule_pk)
+
+def delete_autarret(request, pk):
+    try:
+        autar = get_object_or_404(Autrarret, id=pk)
+        vehicule_pk = autar.vehicule.id 
+        autar.delete()
+        messages.success(request, f"L'arrêt du véhicule {autar.vehicule.immatriculation} a été supprimée avec succès.")
+    except Exception as e:
+        messages.error(request, f"Erreur lors de la suppression : {str(e)}")
+    return redirect('add_autarrets', pk=vehicule_pk)
+
 class UpdatPatenteView(UpdateView):
     model = Patente
     form_class = UpdatPatenteForm
@@ -4041,7 +4248,7 @@ class ListPatenteView(ListView):
             patente_an_fil_vtc = Patente.objects.filter(vehicule__category__category = 'VTC', date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
             patente_an_fil_taxi = Patente.objects.filter(vehicule__category__category = 'TAXI', date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
 
-            list_patente = Patente.objects.filter(date_saisie__range=[date_debut, date_fin])
+            list_patente = Patente.objects.filter(date_saisie__range=[date_debut, date_fin]).order_by('-id')
         else:
             patente_all = Patente.objects.filter(date_saisie__month=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
             patente_all_taxi = Patente.objects.filter(vehicule__category__category = 'TAXI',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
@@ -4054,7 +4261,7 @@ class ListPatenteView(ListView):
             patente_mois_all = Patente.objects.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
             patente_an_fil_vtc = Patente.objects.filter(vehicule__category__category = 'VTC', date_saisie__month=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
             patente_an_fil_taxi = Patente.objects.filter(vehicule__category__category = 'TAXI', date_saisie__month=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
-            list_patente = Patente.objects.filter(date_saisie=date.today())
+            list_patente = Patente.objects.filter(date_saisie__month=date.today().month).order_by('-id')
             
         context={
             'list_patente':list_patente,
@@ -4086,7 +4293,7 @@ class AddVignetteView(CreateView):
     model = Vignette
     form_class = VignetteForm
     template_name= "perfect/add_vignette.html"
-    success_message = 'Vignette enregistré avec succès👍✓✓'
+    success_message = 'Vignette enregistrée avec succès👍✓✓'
     error_message = "Erreur de saisie✘✘"
     timeout_minutes = 500
     def dispatch(self, request, *args, **kwargs):
@@ -4137,13 +4344,13 @@ class AddVignetteView(CreateView):
             date_fin = form.cleaned_data['date_fin']
             
             vigne_result = Vignette.objects.filter(vehicule=vehicule, date__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 1 
-            vigne_list = Vignette.objects.filter(vehicule=vehicule, date__range=[date_debut, date_fin]).all()
+            vigne_list = Vignette.objects.filter(vehicule=vehicule, date__range=[date_debut, date_fin]).order_by('-id')
             vigne_jours = Vignette.objects.filter(vehicule=vehicule, date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 1 
             vigne_mois = Vignette.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 1 
             vigne_an = Vignette.objects.filter(vehicule=vehicule, date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 1 
            
         else:
-            vigne_list = Vignette.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month)
+            vigne_list = Vignette.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).order_by('-id')
             vigne_result = Vignette.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 1 
             vigne_jours = Vignette.objects.filter(vehicule=vehicule, date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 1 
             vigne_mois = Vignette.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 1 
@@ -4276,7 +4483,7 @@ class ListVignetteView(ListView):
             vignette_an_fil_vtc = Vignette.objects.filter(vehicule__category__category = 'VTC', date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
             vignette_an_fil_taxi = Vignette.objects.filter(vehicule__category__category = 'TAXI', date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
 
-            list_vignette = Vignette.objects.filter(date_saisie__range=[date_debut, date_fin])
+            list_vignette = Vignette.objects.filter(date_saisie__range=[date_debut, date_fin]).order_by('-id')
         else:
             vignette_all = Vignette.objects.filter(date_saisie__month=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
             vignette_all_taxi = Vignette.objects.filter(vehicule__category__category = 'TAXI',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
@@ -4295,7 +4502,7 @@ class ListVignetteView(ListView):
             vignette_an_fil_vtc = Vignette.objects.filter(vehicule__category__category = 'VTC', date_saisie__month=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
             vignette_an_fil_taxi = Vignette.objects.filter(vehicule__category__category = 'TAXI', date_saisie__month=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
             
-            list_vignette = Vignette.objects.filter(date_saisie=date.today())
+            list_vignette = Vignette.objects.filter(date_saisie__month=date.today().month).order_by('-id')
             
         context={
             'list_vignette':list_vignette,
@@ -4383,12 +4590,12 @@ class AddVisitView(CreateView):
             date_fin = form.cleaned_data['date_fin']
             
             visite_result = VisiteTechnique.objects.filter(vehicule=vehicule, date__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0 
-            visite_list = VisiteTechnique.objects.filter(vehicule=vehicule, date__range=[date_debut, date_fin]).all()
+            visite_list = VisiteTechnique.objects.filter(vehicule=vehicule, date__range=[date_debut, date_fin]).order_by('-id')
             visite_jours = VisiteTechnique.objects.filter(vehicule=vehicule, date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0 
             visite_mois = VisiteTechnique.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0 
             visite_an = VisiteTechnique.objects.filter(vehicule=vehicule, date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0   
         else:
-            visite_list = VisiteTechnique.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month)
+            visite_list = VisiteTechnique.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).order_by('-id')
             visite_result = VisiteTechnique.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0 
             visite_jours = VisiteTechnique.objects.filter(vehicule=vehicule, date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0 
             visite_mois = VisiteTechnique.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0 
@@ -4449,7 +4656,7 @@ class ListVisitView(ListView):
             viste_an_fil_vtc = VisiteTechnique.objects.filter(vehicule__category__category = 'VTC', date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
             viste_an_fil_taxi = VisiteTechnique.objects.filter(vehicule__category__category = 'TAXI', date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
 
-            list_viste = VisiteTechnique.objects.filter(date_saisie__range=[date_debut, date_fin])
+            list_viste = VisiteTechnique.objects.filter(date_saisie__range=[date_debut, date_fin]).order_by('-id')
         else:
             viste_all = VisiteTechnique.objects.filter(date_saisie__month=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
             viste_all_taxi = VisiteTechnique.objects.filter(vehicule__category__category = 'TAXI',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
@@ -4462,7 +4669,7 @@ class ListVisitView(ListView):
             viste_mois_all = VisiteTechnique.objects.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
             viste_an_fil_vtc = VisiteTechnique.objects.filter(vehicule__category__category = 'VTC', date_saisie__month=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
             viste_an_fil_taxi = VisiteTechnique.objects.filter(vehicule__category__category = 'TAXI', date_saisie__month=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
-            list_viste = VisiteTechnique.objects.filter(date_saisie=date.today())
+            list_viste = VisiteTechnique.objects.filter(date_saisie__month=date.today().month).order_by('-id')
             
         context={
             'list_viste':list_viste,
@@ -4598,13 +4805,13 @@ class AddAssuranceView(CreateView):
             date_fin = form.cleaned_data['date_fin']
             
             assur_result = Assurance.objects.filter(vehicule=vehicule, date__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 1 
-            assur_list = Assurance.objects.filter(vehicule=vehicule, date__range=[date_debut, date_fin]).all()
+            assur_list = Assurance.objects.filter(vehicule=vehicule, date__range=[date_debut, date_fin]).order_by('-id')
             assur_jours = Assurance.objects.filter(vehicule=vehicule, date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 1 
             assur_mois = Assurance.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 1 
             assur_an = Assurance.objects.filter(vehicule=vehicule, date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 1 
            
         else:
-            assur_list = Assurance.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month)
+            assur_list = Assurance.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).order_by('-id')
             assur_result = Assurance.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 1 
             assur_jours = Assurance.objects.filter(vehicule=vehicule, date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 1 
             assur_mois = Assurance.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 1 
@@ -4675,7 +4882,6 @@ class ListAssuranceView(ListView):
             date_fin = forms.cleaned_data['date_fin']
             
             assurance_all = Assurance.objects.filter(date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
-            
             assurance_all_taxi = Assurance.objects.filter(vehicule__category__category = 'TAXI',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
             assurance_all_vtc = Assurance.objects.filter(vehicule__category__category = 'VTC',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
             
@@ -4686,11 +4892,10 @@ class ListAssuranceView(ListView):
             assurance_mois_taxi = Assurance.objects.filter(vehicule__category__category='TAXI',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
             
             assurance_mois_all = Assurance.objects.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
-            
             assurance_an_fil_vtc = Assurance.objects.filter(vehicule__category__category = 'VTC', date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
             assurance_an_fil_taxi = Assurance.objects.filter(vehicule__category__category = 'TAXI', date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
 
-            list_assurances = Assurance.objects.filter(date_saisie__range=[date_debut, date_fin])
+            list_assurances = Assurance.objects.filter(date_saisie__range=[date_debut, date_fin]).order_by('-id')
         else:
             assurance_all = Assurance.objects.filter(date_saisie__month=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
             assurance_all_taxi = Assurance.objects.filter(vehicule__category__category = 'TAXI',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
@@ -4704,7 +4909,7 @@ class ListAssuranceView(ListView):
             assurance_mois_all = Assurance.objects.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
             assurance_an_fil_vtc = Assurance.objects.filter(vehicule__category__category = 'VTC', date_saisie__month=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
             assurance_an_fil_taxi = Assurance.objects.filter(vehicule__category__category = 'TAXI', date_saisie__month=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
-            list_assurances = Assurance.objects.filter(date_saisie=date.today())
+            list_assurances = Assurance.objects.filter(date_saisie__month=date.today().month).order_by('-id')
             
         context={
             'list_assurances':list_assurances,
@@ -4802,12 +5007,12 @@ class AddReparationView(CreateView):
             date_debut = form.cleaned_data['date_debut'] 
             date_fin = form.cleaned_data['date_fin']
             repare_result = Reparation.objects.filter(vehicule=vehicule, date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 1 
-            repare_list = Reparation.objects.filter(vehicule=vehicule, date_saisie__range=[date_debut, date_fin]).all()
+            repare_list = Reparation.objects.filter(vehicule=vehicule, date_saisie__range=[date_debut, date_fin]).order_by('-id')
             repare_jours = Reparation.objects.filter(vehicule=vehicule, date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 1 
             repare_mois = Reparation.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 1 
             repare_an = Reparation.objects.filter(vehicule=vehicule, date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 1 
         else:
-            repare_list = Reparation.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month)
+            repare_list = Reparation.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).order_by('-id')
             repare_result = Reparation.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 1 
             repare_jours = Reparation.objects.filter(vehicule=vehicule, date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 1 
             repare_mois = Reparation.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 1 
@@ -4849,13 +5054,32 @@ class AddReparationView(CreateView):
 def delete_reparation(request, pk):
     try:
         reparation = get_object_or_404(Reparation, id=pk)
-        vehicule_pk = reparation.vehicule.id  # Récupérer l'ID du véhicule
+        vehicule_pk = reparation.vehicule.id 
         reparation.delete()
         messages.success(request, f"La réparation du véhicule {reparation.vehicule.immatriculation} a été supprimée avec succès.")
     except Exception as e:
         messages.error(request, f"Erreur lors de la suppression : {str(e)}")
     return redirect('add_reparation', pk=vehicule_pk)
 
+def delete_assurance(request, pk):
+    try:
+        assur = get_object_or_404(Assurance, id=pk)
+        vehicule_pk = assur.vehicule.id 
+        assur.delete()
+        messages.success(request, f"L'assurance du véhicule {assur.vehicule.immatriculation} a été supprimée avec succès.")
+    except Exception as e:
+        messages.error(request, f"Erreur lors de la suppression : {str(e)}")
+    return redirect('add_assurance', pk=vehicule_pk)
+
+def delete_vignette(request, pk):
+    try:
+        vig = get_object_or_404(Vignette, id=pk)
+        vehicule_pk = vig.vehicule.id 
+        vig.delete()
+        messages.success(request, f"La vignette du véhicule {vig.vehicule.immatriculation} a été supprimée avec succès.")
+    except Exception as e:
+        messages.error(request, f"Erreur lors de la suppression : {str(e)}")
+    return redirect('add_vignet', pk=vehicule_pk)
 
 class AddPiecEchangeView(CreateView):
     model = PiecEchange
@@ -4911,14 +5135,14 @@ class AddPiecEchangeView(CreateView):
             date_debut = form.cleaned_data['date_debut'] 
             date_fin = form.cleaned_data['date_fin']
             
+            piechange_list = PiecEchange.objects.filter(vehicule=vehicule, date__range=[date_debut, date_fin]).order_by('-id')
             piechange_result = PiecEchange.objects.filter(vehicule=vehicule, date__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0 
-            piechange_list = PiecEchange.objects.filter(vehicule=vehicule, date__range=[date_debut, date_fin]).all()
             piechange_jours = PiecEchange.objects.filter(vehicule=vehicule, date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0 
             piechange_mois = PiecEchange.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0 
             piechange_an = PiecEchange.objects.filter(vehicule=vehicule, date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0 
            
         else:
-            piechange_list = PiecEchange.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month)
+            piechange_list = PiecEchange.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).order_by('-id')
             piechange_result = PiecEchange.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0 
             piechange_jours = PiecEchange.objects.filter(vehicule=vehicule, date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0 
             piechange_mois = PiecEchange.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0 
@@ -4951,12 +5175,19 @@ def delete_piecechange(request, pk):
         messages.error(request, f"Erreur lors de la suppression : {str(e)}")
     return redirect('add_piechange', pk=vehicule_pk)
 
-        
+
+from datetime import datetime, timedelta, time
+from django.db.models import Sum
+from django.shortcuts import get_object_or_404
+from django.contrib import messages
+from django.shortcuts import redirect
+from django.utils.timezone import make_aware
+import calendar
+
 class DetailReparatView(DetailView):
     model = Reparation
-    template_name = "news/applist/detail_reparation.html"
-    ordoring = ['date_saisie']
-    timeout_minutes = 5
+    template_name = 'perfect/detail_reparat.html'
+    timeout_minutes = 200
     def dispatch(self, request, *args, **kwargs):
         last_activity = request.session.get('last_activity')
         if last_activity:
@@ -4966,15 +5197,87 @@ class DetailReparatView(DetailView):
                 messages.warning(request, "Vous avez été déconnecté ")
                 return redirect("login")
         return super().dispatch(request, *args, **kwargs)
+    
+    def calculate_effective_hours(self, start, end):
+        total_seconds = 0
+        current = start
+        while current < end:
+            next_hour = (current + timedelta(hours=1)).replace(minute=0, second=0, microsecond=0)
+            if next_hour > end:
+                next_hour = end
+
+            if time(5, 0) <= current.time() < time(22, 0):
+                total_seconds += (next_hour - current).total_seconds()
+            
+            current = next_hour
+        return total_seconds / 3600  # Convertir en heures
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        user_group = self.request.user.groups.first()
-        context['user_group'] = user_group.name if user_group else None
-        reparation = self.object
-        duree_reparation = reparation.date_sortie - reparation.date_entree
-        context['heure_rearat'] = duree_reparation.total_seconds() / 3600
-        context['catego_vehi'] = CategoVehi.objects.all()
-        return context 
+        dates = date.today()
+        annee = date.today().year
+        mois = date.today().month
+        mois_en_cours =date.today().month
+        reparation = get_object_or_404(Reparation, pk=self.kwargs['pk'])
+        # reparations  = self.get_object()
+        vehicule = reparation.vehicule
+        user = self.request.user
+        if user.user_type == "4":
+            try:
+                gerant = user.gerants.get()
+                if gerant.gerant_voiture == "VTC":
+                    vehicules = Vehicule.objects.filter(category__category="VTC")
+                else:
+                    vehicules = Vehicule.objects.filter(category__category="TAXI")
+            except Gerant.DoesNotExist:
+                vehicules = Vehicule.objects.none()  # No vehicles if no Gerant linked
+        elif user:
+            try:
+                vehicules = Vehicule.objects.all()
+            except:
+                vehicules = Vehicule.objects.none() 
+        else:
+            print("*****ALL*******")
+            
+        # Calcul de la durée en heures effectives
+        date_entree = reparation.date_entree
+        date_sortie = reparation.date_sortie
+        duree_effective_heures = self.calculate_effective_hours(date_entree, date_sortie)
+
+        # Calcul des pertes
+        if vehicule.category.category == "TAXI":
+            perte_par_30min = 550
+            recette_categorie = 20000
+        elif vehicule.category.category == "VTC":
+            perte_par_30min = 600
+            recette_categorie = 22000
+        else:
+            perte_par_30min = 0
+            recette_categorie = 0
+
+        perte = (duree_effective_heures * 2) * perte_par_30min
+        # Calcul de la recette nette
+        recette_nette = recette_categorie - perte
+        #-------------------------------------------------------------------------------------------------------------------------------
+        # list_reparation = Reparation.objects.filter(vehicule=vehicule)
+        ################################----Pieces----#############################
+        total_piece= Piece.objects.filter(reparation = reparation,).aggregate(somme=Sum('montant'))['somme'] or 0
+        list_piece= Piece.objects.filter(reparation = reparation,)
+        
+        context={
+            'reparation':reparation,
+            'duree_effective_heures':duree_effective_heures,
+            'perte':perte,
+            'recette_nette':recette_nette,
+            'vehicules':vehicules,
+            'total_piece':total_piece,
+            'list_piece':list_piece,
+            # 'list_reparation':list_reparation,
+            'dates':dates
+        }
+        print("")
+        print("--------------******************------------", context)
+        print("")
+        return context
 
 class UpdateReparationView(UpdateView):
     model = Reparation
@@ -5046,7 +5349,7 @@ class ListPiechangeView(ListView):
             piechang_an_fil_vtc = PiecEchange.objects.filter(vehicule__category__category = 'VTC', date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
             piechang_an_fil_taxi= PiecEchange.objects.filter(vehicule__category__category = 'TAXI', date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
 
-            list_piechang = PiecEchange.objects.filter(date_saisie__range=[date_debut, date_fin])
+            list_piechang = PiecEchange.objects.filter(date_saisie__range=[date_debut, date_fin]).order_by('-id')
         else:
             piechang_all = PiecEchange.objects.filter(date_saisie__month=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
             piechang_all_taxi = PiecEchange.objects.filter(vehicule__category__category = 'TAXI',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
@@ -5059,7 +5362,7 @@ class ListPiechangeView(ListView):
             piechang_mois_all = PiecEchange.objects.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
             piechang_an_fil_vtc = PiecEchange.objects.filter(vehicule__category__category = 'VTC', date_saisie__month=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
             piechang_an_fil_taxi = PiecEchange.objects.filter(vehicule__category__category = 'TAXI', date_saisie__month=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
-            list_piechang = PiecEchange.objects.filter(date_saisie=date.today())
+            list_piechang = PiecEchange.objects.filter(date_saisie__month=date.today().month).order_by('-id')
             
         context={
             'list_piechang':list_piechang,
@@ -5120,7 +5423,7 @@ class ListReparationView(ListView):
             reparat_mois_all = Reparation.objects.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
             reparat_an_fil_vtc = Reparation.objects.filter(vehicule__category__category = 'VTC', date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
             reparat_an_fil_taxi = Reparation.objects.filter(vehicule__category__category = 'TAXI', date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
-            list_reparat = Reparation.objects.filter(date_saisie__range=[date_debut, date_fin])
+            list_reparat = Reparation.objects.filter(date_saisie__range=[date_debut, date_fin]).order_by('-id')
         else:
             reparat_all = Reparation.objects.filter(date_saisie__month=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
             reparat_all_taxi = Reparation.objects.filter(vehicule__category__category = 'TAXI',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
@@ -5133,7 +5436,7 @@ class ListReparationView(ListView):
             reparat_mois_all = Reparation.objects.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
             reparat_an_fil_vtc = Reparation.objects.filter(vehicule__category__category = 'VTC', date_saisie__month=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
             reparat_an_fil_taxi = Reparation.objects.filter(vehicule__category__category = 'TAXI', date_saisie__month=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
-            list_reparat = Reparation.objects.filter(date_saisie=date.today())
+            list_reparat = Reparation.objects.filter(date_saisie__month=date.today().month).order_by('-id')
             
         context={
             'form':forms,
@@ -5247,12 +5550,12 @@ class AddEntretienView(CreateView):
             date_fin = form.cleaned_data['date_fin']
             
             entre_result = Entretien.objects.filter(vehicule=vehicule, date__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0 
-            entre_list = Entretien.objects.filter(vehicule=vehicule, date__range=[date_debut, date_fin]).all()
+            entre_list = Entretien.objects.filter(vehicule=vehicule, date__range=[date_debut, date_fin]).order_by('-id')
             entre_jours = Entretien.objects.filter(vehicule=vehicule, date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0 
             entre_mois = Entretien.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0 
             entre_an = Entretien.objects.filter(vehicule=vehicule, date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0   
         else:
-            entre_list = Entretien.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month)
+            entre_list = Entretien.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).order_by('-id')
             entre_result = Entretien.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0 
             entre_jours = Entretien.objects.filter(vehicule=vehicule, date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0 
             entre_mois = Entretien.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0 
@@ -5333,7 +5636,7 @@ class ListEntretienView(ListView):
             ent_an_fil_vtc = Entretien.objects.filter(vehicule__category__category = 'VTC', date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
             ent_an_fil_taxi = Entretien.objects.filter(vehicule__category__category = 'TAXI', date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
 
-            list_ent = Entretien.objects.filter(date_saisie__range=[date_debut, date_fin])
+            list_ent = Entretien.objects.filter(date_saisie__range=[date_debut, date_fin]).order_by('-id')
         else:
             ent_all = Entretien.objects.filter(date_saisie__month=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
             ent_all_taxi = Entretien.objects.filter(vehicule__category__category = 'TAXI',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
@@ -5346,7 +5649,7 @@ class ListEntretienView(ListView):
             ent_mois_all = Entretien.objects.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
             ent_an_fil_vtc = Entretien.objects.filter(vehicule__category__category = 'VTC', date_saisie__month=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
             ent_an_fil_taxi = Entretien.objects.filter(vehicule__category__category = 'TAXI', date_saisie__month=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
-            list_ent = Entretien.objects.filter(date_saisie=date.today())
+            list_ent = Entretien.objects.filter(date_saisie__month=date.today().month).order_by('-id')
             
         context={
             'list_ent':list_ent,
@@ -5444,8 +5747,6 @@ def delete_catego(request, pk):
     except Exception as e:
         messages.error(request, f"Erreur lors de la suppression : {str(e)}")
     return redirect('add_catego_vehi')
-    
-
     
 def CategoVehiculeListView(request, cid):
     categorys= CategoVehi.objects.get(cid=cid)

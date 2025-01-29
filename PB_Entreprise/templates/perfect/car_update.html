@@ -96,7 +96,7 @@ Information et Modification du véhicule
                 <thead>
                     <tr class=" text-center text-danger ">
                         <th>IMMATRICULATION</th>
-                        <th>NOMBRE D'ANNEE</th>
+                        <th>CATEGORIE</th>
                         {% comment %}
                         <th>CSS grade</th> {% endcomment %}
                     </tr>
@@ -106,7 +106,7 @@ Information et Modification du véhicule
                         {% for u in vehicules %}
                             <tr class="text-center">
                                 <td><a href="{% url 'updatecar' u.pk %}" class="mr-3 text-primary">{{u.immatriculation}}</a></td>
-                                <td>{{u.duree}}</td>
+                                <td>{{u.category.category}}</td>
                             </tr>
                         {% endfor %} 
                     {% endif %}

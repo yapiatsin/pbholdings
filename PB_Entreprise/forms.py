@@ -29,35 +29,39 @@ class Solde_JourForm(forms.ModelForm):
             'montant': forms.NumberInput(attrs={'class':'form-control'}),
         }
 
-class PerteForm(forms.ModelForm):
+class AutrarretForm(forms.ModelForm):
     class Meta:
-        model = Perte
-        fields = ('auteur','libelle','date_saisie','status_recherche')
+        model = Autrarret
+        fields = ('auteur','libelle','date_sortie','date_arret','numfich','montant')
         widgets = {
             'auteur': forms.TextInput(attrs={'class':'form-control','value':'', 'id': 'elder','type':'hidden'}),
-            #'auteur': forms.Select(attrs={'class':'form-control',}),
+            'montant': forms.NumberInput(attrs={'class':'form-control'}),
             'libelle': forms.TextInput(attrs={'class':'form-control'}),
-            'status_recherche': forms.Select(attrs={'class':'form-control'}),
-            'date': DateInput(attrs={'class':'form-control', 'type':"datetime-local","class":"form-control"}, format='%Y-%m-%dT%H:%M'),  
+            'numfich': forms.TextInput(attrs={'class':'form-control'}),
+            'date_arret' :DateInput(attrs={"type": "datetime-local","class":"form-control"}, format="%Y-%m-%dT%H:%M",),
+            'date_sortie' :DateInput(attrs={"type": "datetime-local","class":"form-control"}, format="%Y-%m-%dT%H:%M",),
         }
     def __init__(self, *args, **kwargs):
-        super(PerteForm, self).__init__(*args, **kwargs)
-        self.fields["date"].input_formats = ("%Y-%m-%dT%H:%M",)
+        super(AutrarretForm, self).__init__(*args, **kwargs)
+        self.fields["date_arret"].input_formats = ("%Y-%m-%dT%H:%M",) 
+        self.fields["date_sortie"].input_formats = ("%Y-%m-%dT%H:%M",) 
 
-class UpdatPerteForm(forms.ModelForm):
+class UpdatAutrarretForm(forms.ModelForm):
     class Meta:
-        model = Perte
-        fields = ('auteur','libelle','date_saisie','status_recherche')
+        model = Autrarret
+        fields = ('auteur','libelle','date_sortie','date_arret','numfich','montant')
         widgets = {
             'auteur': forms.TextInput(attrs={'class':'form-control','value':'', 'id': 'elder','type':'hidden'}),
-            #'auteur': forms.Select(attrs={'class':'form-control',}),
+            'montant': forms.NumberInput(attrs={'class':'form-control'}),
             'libelle': forms.TextInput(attrs={'class':'form-control'}),
-            'status_recherche': forms.Select(attrs={'class':'form-control'}),
-            'date': DateInput(attrs={'class':'form-control', 'type':"datetime-local","class":"form-control"}, format='%Y-%m-%dT%H:%M'),  
+            'numfich': forms.TextInput(attrs={'class':'form-control'}),
+            'date_arret': DateInput(attrs={'class':'form-control', 'type':"datetime-local","class":"form-control"}, format='%Y-%m-%dT%H:%M'),  
+            'date_sortie': DateInput(attrs={'class':'form-control', 'type':"datetime-local","class":"form-control"}, format='%Y-%m-%dT%H:%M'),  
         }
     def __init__(self, *args, **kwargs):
-        super(UpdatPerteForm, self).__init__(*args, **kwargs)
-        self.fields["date"].input_formats = ("%Y-%m-%dT%H:%M",)
+        super(UpdatAutrarretForm, self).__init__(*args, **kwargs)
+        self.fields["date_arret"].input_formats = ("%Y-%m-%dT%H:%M",)
+        self.fields["date_sortie"].input_formats = ("%Y-%m-%dT%H:%M",)
 
 class ChargeAdminisForm(forms.ModelForm):
     date_saisie = forms.DateTimeField(widget= forms.DateTimeInput(format=('%m/%d/%Y %H:%M'), attrs={'class':'form-control','format':'yyyy-mm-dd HH-ii ss', 'type':'date'}))

@@ -206,7 +206,7 @@
                                     <table id="example1" class="table table-bordered table-striped">
                                         <thead>
                                             <tr class=" text-center text-danger ">
-                                                <th>IMMATRICULATION</th>
+                                                <th>IMMAT</th>
                                                 <th>MARQUE</th>
                                                 <th>CATEGORIE</th>
                                                 <th>MONTANT</th>
@@ -222,7 +222,7 @@
                                                 {% for u in list_chargefixe %}
                                                     <tr class="text-center">
                                                         <td>
-                                                            <a href="{% url 'updatecar' u.pk %}" class="mr-3 text-primary">{{u.vehicule.immatriculation}}</a>
+                                                            <a class="mr-3 text-primary">{{u.vehicule.immatriculation}}</a>
                                                         </td>
                                                         <td>{{u.vehicule.marque}}</td>
                                                         <td>{{u.vehicule.category}}</td>
@@ -231,7 +231,7 @@
                                                         <td>{{u.auteur.username}}</td>
                                                         <td class="text-center">
                                                             {% if user.user_type == '1' %}
-                                                                <a href="{% url 'delete_chargfix' u.pk %}" class="text-danger" onclick="return confirm('Etes-vous sûre de vouloir supprimer la charge fixe du {{u.immatriculation}} - {{u.marque}} - {{u.category|upper}}? car si vous supprimer toutes les informations liées seront supprimées')">
+                                                                <a href="{% url 'delete_chargfix' u.pk %}" class="text-danger" onclick="return confirm('Etes-vous sûre de vouloir supprimer la charge fixe du {{u.vehicule.immatriculation}} - {{u.vehicule.marque}} - {{u.category|upper}}? car si vous supprimer toutes les informations liées seront supprimées')">
                                                                     <i style="font-size: 20px; " class="fa fa-trash "></i>
                                                                 </a>
                                                             {% else %}

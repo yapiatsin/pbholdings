@@ -58,7 +58,7 @@
                                         <div>
                                             <div style="font-size: 15px;color: #06497C">Réparation TAXI</div>
                                             <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
-                                                {{rep_taxi}}
+                                                T: {{rep_taxi_count}}-{{rep_taxi}} frscfa
                                                 <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
                                             </div>
                                         </div>
@@ -73,7 +73,7 @@
                                         <div>
                                             <div style="font-size: 15px;color: #06497C">Réparations VTC</div>
                                             <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
-                                                {{rep_vtc}}
+                                                T: {{rep_vtc_cpte}}-{{rep_vtc}} frscfa
                                                 <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
                                             </div>
                                         </div>
@@ -86,8 +86,9 @@
                                             {% comment %} <a href="{ url 'addtaille' patient.pk %}" style="font-size:20px"><i class="fa fa-plus-circle text-success" style="position:relative; font-size:20px;top:-10px"></i></a> {% endcomment %}
                                         </div>
                                         <div>
-                                            <div style="font-size: 15px;color: #06497C">Autres <small>{{libelles_mois}}</small></div>
-                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">{{recets_mois_vtc}}
+                                            <div style="font-size: 15px;color: #06497C">Autres Arrêts <small>{{libelles_mois}}</small></div>
+                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
+                                            T: {{autarre_cpt}}-{{autarre_som}} frscfa
                                             0
                                             </div>
                                         </div>
@@ -121,7 +122,7 @@
                                     <table id="example1" class="table table-bordered table-striped">
                                         <thead>
                                             <tr class=" text-center text-danger ">
-                                                <th>IMMATRICULATION</th>
+                                                <th>IMMAT</th>
                                                 <th>MARQUE</th>
                                                 <th>CATEGORIE</th>
                                                 <th>VISITE</th>
@@ -143,9 +144,9 @@
                                                         <i style="font-size: 20px;" title="Saisissez la visite de {{u.immatriculation}}" class="fa fa-plus-circle "></i>
                                                     </a>
                                                     {% else %}
-                                                    <a class="text-danger">
-                                                        <i style="font-size: 20px;" class="fa fa-close "></i>
-                                                    </a>
+                                                        <a class="text-danger">
+                                                            <i style="font-size: 20px;" class="fa fa-close "></i>
+                                                        </a>
                                                     {% endif %}
                                                 </td>
                                                 <td>
@@ -172,7 +173,7 @@
                                                 </td>
                                                 <td>
                                                     {% if user.user_type != '3' %}
-                                                    <a href="" class="text-primary">
+                                                    <a href="{% url 'add_autarrets' u.pk %}" class="text-primary">
                                                         <i style="font-size: 20px;" title="Saisissez la patente de {{u.immatriculation}}" class="fa fa-plus-circle "></i>
                                                     </a>
                                                     {% else %}

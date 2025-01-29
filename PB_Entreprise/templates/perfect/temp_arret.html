@@ -5,7 +5,7 @@ Temps d'arrêt
 {% endblock title %} 
 {% block liste %}
 <li class="nav-item">
-    <a href="{% url 'dash' %}" class="nav-link">Accueil</a>
+    <a href="{% url 'dashgarage' %}" class="nav-link">Accueil</a>
 </li>
 {% if user.user_type == '4' %}
 {% else %}
@@ -17,24 +17,32 @@ Temps d'arrêt
 <li class="nav-item dropdown">
     <a id="dropdownSubMenu1" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="nav-link dropdown-toggle">Menu</a>
     <ul aria-labelledby="dropdownSubMenu1" class="dropdown-menu border-0 shadow">
-        <li><a href="{% url 'rec_day' %}" class="dropdown-item">Recettes</a></li>
-        <li><a href="#" class="dropdown-item">Some other action</a></li>
+        {% if user.user_type == '3' %} 
+        {% else %} 
+            <li><a href="{% url 'saisi_garag' %}" class="dropdown-item">Saisie Garage </a></li>
+            <li><a href="{% url 'temps_arrets' %}" class="dropdown-item">Saisie temp arrêt</a></li>
+        {% endif %}
         <li class="dropdown-divider"></li>
+        <!-- Level two dropdown-->
         <li class="dropdown-submenu dropdown-hover">
-            <a id="dropdownSubMenu2" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="dropdown-item dropdown-toggle">Hover for action</a>
+            <a id="dropdownSubMenu2" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="dropdown-item dropdown-toggle">Autres</a>
             <ul aria-labelledby="dropdownSubMenu2" class="dropdown-menu border-0 shadow">
-                <li>
-                    <a tabindex="-1" href="#" class="dropdown-item">level 2</a>
-                </li>
-                <li class="dropdown-submenu">
-                    <a id="dropdownSubMenu3" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="dropdown-item dropdown-toggle">level 2</a>
-                    <ul aria-labelledby="dropdownSubMenu3" class="dropdown-menu border-0 shadow">
-                        <li><a href="#" class="dropdown-item">3rd level</a></li>
-                        <li><a href="#" class="dropdown-item">3rd level</a></li>
-                    </ul>
-                </li>
-                <li><a href="#" class="dropdown-item">level 2</a></li>
-                <li><a href="#" class="dropdown-item">level 2</a></li>
+                {% if user.user_type == '3' %}
+                    
+                {% else %} 
+                    <li>
+                        <a tabindex="-1" href="{% url 'alerte' %}" class="dropdown-item">Alertes</a>
+                    </li>
+                    <li class="dropdown-submenu">
+                        <a id="dropdownSubMenu3" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="dropdown-item dropdown-toggle">Arrêts</a>
+                        <ul aria-labelledby="dropdownSubMenu3" class="dropdown-menu border-0 shadow">
+                            <li><a href="{% url 'temps' %}" class="dropdown-item">Tableau des temps d'arrêts</a></li>
+                            <li><a href="#" class="dropdown-item">--------</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#" class="dropdown-item">--------</a></li>
+                    <li><a href="#" class="dropdown-item">--------</a></li>
+                {% endif %}
             </ul>
         </li>
     </ul>
@@ -74,12 +82,12 @@ Temps d'arrêt
                     <a class="btn btn-default btn-prev" onclick="changeMonth(-1)"><i class="fa fa-angle-double-left" aria-hidden="true"></i></a> {{ month_name }} - {{ year}}
                     <a class="btn btn-default btn-next" onclick="changeMonth(1)"><i class="fa fa-angle-double-right" aria-hidden="true" style=""></i></a>
                 </th>
-                <th rowspan="2">Total garage</th>
-                <th rowspan="2">Coût Pièce</th>
+                <th rowspan="2">T arrêt</th>
+                <th rowspan="2">T Pièce</th>
                 <th rowspan="2">Recette</th>
-                <th rowspan="2">Détails Pièce</th>
-                <th rowspan="2">Motif de réparations</th>
-                <th rowspan="2">Motif de temps d'arrêt</th>
+                <th rowspan="2">Détail Pièce</th>
+                <th rowspan="2">Motif réparat</th>
+                <th rowspan="2">Motif arrêt</th>
             </tr>
             <tr>
                 {% for day in days_in_month %}
@@ -117,7 +125,7 @@ Temps d'arrêt
                     Préparation de visite <i class="text-success">{{total_visit_sum}}</i><br> 
                     Garage pour panne <i class="text-warning" aria-hidden="true">{{total_panne_sum}}</i><br> 
                     Accident <i class="text-danger" aria-hidden="true">{{total_accident_sum}}</i><br>                    
-                    Autre panne <i class="text-secondary" aria-hidden="true">0</i>
+                    Autre arrêt <i class="text-secondary" aria-hidden="true">{{total_autrarret_sum}}</i>
                 </td>
             </tr>
         </tfoot>

@@ -194,11 +194,10 @@
                                     <table id="example2" class="table table-bordered table-striped">
                                         <thead>
                                             <tr class=" text-center text-danger ">
-                                                <th>IMMATRICULATION</th>
+                                                <th>IMMAT</th>
                                                 <th>DATE VISITE</th>
                                                 <th>MONTANT</th>
                                                 <th>DATE SAISIE</th>
-                                                <th>SAISIR PAR</th>
                                                 <th>ACTION</th>
                                             </tr>
                                         </thead>
@@ -212,7 +211,6 @@
                                                         <td>{{u.date_vis}}</td>
                                                         <td>{{u.montant}}</td>
                                                         <td>{{u.date_saisie}}</td>
-                                                        <td>{{u.auteur.username}}</td>
                                                         <td class="text-center">
                                                             {% if user.user_type == '1' %}
                                                                 <a href="{% url 'delvehi' u.pk %}" class="text-danger" onclick="return confirm('Etes-vous sûre de vouloir supprimer le véhicule {{u.immatriculation}} - {{u.marque}} - {{u.category|upper}}? car si vous supprimer toutes les informations liées seront supprimées')">

@@ -238,7 +238,7 @@
                                     <table id="example2" class="table table-bordered table-striped">
                                         <thead>
                                             <tr class=" text-center text-danger ">
-                                                <th>IMMATRICULATION</th>
+                                                <th>IMMAT</th>
                                                 <th>MOTIF</th>
                                                 <th>MONTANT</th>
                                                 <th>DATE SAISIE</th>
@@ -251,7 +251,7 @@
                                                 {% for u in repare_list %}
                                                     <tr class="text-center">
                                                         <td>
-                                                            <a href="" class="mr-3 text-primary">{{u.vehicule.immatriculation}}</a>
+                                                            <a href="{% url 'detail_reparat' u.pk %}" class="mr-3 text-primary">{{u.vehicule.immatriculation}}</a>
                                                         </td>
                                                         <td>{{u.motif}}</td>
                                                         <td>{{u.montant}}</td>

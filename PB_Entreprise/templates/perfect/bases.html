@@ -76,9 +76,16 @@
         <div class="wrapper">
             <nav class="main-header navbar navbar-expand-md navbar-light navbar-white">
                 <div class="container-fluid">
+                {% if user.user_type == '4' %}
+                    <a href="{% url 'dashgarage' %}" class="brand-link" style="background-color: #ffffff;">
+                        <span class="brand-text font-weight-danger text-danger" style="font-weight: 700; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);">P&BENTREPRISE</span>
+                    </a>
+                {% else %}  
                     <a href="{% url 'dash' %}" class="brand-link" style="background-color: #ffffff;">
                         <span class="brand-text font-weight-danger text-danger" style="font-weight: 700; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);">P&BENTREPRISE</span>
                     </a>
+
+                {% endif %}
                     <div class="collapse navbar-collapse order-3" id="navbarCollapse">
                         <ul class="navbar-nav">
                             {% block liste %}
@@ -86,39 +93,47 @@
                                     <li class="nav-item">
                                         <a href="{% url 'dashgarage' %}" class="nav-link">Accueil</a>
                                     </li>
+                                    
                                 {% else %}   
                                     <li class="nav-item">
                                         <a href="{% url 'dash' %}" class="nav-link">Accueil</a>
                                     </li>
+                                    
                                 {% endif %}
-                                {% if user.is_staff %} 
+                                
                                     <li class="nav-item dropdown">
                                         <a id="dropdownSubMenu1" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="nav-link dropdown-toggle">Menu</a>
                                         <ul aria-labelledby="dropdownSubMenu1" class="dropdown-menu border-0 shadow">
-                                            <li><a href="#" class="dropdown-item">Some action </a></li>
-                                            <li><a href="#" class="dropdown-item">Some other action</a></li>
+                                            {% if user.user_type == '3' %} 
+                                            {% else %} 
+                                                <li><a href="{% url 'saisi_garag' %}" class="dropdown-item">Saisie Garage </a></li>
+                                                <li><a href="{% url 'temps_arrets' %}" class="dropdown-item">Saisie temp arrêt</a></li>
+                                            {% endif %}
                                             <li class="dropdown-divider"></li>
                                             <!-- Level two dropdown-->
                                             <li class="dropdown-submenu dropdown-hover">
-                                                <a id="dropdownSubMenu2" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="dropdown-item dropdown-toggle">Hover for action</a>
+                                                <a id="dropdownSubMenu2" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="dropdown-item dropdown-toggle">Autres</a>
                                                 <ul aria-labelledby="dropdownSubMenu2" class="dropdown-menu border-0 shadow">
-                                                    <li>
-                                                        <a tabindex="-1" href="#" class="dropdown-item">level 2</a>
-                                                    </li>
-                                                    <li class="dropdown-submenu">
-                                                        <a id="dropdownSubMenu3" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="dropdown-item dropdown-toggle">level 2</a>
-                                                        <ul aria-labelledby="dropdownSubMenu3" class="dropdown-menu border-0 shadow">
-                                                            <li><a href="#" class="dropdown-item">3rd level</a></li>
-                                                            <li><a href="#" class="dropdown-item">3rd level</a></li>
-                                                        </ul>
-                                                    </li>
-                                                    <li><a href="#" class="dropdown-item">level 2</a></li>
-                                                    <li><a href="#" class="dropdown-item">level 2</a></li>
+                                                    {% if user.user_type == '3' %}
+                                                        
+                                                    {% else %} 
+                                                        <li>
+                                                            <a tabindex="-1" href="{% url 'alerte' %}" class="dropdown-item">Alertes</a>
+                                                        </li>
+                                                        <li class="dropdown-submenu">
+                                                            <a id="dropdownSubMenu3" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="dropdown-item dropdown-toggle">Arrêts</a>
+                                                            <ul aria-labelledby="dropdownSubMenu3" class="dropdown-menu border-0 shadow">
+                                                                <li><a href="{% url 'temps' %}" class="dropdown-item">Tableau des temps d'arrêts</a></li>
+                                                                <li><a href="#" class="dropdown-item">--------</a></li>
+                                                            </ul>
+                                                        </li>
+                                                        <li><a href="#" class="dropdown-item">--------</a></li>
+                                                        <li><a href="#" class="dropdown-item">--------</a></li>
+                                                    {% endif %}
                                                 </ul>
                                             </li>
                                         </ul>
                                     </li>
-                                {% endif %}
                             {% endblock liste %}
                         </ul>
                     </div>
