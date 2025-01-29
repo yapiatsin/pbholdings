@@ -71,7 +71,7 @@ urlpatterns = [
     #---------ENTRETIEN-------VISITE------REPARATION-------ASSURANCE-------PIECE-----VIGNETTE-----PATENTE--------PERTE-------ACCIDENT#
     
     path('vehicule/<int:pk>/addautarret',AddAutrarretView.as_view(), name="add_autarrets"), 
-    path('autarret/<int:pk>/delet', delete_autarret, name='delete_autarret'),
+    path('autarret/<int:pk>/delet', delete_autarret, name='delete_autarrets'),
     
     path('vehicule/<int:pk>/addvisite',AddVisitView.as_view(), name="add_visit"), 
     path('visite/<int:pk>/modifier',UpdateVisiteView.as_view(), name="updat_visit"), 
