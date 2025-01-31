@@ -291,7 +291,6 @@ class Stationnement(models.Model):
         jours_cartsta_restant = (self.date_proch - timezone.now().date()).days
         return jours_cartsta_restant
 
-
 class Assurance(models.Model):
     auteur = models.ForeignKey(CustomUser,on_delete=models.CASCADE, related_name='user_add_ass')
     vehicule = models.ForeignKey(Vehicule, on_delete=models.CASCADE, related_name="assurances")

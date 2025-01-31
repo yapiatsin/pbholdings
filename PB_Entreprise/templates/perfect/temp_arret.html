@@ -76,56 +76,56 @@ Temps d'arrêt
     <table>
         <thead>
             <tr style="font-weight: 700;" class="text-danger">
-                <th rowspan="2">Immat</th>
-                <th rowspan="2">Marque</th>
-                <th colspan="{{ days_in_month|length }}">
-                    <a class="btn btn-default btn-prev" onclick="changeMonth(-1)"><i class="fa fa-angle-double-left" aria-hidden="true"></i></a> {{ month_name }} - {{ year}}
-                    <a class="btn btn-default btn-next" onclick="changeMonth(1)"><i class="fa fa-angle-double-right" aria-hidden="true" style=""></i></a>
+                <th rowspan="2" style='font-size:10px'>Immat</th>
+                <th rowspan="2" style='font-size:10px'>Marque</th>
+                <th style='font-size:10px' colspan="{{ days_in_month|length }}">
+                    <a style='font-size:10px' class="btn btn-default btn-prev" onclick="changeMonth(-1)"><i class="fa fa-angle-double-left" aria-hidden="true"></i></a> {{ month_name }} - {{ year}}
+                    <a style='font-size:10px' class="btn btn-default btn-next" onclick="changeMonth(1)"><i class="fa fa-angle-double-right" aria-hidden="true" style=""></i></a>
                 </th>
-                <th rowspan="2">T arrêt</th>
-                <th rowspan="2">T Pièce</th>
-                <th rowspan="2">Recette</th>
-                <th rowspan="2">Détail Pièce</th>
-                <th rowspan="2">Motif réparat</th>
-                <th rowspan="2">Motif arrêt</th>
+                <th rowspan="2" style='font-size:10px'>T arrêt</th>
+                <th rowspan="2" style='font-size:10px'>T Pièce</th>
+                <th rowspan="2" style='font-size:10px'>Recette</th>
+                <th rowspan="2" style='font-size:10px'>Pièce</th>
+                <th rowspan="2" style='font-size:10px'>Motif rép</th>
+                <th rowspan="2" style='font-size:10px'>Motif arrêt</th>
             </tr>
             <tr>
                 {% for day in days_in_month %}
-                    <th class="text-primary">{{ day }}</th>
+                    <th class="text-primary" style='font-size:12px'>{{ day }}</th>
                 {% endfor %}
             </tr>
         </thead>
         <tbody>
             {% for vehicule in vehicule_data %}
-                <tr>
-                    <td style="font-weight: 700;"><a href="" title="{{vehicule.category}}">{{ vehicule.immatriculation }}</a></td>
-                    <td>{{ vehicule.marque }}</td>
+                <tr style="font-weight: 700; ">
+                    <td style="font-size:12px"><a href="" title="{{vehicule.category}}">{{ vehicule.immatriculation }}</a></td>
+                    <td style='font-size:12px'>{{ vehicule.marque }}</td>
                     {% for action in vehicule.daily_actions %}
-                        <td>{{ action }}</td>
+                        <td style='font-size:12px' class="text-cyan">{{ action }}</td>
                     {% endfor %}
-                    <td>{{ vehicule.total_actions }}</td>
-                    <td>{{ vehicule.total_cost_parts }}</td>
-                    <td>{{ vehicule.total_income }}</td>
-                    <td>{{ vehicule.part_details }}</td>
-                    <td>{{ vehicule.repairs_by_motif }}</td>
-                    <td>{{ vehicule.motif_arret }}</td>
+                    <td style='font-size:12px' class="text-warning">{{ vehicule.total_actions }}</td>
+                    <td style='font-size:12px'>{{ vehicule.total_cost_parts }}</td>
+                    <td style='font-size:12px'>{{ vehicule.total_income }}</td>
+                    <td style='font-size:12px'>{{ vehicule.part_details }}</td>
+                    <td style='font-size:12px'>{{ vehicule.repairs_by_motif }}</td>
+                    <td style='font-size:12px'>{{ vehicule.motif_arret }}</td>
                 </tr>
             {% endfor %}
         </tbody>
         <tfoot>
             <tr>
-                <td colspan="{{ days_in_month_plus_two }}" style="text-align: right; font-weight: bold; ">Total:</td>
-                <td>{{ total_actions_sum }}</td>
-                <td>{{ total_cost_parts_sum }}</td>
-                <td>{{ total_income_sum }}</td>
-                <td>{{ total_piece_sum }}</td>
+                <td colspan="{{ days_in_month_plus_two }}" style="text-align: right; font-weight: bold; font-size:12px">Total:</td>
+                <td style='font-weight: 700; font-size:12px' class="text-danger">{{ total_actions_sum }}</td>
+                <td style='font-weight: 700; font-size:12px' class="text-danger">{{ total_cost_parts_sum }}</td>
+                <td style='font-weight: 700; font-size:12px' class="text-danger">{{ total_income_sum }}</td>
+                <td style='font-weight: 700; font-size:12px' class="text-danger">{{ total_piece_sum }}</td>
             </tr>
             <tr>
-                <td colspan="4" style="text-align: right;">
-                    Préparation de visite <i class="text-success">{{total_visit_sum}}</i><br> 
-                    Garage pour panne <i class="text-warning" aria-hidden="true">{{total_panne_sum}}</i><br> 
-                    Accident <i class="text-danger" aria-hidden="true">{{total_accident_sum}}</i><br>                    
-                    Autre arrêt <i class="text-secondary" aria-hidden="true">{{total_autrarret_sum}}</i>
+                <td colspan="4" style="text-align: right; font-size:12px; font-weight: 700;" class="text-secondary">
+                    Préparation de visite ('P-vis) = <i class="text-success">{{total_visit_sum}}</i><br> 
+                    Garage pour panne (pan) = <i class="text-warning" aria-hidden="true">{{total_panne_sum}}</i><br> 
+                    Accident (acc) = <i class="text-danger" aria-hidden="true">{{total_accident_sum}}</i><br>                    
+                    Autre arrêt (aut) = <i class="text-cyan" aria-hidden="true">{{total_autrarret_sum}}</i>
                 </td>
             </tr>
         </tfoot>

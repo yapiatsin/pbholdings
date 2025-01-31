@@ -183,7 +183,7 @@
                                     <h3 class="card-title">
                                         <button type="button" class="btn btn-default text-danger" id="printButton">PDF <i class='fa fa-file-pdf-o'></i></button>
                                         <button type="button" class="btn btn-default text-success">Excell <i class='fa fa-file-excel-o'></i></button>
-                                        {% if user.user_type == '1' or user.user_type == '3' %}
+                                        {% if user.user_type == '1' or user.user_type == '2' or user.user_type == '4' %}
                                             <button type="button" class="btn btn-default text-primary" style="font-weight:700" data-toggle="modal" data-target="#modal-lg">Saisir <i class='fa fa-plus-square'></i></button>
                                         {% else %}
                                             <button type="button" class="btn btn-default text-primary" style="font-weight:700">Saisir <i class='fa fa-plus-square'></i></button>

@@ -468,7 +468,7 @@ class TableaustopView(TemplateView):
             all_entretien = Entretien.objects.filter(vehicule=vehicule, date_saisie__month=month, date_saisie__year=year).count()
 
             part_details = "; ".join(
-                f"{part['libelle']} ({part['count']}), {part['total_price']}" for part in part_details_queryset
+                f"{part['libelle']} ({part['count']}) {part['total_price']}" for part in part_details_queryset
             )
 
             daily_actions = [0] * days_in_month
@@ -5274,9 +5274,6 @@ class DetailReparatView(DetailView):
             # 'list_reparation':list_reparation,
             'dates':dates
         }
-        print("")
-        print("--------------******************------------", context)
-        print("")
         return context
 
 class UpdateReparationView(UpdateView):

@@ -225,7 +225,7 @@
                             <div class="card" style="box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);backdrop-filter: blur(5.2px);--webkit-backdrop-filter: blur(5.2px);">
                                 <div class="card-header">
                                     <h3 class="card-title">
-                                        <button type="button" class="btn btn-default text-danger">PDF <i class='fa fa-file-pdf-o'></i></button>
+                                        <button type="button" class="btn btn-default text-danger" id="printButton">PDF <i class='fa fa-file-pdf-o'></i></button>
                                         <button type="button" class="btn btn-default text-success">Excell <i class='fa fa-file-excel-o'></i></button>
                                         {% if user.user_type == '1' or user.user_type == '2' or user.user_type == '3' %}
                                             <button type="button" class="btn btn-default text-primary" style="font-weight:700" data-toggle="modal" data-target="#modal-lg">Saisir <i class='fa fa-plus-square'></i></button>
