@@ -81,7 +81,7 @@
                                             <div style="font-size: 16px;color: #06497C"><small style="color: #06497C; font-weight: 700; line-height: 1;">Aujourd'hui</small></div>
                                             <div style="font-size:14px; font-weight: 700; line-height: 1; color: #fa7832;">
                                                 {{charg_adm_jour_format}}
-                                                <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
+                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
                                             </div>
                                         </div>
                                     </div>
@@ -92,12 +92,11 @@
                                             <img style="height: 30px; width: 30px; position:relative; margin-top: 9px; margin-left: 0px;" src="{% static 'calendar.png' %}" alt="" srcset="">
                                         </div>
                                         <div>
+                                            <div style="font-size: 14px;color: #06497C"><small style="color: #06497C; font-weight: 700; line-height: 1;">{{mois}}</small></div>
                                             <div style="font-size:14px; font-weight: 700; line-height: 1; color: #fa7832;">
                                                 {{ charg_adm_mois_format }}
-                                                <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
+                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
                                             </div>
-                                                
-                                            <div style="font-size: 14px;color: #06497C"><small style="color: #06497C; font-weight: 700; line-height: 1;">{{mois}}</small></div>
                                         </div>
                                     </div>
                                 </td>
@@ -107,11 +106,25 @@
                                             <img style="height: 30px; width: 30px; position:relative; margin-top: 8px; margin-left: 3px;" src="{% static 'marge.png' %}" alt="" srcset="">
                                         </div>
                                         <div>
+                                            <div style="font-size: 14px;color: #06497C"><small style="color: #06497C; font-weight: 700; line-height: 1;">{{ annee }}</small></div>
                                             <div style="font-size:14px; font-weight: 700; line-height: 1; color: #fa7832;">
                                                 {{ charg_adm_annuel_format }}
-                                                <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
+                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
                                             </div>
-                                            <div style="font-size: 14px;color: #06497C"><small style="color: #06497C; font-weight: 700; line-height: 1;">{{ annee }}</small></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td style="border: none;">
+                                    <div style="display: flex; align-items: center;">
+                                        <div style="height: 45px; width: 45px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
+                                            <img style="height: 30px; width: 30px; position:relative; margin-top: 7px; margin-left: 0px;" src="{% static 'recet.png' %}" alt="" srcset="">
+                                        </div>
+                                        <div>
+                                            <div style="font-size: 14px;color: #06497C">Recette</div>
+                                            <div style="font-size:14px; font-weight: 700; line-height: 1; color: #fa7832;">
+                                                {{ total_recette_format }}
+                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
+                                            </div>
                                         </div>
                                     </div>
                                 </td>
@@ -121,10 +134,10 @@
                                             <img style="height: 30px; width: 30px; position:relative; margin-top: 9px; margin-left: 7px;" src="{% static 'brute.png' %}" alt="" srcset="">
                                         </div>
                                         <div>
-                                            <div style="font-size: 16px;color: #06497C">Marge Brute</div>
+                                            <div style="font-size: 14px;color: #06497C">Marge Brute</div>
                                             <div style="font-size:14px; font-weight: 700; line-height: 1; color: #fa7832;">
                                                 {{ marge_brute_format }}
-                                                <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
+                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
                                             </div>
                                         </div>
                                     </div>
@@ -151,7 +164,7 @@
                                         </div>
                                         <div>
                                             <div style="font-size: 14px;color: #06497C">Charges Fixes</div>
-                                            <div style="font-size:14px; font-weight: 700; line-height: 1; color: #fa7832;">{{ total_chargfix_format }}  <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small></div>
+                                            <div style="font-size:14px; font-weight: 700; line-height: 1; color: #fa7832;">{{ total_chargfix_format }} <small style="color: #06497C; font-weight: 700; line-height: 1;"></small></div>
                                         </div>
                                     </div>
                                 </td>
@@ -165,7 +178,7 @@
                                             <div style="font-size: 14px; color: #06497C">Charges Variables</div>
                                             <div style="font-size:14px; font-weight: 700; line-height: 1; color: #fa7832;">
                                                 {{ total_chargvar_format }}
-                                                <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
+                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
                                             </div>
                                         </div>
                                     </div>
@@ -179,7 +192,7 @@
                                             <div class="mt-1" style="font-size:14px; font-weight: 700; line-height: 1;color: #06497C">Pièces réparations</div>
                                             <div style="font-size:14px; font-weight: 700; line-height: 1; color: #fa7832;">
                                                 {{ total_piece_format}} 
-                                                <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
+                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
                                             </div>
                                         </div>
                                     </div>
@@ -191,7 +204,7 @@
                                         </div>
                                         <div>
                                             <div class="mt-1" style="font-size:14px; font-weight: 700; line-height: 1;color: #06497C">Pièces échanges</div>
-                                            <div style="font-size:14px; font-weight: 700; line-height: 1; color: #fa7832;">{{ total_piece_echang_format }}  <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small></div>
+                                            <div style="font-size:14px; font-weight: 700; line-height: 1; color: #fa7832;">{{ total_piece_echang_format }}  <small style="color: #06497C; font-weight: 700; line-height: 1;"></small></div>
                                         </div>
                                     </div>
                                 </td>
@@ -202,7 +215,7 @@
                                         </div>
                                         <div>
                                             <div class="mt-1" style="font-size:14px; font-weight: 700; line-height: 1;color: #06497C">Résultats</div>
-                                            <div style="font-size:14px; font-weight: 700; line-height: 1; color: #fa7832;">{{resultat_format}} <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small></div>
+                                            <div style="font-size:14px; font-weight: 700; line-height: 1; color: #fa7832;">{{resultat_format}} <small style="color: #06497C; font-weight: 700; line-height: 1;"></small></div>
                                         </div>
                                     </div>
                                 </td>

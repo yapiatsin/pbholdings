@@ -26,12 +26,11 @@
                                             <img style="height: 35px; width: 35px; position:relative; margin-top: 9px; margin-left: 8px;" src="{% static 'vtc.png' %}" alt="" srcset="">
                                         </div>
                                         <div>
+                                            <div style="font-size: 15px;color: #06497C">Aujourd'hui</div>
                                             <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
                                                 {{viste_jour}}
-                                                <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
+                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
                                             </div>
-
-                                            <div style="font-size: 15px;color: #06497C">Aujourd'hui</div>
                                         </div>
                                     </div>
                                 </td>
@@ -41,12 +40,11 @@
                                             <img style="height: 35px; width: 35px; position:relative; margin-top: 6px; margin-left: 7px;" src="{% static 'taxi.png' %}" alt="" srcset="">
                                         </div>
                                         <div>
+                                            <div style="font-size: 15px;color: #06497C">TAXI: <small>Aujourd'hui</small></div>
                                             <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
                                                 {{viste_jour_taxi}}
-                                                <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
+                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
                                             </div>
-
-                                            <div style="font-size: 15px;color: #06497C">TAXI: <small>Aujourd'hui</small></div>
                                         </div>
                                     </div>
                                 </td>
@@ -56,11 +54,11 @@
                                             <img style="height: 35px; width: 35px; position:relative; margin-top: 8px; margin-left: 3px;" src="{% static 'marge.png' %}" alt="" srcset="">
                                         </div>
                                         <div>
+                                            <div style="font-size: 15px;color: #06497C">VTC: <small>Aujourd'hui</small></div>
                                             <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
                                                 {{viste_jour_vtc}}
-                                                <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
+                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
                                             </div>
-                                            <div style="font-size: 15px;color: #06497C">VTC: <small>Aujourd'hui</small></div>
                                         </div>
                                     </div>
                                 </td>
@@ -70,11 +68,11 @@
                                             <img style="height: 35px; width: 35px; position:relative; margin-top: 9px; margin-left: 7px;" src="{% static 'brute.png' %}" alt="" srcset="">
                                         </div>
                                         <div>
+                                            <div style="font-size: 15px;color: #06497C">TAXI: <small>{{libelles_mois}}</small></div>
                                             <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
                                                 {{viste_mois_taxi}}
-                                                <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
+                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
                                             </div>
-                                            <div style="font-size: 15px;color: #06497C">TAXI: <small>{{libelles_mois}}</small></div>
                                         </div>
                                     </div>
                                 </td>
@@ -84,10 +82,10 @@
                                             <img style="height: 35px; width: 35px; position:relative; margin-top: 9px;margin-left: 8px;" src="{% static 'chargfix.png' %}" alt="" srcset="">
                                         </div>
                                         <div>
-                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">{{viste_mois_vtc}}
-                                                <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
-                                            </div>
                                             <div style="font-size: 15px;color: #06497C">VTC: <small>{{libelles_mois}}</small></div>
+                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">{{viste_mois_vtc}}
+                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
+                                            </div>
                                         </div>
                                     </div>
                                 </td>
@@ -97,8 +95,8 @@
                                             <img style="height: 35px; width: 35px; position:relative; margin-top: 9px;margin-left: 8px;" src="{% static 'chargfix.png' %}" alt="" srcset="">
                                         </div>
                                         <div>
-                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">{{viste_mois_all}} <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small></div>
                                             <div style="font-size: 15px;color: #06497C">Total de {{libelles_mois}}</div>
+                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">{{viste_mois_all}} <small style="color: #06497C; font-weight: 700; line-height: 1;"></small></div>
                                         </div>
                                     </div>
                                 </td>
@@ -134,7 +132,7 @@
                             <div style="display: flex; align-items: center;">
                                 <div class="text-center p-1 m-2">
                                     <div class="text-center" style="font-size:16px; color: #06497C; text-align: center;font-weight:700">
-                                        <li>{{viste_an_fil_vtc}} Frscfa</li>
+                                        <li>{{viste_an_fil_vtc}}</li>
                                     </div>
                                 </div>
                             </div>
@@ -153,7 +151,7 @@
                             <div style="display: flex; align-items: center;">
                                 <div class="text-center p-1 m-2">
                                     <div class="text-center" style="font-size:16px; color: #06497C; text-align: center;font-weight:700">
-                                        <li>{{viste_an_fil_taxi}} Frscfa</li>
+                                        <li>{{viste_an_fil_taxi}}</li>
                                     </div>
                                 </div>
                             </div>
@@ -171,7 +169,7 @@
                             <div style="display: flex; align-items: center;">
                                 <div class="text-center m-2">
                                     <div class="text-center" style="font-size:16px; color: #06497C; text-align: center;font-weight:700">
-                                        = {{viste_all}} Frscfa
+                                        = {{viste_all}}
                                     </div>
                                 </div>
                             </div>

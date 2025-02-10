@@ -67,7 +67,7 @@
                                         <div style="font-size: 15px;color: #06497C">Recette VTC</div>
                                             <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
                                                 {{ total_recette_vtc_format }}
-                                                <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
+                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
                                             </div>
                                         </div>
                                     </div>
@@ -82,7 +82,7 @@
                                             <div style="font-size: 15px;color: #06497C">Recette TAXI</div>
                                             <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
                                                 {{ total_recette_taxi_format }}
-                                                <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
+                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
                                             </div>
                                         </div>
                                     </div>
@@ -110,7 +110,7 @@
                                             <div style="font-size: 15px;color: #06497C">Marge Brute</div>
                                             <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
                                                 {{ marge_brute_format }}
-                                                <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
+                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
                                             </div>
                                         </div>
                                     </div>
@@ -123,7 +123,7 @@
                                         </div>
                                         <div>
                                             <div style="font-size: 15px;color: #06497C">Charges Fixes</div>
-                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">{{ tot_chargfix }}  <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small></div>
+                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">{{ tot_chargfix }} <small style="color: #06497C; font-weight: 700; line-height: 1;"></small></div>
                                         </div>
                                     </div>
                                 </td>
@@ -137,7 +137,7 @@
                                             <div style="font-size: 15px; color: #06497C">Charges Variables</div>
                                             <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
                                                 {{ tot_chargvar }}
-                                                <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
+                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
                                             </div>
                                         </div>
                                     </div>
@@ -151,7 +151,7 @@
                                         <div style="font-size: 15px; color: #06497C">Charges Totales</div>
                                             <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
                                                 {{ charge_totale }}
-                                                <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
+                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
                                             </div>
                                         </div>
                                     </div>
@@ -167,7 +167,7 @@
                                             <div class="mt-1" style="font-size:14px; font-weight: 700; line-height: 1;color: #06497C">Pièces réparations</div>
                                             <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
                                                 {{ tot_piece}} 
-                                                <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
+                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
                                             </div>
                                         </div>
                                     </div>
@@ -182,7 +182,7 @@
                                             <div style="font-size: 15px; color: #06497C">Pièces changes</div>
                                             <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
                                                 {{ tot_piec_echang }}  
-                                                <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
+                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
                                             </div>
                                         </div>
                                     </div>
@@ -222,7 +222,10 @@
                                             <div style="font-size:14px; color: #06497C; text-align: center;font-weight:700">
                                                 {% if best_recettes %}
                                                     {% for r in best_recettes %}
-                                                        <li>{{r.vehicule.immatriculation}} - {{r.recs}}</li>
+                                                        <div class="d-flex justify-content-between mb-2">
+                                                            <div class="mr-5">{{r.vehicule.immatriculation}}</div>
+                                                            <div id="sous-total" class="text-end h6 mb-0 ms-auto">{{r.recs}}</div>
+                                                        </div>
                                                     {% endfor %}
                                                 {% else %}
                                                     <li>Vide...</li>
@@ -248,7 +251,10 @@
                                             <div class="text-center p-2 m-2" style="font-size:15px; font-weight: 700; color: #06497C; text-align: center;">
                                                 {% if bests_taux %}
                                                     {% for t in bests_taux %}
-                                                        <li>{{t.vehicule.immatriculation}} - {{t.taux}}</li>
+                                                        <div class="d-flex justify-content-between mb-2">
+                                                            <div class="mr-5">{{t.vehicule.immatriculation}}</div>
+                                                            <div id="sous-total" class="text-end h6 mb-0 ms-auto">{{t.taux}}</div>
+                                                        </div>
                                                     {% endfor %}
                                                 {% else %}
                                                     <li>Vide...</li>

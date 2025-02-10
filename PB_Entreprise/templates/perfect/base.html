@@ -91,6 +91,14 @@
         th {
             background-color: #f2f2f2;
         }
+        .toast-center {
+          position: fixed;
+          top: 3%;
+          left: 50%;
+          font-size: 18px;
+          transform: translate(-50%, -50%);
+          z-index: 9999; /* Assure que le toast est au-dessus des autres éléments */
+        }
         {% endblock style %}
     </style>
 
@@ -115,12 +123,12 @@
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
                     <a class="nav-link" data-slide="true" href="#">
-                        <i class="fa fa-calendar" style="font-size:20px"> {{ dates}}</i>
+                        <i class="fa fa-calendar" style="font-size: 15px"> {{ dates}}</i>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" data-widget="control-sidebar" data-slide="true" href="#">
-                        <i class="fa fa-user-circle" style="font-size:20px"></i>
+                        <i class="fa fa-user-circle text-danger" style="font-size:20px"></i>
                     </a>
                 </li>
             </ul>
@@ -347,13 +355,13 @@
                                     </li>
                                     <li class="nav-item">
                                         <a href="{% url 'addcomptable' %}" class="nav-link ">
-                                            <i style="font-size: 10px;" class="far fa-circle nav-icon "></i>
+                                            <i style="font-size: 10px;" class="far fa-circle nav-icon"></i>
                                             <p>Comptable</p>
                                         </a>
                                     </li>
                                     <li class="nav-item ">
                                         <a href="{% url 'addgerant' %}" class="nav-link ">
-                                            <i style="font-size: 10px;" class="far fa-circle nav-icon "></i>
+                                            <i style="font-size: 10px;" class="far fa-circle nav-icon"></i>
                                             <p>Gérant</p>
                                         </a>
                                     </li>
@@ -431,11 +439,11 @@
 
         <aside class="control-sidebar " style="border-radius: 4px; max-height: 100px; background: rgba(255, 255, 255, 0.22); border-radius: 16px;box-shadow: 0 5px 5px rgba(0, 0, 0, 0.1); backdrop-filter: blur(12.5px); -webkit-backdrop-filter: blur(12.5px);
                                         border: 1px solid rgba(255, 255, 255, 0.03); ">
-            <div class="p-3 text-center header ">
+            <div class="p-3 text-left header">
                 {% if user.is_authenticated %}
-                <p><i class="fa fa-key "></i> <a href="{% url 'change_password' %}">Profil & mot de passe</a></p>
+                <p><i class="fa fa-key text-danger"></i> <a href="{% url 'change_password' %}">Profil & mot de passe</a></p>
                 {% endif %}
-                <p><i class="fa fa-sign-out text-danger "></i> <a href="{% url 'log_out' %} "> Deconnexion</a></p>
+                <p><i class="fa fa-sign-out text-danger"></i> <a href="{% url 'log_out' %} "> Deconnexion</a></p>
             </div>
         </aside>
         
@@ -449,64 +457,7 @@
         <script>
             document.getElementById("currentYear").textContent = new Date().getFullYear();
         </script>
-
-        
     </div>
-
-
-    {% if messages %} 
-        {% for msg in messages %} 
-            {% if msg.tags == 'error' %}
-                <div class="modal fade mt-5" id="modal-default">
-                <div class="modal-dialog" style="width: 450px;">
-                    <div class="modal-content" style="background: rgba(255, 255, 255, 0.49);
-                                                    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);backdrop-filter: blur(6.3px);
-                                                    -webkit-backdrop-filter: blur(6.3px);border: 1px solid rgba(255, 255, 255, 0.3);">
-                        <div class="modal-header" style="background: rgba(255, 255, 255, 0.49);
-                                                        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);backdrop-filter: blur(6.3px);
-                                                        -webkit-backdrop-filter: blur(6.3px);border: 1px solid rgba(255, 255, 255, 0.3);">
-                            <h5 class="modal-title" style="color: rgb(0, 33, 75); font-weight: 700; height: 10px;">
-                                <i class="far fa-comments"></i> Message</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                      <span aria-hidden="true">&times;</span>
-                                    </button>
-                        </div>
-                        <div class="modal-body text-center text-danger" style="font-size: 15px;">
-                            {{msg}}
-                        </div>
-                        <div class=" modal-footer justify-content-center">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Fermer</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% else %}
-                <div class="modal fade mt-5" id="modal-default">
-                <div class="modal-dialog" style="width: 450px;">
-                    <div class="modal-content" style="background: rgba(255, 255, 255, 0.49);
-                                                    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);backdrop-filter: blur(6.3px);
-                                                    -webkit-backdrop-filter: blur(6.3px);border: 1px solid rgba(255, 255, 255, 0.3);">
-                        <div class="modal-header" style="background: rgba(255, 255, 255, 0.49);
-                                                        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);backdrop-filter: blur(6.3px);
-                                                        -webkit-backdrop-filter: blur(6.3px);border: 1px solid rgba(255, 255, 255, 0.3);">
-                            <h5 class="modal-title" style="color: rgb(0, 33, 75); font-weight: 700; height: 10px;">
-                                <i class="far fa-comments"></i> Message</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                      <span aria-hidden="true">&times;</span>
-                                    </button>
-                        </div>
-                        <div class="modal-body text-center text-primary" style="font-size: 20px;">
-                            {{msg}}
-                        </div>
-                        <div class=" modal-footer justify-content-center">
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Fermer</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endif %} 
-        {% endfor %} 
-    {% endif %}
 
     {% block custom_js %}
     <script>
@@ -607,12 +558,43 @@
         document.addEventListener("DOMContentLoaded", function() {
             var myModal = new bootstrap.Modal(document.getElementById('modal-default'));
             myModal.show();
-
-            setTimeout(function() {
+            setTimeout(function(){
                 myModal.hide();
             }, 4000);
         });
     </script>
+
+    <script type="text/javascript">
+        $(function() {
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 2000
+            });
+
+            {% if messages %}
+                {% for msg in messages %}
+                    {% if msg.tags == "error" %}
+                        toastr.error('{{ msg|escapejs }}', '', {
+                            timeOut: 2000,
+                            progressBar: true,
+                            closeButton: false,
+                            positionClass: 'toast-top-center'
+                        });
+                    {% else %}
+                        toastr.success('{{ msg|escapejs }}', '', {
+                            timeOut: 2000,
+                            progressBar: true,
+                            closeButton: false,
+                            positionClass: 'toast-top-center'
+                        });
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        });
+    </script>
+
 </body>
 
 </html>

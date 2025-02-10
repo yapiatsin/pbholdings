@@ -14,94 +14,102 @@
 {% block main_content %}
 
 <div class="col-md-12">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card card-outline" style="border-radius:20px">
-                <div class="card-body box-profile">
-                    <div class="row p-0 m-0">
-                        <div class="col-md-12 p-0">
-                            <div class="row">
-                                <div class="col-md-2">
+    <div class="card" style="color: #0176bf; border-radius: 20px; border-color: #00217b; font-weight: 700;">
+        <div class="card-body table-responsive p-0" style="border-radius:8px; border:none">
+            <table class="table table text-nowrap">
+                <tr>
+                    <div class="col-md-12">
+                        <div class="row bg-danger">
+                            <div class="col-md-2">
+                                <td style="border: none;">
                                     <div style="display: flex; align-items: center;">
-                                        <div style="height: 55px; width: 55px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <a title="Cliquer pour accéder à la liste" href=""><img style="height: 40px; width: 40px; position:relative; margin-top: 7px;" src="{% static 'recet.png' %}" alt="" srcset=""></a>
+                                        <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
+                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 9px; margin-left: 1px;" src="{% static 'vtc.png' %}" alt="" srcset="">
                                         </div>
                                         <div>
-                                            <div style="font-size:20px; font-weight: 700; line-height: 1; color: #06497C;">{{assurance_jour}} <small>Frscfa</small></div>
-                                            <div style="color: #06497C; font-weight: 700;font-size:14px">Total Assurance</div>
-                                            <div style="color: #06497C; font-weight: 700;font-size:12px">{{dates}}</div>
+                                            <div style="font-size: 15px;color: #06497C">Aujourd'hui</div>
+                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
+                                                {{assurance_jour}}
+                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
+                                            </div>  
                                         </div>
                                     </div>
-                                </div>
-                                <div class="col-md-2 mt-1">
+                                </td>
+                                <td style="border: none;">
                                     <div style="display: flex; align-items: center;">
-                                        <div style="height: 55px; width: 55px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <a><img style="height: 40px; width: 40px; position:relative; margin-top: 6px;" src="{% static 'taxi.png' %}" alt="" srcset=""></a>
+                                        <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
+                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 5px; margin-left: px;" src="{% static 'taxi.png' %}" alt="" srcset="">
                                         </div>
                                         <div>
-                                            <div style="font-size:20px; font-weight: 700; line-height: 1; color: #06497C;">{{assurance_jour_taxi}} <small>Frscfa</small></div>
-                                            <div style="color: #06497C; font-weight: 700;font-size:14px">TAXI</div>
-                                            <div style="color: #06497C; font-weight: 700;font-size:12px">{{dates}}</div>
+                                            <div style="font-size: 15px;color: #06497C">TAXI: <small>Aujourd'hui</small></div>
+                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
+                                                {{assurance_jour_taxi}}
+                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="col-md-2 mt-1">
+                                </td>
+                                <td style="border: none;">
                                     <div style="display: flex; align-items: center;">
-                                        <div style="height: 55px; width: 55px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <a><img style="height: 40px; width: 40px; position:relative; margin-top: 8px;" src="{% static 'vtc.png' %}" alt="" srcset=""></a>
+                                        <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
+                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 8px; margin-left: 3px;" src="{% static 'vtc.png' %}" alt="" srcset="">
                                         </div>
                                         <div>
-                                            <div style="font-size:20px; font-weight: 700; line-height: 1; color: #06497C;">{{assurance_jour_vtc}} <small>Frscfa</small></div>
-                                            <div style="color: #06497C; font-weight: 700;font-size:14px">VTC </div>
-                                            <div style="color: #06497C; font-weight: 700;font-size:12px">{{dates}}</div>
+                                            <div style="font-size: 15px;color: #06497C">VTC: <small>Aujourd'hui</small></div>
+                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
+                                                {{assurance_jour_vtc}}
+                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="col-md-2 mt-1">
+                                </td>
+                                <td style="border: none;">
                                     <div style="display: flex; align-items: center;">
-                                        <div style="height: 55px; width: 55px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <a><img style="height: 40px; width: 40px; position:relative; margin-top: 6px;" src="{% static 'taxi.png' %}" alt="" srcset=""></a>
+                                        <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
+                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 5px; margin-left: px;" src="{% static 'taxi.png' %}" alt="" srcset="">
                                         </div>
                                         <div>
-                                            <div style="font-size:20px; font-weight: 700; line-height: 1; color: #06497C;">{{assurance_mois_taxi}} <small>Frscfa</small></div>
-                                            <div style="color: #06497C; font-weight: 700;font-size:14px">TAXI </div>
-                                            <div style="color: #06497C; font-weight: 700;font-size:12px">{{libelles_mois}}</div>
+                                            <div style="font-size: 15px;color: #06497C">TAXI: <small>{{libelles_mois}}</small></div>
+                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
+                                                {{assurance_mois_taxi}}
+                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="col-md-2 mt-1">
+                                </td>
+                                <td style="border: none;">
                                     <div style="display: flex; align-items: center;">
-                                        <div style="height: 55px; width: 55px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <a title="Cliquer pour accéder à la liste"><img style="height: 40px; width: 40px; position:relative; margin-top: 8px;" src="{% static 'vtc.png' %}" alt="" srcset=""></a>
+                                        <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
+                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 9px;margin-left: 0px;" src="{% static 'vtc.png' %}" alt="" srcset="">
                                         </div>
                                         <div>
-                                            <div style="font-size:20px; font-weight: 700; line-height: 1; color: #06497C;">{{assurance_mois_vtc}} <small>Frscfa</small></div>
-                                            <div style="color: #06497C; font-weight: 700;font-size:14px">VTC</div>
-                                            <div style="color: #06497C; font-weight: 700;font-size:12px">{{libelles_mois}}</div>
+                                            <div style="font-size: 15px;color: #06497C">VTC: <small>{{libelles_mois}}</small></div>
+                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
+                                                {{assurance_mois_vtc}}
+                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="col-md-2 mt-1">
+                                </td>
+                                <td style="border: none;">
                                     <div style="display: flex; align-items: center;">
-                                        <div style="height: 55px; width: 55px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <a title="Cliquer pour accéder à la liste"><img style="height: 40px; width: 40px; position:relative; margin-top: 9px;" src="{% static 'calendar.png' %}" alt="" srcset=""></a>
+                                        <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
+                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 9px;margin-left: 0px;" src="{% static 'calendar.png' %}" alt="" srcset="">
                                         </div>
                                         <div>
-                                            <div style="font-size:20px; font-weight: 700; line-height: 1; color: #06497C;">{{assurance_mois_all}} <small>Frscfa </small></div>
-                                            <div style="color: #06497C; font-weight: 700;font-size:14px">Total de {{libelles_mois}}</div>
-                                            <div style="color: #06497C; font-weight: 700;font-size:12px">{{annees}}</div>
+                                            <div style="font-size: 15px;color: #06497C">Total de {{libelles_mois}}</div>
+                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">{{assurance_mois_all}} <small style="color: #06497C; font-weight: 700; line-height: 1;"></small></div>
                                         </div>
                                     </div>
-                                </div>
+                                </td>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
+                </tr>
+            </table>
         </div>
     </div>
 </div>
-
 <!-- ---------------------------- MEILLEUR_RECETTE ---------------------------- -->
 
 <div class="col-md-2">
@@ -125,7 +133,7 @@
                             <div style="display: flex; align-items: center;">
                                 <div class="text-center p-1 m-2">
                                     <div class="text-center" style="font-size:16px; color: #06497C; text-align: center;font-weight:700">
-                                        <li>{{assurance_an_fil_vtc}} Frscfa</li>
+                                        <li>{{assurance_an_fil_vtc}}</li>
                                     </div>
                                 </div>
                             </div>
@@ -144,7 +152,7 @@
                             <div style="display: flex; align-items: center;">
                                 <div class="text-center p-1 m-2">
                                     <div class="text-center" style="font-size:16px; color: #06497C; text-align: center;font-weight:700">
-                                        <li>{{assurance_an_fil_taxi}} Frscfa</li>
+                                        <li>{{assurance_an_fil_taxi}}</li>
                                     </div>
                                 </div>
                             </div>
@@ -162,7 +170,7 @@
                             <div style="display: flex; align-items: center;">
                                 <div class="text-center m-2">
                                     <div class="text-center" style="font-size:16px; color: #06497C; text-align: center;font-weight:700">
-                                        = {{assurance_all}} Frscfa
+                                        = {{assurance_all}}
                                     </div>
                                 </div>
                             </div>
@@ -235,19 +243,6 @@
                                                 {% endfor %} 
                                             {% endif %}
                                         </tbody>
-                                        <tfoot>
-                                            <tr class="text-center ">
-                                                <th>---</th>
-                                                <th>---</th>
-                                                <th>---</th>
-                                                <th>---</th>
-                                                <th>---</th>
-                                                <th>---</th>
-                                                <th>---</th>
-                                                {% comment %}
-                                                <th>CSS grade</th> {% endcomment %}
-                                            </tr>
-                                        </tfoot>
                                     </table>
                                 </div>
                                 <!-- /.card-body -->

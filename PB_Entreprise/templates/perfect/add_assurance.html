@@ -1,9 +1,7 @@
 {% extends 'perfect/base.html' %} 
 {% load static %} 
 {% block title %}Saisie & Etat des assurances {% endblock title %} 
-{% block navbar_nav %}
-
-{% endblock navbar_nav %} 
+{% block navbar_nav %} {% endblock navbar_nav %} 
 {% block page_title %}
 <a href="{% url 'saisi_garag' %}"><img class="profile-user-img" style="border:none; height:35px;width:35px" src="{% static 'retour.png' %}" alt="Retour"></a>
 <img class="profile-user-img" style="border:none; height:45px;width:45px" src="{% static 'assurance.png' %}" alt="User profile picture">Saisie & Etat des assurances du <b class="text-danger"> {{vehicule}}</b> 
@@ -27,11 +25,11 @@
                                             <img style="height: 35px; width: 35px; position:relative; margin-top: 7px;margin-left: 0px;" src="{% static 'vtc.png' %}" alt="" srcset="">
                                         </div>
                                         <div>
+                                            <div style="font-size: 15px;color: #06497C">Aujourd'hui</div>
                                             <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
                                                 {{assur_jours}}
-                                                <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
+                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
                                             </div>
-                                            <div style="font-size: 15px;color: #06497C">Aujourd'hui</div>
                                         </div>
                                     </div>
                                 </td>
@@ -41,11 +39,11 @@
                                             <img style="height: 35px; width: 35px; position:relative; margin-top: 7px;margin-left: 0px;" src="{% static 'taxi.png' %}" alt="" srcset="">
                                         </div>
                                         <div>
+                                            <div style="font-size: 15px;color: #06497C"><small>{{mois}}</small></div>
                                             <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
                                                 {{assur_mois}}
-                                                <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
+                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
                                             </div>
-                                            <div style="font-size: 15px;color: #06497C"><small>{{mois}}</small></div>
                                         </div>
                                     </div>
                                 </td>
@@ -55,11 +53,11 @@
                                             <img style="height: 35px; width: 35px; position:relative; margin-top: 8px; margin-left: 3px;" src="{% static 'marge.png' %}" alt="" srcset="">
                                         </div>
                                         <div>
+                                            <div style="font-size: 15px;color: #06497C"><small>{{annee}}</small></div>
                                             <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
                                                 {{assur_an}}
-                                                <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
+                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
                                             </div>
-                                            <div style="font-size: 15px;color: #06497C"><small>{{annee}}</small></div>
                                         </div>
                                     </div>
                                 </td>
@@ -69,10 +67,10 @@
                                             <img style="height: 35px; width: 35px; position:relative; margin-top: 7px;margin-left: 0px;" src="{% static 'rech.png' %}" alt="" srcset="">
                                         </div>
                                         <div>
-                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">{{assur_result}}
-                                                <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
-                                            </div>
                                             <div style="font-size: 15px;color: #06497C"><small>{{mois}}</small></div>
+                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">{{assur_result}}
+                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
+                                            </div>
                                         </div>
                                     </div>
                                 </td>

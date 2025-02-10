@@ -426,7 +426,25 @@ class TableaustopView(TemplateView):
         year = int(year)
         days_in_month = monthrange(year, month)[1]
         month_name = datetime(year, month, 1).strftime("%B")
-        vehicules = Vehicule.objects.all()
+        # vehicules = Vehicule.objects.all()
+        user = self.request.user
+        # Define the filtering based on user type and gerant_voiture condition
+        if user.user_type == "4":
+            try:
+                gerant = user.gerants.get()
+                if gerant.gerant_voiture == "VTC":
+                    vehicules = Vehicule.objects.filter(category__category="VTC")
+                else:
+                    vehicules = Vehicule.objects.filter(category__category="TAXI")
+            except Gerant.DoesNotExist:
+                vehicules = Vehicule.objects.none()  # No vehicles if no Gerant linked
+        elif user:
+            try:
+                vehicules = Vehicule.objects.all()
+            except:
+                vehicules = Vehicule.objects.none() 
+        else:
+            print("*****ALL*******")
         context['current_date'] = date.today()
         total_actions_sum = 0
         total_cost_parts_sum = 0
@@ -440,6 +458,9 @@ class TableaustopView(TemplateView):
         
         total_visitechique_sum = 0 
         total_entretien_sum = 0 
+        
+        total_repairs_by_motifs = 0 
+        total_motif_arrets = 0 
         
         vehicule_data = []
         for vehicule in vehicules:
@@ -484,11 +505,23 @@ class TableaustopView(TemplateView):
                 'pan': Reparation.objects.filter(vehicule=vehicule, motif="Panne", date_saisie__month=month, date_saisie__year=year).count(),
                 'acc': Reparation.objects.filter(vehicule=vehicule, motif="Accident", date_saisie__month=month, date_saisie__year=year).count(),
             }
+            total_repairs_by_motif = (
+                Reparation.objects.filter(vehicule=vehicule, motif="Visite", date_saisie__month=month, date_saisie__year=year).count()+
+                Reparation.objects.filter(vehicule=vehicule, motif="Panne", date_saisie__month=month, date_saisie__year=year).count()+
+                Reparation.objects.filter(vehicule=vehicule, motif="Accident", date_saisie__month=month, date_saisie__year=year).count()
+            )
             motif_arret = {
                 'vis': VisiteTechnique.objects.filter(vehicule=vehicule,date_saisie__month=month, date_saisie__year=year).count(),
                 'ent': Entretien.objects.filter(vehicule=vehicule, date_saisie__month=month, date_saisie__year=year).count(),
                 'aut': Autrarret.objects.filter(vehicule=vehicule, date_saisie__month=month, date_saisie__year=year).count(),
             }
+            total_motif_arret = (
+                VisiteTechnique.objects.filter(vehicule=vehicule,date_saisie__month=month, date_saisie__year=year).count()+
+                Entretien.objects.filter(vehicule=vehicule, date_saisie__month=month, date_saisie__year=year).count()+
+                Autrarret.objects.filter(vehicule=vehicule, date_saisie__month=month, date_saisie__year=year).count()
+            )
+            total_repairs_by_motifs += total_repairs_by_motif
+            total_motif_arrets += total_motif_arret 
             
             all_rep_visit = Reparation.objects.filter(vehicule=vehicule, motif="Visite", date_saisie__month=month, date_saisie__year=year).count()
             all_rep_panne = Reparation.objects.filter(vehicule=vehicule, motif="Panne", date_saisie__month=month, date_saisie__year=year).count()
@@ -520,6 +553,9 @@ class TableaustopView(TemplateView):
             total_autrarret_sum += all_autre_arret
     
         context['vehicule_data'] = vehicule_data
+        
+        context['total_repairs_by_motifs'] = total_repairs_by_motifs
+        context['total_motif_arrets'] = total_motif_arrets
         
         context['total_visit_sum'] = total_visit_sum
         context['total_panne_sum'] = total_panne_sum
@@ -3748,9 +3784,7 @@ class AddChargeAdminisView(CreateView):
             marge_brute_format ='{:,}'.format(marge_brute).replace('',' ')
             resultat = marge_brute-charg_adm_mois
             resultat_format ='{:,}'.format(resultat).replace('',' ')
-            
         else:
-            
             charg_administ = ChargeAdminis.objects.filter(date_saisie__month=date.today().month).order_by('-id')
             
             charg_adm_jour = ChargeAdminis.objects.filter(date_saisie=date.today()).aggregate(Sum('montant'))['montant__sum'] or 0
@@ -3800,6 +3834,8 @@ class AddChargeAdminisView(CreateView):
             resultat_format ='{:,}'.format(resultat).replace('',' ')
             
         context={
+            'total_recette_format':total_recette_format,
+            
             'list_charge_adminis':charg_administ,
             'taux_marge_format':taux_marge_format,
             'total_chargfix_format':total_chargfix_format,

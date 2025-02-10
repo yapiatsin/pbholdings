@@ -82,7 +82,7 @@ def add_administrateur(request):
                     messages.success(request, 'Compte créé avec succès. Un email a été envoyé.')
                 else:
                     messages.error(request, 'Centre de santé enregistré avec succès, mais l\'email n\'a pas pu être envoyé.')
-                return redirect('add_centre_sante')
+                return redirect('addadministrateur')
             except Exception as e:
                 messages.error(request, f"Erreur: {str(e)}")
         else:

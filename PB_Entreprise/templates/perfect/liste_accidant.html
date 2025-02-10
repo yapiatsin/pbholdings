@@ -45,11 +45,8 @@
                     </div>
                 </form>
             </div>
-
         </div>
-        <!-- /.modal-content -->
     </div>
-    <!-- /.modal-dialog -->
 </div>
 
 <div class="col-md-12">
@@ -66,20 +63,19 @@
                                             <a href=""><img style="height: 40px; width: 40px; position:relative; margin-top: 5px;" src="{% static 'recet.png' %}" alt="" srcset=""></a>
                                         </div>
                                         <div>
-                                            <div style="font-size:25px; font-weight: 700; line-height: 1; color: #06497C;">{{tot_sort_jours}} <small>Frscfa</small></div>
                                             <div>Aujourd'hui: {{dates}}</div>
+                                            <div style="font-size:25px; font-weight: 700; line-height: 1; color: #06497C;">{{tot_sort_jours}}</div>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div style="display: flex; align-items: center;">
-
                                         <div style="height: 55px; width: 55px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
                                             <a href=""><img style="height: 40px; width: 40px; position:relative; margin-top: 5px;" src="{% static 'marge.png' %}" alt="" srcset=""></a>
                                         </div>
                                         <div>
-                                            <div style="font-size:25px; font-weight: 700; line-height: 1; color: #06497C;">{{tot_sort_mois}} <small>Frscfa</small></div>
-                                            <div>Le mois en cours: {{mois}} </div>
+                                            <div>{{mois}} </div>
+                                            <div style="font-size:25px; font-weight: 700; line-height: 1; color: #06497C;">{{tot_sort_mois}}</div>
                                         </div>
                                     </div>
                                 </div>
@@ -101,8 +97,8 @@
                                             <a href=""><img style="height: 40px; width: 40px; position:relative; margin-top: 5px;" src="{% static 'som.png' %}" alt="" srcset=""></a>
                                         </div>
                                         <div>
+                                            <div>{{annee}}</div>
                                             <div style="font-size:25px; font-weight: 700; line-height: 1; color: #06497C;">{{tot_sort_annuel}} <small>Frscfa</small></div>
-                                            <div>Année en cours: {{annee}}</div>
                                         </div>
                                     </div>
                                 </div>
@@ -112,8 +108,8 @@
                                             <a href=""><img style="height: 40px; width: 40px; position:relative; margin-top: 5px;" src="{% static 'brute.png' %}" alt="" srcset=""></a>
                                         </div>
                                         <div>
-                                            <div style="font-size:25px; font-weight: 700; line-height: 1; color: #06497C;">{{resuults_filtre}} <small>Frscfa</small></div>
                                             <div>Resultat du filtre </div>
+                                            <div style="font-size:25px; font-weight: 700; line-height: 1; color: #06497C;">{{resuults_filtre}} </div>
                                         </div>
                                     </div>
                                 </div>
@@ -135,9 +131,9 @@
                             <div class="card" style="box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);backdrop-filter: blur(5.2px);-webkit-backdrop-filter: blur(5.2px);">
                                 <div class="card-header">
                                     <h3 class="card-title">
-                                        <button type="button" class="btn btn-default">PDF <i class='fa fa-file-pdf-o'></i></button>
-                                        <button type="button" class="btn btn-default">Excell <i class='fa fa-file-excel-o'></i></button>
-                                        <button type="button" class="btn btn-default" data-toggle="modal" data-target="#modal-lg">Saisir <i class='fa fa-plus-square'></i></button>
+                                        <button type="button" class="btn btn-danger">PDF <i class='fa fa-file-pdf-o'></i></button>
+                                        <button type="button" class="btn btn-success">Excell <i class='fa fa-file-excel-o'></i></button>
+                                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-lg">Saisir <i class='fa fa-plus-square'></i></button>
                                     </h3>
 
                                     <div class="card-tools">
@@ -185,18 +181,6 @@
                                                 {% endfor %} 
                                             {% endif %}
                                         </tbody>
-                                        <tfoot>
-                                            <tr class="text-center ">
-                                                <th>---</th>
-                                                <th>---</th>
-                                                <th>---</th>
-                                                <th>---</th>
-                                                <th>---</th>
-                                                <th>---</th>
-                                                {% comment %}
-                                                <th>CSS grade</th> {% endcomment %}
-                                            </tr>
-                                        </tfoot>
                                     </table>
                                 </div>
                                 <!-- /.card-body -->

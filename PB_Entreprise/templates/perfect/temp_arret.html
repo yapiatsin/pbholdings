@@ -119,6 +119,9 @@ Temps d'arrêt
                 <td style='font-weight: 700; font-size:12px' class="text-danger">{{ total_cost_parts_sum }}</td>
                 <td style='font-weight: 700; font-size:12px' class="text-danger">{{ total_income_sum }}</td>
                 <td style='font-weight: 700; font-size:12px' class="text-danger">{{ total_piece_sum }}</td>
+
+                <td style='font-weight: 700; font-size:12px' class="text-danger">{{ total_repairs_by_motifs }}</td>
+                <td style='font-weight: 700; font-size:12px' class="text-danger">{{ total_motif_arrets }}</td>
             </tr>
             <tr>
                 <td colspan="4" style="text-align: right; font-size:12px; font-weight: 700;" class="text-secondary">
@@ -126,6 +129,9 @@ Temps d'arrêt
                     Garage pour panne (pan) = <i class="text-warning" aria-hidden="true">{{total_panne_sum}}</i><br> 
                     Accident (acc) = <i class="text-danger" aria-hidden="true">{{total_accident_sum}}</i><br>                    
                     Autre arrêt (aut) = <i class="text-cyan" aria-hidden="true">{{total_autrarret_sum}}</i>
+                    <hr>
+                    Visite Technique = <i class="text-primary">{{total_visitechique_sum}}</i><br> 
+                    Entretien = <i class="text-primary">{{total_entretien_sum}}</i><br> 
                 </td>
             </tr>
         </tfoot>
