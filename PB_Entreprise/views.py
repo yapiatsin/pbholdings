@@ -116,7 +116,6 @@ class CarFluxDetailsView(DetailView):
             taux_marge_format ='{:.2f}'.format(taux_marge)
             ################################----Marge brute----#############################
             marge_brute = total_recettes - total_charg
-           
         else:
             ################################----Recettes----#############################
             total_recettes = Recette.objects.filter(vehicule=vehi, date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 1
@@ -153,7 +152,6 @@ class CarFluxDetailsView(DetailView):
             
             total_vignette = Vignette.objects.filter(vehicule=vehi,date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
             list_vignette = Vignette.objects.filter(vehicule=vehi,date_saisie=date.today())
-            
             ################################----Charge Totale----#############################
             total_charg = total_charg_fix + total_charg_var
             ################################----Marge de contribution----#############################
@@ -205,7 +203,6 @@ class CarFluxDetailsView(DetailView):
             
             'total_patente':total_patente,
             'list_patente':list_patente,
-            
             'total_vignette':total_vignette,
             'list_vignette':list_vignette,
             
@@ -1634,7 +1631,7 @@ class GestionalerteView(TemplateView):
             f"Le véhicule avec l'immatriculation {vehicle_reference} requiert une attention pour : {alert_message}. "
             "Veuillez vérifier les alertes associées."
         )
-        recipient_list = ['sorothodaniel@gmail.com', 'yapiatsin0@gmail.com']
+        recipient_list = ['sorothodaniel@gmail.com', 'atsinyapi1@gmail.com','konangerardk63@gmail.com','kougblaayaoviotodjo@gmail.com']
         send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, recipient_list)
         
         # Mettre à jour la session pour éviter un envoi multiple le même jour

@@ -39,7 +39,7 @@
                                             <img style="height: 35px; width: 35px; position:relative; margin-top: 9px; margin-left: 0px;" src="{% static 'clereparat.png' %}" alt="" srcset="">
                                         </div>
                                         <div>
-                                            <div style="font-size: 15px;color: #06497C">T réparations</div>
+                                            <div style="font-size: 15px;color: #06497C">Total réparation{% if nb_reparat > 1 %}s{% endif %}</div>
                                             <div style="font-size:16px; font-weight: 700; line-height: 1; color: #fa7832;">
                                                 {{ nb_reparat }}
                                                 <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
@@ -113,7 +113,7 @@
                                             <img style="height: 35px; width: 35px; position:relative; margin-top: 9px; margin-left: 0px;" src="{% static 'gear.png' %}" alt="" srcset="">
                                         </div>
                                         <div>
-                                            <div class="mt-1" style="font-size:14px; font-weight: 700; line-height: 1;color: #06497C">Pièces réparations</div>
+                                            <div class="mt-1" style="font-size:14px; font-weight: 700; line-height: 1;color: #06497C">Pièces avec garage</div>
                                             <div style="font-size:15px; font-weight: 700; line-height: 1; color: #fa7832;">
                                                 {{ total_piece_format}} 
                                                 <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
@@ -128,7 +128,7 @@
                                             <a href="{% url 'list_piechange' %}" style="font-size:20px"><i class="fa fa-plus-circle text-success" style="position:relative; font-size:20px;top:-10px"></i></a>
                                         </div>
                                         <div>
-                                            <div style="font-size: 15px; color: #06497C">Pièces changées</div>
+                                            <div style="font-size: 15px; color: #06497C">Pièces sans garage</div>
                                             <div style="font-size:15px; font-weight: 700; line-height: 1; color: #fa7832;">{{ total_piececha_format }}  <small style="color: #06497C; font-weight: 700; line-height: 1;"></small></div>
                                         </div>
                                     </div>
@@ -139,7 +139,7 @@
                                             <img style="height: 35px; width: 35px; position:relative; margin-top: 9px; margin-left: 8px;" src="{% static 'chargfix.png' %}" alt="" srcset="">
                                             <a href="" style="font-size:20px"><i class="fa fa-plus-circle text-success" style="position:relative; font-size:20px;top:-10px"></i></a>
                                         </div>
-                                        <div><div style="font-size: 15px;color: #06497C">Pièce interne</div>
+                                        <div><div style="font-size: 15px;color: #06497C">Pièce à p&b</div>
                                             <div style="font-size:15px; font-weight: 700; line-height: 1; color: #fa7832;">
                                                 {{ total_pieces_format_int }}  
                                                 <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
