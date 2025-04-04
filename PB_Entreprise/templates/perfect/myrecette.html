@@ -13,10 +13,10 @@ Mes Recettes
     <div class="col-sm-6">
         <li class="breadcrumb-item">
             <select id="month" class="form-control month-select" onchange="selectMonthYear()">
-                    {% for i in month_range %}
-                        <option value="{{ i }}" {% if i == month %}selected{% endif %}>{{ i }}</option>
-                    {% endfor %}
-                </select>
+                {% for i in month_range %}
+                    <option value="{{ i }}" {% if i == month %}selected{% endif %}>{{ i }}</option>
+                {% endfor %}
+            </select>
         </li>
     </div>
     <div class="col-sm-6">
@@ -75,7 +75,7 @@ Mes Recettes
         </tbody>
 
         <tfoot>
-            <tr style=" font-weight: bold; font-size:12px">
+            <tr style="font-weight: bold; font-size:12px">
                 <td colspan="{{ days_in_month_plus_two }}" style="text-align: right;">Total:</td>
                 <td class="text-danger">{{ sum_recets_jours }}</td>
                 <td class="text-danger">{{ total_cost_parts_sum }}</td>

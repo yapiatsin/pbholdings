@@ -704,6 +704,7 @@ class MyRecetteView(TemplateView):
                 vehicule=vehicule,
                 date_saisie__year=year
             ).aggregate(total_recette=Sum('montant'))['total_recette'] or 0
+
             # Recette par défaut de la catégorie
             recette_defaut = vehicule.category.recette_defaut
             # Calcul de la recette mensuelle attendue sans dimanches
@@ -865,6 +866,7 @@ class DashboardView(TemplateView):
             for commande in rep_vtc_data:
                 rep_mois_vtc_data[commande.date_saisie.month] += 1
             rep_mois_vtc_data = [rep_mois_vtc_data[month] for month in range(1, 13)]
+            
             rep_taxi_data = Reparation.objects.filter(vehicule__category__category="TAXI",date_saisie__range=[date_debut, date_fin])
             rep_mois_taxi_data = {month: 0 for month in range(1, 13)}
             for commande in rep_taxi_data:
@@ -1683,8 +1685,6 @@ class GestionalerteView(TemplateView):
             vignette = Vignette.objects.filter(Q(date__lte=now) & Q(date_proch__gte=now)).count()                
             patente = Patente.objects.filter(Q(date__lte=now) & Q(date_proch__gte=now)).count()                 
             cartstation = Stationnement.objects.filter(Q(date__lte=now) & Q(date_proch__gte=now)).count()
-            
-            
             for vehicule in vehicules:
                 visite = VisiteTechnique.objects.filter(vehicule = vehicule).order_by('date_saisie')
                 entretien = Entretien.objects.filter(vehicule = vehicule).order_by('date_saisie')

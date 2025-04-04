@@ -1,14 +1,15 @@
 import contextlib
 from pathlib import Path
 import os
-from decouple import config # type: ignore
+from decouple import config 
+# type: ignore
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
 
 SECRET_KEY = config('SECRET_KEY')
-# DEBUG = True
+# DEBUG = True--  django-insecure-of03a0_f)5yamk9g&p9p2f^a*l8!6t#+r_c4oq42+sb&#y5znt
 
 # ALLOWED_HOSTS = ['*']
 ALLOWED_HOSTS = ['pbholdingsite.com', 'www.pbholdingsite.com','45.92.109.86']
@@ -105,7 +106,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
 EMAIL_BACKEND='django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = config('EMAIL_HOST')
 EMAIL_PORT = config('EMAIL_PORT')

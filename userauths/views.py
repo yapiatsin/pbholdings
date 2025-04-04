@@ -435,7 +435,7 @@ def loginview(request):
                 messages.error(request,  f"Mot de passe ou email invalide")
         except:
             messages.error(request, "Détails de connexion invalides!!!")
-    return render(request, "login.html")
+    return render(request, "perfect/logins.html")
 
 def logout_view(request):
     logout(request)
@@ -444,14 +444,11 @@ def logout_view(request):
 
 def interneView(request):
     return render(request,"userauths/interne.html")
-
-
 # Vue pour afficher le formulaire de saisie de l'email
 class ForgotPasswordView(View):
     def get(self, request):
         # return render(request, 'saisie_otp.html')
-        return render(request, 'forget_password.html')
-    
+        return render(request, 'perfect/forgot_password.html')    
 
 class RequestEmailView(View):
     def post(self, request):
@@ -495,7 +492,6 @@ class RequestEmailView(View):
                 </div>
             </body>
             </html>
-
             '''
             # Create email message with HTML content
             email_message = EmailMultiAlternatives(subject, 'Votre OTP est {otp}', from_email, to)
@@ -504,14 +500,14 @@ class RequestEmailView(View):
             return redirect("otp")
         except CustomUser.DoesNotExist:
             messages.error(request, "Utilisateur non trouvé.")
-            return  render(request, "forget_password.html")
+            return  render(request, "perfect/forgot_password.html")
 
 # Vue pour vérifier l'OTP envoyé par email
 CustomUser = get_user_model()
 from django.utils import timezone
 class VerifyOtpView(View):
     def get(self, request):
-        return render(request, 'reinitializ_password.html')
+        return render(request, 'perfect/reinitialise.html')
     def post(self, request):
         otp = request.session.get('otp')
         new_password = request.POST.get('new_password')
@@ -521,14 +517,14 @@ class VerifyOtpView(View):
             return JsonResponse({'error': 'Tous les champs sont obligatoires.'}, status=400)
         
         if new_password != confirm_password:
-             messages.error(request, "Les mots de passe ne correspondent pas.")
-             return  render(request, "reinitializ_password.html")
-
+            messages.error(request, "Les mots de passe ne correspondent pas.")
+            return  render(request, "perfect/reinitialise.html")
         try:
             reset_request = PWD_FORGET.objects.get(otp=otp, status='0')
             # Vérifiez si l'OTP à expirer
             if (timezone.now() - reset_request.creat_at).total_seconds() > 300:  # 2 minutes
-                return JsonResponse({'error': 'OTP expiré.'}, status=400)
+                messages.error(request, "OTP expiré")
+                return redirect('otp')
             # Marquer l'OTP comme utilisé
             reset_request.status = '1'
             reset_request.save()
@@ -542,27 +538,22 @@ class VerifyOtpView(View):
         
         except PWD_FORGET.DoesNotExist:
             messages.error(request, 'OTP non valide.')
-            return  render(request, "otp.html")
+            return  render(request, "perfect/otp.html")
 
 class OptValid(View):
     def get(self, request):
-        return render(request, 'otp.html')
+        return render(request, 'perfect/otp.html')
     def post(self, request):
         otp = request.POST.get('otp')
         try :
             reset_request = PWD_FORGET.objects.get(otp=otp, status='0')
-            print(f"-----------------------------------")
-            print(f"verification : {reset_request}")
-            print(f"-----------------------------------")
             request.session['otp'] = otp
             if reset_request :
                 return redirect("verify_otp")
         except PWD_FORGET.DoesNotExist:
                  messages.error(request, "OTP non valide.")
-                 return  render(request, "otp.html")
-               
-              
-        
+                 return  render(request, "perfect/otp.html")
+                     
 from .forms import ChangePasswordForm
 from django.contrib.auth.views import PasswordChangeView 
 from django.urls import reverse_lazy

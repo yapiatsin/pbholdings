@@ -1,0 +1,412 @@
+{% extends 'perfect/baslog.html' %} 
+{% load static %} 
+{% block title %}Compte{% endblock title %} 
+{% block main_content %}
+<div class="modal fade" id="modal-sm1">
+    <div class="modal-dialog modal-sm1" style="backdrop-filter: blur(18px);background-color:rgba(255, 255, 255, 0.57);--webkit-backdrop-filter: blur(18px);">
+        <div class="modal-content text-secondary" style="backdrop-filter: blur(18px);background-color:rgba(255, 255, 255, 0.47);--webkit-backdrop-filter: blur(18px);">
+            <a class="p-2 text-center" style="font-size:20px" role="button">MENU</a>
+            <li class="dropdown-divider"></li>
+            <a href="{% url 'tbord' %}" class="dropdown-item"> Tableau de bord </a>
+            <a href="{% url 'nouveau_fournisseur' %}" class="dropdown-item"> Créer un fournisseur </a>
+            <a href="{% url 'nouvelle_piece' %}" class="dropdown-item"> Ajouter une pièce </a>
+            <a href="{% url 'create_compte' %}" class="dropdown-item"> Créer un Compte </a>
+            <ul aria-labelledby="dropdownSubMenu1" class="dropdown-menu border-0 shadow" style="backdrop-filter: blur(18px);background-color:rgba(255, 255, 255, 0.64);--webkit-backdrop-filter: blur(18px);">
+                <li class="dropdown-submenu dropdown-hover">
+                    <a id="dropdownSubMenu2" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="dropdown-item dropdown-toggle">Liste des ventes</a>
+                    <ul aria-labelledby="dropdownSubMenu2" class="dropdown-menu border-0 shadow" style="backdrop-filter: blur(18px);background-color:rgba(255, 255, 255, 0.64);--webkit-backdrop-filter: blur(18px);">
+                        <li><a tabindex="-1" href="" class="dropdown-item">Journalières</a></li>
+                        <li><a href="" class="dropdown-item">Mensuelles</a></li>
+                        <li><a href="" class="dropdown-item">Annuelles</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown-divider"></li>
+                <li><a href="{% url 'commande' %}" class="dropdown-item"> Interface accueil </a></li>
+                <li><a href="{% url 'caissiere' %}" class="dropdown-item"> Interface Caissière </a></li>
+                <li class="dropdown-divider"></li>
+                <li><a href="{% url 'global_history' %}" class="dropdown-item">Audite</a></li>
+            </ul>
+            <a id="dropdownSubMenu1" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="nav-link dropdown-toggle">Autres</a>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="modal-sm">
+    <div class="modal-dialog modal-sm" style="border-radius: 10px; backdrop-filter: blur(18px);background-color:rgba(255, 255, 255, 0.8);--webkit-backdrop-filter: blur(18px);">
+        <div class="modal-content" style="border-radius: 10px; backdrop-filter: blur(18px);background-color:rgba(255, 255, 255, 0.8);--webkit-backdrop-filter: blur(18px);">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="exampleInputEmail1" style="color:rgba(113, 113, 113)">Date de début</label>
+                    <input type="date" class="form-control" id="exampleInputEmail1" placeholder="Enter email">
+                </div>
+                <div class="form-group">
+                    <label for="exampleInputPassword1" style="color:rgb(113, 113, 113)">Date de fin</label>
+                    <input type="date" class="form-control" id="exampleInputPassword1" placeholder="Password">
+                </div>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-outline-primary">Rechercher</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modal-sm0">
+    <div class="modal-dialog modal-sm0" style="backdrop-filter: blur(18px);background-color:rgba(152, 189, 214, 0.14);--webkit-backdrop-filter: blur(18px);">
+        <div class="modal-content text-secondary" style="backdrop-filter: blur(18px);background-color:rgba(255, 255, 255, 0.8);--webkit-backdrop-filter: blur(18px);">
+            <div class="modal-body">
+                <form class="validated" method="post" id="loginForm">
+                    {% csrf_token %}
+                    <div class="row mb-3">
+                        <div class="col-md-12 mb-3 text-center">
+                            <label for="validationValidInput" class="form-label" style="color: #616161;">
+                                NOUVELLE PIECEA
+                            </label>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="validationValidInput" class="form-label">Nom utilisateur</label> {{user_form.username}}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="validationValidInput" class="form-label">Nom</label> {{user_form.first_name}}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="validationValidInput" class="form-label">Prénoms</label> {{user_form.last_name}}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="validationValidInput" class="form-label">Email</label> {{user_form.email}}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="validationValidInput" class="form-label">Mot de passe</label> 
+                            {{user_form.password}}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="validationValidInput" class="form-label">Confirme mot de passe</label> 
+                            {{user_form.confirm_password}}
+                        </div>
+                        <div class="col-md-12 mb-3">
+                            <label for="validationValidInput" class="form-label">Role</label> 
+                            {{profile_form.role}}
+                        </div>
+                    </div>
+                    <div class="mt-3 d-grid text-center">
+                        <button type="submit" class="btn btn-outline-primary w-50" id="loginButton" style="border-radius: 50px; background-color: rgba(144, 192, 255, 0.63)">
+                            <span id="buttonText" style="color: rgba(255, 255, 255, 0.79);"><i class="fa fa-check-circle me-2"></i> VALIDER</span>
+                            <span id="spinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="col-md-12">
+    <div class="row">
+        <div class="col-md-2">
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-md-12">
+                        <td style="border: none;">
+                            <div>
+                                <div style="font-size: 12px;" class="d-flex justify-content-center align-items-cente">
+                                    <a href="{ url 'dash' %}" class="text-danger" style="font-weight: 700;">
+                                        <i class="fas fa-spin fa-gear" style="font-size: 20px; position:absolute; margin-top: 8px; margin-left: -30px;"></i><b style="font-size: 15px; position:relative; top: 8px; margin-left: -10px;"> AUTO-PIECE</b>
+                                        <i class="fas fa-tools" style="font-size: 15px; position:relative; top: 8px; margin-left: 5px;"></i>
+                                    </a>
+                                    <a href="#" class="text-cyan" data-toggle="modal" data-target="#modal-sm1" style="border-radius: 20px;">
+                                        <i class="fas fa-bars" style="font-size:16px; position: absolute; margin-top: 10px; margin-left: 30px;"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </td>
+                    </div>
+                </div>
+            </div>
+            <div class="card p-1 mt-4" style="font-size:12px; backdrop-filter: blur(15px); background-color:rgba(255, 255, 255, 0);--webkit-backdrop-filter: blur(15px);">
+                <div class="col-md-12">
+                    <div class="card-header text-danger">
+                        <h5 class="card-title" style='font-size:12px; font-weight:700;'>TYPE PIECE PAR CATEGORIE</h5>
+                    </div>
+                    <div class="row text-secondary" style="box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); border-radius:8px; background-color: rgba(255, 255, 255, 0.71)">
+                        <div class="col-md-12 p-1">
+                            <div style="margin-left: 0px; font-size:10px">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <div><i class="fa fa" style="font-size:14px;">ALTO</i> </div>
+                                    <div id="remise" class="text-end mb-0 ms-auto">{{ nbtypealto }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12 p-1">
+                            <div style="margin-left: 0px; font-size:10px">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <div><i class="fa fa" style="font-size:14px;">DZIRE</i> </div>
+                                    <div id="remise" class="text-end mb-0 ms-auto">{{ nbtypedzir }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-12 p-1">
+                            <div style="margin-left: 0px; font-size:10px">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <div><i class="fa fa" style="font-size:14px;">SWIFT</i> </div>
+                                    <div id="remise" class="text-end mb-0 ms-auto">{{ nbtypespre }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <div class="card-header text-danger">
+                        <h5 class="card-title" style='font-size:12px; font-weight:700;'>QUANTITE DE PIECE</h5>
+                    </div>
+                    <div class="row" style="box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); border-radius:8px; background-color: rgba(255, 255, 255, 0.71)">
+                        <div class="col-md-12 p-1 text-secondary">
+                            {% if top_pieces %} {% for t in top_pieces %}
+                        <div class="col-md-12 p-1">
+                            <div style="margin-left: 0px; font-size:10px">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <div><i class="fa fa-gear" style="font-size:14px; margin-top: 0px;"></i>
+                                        <i class="fa fa" style="font-size:14px;">{{ t.piece__designation }}</i> </div>
+                                    <div id="remise" class="text-end mb-0 ms-auto">{{ t.total_commandes }} - {{ t.total_somme }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %} {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-12">
+                    <div class="card-header text-danger">
+                        <h5 class="card-title" style='font-size:12px; font-weight:700;'>PIECE EN ALERTE</h5>
+                    </div>
+                    <div class="row" style="box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); border-radius:8px; background-color: rgba(255, 255, 255, 0.71)">
+                        <div class="col-md-12 p-1 text-secondary">
+                            <div style="margin-left: 0px; font-size:10px">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <div><i class="fa fa-" style="font-size:14px; margin-top: 0px;"></i>
+                                        <i class="fa fa" style="font-size:14px;">Designation</i> </div>
+                                    <div id="remise" class="text-end mb-0 ms-auto">Qte</div>
+                                </div>
+                            </div>
+                        </div>
+                        {% if liste_piece_alerte %} 
+                            {% for a in liste_piece_alerte %}
+                                <div class="col-md-12 p-1 text-secondary" style="border-color: red">
+                                    <div style="margin-left: 0px; font-size:10px">
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <div><i class="fa fa-plus-circle" style="font-size:14px; margin-top: 0px;"></i>
+                                                <i class="fa fa" style="font-size:14px;">{{a.designation}}</i> </div>
+                                            <div id="remise" class="text-end mb-0 ms-auto">{{ a.quantite }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %} 
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-10">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-2">
+                            <div class="card" style="color: #0176bf; border-radius: 20px; border-color: #00217b; font-weight: 700;">
+                                <div class="card-body table-responsive p-0" style="border-radius:8px; border:none">
+                                    <table class="table table text-nowrap">
+                                        <tr>
+                                            <div class="col-md-2">
+                                                <div class="row bg-danger">
+                                                    <div class="col-md-12">
+                                                        <td style="border: none;">
+                                                            <div style="display: flex; align-items: center;">
+                                                                    <div style="font-size: 12px;" class="text-cyan">ALTO
+                                                                        {{qtalto}}
+                                                                        <a href="{ url 'list_recet' %}" style="left:0px;"><i class="fa fa-arrow-circle-right text-danger" style=" font-size:15px;position:absolute; top:13px; right: -4px"></i></a>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="card" style="color: #0176bf; border-radius: 20px; border-color: #00217b; font-weight: 700;">
+                                <div class="card-body table-responsive p-0" style="border-radius:8px; border:none">
+                                    <table class="table table text-nowrap">
+                                        <tr>
+                                            <div class="col-md-2">
+                                                <div class="row bg-danger">
+                                                    <div class="col-md-12">
+                                                        <td style="border: none;">
+                                                            <div style="display: flex; align-items: center;">
+                                                                    <div style="font-size: 12px;" class="text-cyan">DZIRE 
+                                                                        {{qtdzir}} 
+                                                                    </div>
+                                                                    <a href="{ url 'list_recet' %}" style="left:0px;"><i class="fa fa-arrow-circle-right text-danger" style=" font-size:15px;position:absolute; top:13px; right: -4px"></i></a>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="card" style="color: #0176bf; border-radius: 20px; border-color: #00217b; font-weight: 700;">
+                                <div class="card-body table-responsive p-0" style="border-radius:8px; border:none">
+                                    <table class="table table text-nowrap">
+                                        <tr>
+                                            <div class="col-md-2">
+                                                <div class="row bg-danger">
+                                                    <div class="col-md-12">
+                                                        <td style="border: none;">
+                                                            <div style="display: flex; align-items: center;">
+                                                                    <div style="font-size: 12px;" class="text-cyan">SWIFT 
+                                                                        {{qtspre}} 
+                                                                        <a href="{ url 'list_recet' %}" style="left:0px;"><i class="fa fa-arrow-circle-right text-danger" style=" font-size:15px;position:absolute; top:13px; right: -4px"></i></a>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="card" style="color: #0176bf; border-radius: 20px; border-color: #00217b; font-weight: 700;">
+                                <div class="card-body table-responsive p-0" style="border-radius:8px; border:none">
+                                    <table class="table table text-nowrap">
+                                        <tr>
+                                            <div class="col-md-2">
+                                                <div class="row bg-danger">
+                                                    <div class="col-md-12">
+                                                        <td style="border: none;">
+                                                            <div style="display: flex; align-items: center;">
+                                                                    <div style="font-size: 12px;" class="text-cyan">TOTAL
+                                                                        {{qtepiece}}
+                                                                        <a href="{ url 'list_recet' %}" style="left:0px;"><i class="fa fa-arrow-circle-right text-danger" style=" font-size:15px;position:absolute; top:13px; right: -4px"></i></a>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="card" style="color: #0176bf; border-radius: 20px; border-color: #00217b; font-weight: 700;">
+                                <div class="card-body table-responsive p-0" style="border-radius:8px; border:none">
+                                    <table class="table table text-nowrap">
+                                        <tr>
+                                            <div class="col-md-2">
+                                                <div class="row bg-danger">
+                                                    <div class="col-md-12">
+                                                        <td style="border: none;">
+                                                            <div style="display: flex; align-items: center;">
+                                                                    <div style="font-size: 12px;" class="text-cyan">COUT
+                                                                        {{libelle_mois_en_cours}}: {{inventaire}} - {{vente_month}}
+                                                                        <a href="{ url 'list_recet' %}" style="left:0px;"><i class="fa fa-arrow-circle-right text-danger" style=" font-size:15px;position:absolute; top:13px; right: -4px"></i></a>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-2">
+                            <div class="card" style="color: #0176bf; border-radius: 20px; border-color: #00217b; font-weight: 700;">
+                                <div class="card-body table-responsive p-0" style="border-radius:8px; border:none">
+                                    <table class="table table text-nowrap">
+                                        <tr>
+                                            <div class="col-md-2">
+                                                <div class="row bg-danger">
+                                                    <div class="col-md-12">
+                                                        <td style="border: none;">
+                                                            <div style=" align-items: center;">
+                                                                    <div style="font-size: 12px;color: #06497C">
+                                                                        <a href="#" data-toggle="modal" data-target="#modal-sm0">
+                                                                            <i class="fa fa-plus-circle mr-0 text-cyan" id="" style="font-size: 22px; position: absolute; margin-left: -15px; top:10px"></i>
+                                                                        </a>
+                                                                        <a href="#" class="text-cyan" data-toggle="modal" data-target="#modal-sm">
+                                                                            <i class="fa fa-calendar mr-0" style="font-size: 15px; position: absolute; margin-left: 35px; top:14px"></i>
+                                                                        </a>
+                                                                        <a href="#" class="text-cyan" data-widget="control-sidebar" data-slide="true">
+                                                                            <i class="fa fa-user-circle" style="font-size: 18px; margin-left: 80px; "></i>
+                                                                        </a>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row p-2">
+                        <div class="col-md-12" style="backdrop-filter: blur(8px);--webkit-backdrop-filter: blur(8px);height: 100%; background-color:rgba(255, 255, 255, 0.847);top:-10px">
+                            <div class="card-body table-responsive p-1" style="font-size:12px; backdrop-filter: blur(8px); --webkit-backdrop-filter: blur(8px); height: 89%; background-color:rgba(255, 255, 255, 0)">
+                                <table id="example1" class="table table-head-fixed text-nowrap" style="backdrop-filter: blur(8px);--webkit-backdrop-filter: blur(8px);">
+                                    <thead>
+                                        <tr style="color: rgb(121, 121, 121)">
+                                            <th>NOM_UTILISATEUR</th>
+                                            <th>NOM</th>
+                                            <th>PRENOMS</th>
+                                            <th>EMAIL</th>
+                                            <th>ACTION</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for f in fournisseurs %}
+                                            <tr class="text-secondary">
+                                                <td>{{f.nom}}</td>
+                                                <td>{{f.nom}}</td>
+                                                <td>{{f.nom}}</td>
+                                                <td>{{f.contact}}</td>
+                                                <td>
+                                                    <a href="{ url 'piece_modifie' piece.id %}" class="text-warning"><i class="fa fa-eye" style="font-size: 14px"></i></a>
+                                                    <a href="{ url 'piece_modifie' piece.id %}" class="text-danger"><i class="fa fa-trash"  style="font-size: 14px"></i></a>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock main_content %}
