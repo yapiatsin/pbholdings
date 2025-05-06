@@ -9,7 +9,7 @@ urlpatterns = [
     
     path("sign_in", loginview, name="login"),
     path("decon", logout_view, name="log_out"),
-    path("interne", interneView, name="intern"),
+    path("", pb_home, name="pb_holdind"),
     
     path('add_admin', add_administrateur, name="addadministrateur"),
     path('add_chefexploit', add_chefexploit, name="addchefexploit"),

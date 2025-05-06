@@ -101,7 +101,7 @@ Temps d'arrêt
                     <td style="font-size:12px"><a href="" title="{{vehicule.category}}">{{ vehicule.immatriculation }}</a></td>
                     <td style='font-size:12px'>{{ vehicule.marque }}</td>
                     {% for action in vehicule.daily_actions %}
-                        <td style='font-size:12px' class="text-cyan">{{ action }}</td>
+                        <td style='font-size:12px' class="{% if action != 0 %}text-danger{% else %}text-cyan{% endif %}">{{ action }}</td>
                     {% endfor %}
                     <td style='font-size:12px' class="text-warning">{{ vehicule.total_actions }}</td>
                     <td style='font-size:12px'>{{ vehicule.total_cost_parts }}</td>

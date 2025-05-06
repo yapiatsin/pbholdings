@@ -54,7 +54,7 @@ def add_administrateur(request):
                 user = userform.save(commit=False)
                 password = generate_random_password()
                 user.set_password(password)
-                user.user_type = "1"  # CentreSante
+                user.user_type = "1"
                 user.save()
                 adminst = adminform.save(commit=False)
                 adminst.user = user
@@ -386,24 +386,10 @@ class EditProfilView(UpdateView):
         user_group = self.request.user.groups.first()
         context['user_group'] = user_group.name if user_group else None
         return context   
- 
 
-# class PasswordChangeView(PasswordChangeView):
-#     form_class = PasswordChangingForm
-#     success_url = reverse_lazy('profil_user')
-#     success_message = 'Mot de passe changé avec succès👍✓✓'
-#     def form_valid(self, form):
-#         reponse =  super().form_valid(form)
-#         messages.success(self.request, self.success_message)
-#         return reponse
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         user_group = self.request.user.groups.first()
-#         context['user_group'] = user_group.name if user_group else None
-#         return context
-
-
-#@group_required(['Administrateurs', 'Service_comptable'])
+def pb_home(request):
+    return render(request,'perfect/pb_home.html')
+    
 def loginview(request):
     if request.user.is_authenticated:
         messages.warning(request,f"hey you are already logged In")
@@ -418,13 +404,13 @@ def loginview(request):
                 login(request, user)
                 user_type=user.user_type
                 if user_type == '1':
-                    messages.success(request,  f"Bienvenue Administrateur")
+                    messages.success(request, f"Bienvenue Administrateur")
                     return redirect('dash')
                 elif user_type == '2':
-                    messages.success(request,  "Bienvenue Chef d'exploitation")
+                    messages.success(request, "Bienvenue Chef d'exploitation")
                     return redirect('dash')
                 elif user_type == '3':
-                    messages.success(request,  "Bienvenue Comptable")
+                    messages.success(request, "Bienvenue Comptable")
                     return redirect('dash')
                 elif user_type == '4':
                     messages.success(request,  "Bienvenue Gérant")
@@ -440,7 +426,7 @@ def loginview(request):
 def logout_view(request):
     logout(request)
     messages.success(request, "Vous êtes deconnecté.")
-    return redirect("home")
+    return redirect("pb_holdind")
 
 def interneView(request):
     return render(request,"userauths/interne.html")
@@ -564,7 +550,7 @@ class PasswordChangeView(PasswordChangeView):
     form_class = ChangePasswordForm
     template_name = 'profil.html'
     success_message = "Mot de passe réinitialisé avec succès👍✓✓"
-    error_message = "Erreur de saisie ���� ✘✘"
+    error_message = "Erreur de saisie ✘✘"
     success_url = reverse_lazy('change_password')
     def form_valid(self, form):
         reponse = super().form_valid(form)

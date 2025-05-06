@@ -29,7 +29,7 @@ class Vehicule(models.Model):
     date_mis_service = models.DateField()
     category = models.ForeignKey(CategoVehi, on_delete=models.CASCADE, related_name="catego_vehicule")
     date_saisie = models.DateField(auto_now_add=True)
-    def __str__(self) :
+    def __str__(self):
         return self.immatriculation
     @property
     def age(self):  # sourcery skip: inline-immediately-returned-variable

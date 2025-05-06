@@ -62,7 +62,7 @@ Mes Recettes
                     <td style="font-weight: 700; "><a href="" title="{{vehicule.category}}">{{ vehicule.vehicule }}</a></td>
                     <td>{{ vehicule.marque }}</td>
                     {% for action in vehicule.daily_actions %}
-                        <td class="text-cyan">{{ action }}</td>
+                        <td class="{% if action != 0 %}text-danger{% else %}text-cyan{% endif %}">{{ action }}</td>
                     {% endfor %}
                     <td class="text-warning">{{ vehicule.recette_versee }}</td>
                     <td>{{ vehicule.recette_attendue }}</td>

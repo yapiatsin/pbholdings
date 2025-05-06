@@ -674,7 +674,6 @@ class MyRecetteView(TemplateView):
             if datetime(year, month, day).weekday() == SUNDAY
         ]
         jours_ouvrables = days_in_month - len(dimanches)
-        
         # Initialisation des variables
         vehicules = Vehicule.objects.select_related('category').all()
         recette_details = []
@@ -704,7 +703,6 @@ class MyRecetteView(TemplateView):
                 vehicule=vehicule,
                 date_saisie__year=year
             ).aggregate(total_recette=Sum('montant'))['total_recette'] or 0
-
             # Recette par défaut de la catégorie
             recette_defaut = vehicule.category.recette_defaut
             # Calcul de la recette mensuelle attendue sans dimanches
@@ -727,9 +725,7 @@ class MyRecetteView(TemplateView):
             som_des_motifs = visite+entretien+reparation
             
             sum_motif_arrets += som_des_motifs
-            
             sum_recets_jours += recettes_vehicule_jour
-            
             daily_actions = [0] * days_in_month
             for day in range(1, days_in_month + 1):
                 for model in [Recette]:
@@ -2016,7 +2012,6 @@ class UpdatVehiculeView(UpdateView):
     def get_success_url(self):
         return reverse('updatecar', kwargs={'pk': self.kwargs['pk']})
 
-
 class DashboardGaragView(TemplateView):
     model = Vehicule
     template_name = 'perfect/dash_garag.html'
@@ -2030,7 +2025,6 @@ class DashboardGaragView(TemplateView):
                 messages.warning(request, "Vous avez été déconnecté ")
                 return redirect("login")
         return super().dispatch(request, *args, **kwargs)
-    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         dates = date.today()
@@ -2039,7 +2033,6 @@ class DashboardGaragView(TemplateView):
         mois_en_cours =date.today().month
         libelle_mois_en_cours = calendar.month_name[mois_en_cours]
         label = [calendar.month_name[month][:1] for month in range(1, 13)]
-        
         user = self.request.user
         # Define the filtering based on user type and gerant_voiture condition
         if user.user_type == "4":
