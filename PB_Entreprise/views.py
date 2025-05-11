@@ -19,10 +19,17 @@ from django.db.models.functions import ExtractMonth
 from django.db.models.functions import Coalesce
 # Create your views here.
 from .forms import DateForm
-
 from django.utils.decorators import method_decorator
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils import timezone
+from userauths.mixins import CustomPermissionRequiredMixin
+
+def permission_denied_view(request, exception):
+    return render(request, 'no_acces.html',status=403)
+
+def custom_404_view(request, exception):
+    return render(request, 'error.html',status=404)
+
 def temp_arr(request):
     # return render(request, 'perfect/dashboard.html')
     return render(request, 'perfect/tmp_arr.html')
@@ -408,10 +415,13 @@ class Bilanday(TemplateView):
             'dates':dates
         }
         return context
-    
+
+
+
 from calendar import monthrange
-class TableaustopView(TemplateView):
+class TableaustopView(CustomPermissionRequiredMixin,TemplateView):
     model = Vehicule
+    permission_url = 'temps'
     template_name = "perfect/temp_arret.html"
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -656,8 +666,9 @@ class SuiviFinancierView(TemplateView):
 from calendar import SUNDAY
 from django.db.models import Sum
 from django.utils.timezone import now
-class MyRecetteView(TemplateView):
+class MyRecetteView(CustomPermissionRequiredMixin, TemplateView):
     template_name = "perfect/myrecette.html"
+    permission_url = 'rec_day'
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # Obtenir la date actuelle
@@ -772,7 +783,9 @@ class MyRecetteView(TemplateView):
         context['days_in_month_plus_two'] = days_in_month + 2
         return context
     
-class DashboardView(TemplateView):
+class DashboardView(CustomPermissionRequiredMixin, LoginRequiredMixin, TemplateView):
+    login_url = 'login'
+    permission_url = 'dash'
     template_name = 'perfect/dashboard.html'
     form_class = DateForm
     timeout_minutes = 600
@@ -800,6 +813,9 @@ class DashboardView(TemplateView):
         libelle_mois_en_cours = calendar.month_name[mois_en_cours]
         label = [calendar.month_name[month][:1] for month in range(1, 13)]
         vehicules = Vehicule.objects.all()
+
+        # permissions = self.request.user.custom_permissions.all()
+        # print("################################",permissions)
 #-----------------------------------Pour Faire les filtre selon les dates entrées---------------------------------
         form = self.form_class(self.request.GET)
         if form.is_valid():
@@ -1151,7 +1167,8 @@ class DashboardView(TemplateView):
             
             'labels':label,
             'form':form,
-            'dates':dates
+            'dates':dates,
+            # 'permissions':permissions
         }
         return context
     
@@ -1882,13 +1899,15 @@ class GestionalerteView(TemplateView):
         }
         return context 
 
-class AddVehiculeView(CreateView):
+class AddVehiculeView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateView):
     model = Vehicule
     form_class = VehiculeForm
+    login_url = 'login'
+    permission_url = 'add_car'
     template_name = 'perfect/add_vehicule.html'
     success_message = 'véhicule enregistré avec succès👍✓✓'
     error_message = "Erreur de saisie un véhicule enregistré utilise déjà ces informations verifié l'immatriculation, Numero chassis ou la carte grise ✘✘ "
-    success_url = reverse_lazy ('add_car')
+    # success_url = reverse_lazy('add_car')
     timeout_minutes = 120
     def form_valid(self, form):
         reponse = super().form_valid(form)
@@ -1898,15 +1917,6 @@ class AddVehiculeView(CreateView):
         reponse = super().form_invalid(form)
         messages.success(self.request, self.error_message)
         return reponse
-    def dispatch(self, request, *args, **kwargs):
-        last_activity = request.session.get('last_activity')
-        if last_activity:
-            last_activity = datetime.strptime(last_activity, '%Y-%m-%d %H:%M:%S')
-            if datetime.now() - last_activity > timedelta(minutes=self.timeout_minutes):
-                logout(request)
-                messages.warning(request, "Vous avez été déconnecté ")
-                return redirect("login")
-        return super().dispatch(request, *args, **kwargs)
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         forms = self.get_form()
@@ -1967,6 +1977,8 @@ class AddVehiculeView(CreateView):
             
         }
         return context
+    def get_success_url(self):
+        return reverse('add_car')
 
 def delete_vehicule(request, pk):
     try:

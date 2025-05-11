@@ -157,217 +157,195 @@
                 </div>
                 <nav class="mt-2">
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-                        <li class="nav-item has-treeview">
-                            <a href="#" class="nav-link" style="background-color: rgba(255, 255, 255, .1);">
-                                <i class="nav-icon fa fa-bar-chart"></i>
-                                <p>
-                                    Statistiques
-                                    <i class="right fas fa-angle-left"></i></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview ">
-                                {% if user.user_type == '1' or user.user_type == '2' or user.user_type == '3' %}
-                                    <li class="nav-item ">
-                                        <a href="{% url 'dash' %}" class="nav-link">
-                                            <i style="font-size: 10px;" class="far fa-circle nav-icon "></i>
-                                            <p>Générale</p>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item ">
-                                        <a href="{% url 'dashgarage' %}" class="nav-link ">
-                                            <i style="font-size: 10px;" class="far fa-circle nav-icon "></i>
-                                            <p>Garage</p>
-                                        </a>
-                                    </li>
-                                {% elif user.user_type == '4' %}
-                                    <li class="nav-item ">
-                                        <a href="{% url 'dashgarage' %}" class="nav-link ">
-                                            <i style="font-size: 10px;" class="far fa-circle nav-icon "></i>
-                                            <p>Garage</p>
-                                        </a>
-                                    </li>
-                                    
-                                {% endif %}
-                            </ul>
-                            <li class="nav-item">
-                                <a href="{% url 'alerte' %}" class="nav-link ">
-                                    <i style="font-size: 16px;" class="nav-icon fas fa-exclamation-circle"></i>
-                                    <p>Alertes</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="{% url 'temps' %}" class="nav-link ">
-                                    <i class="nav-icon fas fa-clock-o "></i>
-                                    <p>Temps d'arrêts</p>
-                                </a>
-                            </li>
-                        </li>
-                        {% if user.user_type == '4' %}
-                        {% else %}
-                            <li class="nav-item">
-                                <a href="{% url 'rec_day' %}" class="nav-link">
-                                    <i class="nav-icon fas fa-coins "></i>
-                                    <p>Recettes</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="{% url 'billetage' %}" class="nav-link">
-                                    <i class="nav-icon fas fa-wallet "></i>
-                                    <p>Caisse</p>
-                                </a>
-                            </li>
-                        {% endif %}
-                            <li class="nav-item has-treeview">
-                                <a href="" class="nav-link ">
-                                    <i class="nav-icon fa fa-plus-circle"></i>
-                                    <p>
-                                        Saisie
-                                        <i class="fas fa-angle-left right"></i>
-                                    </p>
-                                </a>
-                                {% if user.user_type == '3' %}
-                                    <ul class="nav nav-treeview">
-                                        <li class="nav-item">
-                                            <a href="{% url 'saisi_compta' %}" class="nav-link">
-                                                <i style="font-size: 10px;" class="far fa-circle nav-icon"></i>
-                                                <p>Financière</p>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                    <ul class="nav nav-treeview">
-                                        <li class="nav-item">
-                                            <a href="{% url 'add_chargadminist' %}" class="nav-link ">
-                                                <i style="font-size: 10px;" class="far fa-circle nav-icon "></i>
-                                                <p>Administrative</p>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                {% elif user.user_type == '4' %}
-                                    <ul class="nav nav-treeview">
-                                        <li class="nav-item">
-                                            <a href="{% url 'saisi_garag' %}" class="nav-link">
-                                                <i style="font-size: 10px;" class="far fa-circle nav-icon"></i>
-                                                <p>Garage</p>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                    <ul class="nav nav-treeview">
-                                        <li class="nav-item">
-                                            <a href="{% url 'temps_arrets' %}" class="nav-link ">
-                                                <i style="font-size: 10px;" class="far fa-circle nav-icon "></i>
-                                                <p>Temps d'arrêt</p>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                {% elif user.user_type == '2' or user.user_type == '1' %}
+                        {% for categorie, perms in grouped_permissions.items %}
+                            {% if categorie.categorie == "bord" %}
+                                <li class="nav-item has-treeview">
+                                    <a href="#" class="nav-link" style="background-color: rgba(255, 255, 255, .1);">
+                                        <i class="nav-icon fa fa-bar-chart"></i>
+                                        <p>
+                                            Statistiques
+                                            <i class="right fas fa-angle-left"></i></i>
+                                        </p>
+                                    </a>
                                     <ul class="nav nav-treeview ">
-                                        <li class="nav-item ">
-                                            <a href="{% url 'saisi_compta' %}" class="nav-link ">
-                                                <i style="font-size: 10px;" class="far fa-circle nav-icon "></i>
-                                                <p>Financière</p>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                    <ul class="nav nav-treeview ">
-                                        <li class="nav-item ">
-                                            <a href="{% url 'add_chargadminist' %}" class="nav-link ">
-                                                <i style="font-size: 10px;" class="far fa-circle nav-icon "></i>
-                                                <p>Administrative</p>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                    <ul class="nav nav-treeview ">
-                                        <li class="nav-item ">
-                                            <a href="{% url 'saisi_garag' %}" class="nav-link ">
-                                                <i style="font-size: 10px;" class="far fa-circle nav-icon "></i>
-                                                <p>Garage</p>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                    <ul class="nav nav-treeview ">
-                                        <li class="nav-item ">
-                                            <a href="{% url 'temps_arrets' %}" class="nav-link ">
-                                                <i style="font-size: 10px;" class="far fa-circle nav-icon "></i>
-                                                <p>Temps d'arrêt</p>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                {% endif %}
-                            </li>
-                        {% if user.user_type == '1' or user.user_type == '2' %}
-                            <li class="nav-item has-treeview ">
-                                <a href="# " class="nav-link ">
-                                    <i class="nav-icon fas fa-car"></i>
-                                    <p>
-                                        Véhicule
-                                        <i class="right fas fa-angle-left "></i>
-                                    </p>
-                                </a>
-                                <ul class="nav nav-treeview">
-                                    {% if user.is_staff %}
                                         <li class="nav-item">
-                                            <a href="{% url 'add_catego_vehi' %}" class="nav-link ">
-                                                <i style="font-size: 10px;" class="far fa-circle nav-icon "></i>
-                                                <p>Nouvelle catégorie</p>
-                                            </a>
+                                            {% for perm in perms %}
+                                                <a href="{% url perm.url %}" class="nav-link ">
+                                                    <i style="font-size: 10px;" class="far fa-circle nav-icon "></i>
+                                                    <p>{{ perm.name }}</p>
+                                                </a>
+                                            {% endfor %}
                                         </li>
-                                    {% endif %}
-                                    <li class="nav-item ">
-                                        <a href="{% url 'add_car' %}" class="nav-link ">
-                                            <i style="font-size: 10px;" class="far fa-circle nav-icon "></i>
-                                            <p>Nouveu véhicule</p>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </li>
-                        {% endif %}
-                        {% if user.is_staff %}
-                            <li class="nav-item ">
-                                <a href="{% url 'bilanday' %}" class="nav-link ">
-                                    <i class="nav-icon fas fa-book "></i>
-                                    <p>Historique Journalier</p>
-                                </a>
-                            </li>
-                        {% endif %}
-                        <li class="nav-header">UTILISATEURS</li>
-                        <li class="nav-item has-treeview ">
-                            <a href="#" class="nav-link ">
-                                <i class="nav-icon fas fa-user-circle "></i>
-                                <p>
-                                    Comptes
-                                    <i class="right fas fa-angle-left "></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview ">
-                                {% if user.is_staff %}
-                                    <li class="nav-item">
-                                        <a href="{% url 'addadministrateur' %}" class="nav-link ">
-                                            <i style="font-size: 10px;" class="far fa-circle nav-icon "></i>
-                                            <p>Administrateur</p>
-                                        </a>
-                                    </li>
-                                {% elif user.user_type == '1' %}
-                                    <li class="nav-item">
-                                        <a href="{% url 'addchefexploit' %}" class="nav-link ">
-                                            <i style="font-size: 10px;" class="far fa-circle nav-icon "></i>
-                                            <p>Chef exploitation</p>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a href="{% url 'addcomptable' %}" class="nav-link ">
-                                            <i style="font-size: 10px;" class="far fa-circle nav-icon"></i>
-                                            <p>Comptable</p>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item ">
-                                        <a href="{% url 'addgerant' %}" class="nav-link ">
-                                            <i style="font-size: 10px;" class="far fa-circle nav-icon"></i>
-                                            <p>Gérant</p>
-                                        </a>
-                                    </li>
-                                {% endif %}
-                            </ul>
-                        </li>
+                                    </ul>
+                                </li>
+                            {% elif categorie.categorie == "comptabilite" %}
+                                <li class="nav-item has-treeview">
+                                    <a href="#" class="nav-link">
+                                        <i class="nav-icon fas fa-coins"></i>
+                                        <p>
+                                            Comptabilité
+                                            <i class="right fas fa-angle-left"></i></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview ">
+                                        <li class="nav-item">
+                                            {% for perm in perms %}
+                                                <a href="{% url perm.url %}" class="nav-link ">
+                                                    <i style="font-size: 10px;" class="far fa-circle nav-icon "></i>
+                                                    <p>{{ perm.name }}</p>
+                                                </a>
+                                            {% endfor %}
+                                        </li>
+                                    </ul>
+                                </li>
+                            {% elif categorie.categorie == "garage" %}
+                                <li class="nav-item has-treeview">
+                                    <a href="#" class="nav-link">
+                                        <i class="nav-icon fas fa-gears"></i>
+                                        <p>
+                                            Garage
+                                            <i class="right fas fa-angle-left"></i></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview ">
+                                        <li class="nav-item">
+                                            {% for perm in perms %}
+                                                <a href="{% url perm.url %}" class="nav-link ">
+                                                    <i style="font-size: 10px;" class="far fa-circle nav-icon "></i>
+                                                    <p>{{ perm.name }}</p>
+                                                </a>
+                                            {% endfor %}
+                                        </li>
+                                    </ul>
+                                </li>
+                            {% elif categorie.categorie == "saisiefinance" %}
+                                <li class="nav-item has-treeview">
+                                    <a href="" class="nav-link ">
+                                        <i class="nav-icon fa fa-plus-circle"></i>
+                                        <p>
+                                            Saisie financière
+                                            <i class="fas fa-angle-left right"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview ">
+                                        <li class="nav-item">
+                                            {% for perm in perms %}
+                                                <a href="{% url perm.url %}" class="nav-link ">
+                                                    <i style="font-size: 10px;" class="far fa-circle nav-icon "></i>
+                                                    <p>{{ perm.name }}</p>
+                                                </a>
+                                            {% endfor %}
+                                        </li>
+                                    </ul>
+                                </li>
+                            {% elif categorie.categorie == "saisiegarage" %}
+                                <li class="nav-item has-treeview">
+                                    <a href="" class="nav-link ">
+                                        <i class="nav-icon fa fa-plus-circle"></i>
+                                        <p>
+                                            Saisie Garage
+                                            <i class="fas fa-angle-left right"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview ">
+                                        <li class="nav-item">
+                                            {% for perm in perms %}
+                                                <a href="{% url perm.url %}" class="nav-link ">
+                                                    <i style="font-size: 10px;" class="far fa-circle nav-icon "></i>
+                                                    <p>{{ perm.name }}</p>
+                                                </a>
+                                            {% endfor %}
+                                        </li>
+                                    </ul>
+                                </li>
+                            {% elif categorie.categorie == "saisiegarage" %}
+                                <li class="nav-item has-treeview">
+                                    <a href="" class="nav-link ">
+                                        <i class="nav-icon fa fa-plus-circle"></i>
+                                        <p>
+                                            Saisie Garage
+                                            <i class="fas fa-angle-left right"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview ">
+                                        <li class="nav-item">
+                                            {% for perm in perms %}
+                                                <a href="{% url perm.url %}" class="nav-link ">
+                                                    <i style="font-size: 10px;" class="far fa-circle nav-icon "></i>
+                                                    <p>{{ perm.name }}</p>
+                                                </a>
+                                            {% endfor %}
+                                        </li>
+                                    </ul>
+                                </li>
+                            {% elif categorie.categorie == "car" %}
+                                <li class="nav-item has-treeview">
+                                    <a href="" class="nav-link ">
+                                        <i class="nav-icon fa fa-car"></i>
+                                        <p>
+                                            Véhicule
+                                            <i class="fas fa-angle-left right"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview ">
+                                        <li class="nav-item">
+                                            {% for perm in perms %}
+                                                <a href="{% url perm.url %}" class="nav-link ">
+                                                    <i style="font-size: 10px;" class="far fa-circle nav-icon "></i>
+                                                    <p>{{ perm.name }}</p>
+                                                </a>
+                                            {% endfor %}
+                                        </li>
+                                    </ul>
+                                </li>
+                            {% elif categorie.categorie == "Gestuser" %}
+                                <li class="nav-header">UTILISATEURS</li>
+                                <li class="nav-item has-treeview ">
+                                    <a href="#" class="nav-link ">
+                                        <i class="nav-icon fas fa-user-circle "></i>
+                                        <p>
+                                            Comptes
+                                            <i class="right fas fa-angle-left "></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview ">
+                                        {% if user.is_staff or user.user_type == '1' %}
+                                            <li class="nav-item">
+                                                {% for perm in perms %}
+                                                    <a href="{% url perm.url %}" class="nav-link ">
+                                                        <i style="font-size: 10px;" class="far fa-circle nav-icon "></i>
+                                                        <p>{{ perm.name }}</p>
+                                                    </a>
+                                                {% endfor %}
+                                            </li>
+                                        {% endif %}
+                                    </ul>
+                                </li>
+                            {% elif categorie.categorie == "Gestpermi" %}
+                                <li class="nav-header">GESTION DES PERMISSIONS</li>
+                                <li class="nav-item has-treeview ">
+                                    <a href="#" class="nav-link ">
+                                        <i class="nav-icon fas fa-user-circle "></i>
+                                        <p>
+                                            Permissions
+                                            <i class="right fas fa-angle-left "></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview">
+                                        {% if user.is_staff or user.user_type == '1' or user.user_type == '2' %}
+                                            <li class="nav-item">
+                                                {% for perm in perms %}
+                                                    <a href="{% url perm.url %}" class="nav-link ">
+                                                        <i style="font-size: 10px;" class="far fa-circle nav-icon "></i>
+                                                        <p>{{ perm.name }}</p>
+                                                    </a>
+                                                {% endfor %}
+                                            </li>
+                                        {% endif %}
+                                    </ul>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
                     </ul>
                 </nav>
             </div>
@@ -430,7 +408,10 @@
             <div class="content">
                 <div class="container-fluid">
                     <div class="row mt-0">
-                        {% block main_content %} 
+                        {% block main_content %}
+                            {% if perms %} 
+                                
+                            {% endif %} 
                         {% endblock main_content %}
                     </div>
                 </div>

@@ -1,0 +1,141 @@
+{% extends 'perfect/base.html' %} 
+{% load static %} 
+{% block title %} Modifier permission {% endblock title %} 
+{% block navbar_nav %}
+
+{% endblock navbar_nav %} 
+{% block page_title %}
+<img class="profile-user-img" style="border:none; height:55px;width:55px" src="{% static 'add-user.png' %}" alt="User profile picture">Permission
+{% endblock page_title %} 
+{% block active_page %}Modifier permission compte {% endblock active_page%} 
+{% block main_content %}
+{% comment %} <div class="modal fade" id="modal-lg">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" style=" font-weight:700;color: rgb(6,73,124);">Créer un compte comptable</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+                <form method='post' role="form" id="quickForm">
+                    {% csrf_token %}
+                    <div class="row card-body">
+                        <div class="col-md-12 form-group ">
+                            <input type="TEXT" value="INFORMATION DE CONNEXION" class="form-control text-center" disabled>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label>USERNAME</label> {{user_form.username}}
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label>EMAIL</label> {{user_form.email}}
+                        </div>
+                        <div class="col-md-12 form-group">
+                            <label>GENDER</label> {{user_form.gender}}
+                        </div>
+                        <div class="col-md-12 form-group">
+                            <input type="TEXT" value="INFORMATION DU PROFIL" class="form-control text-center" disabled>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label>NOM</label> {{comptable_form.nom}}
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label>PRENOMS</label> {{comptable_form.prenom}}
+                        </div>
+                        <div class="col-md-4 form-group">
+                            <label>COMMUNE</label> {{comptable_form.commune}}
+                        </div>
+                        <div class="col-md-4 form-group">
+                            <label>TEL 1</label> {{comptable_form.tel1}}
+                        </div>
+                        <div class="col-md-4 form-group">
+                            <label>TEL 2</label> {{comptable_form.tel2}}
+                        </div>
+                        <div class="col-md-12 form-group">
+                            {{comptable_form.create_by}}
+                        </div>
+                    </div>
+                    <div class="modal-footer justify-content-between">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-primary">Enregistrer</button>
+                    </div>
+                </form> 
+            </div>
+        </div>
+    </div>
+</div> {% endcomment %}
+
+<div class="col-md-12">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="" style="border-radius:20px">
+                <div id="" class="">
+                    <div class="row p-0 m-0">
+                        <div class="col-md-12 p-0">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">
+                                        Profil
+                                    </h3>
+
+                                    <div class="card-tools">
+                                        <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+                                    </div>
+                                </div>
+                                <!-- /.card-header -->
+                                <div class="card-body">
+                                    <div class="card-body box-profile">
+                                        <h3 class="profile-username text-center">{{user.username}}</h3>
+
+                                        <p class="text-muted text-center">{{user.email}}</p>
+
+                                        <ul class="list-group list-group-unbordered mb-3">
+                                            <li class="list-group-item">
+                                                <b>Genre</b> <a class="float-right">{{user.gender}}</a>
+                                            </li>
+                                            <li class="list-group-item">
+                                                <b>Role</b> <a class="float-right">{{user.user_type}}</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <!-- /.card-body -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="" style="border-radius:20px">
+                <div id="" class="">
+                    <div class="row p-0 m-0">
+                        <div class="col-md-12 p-0">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">Permissions</h3>
+
+                                    <div class="card-tools">
+                                        <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+                                    </div>
+                                </div>
+                                <!-- /.card-header -->
+                                <div class="card-body">
+                                    <form method="post">
+                                        {% csrf_token %}
+                                        {{ form.as_p }}
+                                        <button type="submit" class="btn btn-outline-primary" >Appliquer</button>
+                                    </form>
+                                </div>
+                                <!-- /.card-body -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock main_content %}

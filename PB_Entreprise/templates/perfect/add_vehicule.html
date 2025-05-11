@@ -178,7 +178,21 @@
                                         <td><a class="mr-3 text-primary">{{u.marque}}</a></td>
                                         <td><a class="mr-3 text-primary">{{u.category}}</a></td>
                                         <td>
-                                            {% if user.user_type == '1' %}
+                                            {% for categorie, perms in grouped_permissions.items %}
+                                                {% if categorie.categorie == 'permvehi' %}
+                                                    {% for perm in perms %}
+                                                        {% if perms %}
+                                                            {% with has_perm=True %}
+                                                                <a href="{% url perm.url u.pk %}" class="text-danger"
+                                                                onclick="return confirm('Etes-vous sûre de vouloir supprimer le véhicule {{ u.immatriculation }} - {{ u.marque }} - {{ u.category|upper }} ? Toutes les informations liées seront supprimées.')">
+                                                                    <span>{{ perm.name }}</span>
+                                                                </a>
+                                                            {% endwith %}
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                {% endif %}
+                                            {% endfor %}
+                                            {% comment %} {% if user.user_type == '1' %}
                                                 <a href="{% url 'delvehi' u.pk %}" class="text-danger" onclick="return confirm('Etes-vous sûre de vouloir supprimer le véhicule {{u.immatriculation}} - {{u.marque}} - {{u.category|upper}}? car si vous supprimer toutes les informations liées seront supprimées')">
                                                     <i style="font-size: 20px; " class="fa fa-trash "></i>
                                                 </a>
@@ -187,7 +201,7 @@
                                                     <i style="font-size: 20px; " class="fa fa-trash "></i>
                                                 </a>
                                             {% endif %}
-                                            
+                                            {% endcomment %}
                                         </td>
                                     </tr>
                                 {% endfor %} 

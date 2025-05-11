@@ -29,13 +29,37 @@ from django.core.mail import send_mail
 # from .utils import send_email_with_html_body
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
-
 from django.contrib.auth.hashers import make_password
 from django.core.mail import EmailMultiAlternatives
 from django.contrib.auth import get_user_model
 # Vue pour vérifier l'OTP envoyé par email
 CustomUser = get_user_model()
 from django.utils import timezone
+
+def list_users(request):
+    users = CustomUser.objects.filter(is_superuser=False)
+    return render(request, 'liste_compte.html', {'users': users})
+
+@login_required
+def edit_user_permissions(request, user_id):
+    user = get_object_or_404(CustomUser, id=user_id)
+    if request.method == 'POST':
+        form = UserPermissionForm(request.POST)
+        # form = UserPermissionForm(initial={'permissions': user.custom_permissions.all()})
+        if form.is_valid():
+            permissions = form.cleaned_data['permissions']
+            user.custom_permissions.set(permissions)
+            messages.success(request, 'Permissions mises à jour avec succès.')
+            return redirect('edit_user_permissions', user.id)  
+    else:
+        form = UserPermissionForm(initial={
+            'permissions': user.custom_permissions.all()
+        })
+
+    return render(request, 'modif_user_perm.html', {
+        'form': form,
+        'user': user
+    })
 
 def generate_random_password(length=8):
     # characters = string.ascii_letters + string.digits #+ string.punctuation
@@ -118,8 +142,9 @@ def delete_admin(request, pk):
 def add_chefexploit(request):
     user=request.user
     try:
-        admins = Administ.objects.get(user=user)
-        chefexp = Chefexploitation.objects.select_related('user',).filter(create_by=admins)
+        # admins = Administ.objects.get(user=user)
+        # chefexp = Chefexploitation.objects.select_related('user',).filter(create_by=admins)
+        chefexp = Chefexploitation.objects.all()
     except Administ.DoesNotExist:
         chefexp = Chefexploitation.objects.none()
     cxt = {}
@@ -127,7 +152,8 @@ def add_chefexploit(request):
     if request.method == 'POST':
         userform = CustomUserCreationForm(request.POST)
         chefexploitform = ChefexploitationForm(request.POST)
-        if userform.is_valid() and chefexploitform.is_valid():
+        permission_form = UserPermissionForm(request.POST)
+        if userform.is_valid() and chefexploitform.is_valid() and permission_form.is_valid():
             try:
                 user = userform.save(commit=False)
                 password = generate_random_password()
@@ -141,6 +167,10 @@ def add_chefexploit(request):
                 create_by = Administ.objects.get(user=request.user)
                 chefexploitation.create_by = create_by
                 chefexploitation.save()
+
+                ################ Ajouter des permissions #################
+                permissions = permission_form.cleaned_data['permissions']
+                user.custom_permissions.set(permissions)
                 
                 subjet = "Création de Compte de chef d'exploitation"
                 receivers = [user.email]
@@ -174,9 +204,11 @@ def add_chefexploit(request):
     else:
         userform = CustomUserCreationForm()
         chefexploitform = AdministForm()
+        permission_form = UserPermissionForm()
     return render(request, 'add_chef_exploitation.html', {
         'user_form': userform,
         'chefexp_form': chefexploitform,
+        'permission_form': permission_form,
         'cxt': cxt,
         'employes': employ,
         'list_chefexp': chefexp,
@@ -197,8 +229,8 @@ def delete_chefexploit(request, pk):
 def add_comptable(request):
     user=request.user
     try:
-        admins = Administ.objects.get(user=user)
-        compt = Comptable.objects.filter(create_by=admins)
+        # admins = Administ.objects.get(user=user)
+        compt = Comptable.objects.all()
     except Administ.DoesNotExist:
         compt = Comptable.objects.none()
     cxt = {}
@@ -271,14 +303,15 @@ def delete_comptable(request, pk):
     except Exception as e:
         messages.error(request, f"Erreur lors de la suppression : {str(e)}")
     return redirect('addcomptable')
+
 @login_required(login_url='/login/')
 def add_gerant(request):
     user=request.user
     try:
-        admins = Administ.objects.get(user=user)
-        gerant = Gerant.objects.filter(create_by=admins)
+        # admins = Administ.objects.get(user=user)
+        gerant = Comptable.objects.all()
     except Administ.DoesNotExist:
-        gerant = Gerant.objects.none()
+        gerant = Comptable.objects.none()
     cxt = {}
     employ = CustomUser.objects.all()
     if request.method == 'POST':

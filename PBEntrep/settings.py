@@ -7,6 +7,7 @@ from decouple import config
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
+# BASE_DIR = os.path.dirname(os.path.dirname(__file__))  # ✅ correct
 
 SECRET_KEY = config('SECRET_KEY')
 # DEBUG = True--  django-insecure-of03a0_f)5yamk9g&p9p2f^a*l8!6t#+r_c4oq42+sb&#y5znt
@@ -17,6 +18,8 @@ ALLOWED_HOSTS = ['*']
 #     'https://pbholdingsite.com',
 # ]
 
+handler403 = 'PB_Entreprise.views.permission_denied_view'
+handler404 = 'PB_Entreprise.views.custom_404_view'
 # Application definition
 INSTALLED_APPS = [
     'jazzmin',
@@ -54,6 +57,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'PB_Entreprise.context_processors.grouped_user_permissions',
             ],
         },
     },
@@ -62,8 +66,9 @@ TEMPLATES = [
 WSGI_APPLICATION = 'PBEntrep.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
-DEBUG = config('DEBUG') 
+DEBUG = True
+# DEBUG = True
+# DEBUG = config('DEBUG') 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -98,10 +103,13 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
-MEDIA_URL = '/media/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, "static"),]
+MEDIA_URL = 'media/'
 
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 

@@ -1,0 +1,82 @@
+{% extends 'perfect/base.html' %} 
+{% load static %} 
+{% block title %} Comptes {% endblock title %} 
+{% block navbar_nav %}
+
+{% endblock navbar_nav %} 
+{% block page_title %}
+<img class="profile-user-img" style="border:none; height:55px;width:55px" src="{% static 'add-user.png' %}" alt="User profile picture">Liste compte 
+{% endblock page_title %} 
+{% block active_page %}Compte utilisateur {% endblock active_page%} 
+{% block main_content %}
+
+<div class="col-md-12">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="" style="border-radius:20px">
+                <div id="" class="">
+                    <div class="row p-0 m-0">
+                        <div class="col-md-12 p-0">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">
+                                        <button type="button" class="btn btn-default" >PDF <i class='fa fa-file-pdf-o'></i></button>
+                                        <button type="button" class="btn btn-default" >Excell <i class='fa fa-file-excel-o'></i></button>
+                                        <button type="button" class="btn btn-default" data-toggle="modal" data-target="#modal-lg">Créer <i class='fa fa-plus-square'></i></button>
+                                    </h3>
+
+                                    <div class="card-tools">
+                                        <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+                                    </div>
+                                </div>
+                                <!-- /.card-header -->
+                                <div class="card-body">
+                                    <table id="example1" class="table table-bordered table-striped">
+                                        <thead>
+                                            <tr class=" text-center text-danger ">
+                                                <th>LOGIN</th>
+                                                <th>EMAIL</th>
+                                                <th>GENRE</th>
+                                                <th>ROLE</th>
+                                                <th>Permissions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% if users %}
+                                                {% for u in users %}
+                                                    <tr class="text-center">
+                                                        <td>{{u.username}}</td>
+                                                        <td>{{u.email}}</td>
+                                                        <td>{{u.gender}}</td>
+                                                        <td>{{u.user_type}}</td>
+                                                        <td class="text-center ">
+                                                            <a href="{% url "edit_user_permissions" u.id %}" class="mr-3 text-warning ">
+                                                                <i style="font-size: 20px;" class="fa fa-edit"></i>
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                            {% endif %}
+                                        </tbody>
+                                        <tfoot>
+                                            <tr class="text-center ">
+                                                <th>---</th>
+                                                <th>---</th>
+                                                <th>---</th>
+                                                <th>---</th>
+                                                <th>---</th>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                                <!-- /.card-body -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock main_content %}

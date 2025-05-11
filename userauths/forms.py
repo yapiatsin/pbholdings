@@ -23,6 +23,18 @@ class CustomUserCreationForm(forms.ModelForm):
         model = CustomUser
         fields = ['username','email','gender']
 
+class CustomPermissionForm(forms.ModelForm):
+    class Meta:
+        model = CustomPermission
+        fields = ['name', 'categorie', 'url']
+
+class UserPermissionForm(forms.Form):
+    permissions = forms.ModelMultipleChoiceField(
+        queryset=CustomPermission.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=False
+    )
+
 class AdministForm(forms.ModelForm):
     class Meta:
         model = Administ

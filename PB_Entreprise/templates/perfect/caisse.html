@@ -79,9 +79,17 @@
                                     <h3 class="card-title text-center">
                                         {% if forms.is_valid %}
                                         {% else %} 
-                                            <a href="{% url 'add_solde' %}" id="lien_solde" type="button" class="btn btn border-primary text-primary" style="font-weight:700">Saisir le solde de fin de journée <i class='fa fa-plus-square'></i></a>
-                                            <a href="{% url 'addencaisse' %}" id="entrer" type="button" class="btn btn border-success text-success" style="font-weight:700">Entrée de caisse <i class='fa fa-plus-square'></i></a>
-                                            <a href="{% url 'add_decaisse' %}" id="sortir" type="button" class="btn btn border-danger text-danger" style="font-weight:700">Sortie de caisse <i class='fa fa-plus-square'></i></a>                                        {% comment %} <button type="button" class="btn btn-default" data-toggle="modal" data-target="#modal-lg">Sortie de caisse <i class='fa fa-plus-square'></i></button> {% endcomment %}
+                                            {% for categorie, perms in grouped_permissions.items %}
+                                                {% if categorie.categorie == 'permsolde' %}
+                                                    <a href="{% url 'add_solde' %}" id="lien_solde" type="button" class="btn btn border-primary text-primary" style="font-weight:700">Saisir le solde de fin de journée <i class='fa fa-plus-square'></i></a>
+                                                {% endif %}
+                                                {% if categorie.categorie == 'permencais' %}
+                                                    <a href="{% url 'addencaisse' %}" id="entrer" type="button" class="btn btn border-success text-success" style="font-weight:700">Entrée de caisse <i class='fa fa-plus-square'></i></a>
+                                                {% endif %}
+                                                {% if categorie.categorie == 'permdecais' %}
+                                                    <a href="{% url 'add_decaisse' %}" id="sortir" type="button" class="btn btn border-danger text-danger" style="font-weight:700">Sortie de caisse <i class='fa fa-plus-square'></i></a> 
+                                                {% endif %}
+                                            {% endfor %}
                                         {% endif %}
                                     </h3>
                                      
@@ -210,13 +218,25 @@
                                             backdrop-filter: blur(5.2px);
                                             -webkit-backdrop-filter: blur(5.2px);">
                                         <div class="card-header text-center" style="font-size:15px; font-weight: 700; line-height: 1; color: #06497C;">
-                                            BILLETAGE
+                                            BIELLETAGE
                                             {% if forms.is_valid %}
                                             {% else %}
                                                 {% if user.user_type == '1' or user.user_type == '3' %} 
                                                     <a id="billetage" title="cliquer pour faire le billetage" data-toggle="modal" data-target="#modal-lg" ><i class='fa fa-plus-square text-danger'></i></a>
                                                 {% endif %}
                                             {% endif %}
+
+                                            {% for categorie, perms in grouped_permissions.items %}
+                                                {% if categorie.categorie == 'permvehi' %}
+                                                    <button type="button" class="btn btn-default text-danger" data-toggle="modal" data-target="#modal-lg" style="font-weight:700;">modifier <i class='fa fa-plus-square text-success'></i></button>
+                                                {% endif %}
+                                            {% endfor %}
+
+
+
+
+
+
                                         </div>
                                         <div class="card-header" style="font-weight:700;">
                                             Billets

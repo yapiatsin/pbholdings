@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.contrib.auth.models import PermissionsMixin
 from django.db.models import Q
+from shortuuid.django_fields import ShortUUIDField
 from django.conf import settings
 
 USER=(
@@ -43,6 +44,20 @@ class CustomUser(AbstractUser):
     )
     def __str__(self):
         return '%s - %s ' %(self.username, self.email,)
+
+class TypeCustomPermission(models.Model):
+    cid = ShortUUIDField(unique=True, length=6, prefix='pb-', alphabet="abcd1234", editable=False)
+    categorie = models.CharField(max_length=100)
+    def __str__(self):
+        return self.categorie
+
+class CustomPermission(models.Model):
+    name = models.CharField(max_length=100)
+    categorie = models.ForeignKey(TypeCustomPermission, on_delete=models.CASCADE,related_name='cat_permis')
+    url = models.CharField(max_length=255)
+    users = models.ManyToManyField(CustomUser, related_name='custom_permissions', blank=True)
+    def __str__(self):
+        return self.name
 
 class Administ(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='administs')
