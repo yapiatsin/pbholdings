@@ -55,7 +55,6 @@ def edit_user_permissions(request, user_id):
         form = UserPermissionForm(initial={
             'permissions': user.custom_permissions.all()
         })
-
     return render(request, 'modif_user_perm.html', {
         'form': form,
         'user': user

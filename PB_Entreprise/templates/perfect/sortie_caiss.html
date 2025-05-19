@@ -38,10 +38,6 @@
                         <div class="col-md-6 col-sm-6 form-group">
                             <label for="fullname"><b>Montant</b></label> {{forms.montant}}
                         </div>
-                        
-                        <div class="col-md-12 col-sm-6  form-group">
-                            {{forms.auteur}}
-                        </div>
                     </div>
                     <div class="modal-footer justify-content-between">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
@@ -136,13 +132,9 @@
                             <div class="card" style="box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);backdrop-filter: blur(5.2px);-webkit-backdrop-filter: blur(5.2px);">
                                 <div class="card-header">
                                     <h3 class="card-title">
-                                        <button type="button" class="btn btn-default text-danger">PDF <i class='fa fa-file-pdf-o'></i></button>
+                                        <button type="button" class="btn btn-default text-danger" id="printButton">PDF <i class='fa fa-file-pdf-o'></i></button>
                                         <button type="button" class="btn btn-default text-success">Excell <i class='fa fa-file-excel-o'></i></button>
-                                        {% if user.user_type == '1' or user.user_type == '3' %}
-                                            <button type="button" class="btn btn-default text-primary" data-toggle="modal" data-target="#modal-lg">Saisir <i class='fa fa-plus-square'></i></button>
-                                        {% else %}
-                                            <button type="button" class="btn btn-default text-primary">Saisir <i class='fa fa-plus-square'></i></button>
-                                        {% endif %}
+                                        <button type="button" class="btn btn-default text-primary" data-toggle="modal" data-target="#modal-lg">Saisir <i class='fa fa-plus-square'></i></button>
                                     </h3>
                                     <div class="card-tools">
                                         <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
@@ -172,15 +164,17 @@
                                                             <a href="" class="mr-3 text-primary">{{e.auteur.username}}</a>
                                                         </td>
                                                         <td class="text-center">
-                                                            {% if user.user_type == '1' %}
-                                                                <a href="{% url 'delet_socaisse' e.pk %}" class="text-danger" onclick="return confirm('Etes-vous sûre de vouloir supprimer l\'entrée de caisse  {{e.Num_piece}} - {{e.libelle}} - {{e.montant}} frscfa? car si vous supprimer toutes les informations liées seront supprimées')">
-                                                                    <i style="font-size: 20px; " class="fa fa-trash "></i>
-                                                                </a>
-                                                            {% else %}
-                                                                <a href="" class="text-danger">
-                                                                    <i style="font-size: 20px; " class="fa fa-trash "></i>
-                                                                </a>
-                                                            {% endif %}
+                                                            {% for categorie, perms in grouped_permissions.items %}
+                                                                {% if categorie.categorie == 'permcrudecais' %}
+                                                                    {% for perm in perms %}:
+                                                                        {% if perm.name == "sup decaissement" %}
+                                                                            <a href="{% url perm.url e.pk %}" class="text-primary" onclick="return confirm('Etes-vous sûre de vouloir supprimer la sortie de caisse de {{ e.montant }} saisie le {{ e.date_saisie|date:"d-m-y" }}? Toutes les informations liées seront supprimées.')">
+                                                                                <i style="font-size: 20px;" class="fa fa-trash text-danger"></i>
+                                                                            </a>
+                                                                        {% endif %}
+                                                                    {% endfor %}
+                                                                {% endif %}
+                                                            {% endfor %}
                                                         </td>
                                                     </tr>
                                                 {% endfor %} 

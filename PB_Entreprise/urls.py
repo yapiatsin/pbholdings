@@ -111,7 +111,7 @@ urlpatterns = [
     path('vehicule/<int:pk>/stationnement',AddCartStationView.as_view(), name="add_station"),
     path('carte stationnement/<int:pk>/modifier',UpdatCartStationView.as_view(), name="updat_station"),
     path('carte stationnement/<int:pk>detail',DetailCartStationView.as_view(), name="detail_station"),
-    path('liste Carte Stationnement',ListCartStationView.as_view(), name="liste_stationnement"),
+    path('liste Carte Stationnement',ListCartStationView.as_view(), name="liste_station"),
     path('carte stationnement/<int:pk>/delete', delete_stat, name='delete_stations'),    
     
     path('vehicule/<int:pk>/patente',AddPatenteView.as_view(), name="add_patente"),

@@ -132,57 +132,66 @@
                                         </thead>
                                         <tbody>
                                             {% if vehicules %} 
-                                            {% for u in vehicules %}
-                                            <tr class="text-center">
-                                                <td><a href="{% url 'dashgaragcar' u.pk %}" title="Cliquez pour accéder à son tableau de bord garage" class="mr-3 text-primary" style='font-weight:700'>{{u.immatriculation}}</a></td>
-                                                <td>{{u.marque}}</td>
-                                                <td>{{u.category}}</td>
-                                                <td>
-                                                    {% if user.user_type != '3' %}
-                                                    <a href="{% url 'add_visit' u.pk %}" title="Saisissez la visite technique de {{u.immatriculation}}" class="text-primary" >
-                                                        <i style="font-size: 20px;" title="Saisissez la visite de {{u.immatriculation}}" class="fa fa-plus-circle "></i>
-                                                    </a>
-                                                    {% else %}
-                                                        <a class="text-danger">
-                                                            <i style="font-size: 20px;" class="fa fa-close "></i>
-                                                        </a>
-                                                    {% endif %}
-                                                </td>
-                                                <td>
-                                                    {% if user.user_type != '3' %}
-                                                    <a href="{% url 'add_entretien' u.pk %}" class="text-primary" >
-                                                        <i style="font-size: 20px;" title="Saisissez l'entretien de {{u.immatriculation}}" class="fa fa-plus-circle "></i>
-                                                    </a>
-                                                    {% else %}
-                                                    <a class="text-danger">
-                                                        <i style="font-size: 20px;" class="fa fa-close "></i>
-                                                    </a>
-                                                    {% endif %}
-                                                </td>
-                                                <td>
-                                                    {% if user.user_type != '3' %}
-                                                    <a href="{% url 'add_reparation' u.pk %}" class="text-primary">
-                                                        <i style="font-size: 20px;" title="Saisissez la reparation de {{u.immatriculation}}" class="fa fa-plus-circle "></i>
-                                                    </a>
-                                                    {% else %}
-                                                    <a class="text-danger">
-                                                        <i style="font-size: 20px; " class="fa fa-close "></i>
-                                                    </a>
-                                                    {% endif %}
-                                                </td>
-                                                <td>
-                                                    {% if user.user_type != '3' %}
-                                                    <a href="{% url 'add_autarrets' u.pk %}" class="text-primary">
-                                                        <i style="font-size: 20px;" title="Saisissez la patente de {{u.immatriculation}}" class="fa fa-plus-circle "></i>
-                                                    </a>
-                                                    {% else %}
-                                                    <a class="text-danger">
-                                                        <i style="font-size: 20px; " class="fa fa-close "></i>
-                                                    </a>
-                                                    {% endif %}
-                                                </td>
-                                            </tr>
-                                            {% endfor %} {% endif %}
+                                                {% for u in vehicules %}
+                                                    <tr class="text-center">
+                                                        <td><a href="{% url 'dashgaragcar' u.pk %}" title="Cliquez pour accéder à son tableau de bord garage" class="mr-3 text-primary" style='font-weight:700'>{{u.immatriculation}}</a></td>
+                                                        <td>{{u.marque}}</td>
+                                                        <td>{{u.category}}</td>
+                                                        <td>
+                                                            {% for categorie, perms in grouped_permissions.items %}
+                                                                {% if categorie.categorie == "permvisit" %}
+                                                                    {% for perm in perms %}
+                                                                        {% if perm.name == "add visite" %}
+                                                                            <a href="{% url perm.url u.pk %}" class="text-primary">
+                                                                                <i style="font-size: 20px;" class="fa fa-plus-circle "></i>
+                                                                            </a>
+                                                                        {% endif %}
+                                                                    {% endfor %}
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </td>
+                                                        <td>
+                                                            {% for categorie, perms in grouped_permissions.items %}
+                                                                {% if categorie.categorie == "permentretien" %}
+                                                                    {% for perm in perms %}
+                                                                        {% if perm.name == "add entretien" %}
+                                                                            <a href="{% url perm.url u.pk %}" class="text-primary">
+                                                                                <i style="font-size: 20px;" class="fa fa-plus-circle "></i>
+                                                                            </a>
+                                                                        {% endif %}
+                                                                    {% endfor %}
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </td>
+                                                        <td>
+                                                            {% for categorie, perms in grouped_permissions.items %}
+                                                                {% if categorie.categorie == "permreparation" %}
+                                                                    {% for perm in perms %}
+                                                                        {% if perm.name == "add reparation" %}
+                                                                            <a href="{% url perm.url u.pk %}" class="text-primary">
+                                                                                <i style="font-size: 20px;" class="fa fa-plus-circle "></i>
+                                                                            </a>
+                                                                        {% endif %}
+                                                                    {% endfor %}
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </td>
+                                                        <td>
+                                                            {% for categorie, perms in grouped_permissions.items %}
+                                                                {% if categorie.categorie == "permarret" %}
+                                                                    {% for perm in perms %}
+                                                                        {% if perm.name == "add autre arrêt" %}
+                                                                            <a href="{% url perm.url u.pk %}" class="text-primary">
+                                                                                <i style="font-size: 20px;" class="fa fa-plus-circle "></i>
+                                                                            </a>
+                                                                        {% endif %}
+                                                                    {% endfor %}
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                            {% endif %}
                                         </tbody>
                                     </table>
                                 </div>

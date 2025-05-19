@@ -192,8 +192,8 @@
                             <div class="card" style="box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);backdrop-filter: blur(5.2px);-webkit-backdrop-filter: blur(5.2px);">
                                 <div class="card-header">
                                     <h3 class="card-title">
-                                        <button type="button" class="btn btn-default">PDF <i class='fa fa-file-pdf-o'></i></button>
-                                        <button type="button" class="btn btn-default">Excell <i class='fa fa-file-excel-o'></i></button>
+                                        <button type="button" class="btn btn-default text-danger" id="printButton">PDF <i class='fa fa-file-pdf-o'></i></button>
+                                        <button type="button" class="btn btn-default text-success">Excell <i class='fa fa-file-excel-o'></i></button>
                                     </h3>
 
                                     <div class="card-tools">
@@ -229,15 +229,17 @@
                                                         <td>{{u.num_cart_grise}}</td>
                                                         <td>{{u.cout_acquisition}}</td>
                                                         <td class="text-center">
-                                                            {% if user.user_type == '1' %}
-                                                                <a href="" class="text-danger" onclick="return confirm('Etes-vous sûre de vouloir supprimer la recette du véhicule {{u.vehicule.immatriculation}} - Receete {{u.montant}} - {{u.date_saisie}}? car si vous supprimer toutes les informations liées seront supprimées')">
-                                                                    <i style="font-size: 20px; " class="fa fa-trash "></i>
-                                                                </a>
-                                                            {% else %}
-                                                                <a class="text-danger">
-                                                                    <i style="font-size: 20px; " class="fa fa-trash "></i>
-                                                                </a>
-                                                            {% endif %}
+                                                            {% for categorie, perms in grouped_permissions.items %}
+                                                                {% if categorie.categorie == 'permassurance' %}
+                                                                    {% for perm in perms %}
+                                                                        {% if perm.name == "sup assurance" %}
+                                                                            <a href="{% url perm.url u.pk %}" class="text-primary" onclick="return confirm('Etes-vous sûre de vouloir supprimer la recette de {{ u.montant }} du {{ u.vehicule.immatriculation }} saisie le {{ u.date_saisie|date:"d-m-y" }}? Toutes les informations liées seront supprimées.')">
+                                                                                <i style="font-size: 20px;" class="fa fa-trash text-danger"></i>
+                                                                            </a>
+                                                                        {% endif %}
+                                                                    {% endfor %}
+                                                                {% endif %}
+                                                            {% endfor %}
                                                         </td>
                                                     </tr>
                                                 {% endfor %} 

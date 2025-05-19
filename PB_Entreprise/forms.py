@@ -23,9 +23,8 @@ class Solde_JourForm(forms.ModelForm):
     date_saisie = forms.DateTimeField(widget=forms.DateInput(format=('%m/%d/%Y'), attrs={'class':'form-control','placeholder':'Selection une date...', 'format':'yyyy-mm-dd', 'type':'date'}))
     class Meta:
         model = SoldeJour
-        fields = ('montant','date_saisie','auteur')
+        fields = ('montant','date_saisie',)
         widgets = {
-            'auteur': forms.TextInput(attrs={'class':'form-control','value':'', 'id': 'elder','type':'hidden'}),
             'montant': forms.NumberInput(attrs={'class':'form-control'}),
         }
 
@@ -67,9 +66,8 @@ class ChargeAdminisForm(forms.ModelForm):
     date_saisie = forms.DateTimeField(widget= forms.DateTimeInput(format=('%m/%d/%Y %H:%M'), attrs={'class':'form-control','format':'yyyy-mm-dd HH-ii ss', 'type':'date'}))
     class Meta:
         model = ChargeAdminis
-        fields = ('libelle','montant','cpte_comptable','Num_piece','Num_fact','date_saisie','auteur')
+        fields = ('libelle','montant','cpte_comptable','Num_piece','Num_fact','date_saisie',)
         widgets = {
-            'auteur': forms.TextInput(attrs={'class':'form-control','value':'', 'id': 'elder','type':'hidden'}),
             'libelle': forms.TextInput(attrs={'class':'form-control'}),
             'montant': forms.NumberInput(attrs={'class':'form-control'}),
             'cpte_comptable': forms.TextInput(attrs={'class':'form-control'}),
@@ -103,9 +101,8 @@ class VehiculeForm(forms.ModelForm):
     date_mis_service = forms.DateTimeField(widget= forms.DateInput(format=('%m/%d/%Y'), attrs={'class':'form-control','placeholder':'Selection une date...', 'format':'yyyy-mm-dd', 'type':'date'}))
     class Meta:
         model = Vehicule
-        fields = ('immatriculation','marque','duree','image','photo_carte_grise','num_cart_grise','num_Chassis','date_acquisition','cout_acquisition','dat_edit_carte_grise','date_mis_service','category','auteur')
+        fields = ('immatriculation','marque','duree','image','photo_carte_grise','num_cart_grise','num_Chassis','date_acquisition','cout_acquisition','dat_edit_carte_grise','date_mis_service','category',)
         widgets = {
-            'auteur': forms.TextInput(attrs={'class':'form-control','value':'', 'id': 'elder','type':'hidden'}),
             'immatriculation': forms.TextInput(attrs={'class':'form-control'}),
             'marque': forms.TextInput(attrs={'class':'form-control'}),
             'category':forms.Select(attrs={'class':'form-control'}),
@@ -113,14 +110,21 @@ class VehiculeForm(forms.ModelForm):
             'num_cart_grise': forms.TextInput(attrs={'class':'form-control'}),
             'num_Chassis': forms.TextInput(attrs={'class':'form-control'}),
             'cout_acquisition': forms.NumberInput(attrs={'class':'form-control'}),
+            'image': forms.ClearableFileInput(attrs={
+                'class': 'form-control form-control-lg border p-5',
+                'style': 'height: 100px; background: repeating-linear-gradient(45deg, #eee, #eee 10px, #ddd 10px, #ddd 20px); text-align: center;',
+            }),
         }
         
 class UpdatVehiculeForm(forms.ModelForm):
     class Meta:
         model = Vehicule
-        fields = ('immatriculation','marque','duree','image','photo_carte_grise','num_cart_grise','num_Chassis','date_acquisition','cout_acquisition','dat_edit_carte_grise','date_mis_service','category','auteur')
+        fields = ('immatriculation','marque','duree','image','photo_carte_grise','num_cart_grise','num_Chassis','date_acquisition','cout_acquisition','dat_edit_carte_grise','date_mis_service','category',)
         widgets = {
-            'auteur': forms.TextInput(attrs={'class':'form-control','value':'', 'id': 'elder','type':'hidden'}),
+            'image': forms.ClearableFileInput(attrs={
+                'class': 'form-control form-control-lg border p-5',
+                'style': 'height: 100px; background: repeating-linear-gradient(45deg, #eee, #eee 10px, #ddd 10px, #ddd 20px); text-align: center;',
+            }),
             'immatriculation': forms.TextInput(attrs={'class':'form-control'}),
             'marque': forms.TextInput(attrs={'class':'form-control'}),
             'category':forms.Select(attrs={'class':'form-control'}),
@@ -155,10 +159,13 @@ class CartStationForm(forms.ModelForm):
     date_proch = forms.DateTimeField(widget= forms.DateInput(format=('%m/%d/%Y'), attrs={'class':'form-control','placeholder':'Selection une date...', 'format':'yyyy-mm-dd', 'type':'date'}))
     class Meta:
         model = Stationnement
-        fields = ('montant','date_proch','montant','date_saisie','image','auteur')
+        fields = ('montant','date_proch','montant','date_saisie','image',)
         widgets = {
-            'auteur': forms.TextInput(attrs={'class':'form-control','value':'', 'id': 'elder','type':'hidden'}),
             'montant': forms.NumberInput(attrs={'class':'form-control'}),
+            'image': forms.ClearableFileInput(attrs={
+                'class': 'form-control form-control-lg border p-5',
+                'style': 'height: 100px; background: repeating-linear-gradient(45deg, #eee, #eee 10px, #ddd 10px, #ddd 20px); text-align: center;',
+            }),
         }
       
 class UpdatCartStationForm(forms.ModelForm):
@@ -176,16 +183,18 @@ class UpdatCartStationForm(forms.ModelForm):
         self.fields["date_saisie"].input_formats = ("%Y-%m-%dT%H:%M",)
         self.fields["date_proch"].input_formats = ("%Y-%m-%dT%H:%M",)
 
-
 class PatenteForm(forms.ModelForm):
     date_saisie = forms.DateTimeField(widget= forms.DateInput(format=('%m/%d/%Y'), attrs={'class':'form-control','placeholder':'Selection une date...', 'format':'yyyy-mm-dd', 'type':'date'}))
     date_proch = forms.DateTimeField(widget= forms.DateInput(format=('%m/%d/%Y'), attrs={'class':'form-control','placeholder':'Selection une date...', 'format':'yyyy-mm-dd', 'type':'date'}))
     class Meta:
         model = Patente
-        fields = ('montant','date_proch','date_saisie','image','auteur')
+        fields = ('montant','date_proch','date_saisie','image',)
         widgets = {
-            'auteur': forms.TextInput(attrs={'class':'form-control','value':'', 'id': 'elder','type':'hidden'}),
             'montant': forms.NumberInput(attrs={'class':'form-control'}),
+            'image': forms.ClearableFileInput(attrs={
+                'class': 'form-control form-control-lg border p-5',
+                'style': 'height: 100px; background: repeating-linear-gradient(45deg, #eee, #eee 10px, #ddd 10px, #ddd 20px); text-align: center;',
+            }),
         }
         
 class UpdatPatenteForm(forms.ModelForm):
@@ -209,10 +218,13 @@ class VignetteForm(forms.ModelForm):
     date_proch = forms.DateTimeField(widget= forms.DateInput(format=('%m/%d/%Y'), attrs={'class':'form-control','placeholder':'Selection une date...', 'format':'yyyy-mm-dd', 'type':'date'}))
     class Meta:
         model = Vignette
-        fields = ('montant','date_proch','montant','date_saisie','image','auteur')
+        fields = ('montant','date_proch','montant','date_saisie','image')
         widgets = {
-            'auteur': forms.TextInput(attrs={'class':'form-control','value':'', 'id': 'elder','type':'hidden'}),
             'montant': forms.NumberInput(attrs={'class':'form-control'}),
+            'image': forms.ClearableFileInput(attrs={
+                'class': 'form-control form-control-lg border p-5',
+                'style': 'height: 100px; background: repeating-linear-gradient(45deg, #eee, #eee 10px, #ddd 10px, #ddd 20px); text-align: center;',
+            }),
         }
         
 class UpdatVignetteForm(forms.ModelForm):
@@ -236,9 +248,8 @@ class DecaissementForm(forms.ModelForm):
     date_saisie = forms.DateField(widget= forms.DateInput(format=('%m/%d/%Y'), attrs={'class':'form-control', 'format':'yyyy-mm-dd', 'type':'date'}))
     class Meta:
         model = Decaissement
-        fields = ('Num_piece','libelle','montant','date_saisie','auteur')
+        fields = ('Num_piece','libelle','montant','date_saisie',)
         widgets = {
-            'auteur': forms.TextInput(attrs={'class':'form-control','value':'', 'id': 'elder','type':'hidden'}),
             'libelle': forms.TextInput(attrs={'class':'form-control'}),
             'Num_piece': forms.TextInput(attrs={'class':'form-control'}),
             'montant': forms.NumberInput(attrs={'class':'form-control'}),
@@ -266,9 +277,9 @@ class EncaissementForm(forms.ModelForm):
     date_saisie = forms.DateField(widget= forms.DateInput(format=('%m/%d/%Y'), attrs={'class':'form-control', 'format':'yyyy-mm-dd', 'type':'date'}))
     class Meta:
         model = Encaissement
-        fields = ('Num_piece','libelle','montant','date_saisie','auteur')
+        fields = ('Num_piece','libelle','montant','date_saisie',)
         widgets = {
-            'auteur': forms.TextInput(attrs={'class':'form-control','value':'', 'id': 'elder','type':'hidden'}),
+            
             'libelle': forms.TextInput(attrs={'class':'form-control'}),
             'Num_piece': forms.TextInput(attrs={'class':'form-control'}),
             'montant': forms.NumberInput(attrs={'class':'form-control'}),
@@ -277,9 +288,8 @@ class EncaissementForm(forms.ModelForm):
 class UpdatEncaissementForm(forms.ModelForm):
     class Meta:
         model = Encaissement
-        fields = ('Num_piece','libelle','montant','date_saisie','auteur')
+        fields = ('Num_piece','libelle','montant','date_saisie',)
         widgets = {
-            'auteur': forms.TextInput(attrs={'class':'form-control','value':'', 'id': 'elder','type':'hidden'}),
             'libelle': forms.TextInput(attrs={'class':'form-control'}),
             'Num_piece': forms.TextInput(attrs={'class':'form-control'}),
             'montant': forms.NumberInput(attrs={'class':'form-control'}),
@@ -296,9 +306,8 @@ class RecetteForm(forms.ModelForm):
     date_saisie = forms.DateTimeField(widget= forms.DateInput(format=('%m/%d/%Y'), attrs={'class':'form-control', 'format':'yyyy-mm-dd', 'type':'date'}))
     class Meta:
         model = Recette
-        fields = ('chauffeur','montant','cpte_comptable','Num_piece','numero_fact','date_saisie','auteur')
+        fields = ('chauffeur','montant','cpte_comptable','Num_piece','numero_fact','date_saisie',)
         widgets = {
-            'auteur': forms.TextInput(attrs={'class':'form-control','value':'', 'id': 'elder','type':'hidden'}),
             'chauffeur': forms.TextInput(attrs={'class':'form-control'}),
             'cpte_comptable': forms.TextInput(attrs={'class':'form-control'}),
             'Num_piece': forms.TextInput(attrs={'class':'form-control'}),
@@ -330,9 +339,8 @@ class ChargeFixForm(forms.ModelForm):
     date_saisie = forms.DateTimeField(widget= forms.DateInput(format=('%m/%d/%Y'), attrs={'class':'form-control', 'format':'yyyy-mm-dd', 'type':'date'}))
     class Meta:
         model = ChargeFixe
-        fields = ('libelle','montant','cpte_comptable','Num_piece','Num_fact','date_saisie','auteur')
+        fields = ('libelle','montant','cpte_comptable','Num_piece','Num_fact','date_saisie',)
         widgets = {
-            'auteur': forms.TextInput(attrs={'class':'form-control','value':'', 'id': 'elder','type':'hidden'}),
             'libelle': forms.TextInput(attrs={'class':'form-control'}),
             'cpte_comptable': forms.TextInput(attrs={'class':'form-control'}),
             'Num_piece': forms.TextInput(attrs={'class':'form-control'}),
@@ -401,12 +409,15 @@ class VisiteTechniqueForm(forms.ModelForm):
     date_proch = forms.DateField(widget= forms.DateInput(format=('%m/%d/%Y'), attrs={'class':'form-control','placeholder':'Selection une date...', 'format':'yyyy-mm-dd', 'type':'date'}))
     class Meta:
         model = VisiteTechnique
-        fields = ('date_proch','date_vis','montant','image','auteur','date_sortie')
+        fields = ('date_proch','date_vis','montant','image','date_sortie',)
         widgets = {
-            'auteur': forms.TextInput(attrs={'class':'form-control','value':'', 'id': 'elder','type':'hidden'}),
             'montant': forms.NumberInput(attrs={'class':'form-control'}),
             'date_vis' :DateInput(attrs={"type": "datetime-local","class":"form-control"}, format="%Y-%m-%dT%H:%M",),
             'date_sortie' :DateInput(attrs={"type": "datetime-local","class":"form-control"}, format="%Y-%m-%dT%H:%M",),
+            'image': forms.ClearableFileInput(attrs={
+                'class': 'form-control form-control-lg border p-5',
+                'style': 'height: 100px; background: repeating-linear-gradient(45deg, #eee, #eee 10px, #ddd 10px, #ddd 20px); text-align: center;',
+            }),
         } 
     def __init__(self, *args, **kwargs):
         super(VisiteTechniqueForm, self).__init__(*args, **kwargs)
@@ -436,10 +447,9 @@ class AssuranceForm(forms.ModelForm):
     date_proch = forms.DateTimeField(widget= forms.DateInput(format=('%m/%d/%Y'), attrs={'class':'form-control','placeholder':'Selection une date...', 'format':'yyyy-mm-dd', 'type':'date'}))
     class Meta:
         model = Assurance
-        fields = ('date_saisie','date_proch','montant','image','auteur')
+        fields = ('date_saisie','date_proch','montant','image')
         widgets = {
-            'auteur': forms.TextInput(attrs={'class':'form-control','value':'', 'id': 'elder','type':'hidden'}),
-            'montant': forms.NumberInput(attrs={'class':'form-control'}),
+            'montant': forms.NumberInput(attrs={'class':'form-control','min':'0'}),
         }
 
 class UpdatAssuranceForm(forms.ModelForm):
@@ -461,9 +471,8 @@ class EntretienForm(forms.ModelForm):
     date_proch = forms.DateTimeField(widget= forms.DateInput(format=('%m/%d/%Y'), attrs={'class':'form-control','placeholder':'Selection une date...', 'format':'yyyy-mm-dd', 'type':'date'}))
     class Meta:
         model = Entretien
-        fields = ('montant','date_Entret','date_proch','image','auteur','date_sortie')
+        fields = ('montant','date_Entret','date_proch','image','date_sortie')
         widgets = {
-            'auteur': forms.TextInput(attrs={'class':'form-control','value':'', 'id': 'elder','type':'hidden'}),
             'montant': forms.NumberInput(attrs={'class':'form-control'}),
             'date_sortie' :DateInput(attrs={"type": "datetime-local","class":"form-control"}, format="%Y-%m-%dT%H:%M",),
             'date_Entret' :DateInput(attrs={"type": "datetime-local","class":"form-control"}, format="%Y-%m-%dT%H:%M",),
@@ -566,9 +575,8 @@ class PiecEchangeForm(forms.ModelForm):
     date_saisie = forms.DateTimeField(widget= forms.DateInput(format=('%m/%d/%Y'), attrs={'class':'form-control','format':'yyyy-mm-dd', 'type':'date'}))
     class Meta:
         model = PiecEchange
-        fields = ('libelle','montant','lieu','date_saisie','auteur',)
+        fields = ('libelle','montant','lieu','date_saisie',)
         widgets = {
-            'auteur': forms.TextInput(attrs={'class':'form-control','value':'', 'id': 'elder','type':'hidden'}),
             'libelle': forms.TextInput(attrs={'class':'form-control'}),
             'montant': forms.NumberInput(attrs={'class':'form-control'}),
             'lieu' :forms.Select(attrs={"class":"form-control"},),

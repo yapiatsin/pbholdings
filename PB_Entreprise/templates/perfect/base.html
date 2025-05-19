@@ -123,7 +123,7 @@
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
                     <a class="nav-link" data-slide="true" href="#">
-                        <i class="fa fa-calendar" style="font-size: 15px"> {{ dates}}</i>
+                        <i class="fa fa-calendar" style="font-size: 15px">{{dates|date:"d-m-y"}}</i>
                     </a>
                 </li>
                 <li class="nav-item">
@@ -151,9 +151,7 @@
                         {% endif %}
                     {% endif %}
                     </div>
-                    <div class="info text-center">
-                        <a href="#" class="d-flex text-center font-weight-700 mt-3">{{user.username}}</a>
-                    </div>
+                    <div class="info text-center"><a href="#" class="d-flex text-center font-weight-700 mt-3">{{user.username}}</a></div>
                 </div>
                 <nav class="mt-2">
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
@@ -221,9 +219,9 @@
                             {% elif categorie.categorie == "saisiefinance" %}
                                 <li class="nav-item has-treeview">
                                     <a href="" class="nav-link ">
-                                        <i class="nav-icon fa fa-plus-circle"></i>
+                                        <i class="nav-icon fa fa-money"></i>
                                         <p>
-                                            Saisie financière
+                                            Finance
                                             <i class="fas fa-angle-left right"></i>
                                         </p>
                                     </a>
@@ -284,6 +282,46 @@
                                         <i class="nav-icon fa fa-car"></i>
                                         <p>
                                             Véhicule
+                                            <i class="fas fa-angle-left right"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview ">
+                                        <li class="nav-item">
+                                            {% for perm in perms %}
+                                                <a href="{% url perm.url %}" class="nav-link ">
+                                                    <i style="font-size: 10px;" class="far fa-circle nav-icon "></i>
+                                                    <p>{{ perm.name }}</p>
+                                                </a>
+                                            {% endfor %}
+                                        </li>
+                                    </ul>
+                                </li>
+                            {% elif categorie.categorie == "listfinance" %}
+                                <li class="nav-item has-treeview">
+                                    <a href="" class="nav-link ">
+                                        <i class="nav-icon fa fa-list-ul"></i>
+                                        <p>
+                                            Liste financière 
+                                            <i class="fas fa-angle-left right"></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview ">
+                                        <li class="nav-item">
+                                            {% for perm in perms %}
+                                                <a href="{% url perm.url %}" class="nav-link ">
+                                                    <i style="font-size: 10px;" class="far fa-circle nav-icon "></i>
+                                                    <p>{{ perm.name }}</p>
+                                                </a>
+                                            {% endfor %}
+                                        </li>
+                                    </ul>
+                                </li>
+                            {% elif categorie.categorie == "listgarage" %}
+                                <li class="nav-item has-treeview">
+                                    <a href="" class="nav-link ">
+                                        <i class="nav-icon fa fa-list"></i>
+                                        <p>
+                                            Liste Garage
                                             <i class="fas fa-angle-left right"></i>
                                         </p>
                                     </a>

@@ -1348,7 +1348,7 @@ class AddDecaissementView(CreateView):
     model = Decaissement
     form_class = DecaissementForm
     template_name = 'perfect/sortie_caiss.html'
-    success_message = 'Sortie de caisse enregistrée avec succès👍✓✓'
+    success_message = 'Sortie de caisse enregistrée avec succès✓✓'
     error_message = "Erreur de saisie ✘✘ "
     success_url = reverse_lazy ('add_decaisse')
     timeout_minutes = 120
@@ -1425,7 +1425,7 @@ class UpdatDecaissementView(UpdateView):
     model = Decaissement
     form_class = UpdatDecaissementForm
     template_name = 'news/appl/updat_decaissement.html'
-    success_message = 'Sortir de caisse Modifiée avec succès👍✓✓'
+    success_message = 'Sortir de caisse Modifiée avec succès✓✓'
     error_message = "Erreur de saisie ✘✘ "
     success_url = reverse_lazy ('list_decaissement')
     timeout_minutes = 120
@@ -1458,7 +1458,7 @@ class AddEncaissementView(CreateView):
     model = Encaissement
     form_class = EncaissementForm
     template_name = 'perfect/entre_caiss.html'
-    success_message = 'Entrée de caisse enregistrée avec succès👍✓✓'
+    success_message = 'Entrée de caisse enregistrée avec succès✓✓'
     error_message = "Erreur de saisie ✘✘ "
     success_url = reverse_lazy ('addencaisse')
     timeout_minutes = 120
@@ -1472,6 +1472,7 @@ class AddEncaissementView(CreateView):
                 return redirect("login")
         return super().dispatch(request, *args, **kwargs)
     def form_valid(self, form):
+        form.instance.auteur = self.request.user
         reponse =  super().form_valid(form)
         messages.success(self.request, self.success_message)
         return reponse
@@ -1511,7 +1512,7 @@ class AddEncaissementView(CreateView):
             'tot_entre_jours': tot_entre_jour,
             'tot_entre_mois': tot_entree_mois,
             'tot_entre_annuel': tot_entree_annuel,
-            'enters_liste': enter_liste,
+            'enter_liste': enter_liste,
             'resuults_filtre': result_filtre,
             
             'dates': today,
@@ -1535,7 +1536,7 @@ class AddSoldeJourView(CreateView):
     model = SoldeJour
     form_class = Solde_JourForm
     template_name = 'perfect/solde.html'
-    success_message = 'le solde de la journée a été enregistré avec succès.👍✓✓'
+    success_message = 'le solde de la journée a été enregistré avec succès✓✓'
     error_message = "Un solde existe deja pour cette journée ✘✘ "
     success_url = reverse_lazy ('add_solde')
     timeout_minutes = 200
@@ -1551,6 +1552,7 @@ class AddSoldeJourView(CreateView):
     def form_valid(self, form):
         # Vérifie si un solde existe déjà pour la date spécifiée
         date = form.cleaned_data['date_saisie']
+        form.instance.auteur = self.request.user
         messages.success(self.request, self.success_message)
         solde_exist = SoldeJour.objects.filter(date_saisie=date).exists()
         if solde_exist:
@@ -1589,7 +1591,7 @@ class UpdatEncaissementView(UpdateView):
     model = Encaissement
     form_class = UpdatEncaissementForm
     template_name = 'news/appl/updat_encaissement.html'
-    success_message = 'Entrée de caisse Modifiée avec succès👍✓✓'
+    success_message = 'Entrée de caisse Modifiée avec succès✓✓'
     error_message = "Erreur de saisie ✘✘ "
     success_url = reverse_lazy ('list_encaissement')
     timeout_minutes = 120
@@ -1905,11 +1907,12 @@ class AddVehiculeView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateV
     login_url = 'login'
     permission_url = 'add_car'
     template_name = 'perfect/add_vehicule.html'
-    success_message = 'véhicule enregistré avec succès👍✓✓'
+    success_message = 'véhicule enregistré avec succès✓✓'
     error_message = "Erreur de saisie un véhicule enregistré utilise déjà ces informations verifié l'immatriculation, Numero chassis ou la carte grise ✘✘ "
     # success_url = reverse_lazy('add_car')
     timeout_minutes = 120
     def form_valid(self, form):
+        form.instance.auteur = self.request.user
         reponse = super().form_valid(form)
         messages.success(self.request, self.success_message)
         return reponse
@@ -1993,7 +1996,7 @@ class UpdatVehiculeView(UpdateView):
     model = Vehicule
     form_class = UpdatVehiculeForm
     template_name = 'perfect/car_update.html'
-    success_message = 'véhicule Modifié avec succès👍✓✓'
+    success_message = 'véhicule Modifié avec succès✓✓'
     error_message = "Erreur de saisie un véhicule enregistré utilise déjà des informations verifié l'immatriculation, Numero chassis ou la carte grise ✘✘ "
     # success_url = reverse_lazy ('listvehi')
     timeout_minutes = 120
@@ -2007,6 +2010,7 @@ class UpdatVehiculeView(UpdateView):
                 return redirect("login")
         return super().dispatch(request, *args, **kwargs)
     def form_valid(self, form):
+        form.instance.auteur = self.request.user
         reponse = super().form_valid(form)
         messages.success(self.request, self.success_message)
         return reponse
@@ -2893,6 +2897,7 @@ class AddRecetteView(CreateView):
                 return redirect("login")
         return super().dispatch(request, *args, **kwargs)
     def form_valid(self, form):
+        form.instance.auteur = self.request.user
         form.instance.vehicule_id = self.kwargs['pk']
         messages.success(self.request, self.success_message)
         return super().form_valid(form)  
@@ -2981,6 +2986,7 @@ class AddAutrarretView(CreateView):
                 return redirect("login")
         return super().dispatch(request, *args, **kwargs)
     def form_valid(self, form):
+        form.instance.auteur = self.request.user
         form.instance.vehicule_id = self.kwargs['pk']
         messages.success(self.request, self.success_message)
         return super().form_valid(form)  
@@ -3120,7 +3126,7 @@ class UpdateRecetView(UpdateView):
     form_class = UpdateRecetteForm
     template_name = "news/appl/update_recette.html"
     context_object = 'listvehi'  
-    success_message = 'Recette Modifiée avec succès👍✓✓'
+    success_message = 'Recette Modifiée avec succès✓✓'
     error_message = "Erreur de saisie✘✘ "
     success_url = reverse_lazy ('listrecet')
     timeout_minutes = 20
@@ -3222,6 +3228,7 @@ class AddChargeFixView(CreateView):
                 return redirect("login")
         return super().dispatch(request, *args, **kwargs)
     def form_valid(self, form):
+        form.instance.auteur = self.request.user
         form.instance.vehicule_id = self.kwargs['pk']
         messages.success(self.request, self.success_message)
         return super().form_valid(form)  
@@ -3410,7 +3417,7 @@ class UpdateChargFixView(UpdateView):
     form_class = UpdatChargeFixForm
     template_name = "news/appl/update_charg_fix.html"
     context_object = 'listvehi'  
-    success_message = 'Charge Fixe Modifiée avec succès👍✓✓'
+    success_message = 'Charge Fixe Modifiée avec succès✓✓'
     error_message = "Erreur de saisie✘✘ "
     success_url = reverse_lazy ('list_charg_fix')
     timeout_minutes = 10
@@ -3444,8 +3451,7 @@ class AddChargeVarView(CreateView):
     form_class = ChargeVarForm
     template_name= "perfect/add_charg_var.html"
     success_message = 'Charge variable Ajoutée avec succès ✓✓'
-    error_message = "Erreur de saisie ✘✘ "
-    # success_url = reverse_lazy('journal_compta')
+    error_message = "Erreur de saisie ✘✘"
     timeout_minutes = 500
     def dispatch(self, request, *args, **kwargs):
         last_activity = request.session.get('last_activity')
@@ -3457,6 +3463,7 @@ class AddChargeVarView(CreateView):
                 return redirect("login")
         return super().dispatch(request, *args, **kwargs)
     def form_valid(self, form):
+        form.instance.auteur = self.request.user
         form.instance.vehicule_id = self.kwargs['pk']
         messages.success(self.request, self.success_message)
         return super().form_valid(form)  
@@ -3645,7 +3652,7 @@ class UpdateChargeVarView(UpdateView):
     form_class = updatChargeVarForm
     template_name = "news/appl/update_charg_vari.html"
     context_object = 'listvehi'  
-    success_message = 'Charge Variable Modifiée avec succès👍✓✓'
+    success_message = 'Charge Variable Modifiée avec succès✓✓'
     error_message = "Erreur de saisie✘✘"
     success_url = reverse_lazy ('list_charg_var')
     timeout_minutes = 500
@@ -3677,7 +3684,7 @@ class UpdateChargeAdminView(UpdateView):
     model = ChargeAdminis
     form_class = updatChargeAdminisForm
     template_name = "news/appl/add_charg_admin.html"
-    success_message = 'Charge Administrative Modifiée avec succès👍✓✓'
+    success_message = 'Charge Administrative Modifiée avec succès✓✓'
     success_url = reverse_lazy('add_charg_administ')
     timeout_minutes = 500
     def dispatch(self, request, *args, **kwargs):
@@ -3706,7 +3713,7 @@ class AddChargeAdminisView(CreateView):
     model = ChargeAdminis
     form_class = ChargeAdminisForm
     template_name = 'perfect/add_charg_admin.html'
-    success_message = 'Charge administrative enregistrée avec succès👍✓✓'
+    success_message = 'Charge administrative enregistrée avec succès✓✓'
     error_message = "Erreur de saisie ✘✘ "
     success_url = reverse_lazy ('add_chargadminist')
     timeout_minutes = 500
@@ -3720,6 +3727,7 @@ class AddChargeAdminisView(CreateView):
                 return redirect("login")
         return super().dispatch(request, *args, **kwargs)
     def form_valid(self, form):
+        form.instance.auteur = self.request.user
         reponse =  super().form_valid(form)
         messages.success(self.request, self.success_message)
         return reponse
@@ -3880,7 +3888,7 @@ class AddCartStationView(CreateView):
     model = Stationnement
     form_class = CartStationForm
     template_name= "perfect/add_station.html"
-    success_message = 'Carte de Stationnement enregistrée avec succès👍✓✓'
+    success_message = 'Carte de Stationnement enregistrée avec succès✓✓'
     error_message = "Erreur de saisie✘✘"
     timeout_minutes = 500
     def dispatch(self, request, *args, **kwargs):
@@ -3893,6 +3901,7 @@ class AddCartStationView(CreateView):
                 return redirect("login")
         return super().dispatch(request, *args, **kwargs)
     def form_valid(self, form):
+        form.instance.auteur = self.request.user
         form.instance.vehicule_id = self.kwargs['pk']
         messages.success(self.request, self.success_message)
         return super().form_valid(form)
@@ -3936,7 +3945,7 @@ class AddCartStationView(CreateView):
             stat_mois = Stationnement.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 1 
             stat_an = Stationnement.objects.filter(vehicule=vehicule, date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 1 
         else:
-            stat_list = Stationnement.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).order_by('-id')
+            stat_list = Stationnement.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).order_by('id')
             stat_result = Stationnement.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 1 
             stat_jours = Stationnement.objects.filter(vehicule=vehicule, date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 1 
             stat_mois = Stationnement.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 1 
@@ -3964,7 +3973,7 @@ class UpdatCartStationView(UpdateView):
     model = Stationnement
     form_class = UpdatCartStationForm
     template_name= "news/appl/updat_cartestation.html"
-    success_message = 'Modification de carte de station éffectuée avec succès👍✓✓'
+    success_message = 'Modification de carte de station éffectuée avec succès✓✓'
     success_url = reverse_lazy ('list_cart_station')
     timeout_minutes = 20
     def dispatch(self, request, *args, **kwargs):
@@ -4009,7 +4018,7 @@ class DetailCartStationView(DetailView):
          
 class ListCartStationView(ListView):
     model = Stationnement
-    template_name = 'perfect/liste_stationnement.html'
+    template_name = 'perfect/liste_station.html'
     timeout_minutes = 500
     def dispatch(self, request, *args, **kwargs):
         last_activity = request.session.get('last_activity')
@@ -4033,32 +4042,32 @@ class ListCartStationView(ListView):
             date_debut = forms.cleaned_data['date_debut'] 
             date_fin = forms.cleaned_data['date_fin']
             
-            station_all = Patente.objects.filter(date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
-            station_all_taxi = Patente.objects.filter(vehicule__category__category = 'TAXI',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
-            station_all_vtc = Patente.objects.filter(vehicule__category__category = 'VTC',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
-            station_jour = Patente.objects.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
-            station_jour_vtc = Patente.objects.filter(vehicule__category__category = 'VTC',date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
-            station_mois_vtc = Patente.objects.filter(vehicule__category__category='VTC',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
-            station_jour_taxi = Patente.objects.filter(vehicule__category__category = 'TAXI',date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
-            station_mois_taxi = Patente.objects.filter(vehicule__category__category='TAXI',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
-            station_mois_all = Patente.objects.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
-            station_an_fil_vtc = Patente.objects.filter(vehicule__category__category = 'VTC', date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
-            station_an_fil_taxi = Patente.objects.filter(vehicule__category__category = 'TAXI', date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
+            station_all = Stationnement.objects.filter(date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
+            station_all_taxi = Stationnement.objects.filter(vehicule__category__category = 'TAXI',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
+            station_all_vtc = Stationnement.objects.filter(vehicule__category__category = 'VTC',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
+            station_jour = Stationnement.objects.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
+            station_jour_vtc = Stationnement.objects.filter(vehicule__category__category = 'VTC',date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
+            station_mois_vtc = Stationnement.objects.filter(vehicule__category__category='VTC',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
+            station_jour_taxi = Stationnement.objects.filter(vehicule__category__category = 'TAXI',date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
+            station_mois_taxi = Stationnement.objects.filter(vehicule__category__category='TAXI',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
+            station_mois_all = Stationnement.objects.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
+            station_an_fil_vtc = Stationnement.objects.filter(vehicule__category__category = 'VTC', date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
+            station_an_fil_taxi = Stationnement.objects.filter(vehicule__category__category = 'TAXI', date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
 
-            list_station = Patente.objects.filter(date_saisie__range=[date_debut, date_fin]).order_by('-id')
+            list_station = Stationnement.objects.filter(date_saisie__range=[date_debut, date_fin]).order_by('-id')
         else:
-            station_all = Patente.objects.filter(date_saisie__month=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
-            station_all_taxi = Patente.objects.filter(vehicule__category__category = 'TAXI',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
-            station_all_vtc = Patente.objects.filter(vehicule__category__category = 'VTC',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
-            station_jour = Patente.objects.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
-            station_jour_vtc = Patente.objects.filter(vehicule__category__category = 'VTC',date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
-            station_mois_vtc = Patente.objects.filter(vehicule__category__category='VTC',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
-            station_jour_taxi = Patente.objects.filter(vehicule__category__category = 'TAXI',date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
-            station_mois_taxi = Patente.objects.filter(vehicule__category__category='TAXI',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
-            station_mois_all = Patente.objects.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
-            station_an_fil_vtc = Patente.objects.filter(vehicule__category__category = 'VTC', date_saisie__month=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
-            station_an_fil_taxi = Patente.objects.filter(vehicule__category__category = 'TAXI', date_saisie__month=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
-            list_station = Patente.objects.filter(date_saisie__month=date.today().month).order_by('-id')
+            station_all = Stationnement.objects.filter(date_saisie__month=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
+            station_all_taxi = Stationnement.objects.filter(vehicule__category__category = 'TAXI',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
+            station_all_vtc = Stationnement.objects.filter(vehicule__category__category = 'VTC',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
+            station_jour = Stationnement.objects.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
+            station_jour_vtc = Stationnement.objects.filter(vehicule__category__category = 'VTC',date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
+            station_mois_vtc = Stationnement.objects.filter(vehicule__category__category='VTC',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
+            station_jour_taxi = Stationnement.objects.filter(vehicule__category__category = 'TAXI',date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
+            station_mois_taxi = Stationnement.objects.filter(vehicule__category__category='TAXI',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
+            station_mois_all = Stationnement.objects.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
+            station_an_fil_vtc = Stationnement.objects.filter(vehicule__category__category = 'VTC', date_saisie__month=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
+            station_an_fil_taxi = Stationnement.objects.filter(vehicule__category__category = 'TAXI', date_saisie__month=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
+            list_station = Stationnement.objects.filter(date_saisie__month=date.today().month).order_by('-id')
             
         context={
             'list_station':list_station,
@@ -4089,7 +4098,7 @@ class AddPatenteView(CreateView):
     model = Patente
     form_class = PatenteForm
     template_name= "perfect/add_patente.html"
-    success_message = 'Patente enregistrée avec succès👍✓✓'
+    success_message = 'Patente enregistrée avec succès✓✓'
     error_message = "Erreur de saisie✘✘"
     timeout_minutes = 500
     def dispatch(self, request, *args, **kwargs):
@@ -4102,6 +4111,7 @@ class AddPatenteView(CreateView):
                 return redirect("login")
         return super().dispatch(request, *args, **kwargs)
     def form_valid(self, form):
+        form.instance.auteur = self.request.user
         form.instance.vehicule_id = self.kwargs['pk']
         messages.success(self.request, self.success_message)
         return super().form_valid(form)
@@ -4204,7 +4214,7 @@ class UpdatPatenteView(UpdateView):
     model = Patente
     form_class = UpdatPatenteForm
     template_name= "news/appl/updat_patente.html"
-    success_message = 'Saisie de Patente modifiée avec succès👍✓✓'
+    success_message = 'Saisie de Patente modifiée avec succès✓✓'
     success_url = reverse_lazy ('list_patente')
     timeout_minutes = 20
     def dispatch(self, request, *args, **kwargs):
@@ -4331,7 +4341,7 @@ class AddVignetteView(CreateView):
     model = Vignette
     form_class = VignetteForm
     template_name= "perfect/add_vignette.html"
-    success_message = 'Vignette enregistrée avec succès👍✓✓'
+    success_message = 'Vignette enregistrée avec succès✓✓'
     error_message = "Erreur de saisie✘✘"
     timeout_minutes = 500
     def dispatch(self, request, *args, **kwargs):
@@ -4344,6 +4354,7 @@ class AddVignetteView(CreateView):
                 return redirect("login")
         return super().dispatch(request, *args, **kwargs)
     def form_valid(self, form):
+        form.instance.auteur = self.request.user
         form.instance.vehicule_id = self.kwargs['pk']
         messages.success(self.request, self.success_message)
         return super().form_valid(form)
@@ -4437,7 +4448,7 @@ class UpdatVignetteView(UpdateView):
     model = Vignette
     form_class = UpdatVignetteForm
     template_name = "news/appl/updat_vignette.html"
-    success_message = 'Saisie de Vignette effectuée avec succès👍✓✓'
+    success_message = 'Saisie de Vignette effectuée avec succès✓✓'
     success_url = reverse_lazy ('list_vignet')
     timeout_minutes = 15
     def dispatch(self, request, *args, **kwargs):
@@ -4587,6 +4598,7 @@ class AddVisitView(CreateView):
                 return redirect("login")
         return super().dispatch(request, *args, **kwargs)
     def form_valid(self, form):
+        form.instance.auteur = self.request.user
         form.instance.vehicule_id = self.kwargs['pk']
         messages.success(self.request, self.success_message)
         return super().form_valid(form)  
@@ -4760,7 +4772,7 @@ class UpdateVisiteView(UpdateView):
     model = VisiteTechnique
     form_class = UpdatVisiteTechniqueForm
     template_name = "news/appl/updat_visit.html" 
-    success_message = 'Charge Variable Modifiée avec succès👍✓✓'
+    success_message = 'Charge Variable Modifiée avec succès✓✓'
     error_message = "Erreur de saisie✘✘"
     success_url = reverse_lazy ('list_visit')
     timeout_minutes = 20
@@ -4792,7 +4804,7 @@ class AddAssuranceView(CreateView):
     model = Assurance
     form_class = AssuranceForm
     template_name= "perfect/add_assurance.html"
-    success_message = 'Assurance enregistré avec succès👍✓✓'
+    success_message = 'Assurance enregistré avec succès✓✓'
     error_message = "Erreur de saisie✘✘"
     timeout_minutes = 500
     def dispatch(self, request, *args, **kwargs):
@@ -4805,6 +4817,7 @@ class AddAssuranceView(CreateView):
                 return redirect("login")
         return super().dispatch(request, *args, **kwargs)
     def form_valid(self, form):
+        form.instance.auteur = self.request.user
         form.instance.vehicule_id = self.kwargs['pk']
         messages.success(self.request, self.success_message)
         return super().form_valid(form)
@@ -4973,7 +4986,7 @@ class UpdateAssuranceView(UpdateView):
     model = Assurance
     form_class = UpdatAssuranceForm
     template_name = "news/appl/updat_assurance.html" 
-    success_message = 'Assurance Modifiée avec succès👍✓✓'
+    success_message = 'Assurance Modifiée avec succès✓✓'
     error_message = "Erreur de saisie✘✘"
     success_url = reverse_lazy ('journal_garag')
     timeout_minutes = 20
@@ -5006,7 +5019,7 @@ class AddReparationView(CreateView):
     model = Reparation
     form_class = ReparationForm
     template_name= "perfect/add_reparation.html"
-    success_message = 'Réparation enregistrée avec succès👍✓✓'
+    success_message = 'Réparation enregistrée avec succès✓✓'
     error_message = "Erreur de saisie ✘✘"
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -5123,7 +5136,7 @@ class AddPiecEchangeView(CreateView):
     model = PiecEchange
     form_class = PiecEchangeForm
     template_name= "perfect/add_piecechange.html"
-    success_message = 'Pièces enregistrées avec succès👍✓✓'
+    success_message = 'Pièces enregistrées avec succès✓✓'
     error_message = "Erreur de saisie✘✘"
     timeout_minutes = 500
     def dispatch(self, request, *args, **kwargs):
@@ -5136,6 +5149,7 @@ class AddPiecEchangeView(CreateView):
                 return redirect("login")
         return super().dispatch(request, *args, **kwargs)
     def form_valid(self, form):
+        form.instance.auteur = self.request.user
         form.instance.vehicule_id = self.kwargs['pk']
         messages.success(self.request, self.success_message)
         return super().form_valid(form)
@@ -5319,7 +5333,7 @@ class UpdateReparationView(UpdateView):
     form_class = UpdatReparationForm
     template_name = "news/appl/updat_reparation.html"
     context_object = 'listvehi'  
-    success_message = 'Réparation Modifiée avec succès👍✓✓'
+    success_message = 'Réparation Modifiée avec succès✓✓'
     error_message = "Erreur de saisie✘✘ "
     success_url = reverse_lazy ('list_repa')
     timeout_minutes = 5
@@ -5499,7 +5513,7 @@ class AddEntretienView(CreateView):
     model = Entretien
     form_class = EntretienForm
     template_name= "perfect/add_entretien.html"
-    success_message = 'Entretien effectué avec succès👍✓✓'
+    success_message = 'Entretien effectué avec succès✓✓'
     error_message = "Erreur de saisie ✘✘ "
     success_url = reverse_lazy ('journal_garag')
     timeout_minutes = 30
@@ -5545,6 +5559,7 @@ class AddEntretienView(CreateView):
                 return redirect("login")
         return super().dispatch(request, *args, **kwargs)
     def form_valid(self, form):
+        form.instance.auteur = self.request.user
         form.instance.vehicule_id = self.kwargs['pk']
         messages.success(self.request, self.success_message)
         return super().form_valid(form)  
@@ -5716,7 +5731,7 @@ class UpdatEntretienView(UpdateView):
     form_class = UpdatEntretienForm
     template_name = "news/appl/update_entretien.html"
     context_object = 'listvehi'  
-    success_message = 'Entretien Modifiée avec succès👍✓✓'
+    success_message = 'Entretien Modifiée avec succès✓✓'
     error_message = "Erreur de saisie✘✘ "
     success_url = reverse_lazy ('list_entretien')
     timeout_minutes = 5
@@ -5749,7 +5764,7 @@ class AddCategoriVehi(CreateView):
     model = CategoVehi      
     form_class = CategorieForm      
     template_name = 'perfect/add_categorie.html'
-    success_message = 'Categorie enregistré avec succès👍✓✓'
+    success_message = 'Categorie enregistré avec succès✓✓'
     error_message = "Erreur de saisie, cette categorie ou cet identifiant existe✘✘"
     success_url= reverse_lazy('add_catego_vehi')
     timeout_minutes = 120
