@@ -1,15 +1,16 @@
 {% extends 'perfect/base.html' %} 
 {% load static %} 
-{% block title %} Etat des recettes {% endblock title %} 
-{% block navbar_nav %} {% endblock navbar_nav %} 
+{% block title %} Table des arrêts {% endblock title %} 
+{% block navbar_nav %}
+
+{% endblock navbar_nav %} 
 {% block page_title %}
-<img class="profile-user-img" style="border:none; height:55px;width:55px" src="{% static 'addcar.png' %}" alt="User profile picture">Etat des recettes 
+<img class="profile-user-img" style="border:none; height:45px;width:45px" src="{% static 'visit.png' %}" alt="User profile picture">Liste des arrêts
 {% endblock page_title %} 
-    {% block page_a %} {% endblock page_a %} 
-    {% block active_page %} Ajouter un véhicule {% endblock active_page%} 
+{% block page_a %}
+{% endblock page_a %}
+{% block active_page %}Arrêt{% endblock active_page%}
 {% block main_content %}
-{% if user.user_type == '4' %}
-{% else %}
 <div class="col-md-12">
     <div class="card" style="color: #0176bf; border-radius: 20px; border-color: #00217b; font-weight: 700;">
         <div class="card-body table-responsive p-0" style="border-radius:8px; border:none">
@@ -21,13 +22,13 @@
                                 <td style="border: none;">
                                     <div style="display: flex; align-items: center;">
                                         <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 9px; margin-left: 0px;" src="{% static 'vtc.png' %}" alt="" srcset="">
+                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 9px; margin-left: 8px;" src="{% static 'vtc.png' %}" alt="" srcset="">
                                         </div>
                                         <div>
-                                            <div style="font-size: 15px;color: #06497C">Total du mois</div>
+                                            <div style="font-size: 15px;color: #06497C">Aujourd'hui</div>
                                             <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
-                                                {{recets_mois_all}}
-                                                <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
+                                                {{autaret_jour}}
+                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
                                             </div>
                                         </div>
                                     </div>
@@ -35,13 +36,13 @@
                                 <td style="border: none;">
                                     <div style="display: flex; align-items: center;">
                                         <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 6px; margin-left: 0px;" src="{% static 'taxi.png' %}" alt="" srcset="">
+                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 6px; margin-left: 7px;" src="{% static 'taxi.png' %}" alt="" srcset="">
                                         </div>
                                         <div>
-                                            <div style="font-size: 15px;color: #06497C">TAXI: {{libelles_mois}} <small></small></div>
+                                            <div style="font-size: 15px;color: #06497C">TAXI: <small>Aujourd'hui</small></div>
                                             <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
-                                                {{recets_mois_taxi}}
-                                                <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
+                                                {{autaret_jour_taxi}}
+                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
                                             </div>
                                         </div>
                                     </div>
@@ -52,25 +53,24 @@
                                             <img style="height: 35px; width: 35px; position:relative; margin-top: 8px; margin-left: 3px;" src="{% static 'marge.png' %}" alt="" srcset="">
                                         </div>
                                         <div>
-                                            <div style="font-size: 15px;color: #06497C">VTC: {{libelles_mois}} <small></small></div>
+                                            <div style="font-size: 15px;color: #06497C">VTC: <small>Aujourd'hui</small></div>
                                             <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
-                                                {{recets_mois_vtc}}
-                                                <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
+                                                {{autaret_jour_vtc}}
+                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
                                             </div>
                                         </div>
                                     </div>
                                 </td>
-
                                 <td style="border: none;">
                                     <div style="display: flex; align-items: center;">
                                         <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
                                             <img style="height: 35px; width: 35px; position:relative; margin-top: 9px; margin-left: 7px;" src="{% static 'brute.png' %}" alt="" srcset="">
                                         </div>
                                         <div>
-                                            <div style="font-size: 15px;color: #06497C">TAXI: <small>{{annees}}</small></div>
+                                            <div style="font-size: 15px;color: #06497C">TAXI: <small>{{libelles_mois}}</small></div>
                                             <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
-                                                {{recets_an_fil_taxi}}
-                                                <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
+                                                {{autaret_mois_taxi}}
+                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
                                             </div>
                                         </div>
                                     </div>
@@ -78,26 +78,24 @@
                                 <td style="border: none;">
                                     <div style="display: flex; align-items: center;">
                                         <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 9px;margin-left: 0px;" src="{% static 'chargfix.png' %}" alt="" srcset="">
+                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 9px;margin-left: 8px;" src="{% static 'chargfix.png' %}" alt="" srcset="">
                                         </div>
                                         <div>
-                                            <div style="font-size: 15px;color: #06497C">VTC: <small>{{annees}}</small></div>
-                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
-                                            {{recets_an_fil_vtc}}
-                                                <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
+                                            <div style="font-size: 15px;color: #06497C">VTC: <small>{{libelle_mois}}</small></div>
+                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">{{autaret_mois_vtc}}
+                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
                                             </div>
                                         </div>
                                     </div>
                                 </td>
-
                                 <td style="border: none;">
                                     <div style="display: flex; align-items: center;">
                                         <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 9px;margin-left: 0px;" src="{% static 'chargfix.png' %}" alt="" srcset="">
+                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 9px;margin-left: 8px;" src="{% static 'chargfix.png' %}" alt="" srcset="">
                                         </div>
                                         <div>
-                                            <div style="font-size: 15px;color: #06497C">Total de {{annees}}</div>
-                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">{{recets_an_all}} <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small></div>
+                                            <div style="font-size: 15px;color: #06497C">Total de {{libelle_mois}}</div>
+                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">{{autaret_mois_all}} <small style="color: #06497C; font-weight: 700; line-height: 1;"></small></div>
                                         </div>
                                     </div>
                                 </td>
@@ -109,8 +107,6 @@
         </div>
     </div>
 </div>
-
-<!-- ---------------------------- MEILLEUR_RECETTE ---------------------------- -->
 
 <div class="col-md-2">
     <div class="card card-outline" style="border-radius:20px">
@@ -133,7 +129,7 @@
                             <div style="display: flex; align-items: center;">
                                 <div class="text-center p-1 m-2">
                                     <div class="text-center" style="font-size:16px; color: #06497C; text-align: center;font-weight:700">
-                                        <li>{{recets_mois_vtc}} Frscfa</li>
+                                        <li>{{autaret_an_fil_vtc}}</li>
                                     </div>
                                 </div>
                             </div>
@@ -152,7 +148,7 @@
                             <div style="display: flex; align-items: center;">
                                 <div class="text-center p-1 m-2">
                                     <div class="text-center" style="font-size:16px; color: #06497C; text-align: center;font-weight:700">
-                                        <li>{{recets_mois_taxi}} Frscfa</li>
+                                        <li>{{autaret_an_fil_taxi}}</li>
                                     </div>
                                 </div>
                             </div>
@@ -170,7 +166,7 @@
                             <div style="display: flex; align-items: center;">
                                 <div class="text-center m-2">
                                     <div class="text-center" style="font-size:16px; color: #06497C; text-align: center;font-weight:700">
-                                        = {{recets_mois_all}} Frscfa
+                                        = {{autaret_all}}
                                     </div>
                                 </div>
                             </div>
@@ -181,7 +177,7 @@
         </div>
     </div>
 </div>
-<!-- FIN MEILLEUR RECETTE -->
+        <!-- FIN MEILLEUR RECETTE -->
 <div class="col-md-10">
     <div class="row">
         <div class="col-md-12">
@@ -203,44 +199,36 @@
                                 <div class="card-body">
                                     <table id="example1" class="table table-bordered table-striped">
                                         <thead>
-                                            <tr class=" text-center text-danger ">
+                                            <tr class=" text-center text-danger">
                                                 <th>IMMAT</th>
                                                 <th>MARQUE</th>
                                                 <th>CATEGORIE</th>
                                                 <th>MONTANT</th>
-                                                <th>DATE DE SAISIE</th>
-                                                <th>SAISIR PAR </th>
+                                                <th>DATE ENTREE</th>
+                                                <th>DATE SORTIE</th>
+                                                <th>DATE SAISIE</th>
                                                 <th>ACTION</th>
-                                                {% comment %}
-                                                <th>CSS grade</th> {% endcomment %}
                                             </tr>
                                         </thead>
-                                        <tbody>
-                                            {% if list_mois_recettes %} 
-                                                {% for u in list_mois_recettes %}
+                                        <tbody> 
+                                            {% if list_autarret %} 
+                                                {% for u in list_autarret %}
                                                     <tr class="text-center">
-                                                        <td>
-                                                            <a href="#" class="mr-3 text-primary">{{u.vehicule.immatriculation}}</a>
-                                                        </td>
+                                                        <td><a class="mr-3 text-primary">{{u.vehicule.immatriculation}}</a></td>
                                                         <td>{{u.vehicule.marque}}</td>
                                                         <td>{{u.vehicule.category}}</td>
                                                         <td>{{u.montant}}</td>
+                                                        <td>{{u.date_arret|date:"d-m-y H:m:s"}}</td>
+                                                        <td>{{u.date_sortie|date:"d-m-y H:m:s"}}</td>
                                                         <td>{{u.date_saisie|date:"d-m-y"}}</td>
-                                                        <td>{{u.auteur.username}}</td>
                                                         <td class="text-center">
                                                             {% for categorie, perms in grouped_permissions.items %}
-                                                                {% if categorie.categorie == 'permrecette' %}
+                                                                {% if categorie.categorie == "permarret" %}
                                                                     {% for perm in perms %}
-                                                                        {% if u.date_saisie == dates %}
-                                                                            {% if perm.name == "modifier recette" %}
-                                                                                <a href="{% url perm.url u.pk %}" class="text-primary">
-                                                                                    <i style="font-size: 20px;" class="fa fa-edit text-warning"></i>
-                                                                                </a>
-                                                                            {% elif perm.name == "sup recette" %}
-                                                                                <a href="{% url perm.url u.pk %}" class="text-primary" onclick="return confirm('Etes-vous sûre de vouloir supprimer la recette de {{ u.montant }} du {{ u.vehicule.immatriculation }} saisie le {{ u.date_saisie|date:"d-m-y" }}? Toutes les informations liées seront supprimées.')">
-                                                                                    <i style="font-size: 20px;" class="fa fa-trash text-danger"></i>
-                                                                                </a>
-                                                                            {% endif %}
+                                                                        {% if perm.name == "sup autre_arrêt" %}
+                                                                            <a href="{% url perm.url u.pk %}" class="text-primary" onclick="return confirm('Etes-vous sûre de vouloir supprimer la sortie de caisse de {{ u.montant }} saisie le {{ u.date|date:"d-m-y" }}? Toutes les informations liées seront supprimées.')">
+                                                                                <i style="font-size: 20px;" class="fa fa-trash text-danger"></i>
+                                                                            </a>
                                                                         {% endif %}
                                                                     {% endfor %}
                                                                 {% endif %}
@@ -252,6 +240,7 @@
                                         </tbody>
                                     </table>
                                 </div>
+                                <!-- /.card-body -->
                             </div>
                         </div>
                     </div>
@@ -260,5 +249,4 @@
         </div>
     </div>
 </div>
-{% endif %}
 {% endblock main_content %}

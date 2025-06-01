@@ -5,7 +5,6 @@
 
 {% endblock navbar_nav %} 
 {% block page_title %}
-<a href="{% url 'saisi_garag' %}"><img class="profile-user-img" style="border:none; height:35px;width:35px" src="{% static 'retour.png' %}" alt="Retour"></a>
 <img class="profile-user-img" style="border:none; height:55px;width:55px" src="{% static 'addcar.png' %}" alt="User profile picture">Liste des assurances 
 {% endblock page_title %} 
 {% block page_a %}
@@ -110,7 +109,6 @@
         </div>
     </div>
 </div>
-<!-- ---------------------------- MEILLEUR_RECETTE ---------------------------- -->
 
 <div class="col-md-2">
     <div class="card card-outline" style="border-radius:20px">
@@ -208,34 +206,38 @@
                                                 <th>IMMAT</th>
                                                 <th>MARQUE</th>
                                                 <th>CATEGORIE</th>
-                                                <th>N°CHASSIS</th>
-                                                <th>N°CARTE GRISE</th>
-                                                <th>COUT</th>
+                                                <th>MONTANT</th>
+                                                <th>DATE</th>
+                                                <th>PROCHAINE DATE</th>
+                                                <th>SAISIR PAR</th>
                                                 <th>ACTION</th>
-                                                {% comment %}
-                                                <th>CSS grade</th> {% endcomment %}
                                             </tr>
                                         </thead>
                                         <tbody> 
                                             {% if list_assurances %} 
                                                 {% for u in list_assurances %}
                                                     <tr class="text-center">
-                                                        <td>
-                                                            <a class="mr-3 text-primary">{{u.immatriculation}}</a>
-                                                        </td>
-                                                        <td>{{u.marque}}</td>
-                                                        <td>{{u.category}}</td>
-                                                        <td>{{u.num_Chassis}}</td>
-                                                        <td>{{u.num_cart_grise}}</td>
-                                                        <td>{{u.cout_acquisition}}</td>
+                                                        <td><a class="mr-3 text-primary">{{u.vehicule.immatriculation}}</a></td>
+                                                        <td>{{u.vehicule.marque}}</td>
+                                                        <td>{{u.vehicule.category}}</td>
+                                                        <td>{{u.montant}}</td>
+                                                        <td>{{u.date_saisie|date:"d-m-y"}}</td>
+                                                        <td>{{u.date_proch|date:"d-m-y"}}</td>
+                                                        <td>{{u.auteur.username}}</td>
                                                         <td class="text-center">
                                                             {% for categorie, perms in grouped_permissions.items %}
                                                                 {% if categorie.categorie == 'permassurance' %}
                                                                     {% for perm in perms %}
-                                                                        {% if perm.name == "sup assurance" %}
-                                                                            <a href="{% url perm.url u.pk %}" class="text-primary" onclick="return confirm('Etes-vous sûre de vouloir supprimer la recette de {{ u.montant }} du {{ u.vehicule.immatriculation }} saisie le {{ u.date_saisie|date:"d-m-y" }}? Toutes les informations liées seront supprimées.')">
-                                                                                <i style="font-size: 20px;" class="fa fa-trash text-danger"></i>
-                                                                            </a>
+                                                                        {% if u.date_saisie == dates %}
+                                                                            {% if perm.name == "modifier assurance" %}
+                                                                                <a href="{% url perm.url u.pk %}" class="text-primary">
+                                                                                    <i style="font-size: 20px;" class="fa fa-edit text-warning"></i>
+                                                                                </a>
+                                                                            {% elif perm.name == "sup assurance" %}
+                                                                                <a href="{% url perm.url u.pk %}" class="text-primary" onclick="return confirm('Etes-vous sûre de vouloir supprimer la recette de {{ u.montant }} du {{ u.vehicule.immatriculation }} saisie le {{ u.date_saisie|date:"d-m-y" }}? Toutes les informations liées seront supprimées.')">
+                                                                                    <i style="font-size: 20px;" class="fa fa-trash text-danger"></i>
+                                                                                </a>
+                                                                            {% endif %}
                                                                         {% endif %}
                                                                     {% endfor %}
                                                                 {% endif %}

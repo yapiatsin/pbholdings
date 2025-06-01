@@ -126,7 +126,7 @@ JAZZMIN_SETTINGS = {
     "site_header": "P&BEntrepprise",
     "site_brand": "P&BEntreprise",
     #"site_logo": "assetts/img/icon.png",
-    "copyright" : "P&BEntreprise 2024", 
+    "copyright" : "P&BEntreprise 2025", 
     "topmenu_links": [
         # Url that gets reversed (Permissions can be added)
         {"name": "Tableau de bord", "url": "dash", "permissions": ["userauths.User"]},

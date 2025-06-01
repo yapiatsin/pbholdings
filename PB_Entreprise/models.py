@@ -203,7 +203,6 @@ class Piece(models.Model):
     def __str__(self):
         return '%s ' % (self.libelle)
     
-
 class PiecEchange(models.Model):
     auteur = models.ForeignKey(CustomUser,on_delete=models.CASCADE, related_name='user_piechange')
     vehicule = models.ForeignKey(Vehicule, on_delete=models.CASCADE, related_name="piechang")

@@ -3,7 +3,6 @@
 {% block title %} Etat des reparations {% endblock title %} 
 {% block navbar_nav %} {% endblock navbar_nav %} 
 {% block page_title %}
-<a href="{% url 'dashgarage' %}"><img class="profile-user-img" style="border:none; height:35px;width:35px" src="{% static 'retour.png' %}" alt="Retour"></a>
 <img class="profile-user-img" style="border:none; height:45px;width:45px" src="{% static 'clereparat.png' %}" alt="User profile picture">Etat des réparations 
 {% endblock page_title %} 
     {% block page_a %} {% endblock page_a %} 
@@ -225,11 +224,13 @@
                                                         <td>
                                                             {% for categorie, perms in grouped_permissions.items %}
                                                                 {% if categorie.categorie == 'permreparation' %}
-                                                                    {% for perm in perms %}:
-                                                                        {% if perm.name == "sup reparation" %}
-                                                                            <a href="{% url perm.url u.pk %}" class="text-primary" onclick="return confirm('Etes-vous sûre de vouloir supprimer la reparation du {{ u.montant }} du {{ u.vehicule.immatriculation }} saisie le {{ u.date_saisie|date:"d-m-y" }}? Toutes les informations liées seront supprimées.')">
-                                                                                <i style="font-size: 20px;" class="fa fa-trash text-danger"></i>
-                                                                            </a>
+                                                                    {% for perm in perms %}
+                                                                        {% if u.date_saisie == dates %}
+                                                                            {% if perm.name == "sup reparation" %}
+                                                                                <a href="{% url perm.url u.pk %}" class="text-primary" onclick="return confirm('Etes-vous sûre de vouloir supprimer la reparation du {{ u.montant }} du {{ u.vehicule.immatriculation }} saisie le {{ u.date_saisie|date:"d-m-y" }}? Toutes les informations liées seront supprimées.')">
+                                                                                    <i style="font-size: 20px;" class="fa fa-trash text-danger"></i>
+                                                                                </a>
+                                                                            {% endif %}
                                                                         {% endif %}
                                                                     {% endfor %}
                                                                 {% endif %}

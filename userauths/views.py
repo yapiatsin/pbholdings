@@ -72,7 +72,8 @@ def add_administrateur(request):
     if request.method == 'POST':
         userform = CustomUserCreationForm(request.POST)
         adminform = AdministForm(request.POST)
-        if userform.is_valid() and adminform.is_valid():
+        permission_form = UserPermissionForm(request.POST)
+        if userform.is_valid() and adminform.is_valid() and permission_form.is_valid():
             try:
                 user = userform.save(commit=False)
                 password = generate_random_password()
@@ -82,6 +83,9 @@ def add_administrateur(request):
                 adminst = adminform.save(commit=False)
                 adminst.user = user
                 adminst.save()
+
+                permissions = permission_form.cleaned_data['permissions']
+                user.custom_permissions.set(permissions)
                 
                 subjet = 'Création de Compte Administrateur'
                 receivers = [user.email]
@@ -92,9 +96,6 @@ def add_administrateur(request):
                     'date': datetime.today().date,
                     'user_email':user.email
                 }
-                print('')
-                print('----------------------------------------', context)
-                print('')
                 has_send=send_email_with_html_body(
                     subjet=subjet, 
                     receivers= receivers, 
@@ -118,11 +119,13 @@ def add_administrateur(request):
     else:
         userform = CustomUserCreationForm()
         adminform = AdministForm()
+        permission_form = UserPermissionForm()
     return render(request, 'add_admin.html', {
         'user_form': userform,
         'admin_form': adminform,
         'cxt': cxt,
         'admins': adm,
+        'permission_form': permission_form,
     })
 
 def delete_admin(request, pk):
@@ -237,7 +240,8 @@ def add_comptable(request):
     if request.method == 'POST':
         userform = CustomUserCreationForm(request.POST)
         comptableform = ComptableForm(request.POST)
-        if userform.is_valid() and comptableform.is_valid():
+        permission_form = UserPermissionForm(request.POST)
+        if userform.is_valid() and comptableform.is_valid()and permission_form.is_valid():
             try:
                 user = userform.save(commit=False)
                 password = generate_random_password()
@@ -251,6 +255,8 @@ def add_comptable(request):
                 create_by = Administ.objects.get(user=request.user)
                 comptable.create_by = create_by
                 comptable.save()
+                permissions = permission_form.cleaned_data['permissions']
+                user.custom_permissions.set(permissions)
                 
                 subjet = 'Création de Compte Comptable'
                 receivers = [user.email]
@@ -284,12 +290,14 @@ def add_comptable(request):
     else:
         userform = CustomUserCreationForm()
         comptableform = AdministForm()
+        permission_form = UserPermissionForm()
     return render(request, 'add_comptable.html', {
         'user_form': userform,
         'comptable_form': comptableform,
         'cxt': cxt,
         'employes': employ,
         'list_compt': compt,
+        'permission_form': permission_form,
     })
 
 def delete_comptable(request, pk):
@@ -316,7 +324,8 @@ def add_gerant(request):
     if request.method == 'POST':
         userform = CustomUserCreationForm(request.POST)
         gerantform = GerantForm(request.POST)
-        if userform.is_valid() and gerantform.is_valid():
+        permission_form = UserPermissionForm(request.POST)
+        if userform.is_valid() and gerantform.is_valid() and permission_form.is_valid():
             try:
                 user = userform.save(commit=False)
                 password = generate_random_password()
@@ -329,6 +338,8 @@ def add_gerant(request):
                 create_by = Administ.objects.get(user=request.user)
                 gerant.create_by = create_by
                 gerant.save()
+                permissions = permission_form.cleaned_data['permissions']
+                user.custom_permissions.set(permissions)
                 
                 subjet = 'Création de Compte de Gérante'
                 receivers = [user.email]
@@ -362,12 +373,14 @@ def add_gerant(request):
     else:
         userform = CustomUserCreationForm()
         gerantform = GerantForm()
+        permission_form = UserPermissionForm()
     return render(request, 'add_gerant.html', {
         'user_form': userform,
         'gerantform_form': gerantform,
         'cxt': cxt,
         'employes': employ,
         'list_gerant': gerant,
+        'permission_form': permission_form,
     })
 
 def delete_gerant(request, pk):

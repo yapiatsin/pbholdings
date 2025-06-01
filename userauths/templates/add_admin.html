@@ -5,7 +5,7 @@
 
 {% endblock navbar_nav %} 
 {% block page_title %}
-<img class="profile-user-img" style="border:none; height:55px;width:55px" src="{% static 'add-user.png' %}" alt="User profile picture">Créer un compte 
+    <img class="profile-user-img" style="border:none; height:55px;width:55px" src="{% static 'add-user.png' %}" alt="User profile picture">Créer un compte administrateur
 {% endblock page_title %} 
 {% block page_a %}
 {% endblock page_a %}
@@ -55,6 +55,17 @@
                         <div class="col-md-4 form-group">
                             <label>TEL 2</label> {{admin_form.tel2}}
                         </div>
+                        <div class="col-md-12 form-group">
+                            <input type="TEXT" value="LES PERMISSIONS" class="form-control text-center" disabled>
+                        </div>
+                        {% for permission in permission_form.permissions %}
+                            <div class="col-md-4 form-group">
+                                <div class="form-check">
+                                    {{ permission.tag }}
+                                    <label class="form-check-label">{{ permission.choice_label }}</label>
+                                </div>
+                            </div>
+                        {% endfor %}
                     </div>
                     <div class="modal-footer justify-content-between">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>

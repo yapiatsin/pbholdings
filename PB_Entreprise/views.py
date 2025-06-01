@@ -416,8 +416,6 @@ class Bilanday(TemplateView):
         }
         return context
 
-
-
 from calendar import monthrange
 class TableaustopView(CustomPermissionRequiredMixin,TemplateView):
     model = Vehicule
@@ -666,7 +664,8 @@ class SuiviFinancierView(TemplateView):
 from calendar import SUNDAY
 from django.db.models import Sum
 from django.utils.timezone import now
-class MyRecetteView(CustomPermissionRequiredMixin, TemplateView):
+class MyRecetteView(CustomPermissionRequiredMixin, LoginRequiredMixin, TemplateView):
+    login_url = 'login'
     template_name = "perfect/myrecette.html"
     permission_url = 'rec_day'
     def get_context_data(self, **kwargs):
@@ -1172,8 +1171,9 @@ class DashboardView(CustomPermissionRequiredMixin, LoginRequiredMixin, TemplateV
         }
         return context
     
-class BilletageView(CreateView):
+class BilletageView(CustomPermissionRequiredMixin,CreateView):
     model = Billetage
+    permission_url = 'caisse'
     form_class = BilletageForm
     template_name = 'perfect/caisse.html'
     success_message = 'Saisie enrégistrée avec succès✓✓'
@@ -1344,7 +1344,8 @@ class BilletageView(CreateView):
         }
         return context
 
-class AddDecaissementView(CreateView):
+class AddDecaissementView(CustomPermissionRequiredMixin, CreateView):
+    permission_url = 'add_decaisse'
     model = Decaissement
     form_class = DecaissementForm
     template_name = 'perfect/sortie_caiss.html'
@@ -1421,40 +1422,8 @@ def delete_sortie_caisse(request, pk):
         messages.error(request, f"Erreur lors de la suppression : {str(e)}")
     return redirect('add_decaisse')
 
-class UpdatDecaissementView(UpdateView):
-    model = Decaissement
-    form_class = UpdatDecaissementForm
-    template_name = 'news/appl/updat_decaissement.html'
-    success_message = 'Sortir de caisse Modifiée avec succès✓✓'
-    error_message = "Erreur de saisie ✘✘ "
-    success_url = reverse_lazy ('list_decaissement')
-    timeout_minutes = 120
-    def dispatch(self, request, *args, **kwargs):
-        last_activity = request.session.get('last_activity')
-        if last_activity:
-            last_activity = datetime.strptime(last_activity, '%Y-%m-%d %H:%M:%S')
-            if datetime.now() - last_activity > timedelta(minutes=self.timeout_minutes):
-                logout(request)
-                messages.warning(request, "Vous avez été déconnecté ")
-                return redirect("login")
-        return super().dispatch(request, *args, **kwargs)
-    def form_valid(self, form):
-        reponse =  super().form_valid(form)
-        messages.success(self.request, self.success_message)
-        return reponse
-    def form_invalid(self, form):
-        reponse =  super().form_invalid(form)
-        messages.success(self.request, self.error_message)
-        return reponse
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        user_group = self.request.user.groups.first()
-        context['user_group'] = user_group.name if user_group else None
-        context['catego_vehi'] = CategoVehi.objects.all()
-        return context
-
-
-class AddEncaissementView(CreateView):
+class AddEncaissementView(CustomPermissionRequiredMixin, CreateView):
+    permission_url = 'addencaisse'
     model = Encaissement
     form_class = EncaissementForm
     template_name = 'perfect/entre_caiss.html'
@@ -1532,7 +1501,8 @@ def delete_entre_caisse(request, pk):
         messages.error(request, f"Erreur lors de la suppression : {str(e)}")
     return redirect('addencaisse')
 
-class AddSoldeJourView(CreateView):
+class AddSoldeJourView(CustomPermissionRequiredMixin, CreateView):
+    permission_url = 'add_solde'
     model = SoldeJour
     form_class = Solde_JourForm
     template_name = 'perfect/solde.html'
@@ -1586,41 +1556,11 @@ def delete_solde(request, pk):
     except Exception as e:
         messages.error(request, f"Erreur lors de la suppression : {str(e)}")
     return redirect('add_solde')
-   
-class UpdatEncaissementView(UpdateView):
-    model = Encaissement
-    form_class = UpdatEncaissementForm
-    template_name = 'news/appl/updat_encaissement.html'
-    success_message = 'Entrée de caisse Modifiée avec succès✓✓'
-    error_message = "Erreur de saisie ✘✘ "
-    success_url = reverse_lazy ('list_encaissement')
-    timeout_minutes = 120
-    def dispatch(self, request, *args, **kwargs):
-        last_activity = request.session.get('last_activity')
-        if last_activity:
-            last_activity = datetime.strptime(last_activity, '%Y-%m-%d %H:%M:%S')
-            if datetime.now() - last_activity > timedelta(minutes=self.timeout_minutes):
-                logout(request)
-                messages.warning(request, "Vous avez été déconnecté ")
-                return redirect("login")
-        return super().dispatch(request, *args, **kwargs)
-    def form_valid(self, form):
-        reponse =  super().form_valid(form)
-        messages.success(self.request, self.success_message)
-        return reponse
-    def form_invalid(self, form):
-        reponse =  super().form_invalid(form)
-        messages.success(self.request, self.error_message)
-        return reponse
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        user_group = self.request.user.groups.first()
-        context['user_group'] = user_group.name if user_group else None
-        context['catego_vehi'] = CategoVehi.objects.all()
-        return context
-    
+     
 from django.core.mail import send_mail
-class GestionalerteView(TemplateView):                                                                          
+class GestionalerteView(LoginRequiredMixin, CustomPermissionRequiredMixin, TemplateView):  
+    permission_url = 'alerte'  
+    login_url = 'login'                                                                      
     template_name = 'perfect/alerte.html'
     timeout_minutes = 500
     def dispatch(self, request, *args, **kwargs):
@@ -1634,14 +1574,9 @@ class GestionalerteView(TemplateView):
         return super().dispatch(request, *args, **kwargs)
     def send_alert_email(self, vehicle_reference, alert_types):
         today_date = datetime.now().strftime("%Y-%m-%d")
-        
-        # Vérifie si l'alerte a déjà été envoyée aujourd'hui
         last_sent_alerts = self.request.session.get('last_sent_alerts', {})
         if last_sent_alerts.get(vehicle_reference) == today_date:
             return  
-        # Si une alerte a déjà été envoyée aujourd'hui, on quitte la fonction
-        
-        # Formater les types d'alertes pour le message
         alert_message = ", ".join(alert_types)
         subject = "Alerte : Maintenance du véhicule requise"
         message = (
@@ -1992,14 +1927,15 @@ def delete_vehicule(request, pk):
         messages.error(request, f"Erreur lors de la suppression : {str(e)}")
     return redirect('add_car')
 
-class UpdatVehiculeView(UpdateView):
+class UpdatVehiculeView(LoginRequiredMixin, UpdateView):
     model = Vehicule
+    login_url = 'login'
     form_class = UpdatVehiculeForm
     template_name = 'perfect/car_update.html'
     success_message = 'véhicule Modifié avec succès✓✓'
     error_message = "Erreur de saisie un véhicule enregistré utilise déjà des informations verifié l'immatriculation, Numero chassis ou la carte grise ✘✘ "
     # success_url = reverse_lazy ('listvehi')
-    timeout_minutes = 120
+    timeout_minutes = 300
     def dispatch(self, request, *args, **kwargs):
         last_activity = request.session.get('last_activity')
         if last_activity:
@@ -2028,9 +1964,10 @@ class UpdatVehiculeView(UpdateView):
     def get_success_url(self):
         return reverse('updatecar', kwargs={'pk': self.kwargs['pk']})
 
-class DashboardGaragView(TemplateView):
+class DashboardGaragView(CustomPermissionRequiredMixin, TemplateView):
     model = Vehicule
     template_name = 'perfect/dash_garag.html'
+    permission_url = 'dashgarage'
     timeout_minutes = 500
     def dispatch(self, request, *args, **kwargs):
         last_activity = request.session.get('last_activity')
@@ -2301,8 +2238,9 @@ class DashboardGaragView(TemplateView):
             })
         return context 
 
-class DashboardGaragecarView(DetailView):
+class DashboardGaragecarView(LoginRequiredMixin, DetailView):
     model = Vehicule
+    login_url = 'login'
     template_name = 'perfect/dash_garag_car.html'
     timeout_minutes = 500
     def dispatch(self, request, *args, **kwargs):
@@ -2443,17 +2381,15 @@ class DashboardGaragecarView(DetailView):
                 'form':form,
         })
         return context 
-    
-    
-class CarFinanceView(TemplateView):
+        
+class CarFinanceView(LoginRequiredMixin, CustomPermissionRequiredMixin,TemplateView):
+    login_url = 'login'
+    permission_url = 'detail_car_financier'
     model = Vehicule
     template_name = 'perfect/dash_car.html'
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = self.request.user
-        # vehicule = Vehicule.objects.all()
-        
-        # Define the filtering based on user type and gerant_voiture condition
         if user.user_type == "4":
             try:
                 gerant = user.gerants.get()
@@ -2475,7 +2411,9 @@ class CarFinanceView(TemplateView):
         }
         return context
 
-class DetailVehiculeView(DetailView):
+class DetailVehiculeView(LoginRequiredMixin, CustomPermissionRequiredMixin, DetailView):
+    login_url = 'login'
+    permission_url = 'detavehi'
     model = Vehicule
     template_name = 'perfect/dash_car.html'
     timeout_minutes = 500
@@ -2647,7 +2585,9 @@ class DetailVehiculeView(DetailView):
         })    
         return context 
     
-class SaisieGaragView(TemplateView):
+class SaisieGaragView(LoginRequiredMixin, CustomPermissionRequiredMixin, TemplateView):
+    login_url = 'login'
+    permission_url = 'saisi_garag'
     template_name = 'perfect/saisi_garag.html'
     timeout_minutes = 120
     def dispatch(self, request, *args, **kwargs):
@@ -2712,7 +2652,9 @@ class SaisieGaragView(TemplateView):
         }
         return context
  
-class TempsArretsView(TemplateView):
+class TempsArretsView(LoginRequiredMixin, CustomPermissionRequiredMixin, TemplateView):
+    login_url = 'login'
+    permission_url = 'temps_arrets'
     template_name = 'perfect/saisi_temp_arret.html'
     timeout_minutes = 120
     def dispatch(self, request, *args, **kwargs):
@@ -2790,7 +2732,9 @@ class TempsArretsView(TemplateView):
         }
         return context
   
-class SaisiComptaView(TemplateView):
+class SaisiComptaView(LoginRequiredMixin, CustomPermissionRequiredMixin,TemplateView):
+    login_url = 'login'
+    permission_url = 'saisi_compta'
     template_name = 'perfect/saisi_comptable.html'
     timeout_minutes = 120
     def dispatch(self, request, *args, **kwargs):
@@ -2879,13 +2823,14 @@ class SaisiComptaView(TemplateView):
 
 #------------------------------COMPTABLE-------------------------------
 from django.shortcuts import get_object_or_404
-class AddRecetteView(CreateView):
+class AddRecetteView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateView):
+    login_url = 'login'
+    permission_url = 'add_recettes'
     model = Recette
     form_class = RecetteForm
     template_name= "perfect/add_recet.html"
     success_message = 'Recette Ajoutée avec succès ✓✓'
-    error_message = "Erreur de saisie ✘✘ "
-    # success_url = reverse_lazy('journal_compta')
+    error_message = "Erreur de saisie ✘✘"
     timeout_minutes = 500
     def dispatch(self, request, *args, **kwargs):
         last_activity = request.session.get('last_activity')
@@ -2968,7 +2913,9 @@ class AddRecetteView(CreateView):
     def get_success_url(self):
         return reverse('add_recettes', kwargs={'pk': self.kwargs['pk']})
 
-class AddAutrarretView(CreateView):
+class AddAutrarretView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateView):
+    login_url = 'login'
+    permission_url = 'add_autarrets'
     model = Autrarret
     form_class = AutrarretForm
     template_name= "perfect/add_autarret.html"
@@ -3031,14 +2978,12 @@ class AddAutrarretView(CreateView):
             autarret_jours = Autrarret.objects.filter(vehicule=vehicule, date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 1 
             autarret_mois = Autrarret.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 1 
             autarret_an = Autrarret.objects.filter(vehicule=vehicule, date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 1 
-           
         else:
             autarret_list = Autrarret.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).order_by('-id')
             autarret_result = Autrarret.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 1 
             autarret_jours = Autrarret.objects.filter(vehicule=vehicule, date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 1 
             autarret_mois = Autrarret.objects.filter(vehicule=vehicule, date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 1 
             autarret_an = Autrarret.objects.filter(vehicule=vehicule, date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 1
-
         context = {
             "vehicules": vehicules,
             "vehicule": vehicule,
@@ -3056,8 +3001,87 @@ class AddAutrarretView(CreateView):
         return context  
     def get_success_url(self):
         return reverse('add_autarrets', kwargs={'pk': self.kwargs['pk']})
+    
+class ListarretView(LoginRequiredMixin, CustomPermissionRequiredMixin, ListView):
+    login_url = 'login'
+    permission_url = 'liste_aut_arrets'
+    model = Autrarret
+    template_name = 'perfect/liste_arret.html'
+    timeout_minutes = 500
+    def dispatch(self, request, *args, **kwargs):
+        last_activity = request.session.get('last_activity')
+        if last_activity:
+            last_activity = datetime.strptime(last_activity, '%Y-%m-%d %H:%M:%S')
+            if datetime.now() - last_activity > timedelta(minutes=self.timeout_minutes):
+                logout(request)
+                messages.warning(request, "Vous avez été déconnecté ")
+                return redirect("login")
+        return super().dispatch(request, *args, **kwargs)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        dates =date.today()
+        annee =date.today().year
+        mois =date.today().month
+        
+        libelle_mois= calendar.month_name[mois]
+        forms = DateForm(self.request.GET)
+        if forms.is_valid():
+            date_debut = forms.cleaned_data['date_debut'] 
+            date_fin = forms.cleaned_data['date_fin']
+            
+            autaret_all = Autrarret.objects.filter(date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
+            autaret_all_taxi = Autrarret.objects.filter(vehicule__category__category = 'TAXI',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
+            autaret_all_vtc = Autrarret.objects.filter(vehicule__category__category = 'VTC',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
+            autaret_jour = Autrarret.objects.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
+            autaret_jour_vtc = Autrarret.objects.filter(vehicule__category__category = 'VTC',date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
+            autaret_mois_vtc = Autrarret.objects.filter(vehicule__category__category='VTC',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
+            autaret_jour_taxi = Autrarret.objects.filter(vehicule__category__category = 'TAXI',date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
+            autaret_mois_taxi = Autrarret.objects.filter(vehicule__category__category='TAXI',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
+            autaret_mois_all = Autrarret.objects.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
+            autaret_an_fil_vtc = Autrarret.objects.filter(vehicule__category__category = 'VTC', date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
+            autaret_an_fil_taxi = Autrarret.objects.filter(vehicule__category__category = 'TAXI', date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
 
-class ListRecetView(ListView):
+            list_autarret = Autrarret.objects.filter(date_saisie__range=[date_debut, date_fin]).order_by('-id')
+        else:
+            autaret_all = Autrarret.objects.filter(date_saisie__month=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
+            autaret_all_taxi = Autrarret.objects.filter(vehicule__category__category = 'TAXI',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
+            autaret_all_vtc = Autrarret.objects.filter(vehicule__category__category = 'VTC',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
+            autaret_jour = Autrarret.objects.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
+            autaret_jour_vtc = Autrarret.objects.filter(vehicule__category__category = 'VTC',date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
+            autaret_mois_vtc = Autrarret.objects.filter(vehicule__category__category='VTC',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
+            autaret_jour_taxi = Autrarret.objects.filter(vehicule__category__category = 'TAXI',date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
+            autaret_mois_taxi = Autrarret.objects.filter(vehicule__category__category='TAXI',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
+            autaret_mois_all = Autrarret.objects.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
+            autaret_an_fil_vtc = Autrarret.objects.filter(vehicule__category__category = 'VTC', date_saisie__month=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
+            autaret_an_fil_taxi = Autrarret.objects.filter(vehicule__category__category = 'TAXI', date_saisie__month=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
+            list_autarret = Autrarret.objects.filter(date_saisie__month=date.today().month).order_by('-id')
+            
+        context={
+            'list_autarret':list_autarret,
+            'autaret_jour':autaret_jour,
+            'autaret_jour_vtc':autaret_jour_vtc,
+            'autaret_mois_vtc':autaret_mois_vtc,
+            'autaret_mois_taxi':autaret_mois_taxi,
+            'autaret_jour_taxi':autaret_jour_taxi,
+            'autaret_all':autaret_all,
+            
+            'autaret_mois_all':autaret_mois_all,
+            'autaret_all_vtc': autaret_all_vtc,
+            'autaret_all_taxi': autaret_all_taxi,
+            
+            'autaret_an_fil_vtc' : autaret_an_fil_vtc,
+            'autaret_an_fil_taxi': autaret_an_fil_taxi,
+            
+            'autaret':dates,
+            'libelle_mois':libelle_mois,
+            'autarets':annee,
+            'form':forms,
+            }
+        return context
+    
+class ListRecetView(LoginRequiredMixin, CustomPermissionRequiredMixin, ListView):
+    login_url = 'login'
+    permission_url = 'list_recet'
     model = Recette
     template_name = 'perfect/liste_recette.html'
     context_object = 'listrecet'
@@ -3119,41 +3143,7 @@ class ListRecetView(ListView):
             'form':forms,
             }
         return context 
-    
-
-class UpdateRecetView(UpdateView):
-    model = Recette
-    form_class = UpdateRecetteForm
-    template_name = "news/appl/update_recette.html"
-    context_object = 'listvehi'  
-    success_message = 'Recette Modifiée avec succès✓✓'
-    error_message = "Erreur de saisie✘✘ "
-    success_url = reverse_lazy ('listrecet')
-    timeout_minutes = 20
-    def dispatch(self, request, *args, **kwargs):
-        last_activity = request.session.get('last_activity')
-        if last_activity:
-            last_activity = datetime.strptime(last_activity, '%Y-%m-%d %H:%M:%S')
-            if datetime.now() - last_activity > timedelta(minutes=self.timeout_minutes):
-                logout(request)
-                messages.warning(request, "Vous avez été déconnecté ")
-                return redirect("login")
-        return super().dispatch(request, *args, **kwargs)
-    def form_valid(self, form):
-        response = super().form_valid(form)
-        messages.success(self.request, self.success_message)
-        return response
-    def form_invalid(self, form):
-        reponse = super().form_invalid(form)
-        messages.success(self.request, self.error_message)
-        return reponse
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        user_group = self.request.user.groups.first()
-        context['user_group'] = user_group.name if user_group else None
-        context['catego_vehi'] = CategoVehi.objects.all()
-        return context 
-    
+     
 def delete_visite(request, pk):
     try:
         visites = get_object_or_404(VisiteTechnique, id=pk)
@@ -3190,27 +3180,10 @@ def delete_charg_fixe(request, pk):
         messages.error(request, f"Erreur lors de la suppression : {str(e)}")
     return redirect('list_charg_fix')
     
-
-class DetailRecetteView(DetailView):
-    model = Recette
-    template_name = "news/applist/detail_recette.html"
-    timeout_minutes = 5
-    def dispatch(self, request, *args, **kwargs):
-        last_activity = request.session.get('last_activity')
-        if last_activity:
-            last_activity = datetime.strptime(last_activity, '%Y-%m-%d %H:%M:%S')
-            if datetime.now() - last_activity > timedelta(minutes=self.timeout_minutes):
-                logout(request)
-                messages.warning(request, "Vous avez été déconnecté ")
-                return redirect("login")
-        return super().dispatch(request, *args, **kwargs)
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['catego_vehi'] = CategoVehi.objects.all()
-        return context 
     
-
-class AddChargeFixView(CreateView):
+class AddChargeFixView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateView):
+    login_url = 'login'
+    permission_url = 'addcharg_fix'
     model = ChargeFixe
     form_class = ChargeFixForm
     template_name= "perfect/add_charg_fixe.html"
@@ -3298,27 +3271,9 @@ class AddChargeFixView(CreateView):
     def get_success_url(self):
         return reverse('addcharg_fix', kwargs={'pk': self.kwargs['pk']})
    
-class DetailChargeFixeView(DetailView):
-    model = ChargeFixe
-    template_name = "news/applist/detail_charg_fix.html"
-    timeout_minutes = 5
-    def dispatch(self, request, *args, **kwargs):
-        last_activity = request.session.get('last_activity')
-        if last_activity:
-            last_activity = datetime.strptime(last_activity, '%Y-%m-%d %H:%M:%S')
-            if datetime.now() - last_activity > timedelta(minutes=self.timeout_minutes):
-                logout(request)
-                messages.warning(request, "Vous avez été déconnecté ")
-                return redirect("login")
-        return super().dispatch(request, *args, **kwargs)
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        user_group = self.request.user.groups.first()
-        context['user_group'] = user_group.name if user_group else None
-        context['catego_vehi'] = CategoVehi.objects.all()
-        return context 
-    
-class ListChargeFixView(ListView):
+class ListChargeFixView(LoginRequiredMixin, CustomPermissionRequiredMixin, ListView):
+    login_url = 'login'
+    permission_url = 'list_charg_fix'
     model = ChargeFixe
     template_name = 'perfect/liste_charg_fix.html'
     context_object = 'list_charg_fix'
@@ -3412,16 +3367,16 @@ class ListChargeFixView(ListView):
             }
         return context
 
-class UpdateChargFixView(UpdateView):
+class UpdateChargFixView(LoginRequiredMixin, CustomPermissionRequiredMixin, UpdateView):
+    login_url = 'login'
+    permission_url = 'upd_charg_fix'
     model = ChargeFixe
     form_class = UpdatChargeFixForm
-    template_name = "news/appl/update_charg_fix.html"
-    context_object = 'listvehi'  
+    template_name = "perfect/chargfix_update.html" 
     success_message = 'Charge Fixe Modifiée avec succès✓✓'
     error_message = "Erreur de saisie✘✘ "
     success_url = reverse_lazy ('list_charg_fix')
-    timeout_minutes = 10
-
+    timeout_minutes = 200
     def dispatch(self, request, *args, **kwargs):
         last_activity = request.session.get('last_activity')
         if last_activity:
@@ -3432,6 +3387,7 @@ class UpdateChargFixView(UpdateView):
                 return redirect("login")
         return super().dispatch(request, *args, **kwargs)
     def form_valid(self, form):
+        form.instance.auteur = self.request.user
         response = super().form_valid(form)
         messages.success(self.request, self.success_message)
         return response
@@ -3441,12 +3397,19 @@ class UpdateChargFixView(UpdateView):
         return reponse
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        user_group = self.request.user.groups.first()
-        context['user_group'] =user_group.name if user_group else None
-        context['catego_vehi'] = CategoVehi.objects.all()
+        forms = self.get_form()
+        list_chargfix = ChargeFixe.objects.filter(date_saisie=date.today())
+        chargfix=self.get_object()
+        context = {
+            'list_chargfix':list_chargfix,
+            'forms':forms,
+            'chargfix':chargfix,
+        }
         return context 
 
-class AddChargeVarView(CreateView):
+class AddChargeVarView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateView):
+    login_url = 'login'
+    permission_url = 'addcharg_var'
     model = ChargeVariable
     form_class = ChargeVarForm
     template_name= "perfect/add_charg_var.html"
@@ -3534,27 +3497,9 @@ class AddChargeVarView(CreateView):
     def get_success_url(self):
         return reverse('addcharg_var', kwargs={'pk': self.kwargs['pk']})
 
-class DetailChargeVarView(DetailView):
-    model = ChargeVariable
-    template_name = "news/applist/detail_charg_vari.html"
-    timeout_minutes = 500
-    def dispatch(self, request, *args, **kwargs):
-        last_activity = request.session.get('last_activity')
-        if last_activity:
-            last_activity = datetime.strptime(last_activity, '%Y-%m-%d %H:%M:%S')
-            if datetime.now() - last_activity > timedelta(minutes=self.timeout_minutes):
-                logout(request)
-                messages.warning(request, "Vous avez été déconnecté ")
-                return redirect("login")
-        return super().dispatch(request, *args, **kwargs)
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        user_group = self.request.user.groups.first()
-        context['user_group'] = user_group.name if user_group else None
-        context['catego_vehi'] = CategoVehi.objects.all()
-        return context 
-    
-class ListChargeVarView(ListView):
+class ListChargeVarView(LoginRequiredMixin, CustomPermissionRequiredMixin, ListView):
+    login_url = 'login'
+    permission_url = 'list_charg_var'
     model = ChargeVariable
     template_name = 'perfect/liste_charg_var.html'
     context_object = 'list_charg_var'
@@ -3579,46 +3524,46 @@ class ListChargeVarView(ListView):
             date_debut = forms.cleaned_data['date_debut'] 
             date_fin = forms.cleaned_data['date_fin']
             
-            chargvar_all = ChargeFixe.objects.filter(date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
+            chargvar_all = ChargeVariable.objects.filter(date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
             
-            chargevar_all_taxi = ChargeFixe.objects.filter(vehicule__category__category='TAXI',date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
-            chargevar_all_vtc = ChargeFixe.objects.filter(vehicule__category__category='VTC',date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
+            chargevar_all_taxi = ChargeVariable.objects.filter(vehicule__category__category='TAXI',date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
+            chargevar_all_vtc = ChargeVariable.objects.filter(vehicule__category__category='VTC',date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
             
-            chargevar_jour = ChargeFixe.objects.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
+            chargevar_jour = ChargeVariable.objects.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
             
-            chargevar_jour_vtc = ChargeFixe.objects.filter(vehicule__category__category='VTC',date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
-            chargevar_mois_vtc = ChargeFixe.objects.filter(vehicule__category__category='VTC',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
+            chargevar_jour_vtc = ChargeVariable.objects.filter(vehicule__category__category='VTC',date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
+            chargevar_mois_vtc = ChargeVariable.objects.filter(vehicule__category__category='VTC',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
             
-            chargevar_jour_taxi = ChargeFixe.objects.filter(vehicule__category__category = 'TAXI',date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
-            chargevar_mois_taxi = ChargeFixe.objects.filter(vehicule__category__category='TAXI',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
+            chargevar_jour_taxi = ChargeVariable.objects.filter(vehicule__category__category = 'TAXI',date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
+            chargevar_mois_taxi = ChargeVariable.objects.filter(vehicule__category__category='TAXI',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
             
-            chargevar_mois_all = ChargeFixe.objects.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
+            chargevar_mois_all = ChargeVariable.objects.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
             
-            chargevar_an_fil_vtc = ChargeFixe.objects.filter(vehicule__category__category = 'VTC', date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
-            chargevar_an_fil_taxi = Recette.objects.filter(vehicule__category__category = 'TAXI', date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
+            chargevar_an_fil_vtc = ChargeVariable.objects.filter(vehicule__category__category = 'VTC', date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
+            chargevar_an_fil_taxi = ChargeVariable.objects.filter(vehicule__category__category = 'TAXI', date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
 
-            list_chargevar = ChargeFixe.objects.filter(date_saisie__range=[date_debut, date_fin]).order_by('-id')
+            list_chargevar = ChargeVariable.objects.filter(date_saisie__range=[date_debut, date_fin]).order_by('-id')
              
         else:
             
-            chargvar_all = ChargeFixe.objects.filter(date_saisie__month=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
+            chargvar_all = ChargeVariable.objects.filter(date_saisie__month=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
             
-            chargevar_all_taxi = ChargeFixe.objects.filter(vehicule__category__category = 'TAXI',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
-            chargevar_all_vtc = ChargeFixe.objects.filter(vehicule__category__category = 'VTC',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
+            chargevar_all_taxi = ChargeVariable.objects.filter(vehicule__category__category = 'TAXI',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
+            chargevar_all_vtc = ChargeVariable.objects.filter(vehicule__category__category = 'VTC',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
             
-            chargevar_jour = ChargeFixe.objects.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
-            chargevar_jour_vtc = ChargeFixe.objects.filter(vehicule__category__category = 'VTC',date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
-            chargevar_mois_vtc = ChargeFixe.objects.filter(vehicule__category__category='VTC',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
+            chargevar_jour = ChargeVariable.objects.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
+            chargevar_jour_vtc = ChargeVariable.objects.filter(vehicule__category__category = 'VTC',date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
+            chargevar_mois_vtc = ChargeVariable.objects.filter(vehicule__category__category='VTC',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
             
-            chargevar_jour_taxi = ChargeFixe.objects.filter(vehicule__category__category = 'TAXI',date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
-            chargevar_mois_taxi = ChargeFixe.objects.filter(vehicule__category__category='TAXI',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
+            chargevar_jour_taxi = ChargeVariable.objects.filter(vehicule__category__category = 'TAXI',date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
+            chargevar_mois_taxi = ChargeVariable.objects.filter(vehicule__category__category='TAXI',date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
             
-            chargevar_mois_all = ChargeFixe.objects.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
+            chargevar_mois_all = ChargeVariable.objects.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
 
-            chargevar_an_fil_vtc = ChargeFixe.objects.filter(vehicule__category__category = 'VTC', date_saisie__month=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
-            chargevar_an_fil_taxi = ChargeFixe.objects.filter(vehicule__category__category = 'TAXI', date_saisie__month=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
+            chargevar_an_fil_vtc = ChargeVariable.objects.filter(vehicule__category__category = 'VTC', date_saisie__month=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
+            chargevar_an_fil_taxi = ChargeVariable.objects.filter(vehicule__category__category = 'TAXI', date_saisie__month=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
             
-            list_chargevar = ChargeFixe.objects.filter(date_saisie__month=date.today().month).order_by('-id')
+            list_chargevar = ChargeVariable.objects.filter(date_saisie__month=date.today().month).order_by('-id')
             
         context={
             'chargevar_an_fil_vtc' : chargevar_an_fil_vtc,
@@ -3647,69 +3592,9 @@ class ListChargeVarView(ListView):
             }
         return context
 
-class UpdateChargeVarView(UpdateView):
-    model = ChargeVariable
-    form_class = updatChargeVarForm
-    template_name = "news/appl/update_charg_vari.html"
-    context_object = 'listvehi'  
-    success_message = 'Charge Variable Modifiée avec succès✓✓'
-    error_message = "Erreur de saisie✘✘"
-    success_url = reverse_lazy ('list_charg_var')
-    timeout_minutes = 500
-    def dispatch(self, request, *args, **kwargs):
-        last_activity = request.session.get('last_activity')
-        if last_activity:
-            last_activity = datetime.strptime(last_activity, '%Y-%m-%d %H:%M:%S')
-            if datetime.now() - last_activity > timedelta(minutes=self.timeout_minutes):
-                logout(request)
-                messages.warning(request, "Vous avez été déconnecté ")
-                return redirect("login")
-        return super().dispatch(request, *args, **kwargs)
-    def form_valid(self, form):
-        response = super().form_valid(form)
-        messages.success(self.request, self.success_message)
-        return response
-    def form_invalid(self, form):
-        reponse =  super().form_invalid(form)
-        messages.success(self.request, self.error_message)
-        return reponse
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        user_group = self.request.user.groups.first()
-        context['user_group'] = user_group.name if user_group else None
-        context['catego_vehi'] = CategoVehi.objects.all()
-        return context 
-    
-class UpdateChargeAdminView(UpdateView):
-    model = ChargeAdminis
-    form_class = updatChargeAdminisForm
-    template_name = "news/appl/add_charg_admin.html"
-    success_message = 'Charge Administrative Modifiée avec succès✓✓'
-    success_url = reverse_lazy('add_charg_administ')
-    timeout_minutes = 500
-    def dispatch(self, request, *args, **kwargs):
-        last_activity = request.session.get('last_activity')
-        if last_activity:
-            last_activity = datetime.strptime(last_activity, '%Y-%m-%d %H:%M:%S')
-            if datetime.now() - last_activity > timedelta(minutes=self.timeout_minutes):
-                logout(request)
-                messages.warning(request, "Vous avez été déconnecté ")
-                return redirect("login")
-        return super().dispatch(request, *args, **kwargs)
-    def form_valid(self, form):
-        response = super().form_valid(form)
-        messages.success(self.request, self.success_message)
-        return response
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        user_group = self.request.user.groups.first()
-        context['user_group'] = user_group.name if user_group else None
-        context['catego_vehi'] = CategoVehi.objects.all()
-        context['chargadminist'] = ChargeAdminis.objects.all()
-        return context 
-    
-
-class AddChargeAdminisView(CreateView):
+class AddChargeAdminisView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateView):
+    login_url = 'login'
+    permission_url = 'add_chargadminist'
     model = ChargeAdminis
     form_class = ChargeAdminisForm
     template_name = 'perfect/add_charg_admin.html'
@@ -3739,7 +3624,7 @@ class AddChargeAdminisView(CreateView):
         context = super().get_context_data(**kwargs)
         forms = self.get_form()
         annee_en_cours =date.today().year
-        today =date.today()
+        today = date.today()
         mois_en_cours =date.today().month
         libelle_mois_en_cours = calendar.month_name[mois_en_cours]
          
@@ -3796,7 +3681,6 @@ class AddChargeAdminisView(CreateView):
             resultat_format ='{:,}'.format(resultat).replace('',' ')
         else:
             charg_administ = ChargeAdminis.objects.filter(date_saisie__month=date.today().month).order_by('-id')
-            
             charg_adm_jour = ChargeAdminis.objects.filter(date_saisie=date.today()).aggregate(Sum('montant'))['montant__sum'] or 0
             charg_adm_jour_format ='{:,}'.format(charg_adm_jour).replace('',' ')
             charg_adm_mois = ChargeAdminis.objects.filter(date_saisie__month=date.today().month).aggregate(Sum('montant'))['montant__sum'] or 0
@@ -3884,7 +3768,9 @@ def delete_chargadmin(request, pk):
 
 #--------------/-/---------------@-----------------/-/--------------Garage---------------/-/--------------@----------------/-/------------#
 
-class AddCartStationView(CreateView):
+class AddCartStationView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateView):
+    login_url = 'login'
+    permission_url = 'add_station'
     model = Stationnement
     form_class = CartStationForm
     template_name= "perfect/add_station.html"
@@ -3968,55 +3854,10 @@ class AddCartStationView(CreateView):
         return context  
     def get_success_url(self):
         return reverse('add_station', kwargs={'pk': self.kwargs['pk']})
-     
-class UpdatCartStationView(UpdateView):
-    model = Stationnement
-    form_class = UpdatCartStationForm
-    template_name= "news/appl/updat_cartestation.html"
-    success_message = 'Modification de carte de station éffectuée avec succès✓✓'
-    success_url = reverse_lazy ('list_cart_station')
-    timeout_minutes = 20
-    def dispatch(self, request, *args, **kwargs):
-        last_activity = request.session.get('last_activity')
-        if last_activity:
-            last_activity = datetime.strptime(last_activity, '%Y-%m-%d %H:%M:%S')
-            if datetime.now() - last_activity > timedelta(minutes=self.timeout_minutes):
-                logout(request)
-                messages.warning(request, "Vous avez été déconnecté")
-                return redirect("login")
-        return super().dispatch(request, *args, **kwargs)
-    def form_valid(self, form):
-        response = super().form_valid(form)
-        messages.success(self.request, self.success_message)
-        return response
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        user_group = self.request.user.groups.first()
-        context['user_group'] =user_group.name if user_group else None
-        context['catego_vehi'] = CategoVehi.objects.all()
-        return context
 
-class DetailCartStationView(DetailView):
-    model = Stationnement
-    template_name = "news/applist/detail_cartestation.html"
-    timeout_minutes = 5
-    def dispatch(self, request, *args, **kwargs):
-        last_activity = request.session.get('last_activity')
-        if last_activity:
-            last_activity = datetime.strptime(last_activity, '%Y-%m-%d %H:%M:%S')
-            if datetime.now() - last_activity > timedelta(minutes=self.timeout_minutes):
-                logout(request)
-                messages.warning(request, "Vous avez été déconnecté ")
-                return redirect("login")
-        return super().dispatch(request, *args, **kwargs)
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        user_group = self.request.user.groups.first()
-        context['user_group'] = user_group.name if user_group else None
-        context['catego_vehi'] = CategoVehi.objects.all()
-        return context 
-         
-class ListCartStationView(ListView):
+class ListCartStationView(LoginRequiredMixin, CustomPermissionRequiredMixin, ListView):
+    login_url = 'login'
+    permission_url = 'liste_station'
     model = Stationnement
     template_name = 'perfect/liste_station.html'
     timeout_minutes = 500
@@ -4094,7 +3935,9 @@ class ListCartStationView(ListView):
             }
         return context
 
-class AddPatenteView(CreateView):
+class AddPatenteView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateView):
+    login_url = 'login'
+    permission_url = 'add_patente'
     model = Patente
     form_class = PatenteForm
     template_name= "perfect/add_patente.html"
@@ -4210,56 +4053,9 @@ def delete_autarret(request, pk):
         messages.error(request, f"Erreur lors de la suppression : {str(e)}")
     return redirect('add_autarrets', pk=vehicule_pk)
 
-class UpdatPatenteView(UpdateView):
-    model = Patente
-    form_class = UpdatPatenteForm
-    template_name= "news/appl/updat_patente.html"
-    success_message = 'Saisie de Patente modifiée avec succès✓✓'
-    success_url = reverse_lazy ('list_patente')
-    timeout_minutes = 20
-    def dispatch(self, request, *args, **kwargs):
-        last_activity = request.session.get('last_activity')
-        if last_activity:
-            last_activity = datetime.strptime(last_activity, '%Y-%m-%d %H:%M:%S')
-            if datetime.now() - last_activity > timedelta(minutes=self.timeout_minutes):
-                logout(request)
-                messages.warning(request, "Vous avez été déconnecté ")
-                return redirect("login")
-        return super().dispatch(request, *args, **kwargs)
-    def form_valid(self, form):
-        response = super().form_valid(form)
-        messages.success(self.request, self.success_message)
-        return response
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        user_group = self.request.user.groups.first()
-        context['user_group'] = user_group.name if user_group else None
-        context['visites'] = VisiteTechnique.objects.all()
-        context['catego_vehi'] = CategoVehi.objects.all()
-        return context
-
-
-class DetailPatenteView(DetailView):
-    model = Patente
-    template_name = "news/applist/detail_patente.html"
-    timeout_minutes = 5
-    def dispatch(self, request, *args, **kwargs):
-        last_activity = request.session.get('last_activity')
-        if last_activity:
-            last_activity = datetime.strptime(last_activity, '%Y-%m-%d %H:%M:%S')
-            if datetime.now() - last_activity > timedelta(minutes=self.timeout_minutes):
-                logout(request)
-                messages.warning(request, "Vous avez été déconnecté ")
-                return redirect("login")
-        return super().dispatch(request, *args, **kwargs)
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        user_group = self.request.user.groups.first()
-        context['user_group'] = user_group.name if user_group else None
-        context['catego_vehi'] = CategoVehi.objects.all()
-        return context
-
-class ListPatenteView(ListView):
+class ListPatenteView(LoginRequiredMixin, CustomPermissionRequiredMixin, ListView):
+    login_url = 'login'
+    permission_url = 'liste_patente'
     model = Patente
     template_name = 'perfect/liste_patente.html'
     timeout_minutes = 500
@@ -4310,7 +4106,7 @@ class ListPatenteView(ListView):
             patente_an_fil_vtc = Patente.objects.filter(vehicule__category__category = 'VTC', date_saisie__month=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
             patente_an_fil_taxi = Patente.objects.filter(vehicule__category__category = 'TAXI', date_saisie__month=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
             list_patente = Patente.objects.filter(date_saisie__month=date.today().month).order_by('-id')
-            
+            # date_saisie
         context={
             'list_patente':list_patente,
             'patente_jour':patente_jour,
@@ -4336,8 +4132,9 @@ class ListPatenteView(ListView):
             }
         return context
 
-
-class AddVignetteView(CreateView):
+class AddVignetteView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateView):
+    login_url = 'login'
+    permission_url = 'add_vignet'
     model = Vignette
     form_class = VignetteForm
     template_name= "perfect/add_vignette.html"
@@ -4423,76 +4220,9 @@ class AddVignetteView(CreateView):
     def get_success_url(self):
         return reverse('add_vignet', kwargs={'pk': self.kwargs['pk']})
 
-
-class DetailVignetteView(DetailView):
-    model = Vignette
-    template_name = "news/applist/detail_vignette.html"
-    timeout_minutes = 5
-    def dispatch(self, request, *args, **kwargs):
-        last_activity = request.session.get('last_activity')
-        if last_activity:
-            last_activity = datetime.strptime(last_activity, '%Y-%m-%d %H:%M:%S')
-            if datetime.now() - last_activity > timedelta(minutes=self.timeout_minutes):
-                logout(request)
-                messages.warning(request, "Vous avez été déconnecté ")
-                return redirect("login")
-        return super().dispatch(request, *args, **kwargs)
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        user_group = self.request.user.groups.first()
-        context['user_group'] = user_group.name if user_group else None
-        context['catego_vehi'] = CategoVehi.objects.all()
-        return context
-
-class UpdatVignetteView(UpdateView):
-    model = Vignette
-    form_class = UpdatVignetteForm
-    template_name = "news/appl/updat_vignette.html"
-    success_message = 'Saisie de Vignette effectuée avec succès✓✓'
-    success_url = reverse_lazy ('list_vignet')
-    timeout_minutes = 15
-    def dispatch(self, request, *args, **kwargs):
-        last_activity = request.session.get('last_activity')
-        if last_activity:
-            last_activity = datetime.strptime(last_activity, '%Y-%m-%d %H:%M:%S')
-            if datetime.now() - last_activity > timedelta(minutes=self.timeout_minutes):
-                logout(request)
-                messages.warning(request, "Vous avez été déconnecté ")
-                return redirect("login")
-        return super().dispatch(request, *args, **kwargs)
-    def form_valid(self, form):
-        response = super().form_valid(form)
-        messages.success(self.request, self.success_message)
-        return response
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        user_group = self.request.user.groups.first()
-        context['user_group'] =user_group.name if user_group else None
-        context['visites'] = VisiteTechnique.objects.all()
-        context['catego_vehi'] = CategoVehi.objects.all()
-        return context
-
-class DetailVignetteView(DetailView):
-    model = Vignette
-    template_name = "news/applist/detail_vignette.html"
-    timeout_minutes = 5
-    def dispatch(self, request, *args, **kwargs):
-        last_activity = request.session.get('last_activity')
-        if last_activity:
-            last_activity = datetime.strptime(last_activity, '%Y-%m-%d %H:%M:%S')
-            if datetime.now() - last_activity > timedelta(minutes=self.timeout_minutes):
-                logout(request)
-                messages.warning(request, "Vous avez été déconnecté ")
-                return redirect("login")
-        return super().dispatch(request, *args, **kwargs)
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        user_group = self.request.user.groups.first()
-        context['user_group'] = user_group.name if user_group else None
-        context['catego_vehi'] = CategoVehi.objects.all()
-        return context
-
-class ListVignetteView(ListView):
+class ListVignetteView(LoginRequiredMixin, CustomPermissionRequiredMixin,ListView):
+    login_url = 'login'
+    permission_url = 'liste_vignette'
     model = Vignette
     template_name = 'perfect/liste_vignette.html'
     timeout_minutes = 500
@@ -4580,7 +4310,9 @@ class ListVignetteView(ListView):
             }
         return context 
 
-class AddVisitView(CreateView):
+class AddVisitView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateView):
+    login_url = 'login'
+    permission_url = 'add_visit'
     model = VisiteTechnique
     form_class = VisiteTechniqueForm
     template_name= "perfect/add_visite.html"
@@ -4669,7 +4401,9 @@ class AddVisitView(CreateView):
     def get_success_url(self):
         return reverse('add_visit', kwargs={'pk': self.kwargs['pk']})
 
-class ListVisitView(ListView):
+class ListVisitView(LoginRequiredMixin, CustomPermissionRequiredMixin, ListView):
+    login_url = 'login'
+    permission_url = 'list_visit'
     model = VisiteTechnique
     template_name = 'perfect/liste_visites.html'
     timeout_minutes = 500
@@ -4747,60 +4481,9 @@ class ListVisitView(ListView):
             }
         return context
 
-class DetailVisiteView(DetailView):
-    model = VisiteTechnique
-    template_name = "news/applist/detail_visite.html"
-    ordoring = ['date_saisie']
-    timeout_minutes = 5
-    def dispatch(self, request, *args, **kwargs):
-        last_activity = request.session.get('last_activity')
-        if last_activity:
-            last_activity = datetime.strptime(last_activity, '%Y-%m-%d %H:%M:%S')
-            if datetime.now() - last_activity > timedelta(minutes=self.timeout_minutes):
-                logout(request)
-                messages.warning(request, "Vous avez été déconnecté ")
-                return redirect("login")
-        return super().dispatch(request, *args, **kwargs)
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        user_group = self.request.user.groups.first()
-        context['user_group'] = user_group.name if user_group else None
-        context['catego_vehi'] = CategoVehi.objects.all()
-        return context 
-
-class UpdateVisiteView(UpdateView):
-    model = VisiteTechnique
-    form_class = UpdatVisiteTechniqueForm
-    template_name = "news/appl/updat_visit.html" 
-    success_message = 'Charge Variable Modifiée avec succès✓✓'
-    error_message = "Erreur de saisie✘✘"
-    success_url = reverse_lazy ('list_visit')
-    timeout_minutes = 20
-    def dispatch(self, request, *args, **kwargs):
-        last_activity = request.session.get('last_activity')
-        if last_activity:
-            last_activity = datetime.strptime(last_activity, '%Y-%m-%d %H:%M:%S')
-            if datetime.now() - last_activity > timedelta(minutes=self.timeout_minutes):
-                logout(request)
-                messages.warning(request, "Vous avez été déconnecté ")
-                return redirect("login")
-        return super().dispatch(request, *args, **kwargs)
-    def form_valid(self, form):
-        response = super().form_valid(form)
-        messages.success(self.request, self.success_message)
-        return response
-    def form_invalid(self, form):
-        reponse =  super().form_invalid(form)
-        messages.success(self.request, self.error_message)
-        return reponse
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        user_group = self.request.user.groups.first()
-        context['user_group'] = user_group.name if user_group else None
-        context['catego_vehi'] = CategoVehi.objects.all()
-        return context 
-    
-class AddAssuranceView(CreateView):
+class AddAssuranceView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateView):
+    login_url = 'login'
+    permission_url = 'add_assurance'
     model = Assurance
     form_class = AssuranceForm
     template_name= "perfect/add_assurance.html"
@@ -4886,29 +4569,9 @@ class AddAssuranceView(CreateView):
     def get_success_url(self):
         return reverse('add_assurance', kwargs={'pk': self.kwargs['pk']})
 
-
-class DetailAssuranceView(DetailView):
-    model = Assurance
-    template_name = "news/applist/detail_assurance.html"
-    timeout_minutes = 5
-    def dispatch(self, request, *args, **kwargs):
-        last_activity = request.session.get('last_activity')
-        if last_activity:
-            last_activity = datetime.strptime(last_activity, '%Y-%m-%d %H:%M:%S')
-            if datetime.now() - last_activity > timedelta(minutes=self.timeout_minutes):
-                logout(request)
-                messages.warning(request, "Vous avez été déconnecté ")
-                return redirect("login")
-        return super().dispatch(request, *args, **kwargs)
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        user_group = self.request.user.groups.first()
-        context['user_group'] = user_group.name if user_group else None
-        context['catego_vehi'] = CategoVehi.objects.all()
-        return context
-
-  
-class ListAssuranceView(ListView):
+class ListAssuranceView(LoginRequiredMixin, CustomPermissionRequiredMixin, ListView):
+    login_url = 'login'
+    permission_url = 'liste_assurance'
     model = Assurance
     template_name = 'perfect/liste_assurance.html'
     timeout_minutes = 500
@@ -4982,40 +4645,9 @@ class ListAssuranceView(ListView):
             }
         return context 
 
-class UpdateAssuranceView(UpdateView):
-    model = Assurance
-    form_class = UpdatAssuranceForm
-    template_name = "news/appl/updat_assurance.html" 
-    success_message = 'Assurance Modifiée avec succès✓✓'
-    error_message = "Erreur de saisie✘✘"
-    success_url = reverse_lazy ('journal_garag')
-    timeout_minutes = 20
-    def dispatch(self, request, *args, **kwargs):
-        last_activity = request.session.get('last_activity')
-        if last_activity:
-            last_activity = datetime.strptime(last_activity, '%Y-%m-%d %H:%M:%S')
-            if datetime.now() - last_activity > timedelta(minutes=self.timeout_minutes):
-                logout(request)
-                messages.warning(request, "Vous avez été déconnecté ")
-                return redirect("login")
-        return super().dispatch(request, *args, **kwargs)
-    def form_valid(self, form):
-        response = super().form_valid(form)
-        messages.success(self.request, self.success_message)
-        return response
-    def form_invalid(self, form):
-        reponse =  super().form_invalid(form)
-        messages.success(self.request, self.error_message)
-        return reponse
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        user_group = self.request.user.groups.first()
-        context['user_group'] = user_group.name if user_group else None
-        context['catego_vehi'] = CategoVehi.objects.all()
-        return context 
- 
-
-class AddReparationView(CreateView):
+class AddReparationView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateView):
+    login_url = 'login'
+    permission_url = 'add_reparation'
     model = Reparation
     form_class = ReparationForm
     template_name= "perfect/add_reparation.html"
@@ -5132,7 +4764,9 @@ def delete_vignette(request, pk):
         messages.error(request, f"Erreur lors de la suppression : {str(e)}")
     return redirect('add_vignet', pk=vehicule_pk)
 
-class AddPiecEchangeView(CreateView):
+class AddPiecEchangeView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateView):
+    login_url = 'login'
+    permission_url = 'add_piechange'
     model = PiecEchange
     form_class = PiecEchangeForm
     template_name= "perfect/add_piecechange.html"
@@ -5227,7 +4861,6 @@ def delete_piecechange(request, pk):
         messages.error(request, f"Erreur lors de la suppression : {str(e)}")
     return redirect('add_piechange', pk=vehicule_pk)
 
-
 from datetime import datetime, timedelta, time
 from django.db.models import Sum
 from django.shortcuts import get_object_or_404
@@ -5236,7 +4869,9 @@ from django.shortcuts import redirect
 from django.utils.timezone import make_aware
 import calendar
 
-class DetailReparatView(DetailView):
+class DetailReparatView(LoginRequiredMixin, CustomPermissionRequiredMixin, DetailView):
+    login_url = 'login'
+    permission_url = 'detail_reparat'
     model = Reparation
     template_name = 'perfect/detail_reparat.html'
     timeout_minutes = 200
@@ -5262,7 +4897,7 @@ class DetailReparatView(DetailView):
                 total_seconds += (next_hour - current).total_seconds()
             
             current = next_hour
-        return total_seconds / 3600  # Convertir en heures
+        return total_seconds / 3600
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         dates = date.today()
@@ -5290,12 +4925,10 @@ class DetailReparatView(DetailView):
         else:
             print("*****ALL*******")
             
-        # Calcul de la durée en heures effectives
         date_entree = reparation.date_entree
         date_sortie = reparation.date_sortie
         duree_effective_heures = self.calculate_effective_hours(date_entree, date_sortie)
 
-        # Calcul des pertes
         if vehicule.category.category == "TAXI":
             perte_par_30min = 550
             recette_categorie = 20000
@@ -5307,7 +4940,6 @@ class DetailReparatView(DetailView):
             recette_categorie = 0
 
         perte = (duree_effective_heures * 2) * perte_par_30min
-        # Calcul de la recette nette
         recette_nette = recette_categorie - perte
         #-------------------------------------------------------------------------------------------------------------------------------
         # list_reparation = Reparation.objects.filter(vehicule=vehicule)
@@ -5328,40 +4960,9 @@ class DetailReparatView(DetailView):
         }
         return context
 
-class UpdateReparationView(UpdateView):
-    model = Reparation
-    form_class = UpdatReparationForm
-    template_name = "news/appl/updat_reparation.html"
-    context_object = 'listvehi'  
-    success_message = 'Réparation Modifiée avec succès✓✓'
-    error_message = "Erreur de saisie✘✘ "
-    success_url = reverse_lazy ('list_repa')
-    timeout_minutes = 5
-    def dispatch(self, request, *args, **kwargs):
-        last_activity = request.session.get('last_activity')
-        if last_activity:
-            last_activity = datetime.strptime(last_activity, '%Y-%m-%d %H:%M:%S')
-            if datetime.now() - last_activity > timedelta(minutes=self.timeout_minutes):
-                logout(request)
-                messages.warning(request, "Vous avez été déconnecté ")
-                return redirect("login")
-        return super().dispatch(request, *args, **kwargs)
-    def form_valid(self, form):
-        response = super().form_valid(form)
-        messages.success(self.request, self.success_message)
-        return response
-    def form_invalid(self, form):
-        reponse =  super().form_invalid(form)
-        messages.success(self.request, self.error_message)
-        return reponse
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        user_group = self.request.user.groups.first()
-        context['user_group'] = user_group.name if user_group else None
-        context['catego_vehi'] = CategoVehi.objects.all()
-        return context 
-
-class ListPiechangeView(ListView):
+class ListPiechangeView(LoginRequiredMixin, CustomPermissionRequiredMixin, ListView):
+    login_url = 'login'
+    permission_url = 'list_piechange'
     model = PiecEchange
     template_name = 'perfect/liste_piechange.html'
     ordering = ['date_saisie']
@@ -5433,9 +5034,10 @@ class ListPiechangeView(ListView):
             'piechang_an_fil_taxi': piechang_an_fil_taxi,
             }
         return context 
-    
-    
-class ListReparationView(ListView):
+       
+class ListReparationView(LoginRequiredMixin, CustomPermissionRequiredMixin, ListView):
+    login_url = 'login'
+    permission_url = 'list_repa'
     model = Reparation
     template_name = 'perfect/liste_reparations.html'
     ordering = ['date_saisie']
@@ -5507,41 +5109,10 @@ class ListReparationView(ListView):
             
             }
         return context 
-    
-     
-class AddEntretienView(CreateView):
-    model = Entretien
-    form_class = EntretienForm
-    template_name= "perfect/add_entretien.html"
-    success_message = 'Entretien effectué avec succès✓✓'
-    error_message = "Erreur de saisie ✘✘ "
-    success_url = reverse_lazy ('journal_garag')
-    timeout_minutes = 30
-    def dispatch(self, request, *args, **kwargs):
-        last_activity = request.session.get('last_activity')
-        if last_activity:
-            last_activity = datetime.strptime(last_activity, '%Y-%m-%d %H:%M:%S')
-            if datetime.now() - last_activity > timedelta(minutes=self.timeout_minutes):
-                logout(request)
-                messages.warning(request, "Vous avez été déconnecté ")
-                return redirect("login")
-        return super().dispatch(request, *args, **kwargs)
-    def form_valid(self, form):
-        form.instance.vehicule_id = self.kwargs['pk']
-        messages.success(self.request, self.success_message)
-        return super().form_valid(form)
-    def form_invalid(self, form):
-        messages.success(self.request,self.error_message)
-        return super().form_invalid(form)
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        user_group = self.request.user.groups.first()
-        context['user_group'] = user_group.name if user_group else None
-        context['entretiens'] = Entretien.objects.all()
-        context['catego_vehi'] = CategoVehi.objects.all()
-        return context
-    
-class AddEntretienView(CreateView):
+         
+class AddEntretienView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateView):
+    login_url = 'login'
+    permission_url = 'add_entretien'
     model = Entretien
     form_class = EntretienForm
     template_name= "perfect/add_entre.html"
@@ -5629,27 +5200,9 @@ class AddEntretienView(CreateView):
     def get_success_url(self):
         return reverse('add_entretien', kwargs={'pk': self.kwargs['pk']})
 
-class DetailEntretienView(DetailView):
-    model = Entretien
-    template_name = "news/applist/detail_entretien.html"
-    timeout_minutes = 5
-    def dispatch(self, request, *args, **kwargs):
-        last_activity = request.session.get('last_activity')
-        if last_activity:
-            last_activity = datetime.strptime(last_activity, '%Y-%m-%d %H:%M:%S')
-            if datetime.now() - last_activity > timedelta(minutes=self.timeout_minutes):
-                logout(request)
-                messages.warning(request, "Vous avez été déconnecté ")
-                return redirect("login")
-        return super().dispatch(request, *args, **kwargs)
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        user_group = self.request.user.groups.first()
-        context['user_group'] = user_group.name if user_group else None
-        context['catego_vehi'] = CategoVehi.objects.all()
-        return context
-  
-class ListEntretienView(ListView):
+class ListEntretienView(LoginRequiredMixin, CustomPermissionRequiredMixin, ListView):
+    login_url = 'login'
+    permission_url = 'list_entretien'
     model = Entretien
     template_name = 'perfect/liste_entretien.html'
     ordering = ['date_saisie']
@@ -5726,41 +5279,9 @@ class ListEntretienView(ListView):
             }
         return context 
     
-class UpdatEntretienView(UpdateView):
-    model = Entretien
-    form_class = UpdatEntretienForm
-    template_name = "news/appl/update_entretien.html"
-    context_object = 'listvehi'  
-    success_message = 'Entretien Modifiée avec succès✓✓'
-    error_message = "Erreur de saisie✘✘ "
-    success_url = reverse_lazy ('list_entretien')
-    timeout_minutes = 5
-    def dispatch(self, request, *args, **kwargs):
-        last_activity = request.session.get('last_activity')
-        if last_activity:
-            last_activity = datetime.strptime(last_activity, '%Y-%m-%d %H:%M:%S')
-            if datetime.now() - last_activity > timedelta(minutes=self.timeout_minutes):
-                logout(request)
-                messages.warning(request, "Vous avez été déconnecté ")
-                return redirect("login")
-        return super().dispatch(request, *args, **kwargs)
-    def form_valid(self, form):
-        response = super().form_valid(form)
-        messages.success(self.request, self.success_message)
-        return response
-    def form_invalid(self, form):
-        reponse =  super().form_invalid(form)
-        messages.success(self.request, self.error_message)
-        return reponse
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        user_group = self.request.user.groups.first()
-        context['user_group'] = user_group.name if user_group else None
-        context['catego_vehi'] = CategoVehi.objects.all()
-        return context 
-    
-
-class AddCategoriVehi(CreateView):  
+class AddCategoriVehi(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateView):  
+    login_url = 'login'
+    permission_url = 'add_catego_vehi'
     model = CategoVehi      
     form_class = CategorieForm      
     template_name = 'perfect/add_categorie.html'
@@ -5809,3 +5330,401 @@ def CategoVehiculeListView(request, cid):
         'cars':cars,
     }
     return render(request, 'news/applist/list_vehi_categor.html',context)
+
+class UpdatPatenteView(LoginRequiredMixin, CustomPermissionRequiredMixin, UpdateView):
+    login_url = 'login'
+    permission_url = 'updat_patente'
+    model = Patente
+    form_class = UpdatPatenteForm
+    template_name= "perfect/pat_update.html"
+    success_message = 'Patente modifiée avec succès✓✓'
+    error_message = "Erreur de saisie✘✘ "
+    success_url = reverse_lazy('liste_patente')
+    timeout_minutes = 200
+    def dispatch(self, request, *args, **kwargs):
+        last_activity = request.session.get('last_activity')
+        if last_activity:
+            last_activity = datetime.strptime(last_activity, '%Y-%m-%d %H:%M:%S')
+            if datetime.now() - last_activity > timedelta(minutes=self.timeout_minutes):
+                logout(request)
+                messages.warning(request, "Vous avez été déconnecté ")
+                return redirect("login")
+        return super().dispatch(request, *args, **kwargs)
+    def form_valid(self, form):
+        form.instance.auteur = self.request.user
+        response = super().form_valid(form)
+        messages.success(self.request, self.success_message)
+        return response
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        forms = self.get_form()
+        list_patentes = Patente.objects.all()
+        # list_patentes = Patente.objects.filter(date_saisie=date.today())
+        patents=self.get_object()
+        context = {
+            'list_patentes':list_patentes,
+            'forms':forms,
+            'patents':patents,
+        }
+        return context
+    
+class UpdateAssuranceView(LoginRequiredMixin, CustomPermissionRequiredMixin, UpdateView):
+    login_url = 'login'
+    permission_url = 'updat_assurance'
+    model = Assurance
+    form_class = UpdatAssuranceForm
+    template_name = "perfect/assurance_update.html" 
+    success_message = 'Assurance Modifiée avec succès✓✓'
+    error_message = "Erreur de saisie✘✘"
+    success_url = reverse_lazy ('liste_assurance')
+    timeout_minutes = 200
+    def dispatch(self, request, *args, **kwargs):
+        last_activity = request.session.get('last_activity')
+        if last_activity:
+            last_activity = datetime.strptime(last_activity, '%Y-%m-%d %H:%M:%S')
+            if datetime.now() - last_activity > timedelta(minutes=self.timeout_minutes):
+                logout(request)
+                messages.warning(request, "Vous avez été déconnecté ")
+                return redirect("login")
+        return super().dispatch(request, *args, **kwargs)
+    def form_valid(self, form):
+        form.instance.auteur = self.request.user
+        response = super().form_valid(form)
+        messages.success(self.request, self.success_message)
+        return response
+    def form_invalid(self, form):
+        reponse =  super().form_invalid(form)
+        messages.success(self.request, self.error_message)
+        return reponse
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        forms = self.get_form()
+        list_assurance = Assurance.objects.all()
+        # list_patentes = Patente.objects.filter(date_saisie=date.today())
+        assurance=self.get_object()
+        context = {
+            'list_assurance':list_assurance,
+            'forms':forms,
+            'assurance':assurance,
+        }
+        return context 
+ 
+class UpdatEntretienView(LoginRequiredMixin, CustomPermissionRequiredMixin, UpdateView):
+    login_url = 'login'
+    permission_url = 'updat_entretien'
+    model = Entretien
+    form_class = UpdatEntretienForm
+    template_name = "perfect/update_entretien.html"
+    context_object = 'listvehi'  
+    success_message = 'Entretien Modifiée avec succès✓✓'
+    error_message = "Erreur de saisie✘✘ "
+    success_url = reverse_lazy ('list_entretien')
+    timeout_minutes = 500
+    def dispatch(self, request, *args, **kwargs):
+        last_activity = request.session.get('last_activity')
+        if last_activity:
+            last_activity = datetime.strptime(last_activity, '%Y-%m-%d %H:%M:%S')
+            if datetime.now() - last_activity > timedelta(minutes=self.timeout_minutes):
+                logout(request)
+                messages.warning(request, "Vous avez été déconnecté ")
+                return redirect("login")
+        return super().dispatch(request, *args, **kwargs)
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        messages.success(self.request, self.success_message)
+        return response
+    def form_invalid(self, form):
+        reponse =  super().form_invalid(form)
+        messages.success(self.request, self.error_message)
+        return reponse
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user_group = self.request.user.groups.first()
+        context['user_group'] = user_group.name if user_group else None
+        context['catego_vehi'] = CategoVehi.objects.all()
+        return context 
+
+class UpdateVisiteView(LoginRequiredMixin, CustomPermissionRequiredMixin, UpdateView):
+    login_url = 'login'
+    permission_url = 'updat_visit'
+    model = VisiteTechnique
+    form_class = VisiteTechniqueForm
+    template_name = "perfect/visite_update.html" 
+    success_message = 'Visite Techniques Modifiée avec succès✓✓'
+    error_message = "Erreur de saisie✘✘"
+    success_url = reverse_lazy ('list_visit')
+    def form_valid(self, form):
+        form.instance.auteur = self.request.user
+        response = super().form_valid(form)
+        messages.success(self.request, self.success_message)
+        return response
+    def form_invalid(self, form):
+        reponse =  super().form_invalid(form)
+        messages.success(self.request, self.error_message)
+        return reponse
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        forms = self.get_form()
+        list_visite = VisiteTechnique.objects.all()
+        visite=self.get_object()
+        context = {
+            'list_visite':list_visite,
+            'forms':forms,
+            'visite':visite,
+        }
+        return context 
+    
+class UpdatVignetteView(LoginRequiredMixin, CustomPermissionRequiredMixin, UpdateView):
+    login_url = 'login'
+    permission_url = 'updat_vignet'
+    model = Vignette
+    form_class = UpdatVignetteForm
+    template_name = "perfect/vignette_update.html"
+    success_message = 'Vignette modifiée avec succès✓✓'
+    success_url = reverse_lazy ('liste_vignette')
+    timeout_minutes = 200
+    def dispatch(self, request, *args, **kwargs):
+        last_activity = request.session.get('last_activity')
+        if last_activity:
+            last_activity = datetime.strptime(last_activity, '%Y-%m-%d %H:%M:%S')
+            if datetime.now() - last_activity > timedelta(minutes=self.timeout_minutes):
+                logout(request)
+                messages.warning(request, "Vous avez été déconnecté ")
+                return redirect("login")
+        return super().dispatch(request, *args, **kwargs)
+    def form_valid(self, form):
+        form.instance.auteur = self.request.user
+        response = super().form_valid(form)
+        messages.success(self.request, self.success_message)
+        return response
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        forms = self.get_form()
+        list_vignet = Vignette.objects.all()
+        vignet=self.get_object()
+        context = {
+            'list_vignet':list_vignet,
+            'forms':forms,
+            'vignet':vignet,
+        }
+        return context
+
+class UpdatCartStationView(LoginRequiredMixin, CustomPermissionRequiredMixin, UpdateView):
+    login_url = 'login'
+    permission_url = 'updat_station'
+    model = Stationnement
+    form_class = UpdatCartStationForm
+    template_name= "perfect/station_update.html"
+    success_message = 'Modification de carte de station éffectuée avec succès✓✓'
+    success_url = reverse_lazy ('liste_station')
+    timeout_minutes = 200
+    def dispatch(self, request, *args, **kwargs):
+        last_activity = request.session.get('last_activity')
+        if last_activity:
+            last_activity = datetime.strptime(last_activity, '%Y-%m-%d %H:%M:%S')
+            if datetime.now() - last_activity > timedelta(minutes=self.timeout_minutes):
+                logout(request)
+                messages.warning(request, "Vous avez été déconnecté")
+                return redirect("login")
+        return super().dispatch(request, *args, **kwargs)
+    def form_valid(self, form):
+        form.instance.auteur = self.request.user
+        response = super().form_valid(form)
+        messages.success(self.request, self.success_message)
+        return response
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        forms = self.get_form()
+        list_station = Stationnement.objects.all()
+        station=self.get_object()
+        context = {
+            'list_station':list_station,
+            'forms':forms,
+            'station':station,
+        }
+        return context
+
+class UpdateChargeAdminView(LoginRequiredMixin, CustomPermissionRequiredMixin, UpdateView):
+    login_url = 'login'
+    permission_url = 'updat_charg_administ'
+    model = ChargeAdminis
+    form_class = updatChargeAdminisForm
+    template_name = "perfect/update_chargadmin.html"
+    success_message = 'Charge Administrative Modifiée avec succès✓✓'
+    success_url = reverse_lazy('add_chargadminist')
+    timeout_minutes = 500
+    def dispatch(self, request, *args, **kwargs):
+        last_activity = request.session.get('last_activity')
+        if last_activity:
+            last_activity = datetime.strptime(last_activity, '%Y-%m-%d %H:%M:%S')
+            if datetime.now() - last_activity > timedelta(minutes=self.timeout_minutes):
+                logout(request)
+                messages.warning(request, "Vous avez été déconnecté ")
+                return redirect("login")
+        return super().dispatch(request, *args, **kwargs)
+    def form_valid(self, form):
+        form.instance.auteur = self.request.user
+        response = super().form_valid(form)
+        messages.success(self.request, self.success_message)
+        return response
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        forms = self.get_form()
+        list_chargadmin = ChargeAdminis.objects.filter(date_saisie=date.today())
+        chargadmin=self.get_object()
+        context = {
+            'list_chargadmin':list_chargadmin,
+            'forms':forms,
+            'chargadmin':chargadmin,
+        }
+        return context 
+   
+class UpdateChargeVarView(LoginRequiredMixin, CustomPermissionRequiredMixin, UpdateView):
+    login_url = 'login'
+    permission_url = 'updat_charg_var'
+    model = ChargeVariable
+    form_class = updatChargeVarForm
+    template_name = "perfect/chargvar_update.html"
+    context_object = 'listvehi'  
+    success_message = 'Charge Variable Modifiée avec succès✓✓'
+    error_message = "Erreur de saisie✘✘"
+    success_url = reverse_lazy ('list_charg_var')
+    timeout_minutes = 500
+    def dispatch(self, request, *args, **kwargs):
+        last_activity = request.session.get('last_activity')
+        if last_activity:
+            last_activity = datetime.strptime(last_activity, '%Y-%m-%d %H:%M:%S')
+            if datetime.now() - last_activity > timedelta(minutes=self.timeout_minutes):
+                logout(request)
+                messages.warning(request, "Vous avez été déconnecté ")
+                return redirect("login")
+        return super().dispatch(request, *args, **kwargs)
+    def form_valid(self, form):
+        form.instance.auteur = self.request.user
+        response = super().form_valid(form)
+        messages.success(self.request, self.success_message)
+        return response
+    def form_invalid(self, form):
+        reponse =  super().form_invalid(form)
+        messages.success(self.request, self.error_message)
+        return reponse
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        forms = self.get_form()
+        list_chargvar = ChargeVariable.objects.filter(date_saisie=date.today())
+        chargvar=self.get_object()
+        context = {
+            'list_chargvar':list_chargvar,
+            'forms':forms,
+            'chargvar':chargvar,
+        }
+        return context 
+
+class UpdatEncaissementView(LoginRequiredMixin, CustomPermissionRequiredMixin, UpdateView):
+    login_url = 'login'
+    permission_url = 'updat_encaisse'
+    model = Encaissement
+    form_class = UpdatEncaissementForm
+    template_name = 'perfect/updat_encaissement.html'
+    success_message = 'Entrée de caisse Modifiée avec succès✓✓'
+    error_message = "Erreur de saisie ✘✘ "
+    success_url = reverse_lazy ('list_encaissement')
+    timeout_minutes = 120
+    def dispatch(self, request, *args, **kwargs):
+        last_activity = request.session.get('last_activity')
+        if last_activity:
+            last_activity = datetime.strptime(last_activity, '%Y-%m-%d %H:%M:%S')
+            if datetime.now() - last_activity > timedelta(minutes=self.timeout_minutes):
+                logout(request)
+                messages.warning(request, "Vous avez été déconnecté ")
+                return redirect("login")
+        return super().dispatch(request, *args, **kwargs)
+    def form_valid(self, form):
+        reponse =  super().form_valid(form)
+        messages.success(self.request, self.success_message)
+        return reponse
+    def form_invalid(self, form):
+        reponse =  super().form_invalid(form)
+        messages.success(self.request, self.error_message)
+        return reponse
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user_group = self.request.user.groups.first()
+        context['user_group'] = user_group.name if user_group else None
+        context['catego_vehi'] = CategoVehi.objects.all()
+        return context
+  
+class UpdatDecaissementView(LoginRequiredMixin, CustomPermissionRequiredMixin, UpdateView):
+    login_url = 'login'
+    permission_url = 'updat_decaisse'
+    model = Decaissement
+    form_class = UpdatDecaissementForm
+    template_name = 'perfect/updat_decaissement.html'
+    success_message = 'Sortir de caisse Modifiée avec succès✓✓'
+    error_message = "Erreur de saisie ✘✘ "
+    success_url = reverse_lazy ('list_decaissement')
+    timeout_minutes = 120
+    def dispatch(self, request, *args, **kwargs):
+        last_activity = request.session.get('last_activity')
+        if last_activity:
+            last_activity = datetime.strptime(last_activity, '%Y-%m-%d %H:%M:%S')
+            if datetime.now() - last_activity > timedelta(minutes=self.timeout_minutes):
+                logout(request)
+                messages.warning(request, "Vous avez été déconnecté ")
+                return redirect("login")
+        return super().dispatch(request, *args, **kwargs)
+    def form_valid(self, form):
+        reponse =  super().form_valid(form)
+        messages.success(self.request, self.success_message)
+        return reponse
+    def form_invalid(self, form):
+        reponse =  super().form_invalid(form)
+        messages.success(self.request, self.error_message)
+        return reponse
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user_group = self.request.user.groups.first()
+        context['user_group'] = user_group.name if user_group else None
+        context['catego_vehi'] = CategoVehi.objects.all()
+        return context
+
+class UpdateRecetView(LoginRequiredMixin, CustomPermissionRequiredMixin, UpdateView):
+    login_url = 'login'
+    permission_url = 'updat_recet'
+    model = Recette
+    form_class = UpdateRecetteForm
+    template_name = "perfect/recet_update.html"
+    success_message = 'Recette Modifiée avec succès✓✓'
+    error_message = "Erreur de saisie✘✘ "
+    success_url = reverse_lazy ('list_recet')
+    timeout_minutes = 200
+    def dispatch(self, request, *args, **kwargs):
+        last_activity = request.session.get('last_activity')
+        if last_activity:
+            last_activity = datetime.strptime(last_activity, '%Y-%m-%d %H:%M:%S')
+            if datetime.now() - last_activity > timedelta(minutes=self.timeout_minutes):
+                logout(request)
+                messages.warning(request, "Vous avez été déconnecté ")
+                return redirect("login")
+        return super().dispatch(request, *args, **kwargs)
+    def form_valid(self, form):
+        form.instance.auteur = self.request.user
+        response = super().form_valid(form)
+        messages.success(self.request, self.success_message)
+        return response
+    def form_invalid(self, form):
+        reponse = super().form_invalid(form)
+        messages.success(self.request, self.error_message)
+        return reponse
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        forms = self.get_form()
+        list_recet = Recette.objects.filter(date_saisie=date.today())
+        recets=self.get_object()
+        context = {
+            'list_recet':list_recet,
+            'forms':forms,
+            'recets':recets,
+        }
+        return context 
+   

@@ -116,7 +116,7 @@
                     </div>
                     <div class="modal-footer justify-content-between">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
-                        <button type="submit" class="btn btn-primary">Enregistrer</button>
+                        <button type="submit" class="btn btn-outline-primary">Enregistrer</button>
                     </div>
                 </form>
             </div>
@@ -203,17 +203,19 @@
                                                         </td>
                                                         <td>{{u.date_vis}}</td>
                                                         <td>{{u.montant}}</td>
-                                                        <td>{{u.date_saisie}}</td>
+                                                        <td>{{u.date_saisie|date:"d-m-y"}}</td>
                                                         <td class="text-center">
-                                                            {% if user.user_type == '1' %}
-                                                                <a href="{% url 'delvehi' u.pk %}" class="text-danger" onclick="return confirm('Etes-vous sûre de vouloir supprimer le véhicule {{u.immatriculation}} - {{u.marque}} - {{u.category|upper}}? car si vous supprimer toutes les informations liées seront supprimées')">
-                                                                    <i style="font-size: 20px; " class="fa fa-trash "></i>
-                                                                </a>
-                                                            {% else %}
-                                                                <a class="text-danger">
-                                                                    <i style="font-size: 20px; " class="fa fa-trash "></i>
-                                                                </a>
-                                                            {% endif %}
+                                                            {% for categorie, perms in grouped_permissions.items %}
+                                                                {% if categorie.categorie == "permvisit" %}
+                                                                    {% for perm in perms %}
+                                                                        {% if perm.name == "sup visite" %}
+                                                                            <a href="{% url perm.url u.pk %}" class="text-primary" onclick="return confirm('Etes-vous sûre de vouloir supprimer la sortie de caisse de {{ u.montant }} saisie le {{ u.date|date:"d-m-y" }}? Toutes les informations liées seront supprimées.')">
+                                                                                <i style="font-size: 20px;" class="fa fa-trash text-danger"></i>
+                                                                            </a>
+                                                                        {% endif %}
+                                                                    {% endfor %}
+                                                                {% endif %}
+                                                            {% endfor %}
                                                         </td>
                                                     </tr>
                                                 {% endfor %} 

@@ -8,7 +8,7 @@ name = 'PBFinance'
 
 urlpatterns = [
     path('myadmin/', admin.site.urls),
-    path('site',include('PBFinance.urls')),
+    path('site/',include('PBFinance.urls')),
     path('',include('userauths.urls')),
     path('entreprise/',include('PB_Entreprise.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -1,0 +1,99 @@
+{% extends 'perfect/base.html' %} 
+{% load static %} 
+{% block title %} Modification de charge fixe {% endblock title %} 
+{% block navbar_nav %} {% endblock navbar_nav %} 
+{% block page_title %}
+<a href="{% url 'list_charg_fix' %}"><img class="profile-user-img" style="border:none; height:35px;width:35px" src="{% static 'retour.png' %}" alt="Retour"></a>
+<img class="profile-user-img" style="border:none; height:55px;width:55px" src="{% static 'addcar.png' %}" alt="User profile picture">
+Modifier charge fixe de {{chargfix}}
+{% endblock page_title %} 
+{% block page_a %}
+{% endblock page_a %}
+{% block active_page %} modification {% endblock active_page%} 
+{% block main_content %}
+
+<div class="col-md-6">
+    <div class="card" style="box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);backdrop-filter: blur(5.2px);-webkit-backdrop-filter: blur(5.2px);">
+        <div class="card-header">
+            <h3 class="card-title">
+                Liste des charges fixes
+            </h3>
+            <div class="card-tools">
+                <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+            </div>
+        </div>
+        <div class="card-body">
+            <table id="example1" class="table table-bordered table-striped">
+                <thead>
+                    <tr class=" text-center text-danger ">
+                        <th>LIBELLE</th>
+                        <th>CATEGORIE</th>
+                        <th>DATE</th>
+                    </tr>
+                </thead>
+                <tbody> 
+                    {% if list_chargfix %} 
+                        {% for u in list_chargfix %}
+                            <tr class="text-center">
+                                <td><a href="{% url 'upd_charg_fix' u.pk %}" class="mr-3 text-primary">{{u.vehicule.immatriculation}}</a></td>
+                                <td>{{u.vehicule.immatriculation}}</td>
+                                <td>{{u.date_saisie|date:"d-m-y"}}</td>
+                            </tr>
+                        {% endfor %} 
+                    {% endif %}
+                </tbody>
+                <tfoot>
+                    <tr class="text-center ">
+                        <th>---</th>
+                        <th>---</th>
+                        <th>---</th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="col-md-6">
+    <div class="card" style="box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); backdrop-filter: blur(5.2px); -webkit-backdrop-filter: blur(5.2px);">
+        <div class="card-header">
+            <h3 class="card-title">Formulaire de modification</h3>
+            <div class="card-tools">
+                <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <form method='post' role="form" id="quickForm" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="row card-body text-secondary">
+                    <div class="col-md-6 col-sm-6 form-group">
+                        <label for="fullname"><b>Date de saisie</b></label> {{forms.date_saisie}}
+                    </div>
+                    <div class="col-md-6 col-sm-6 form-group">
+                        <label for="fullname"><b>Libelle</b></label> {{forms.libelle}}
+                    </div>
+                    <div class="col-md-6 col-sm-6 form-group">
+                        <label for="fullname"><b>Montant</b></label> {{forms.montant}}
+                    </div>
+                    <div class="col-md-6 col-sm-6 form-group">
+                        <label for="fullname"><b>N°Comptable</b></label> {{forms.cpte_comptable}}
+                    </div>
+                    <div class="col-md-6 col-sm-6 form-group">
+                        <label for="fullname"><b>N°Pièce</b></label>{{forms.Num_piece}}
+                    </div>
+                    <div class="col-md-6 col-sm-6 form-group">
+                        <label for="fullname"><b>N°Facture</b></label> {{forms.Num_fact}}
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <button type="submit" class="btn btn-outline-primary">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+{% endblock main_content %}

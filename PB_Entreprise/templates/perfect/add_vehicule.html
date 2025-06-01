@@ -132,7 +132,7 @@
                     </div>
                     <div class="modal-footer justify-content-between">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
-                        <button type="submit" class="btn btn-primary">Enregistrer</button>
+                        <button type="submit" class="btn btn-outline-primary">Enregistrer</button>
                     </div>
                 </form>
             </div>
@@ -173,7 +173,7 @@
                                         <td>
                                             {% for categorie, perms in grouped_permissions.items %}
                                                 {% if categorie.categorie == 'permvehi' %}
-                                                    {% for perm in perms %}:
+                                                    {% for perm in perms %}
                                                         {% if perm.name == "sup véhicule" %}
                                                             <a href="{% url perm.url u.pk %}" class="text-primary" onclick="return confirm('Etes-vous sûre de vouloir supprimer le véhicule {{ u.immatriculation }} - {{ u.marque }} - {{ u.category|upper }} ? Toutes les informations liées seront supprimées.')">
                                                                 <i style="font-size: 20px;" class="fa fa-trash text-danger"></i>

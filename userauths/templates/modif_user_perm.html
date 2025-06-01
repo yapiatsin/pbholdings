@@ -5,66 +5,11 @@
 
 {% endblock navbar_nav %} 
 {% block page_title %}
+<a href="{% url 'compte' %}"><img class="profile-user-img" style="border:none; height:35px;width:35px" src="{% static 'retour.png' %}" alt="Retour"></a>
 <img class="profile-user-img" style="border:none; height:55px;width:55px" src="{% static 'add-user.png' %}" alt="User profile picture">Permission
 {% endblock page_title %} 
 {% block active_page %}Modifier permission compte {% endblock active_page%} 
 {% block main_content %}
-{% comment %} <div class="modal fade" id="modal-lg">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title" style=" font-weight:700;color: rgb(6,73,124);">Créer un compte comptable</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div class="modal-body">
-                <form method='post' role="form" id="quickForm">
-                    {% csrf_token %}
-                    <div class="row card-body">
-                        <div class="col-md-12 form-group ">
-                            <input type="TEXT" value="INFORMATION DE CONNEXION" class="form-control text-center" disabled>
-                        </div>
-                        <div class="col-md-6 form-group">
-                            <label>USERNAME</label> {{user_form.username}}
-                        </div>
-                        <div class="col-md-6 form-group">
-                            <label>EMAIL</label> {{user_form.email}}
-                        </div>
-                        <div class="col-md-12 form-group">
-                            <label>GENDER</label> {{user_form.gender}}
-                        </div>
-                        <div class="col-md-12 form-group">
-                            <input type="TEXT" value="INFORMATION DU PROFIL" class="form-control text-center" disabled>
-                        </div>
-                        <div class="col-md-6 form-group">
-                            <label>NOM</label> {{comptable_form.nom}}
-                        </div>
-                        <div class="col-md-6 form-group">
-                            <label>PRENOMS</label> {{comptable_form.prenom}}
-                        </div>
-                        <div class="col-md-4 form-group">
-                            <label>COMMUNE</label> {{comptable_form.commune}}
-                        </div>
-                        <div class="col-md-4 form-group">
-                            <label>TEL 1</label> {{comptable_form.tel1}}
-                        </div>
-                        <div class="col-md-4 form-group">
-                            <label>TEL 2</label> {{comptable_form.tel2}}
-                        </div>
-                        <div class="col-md-12 form-group">
-                            {{comptable_form.create_by}}
-                        </div>
-                    </div>
-                    <div class="modal-footer justify-content-between">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
-                        <button type="submit" class="btn btn-primary">Enregistrer</button>
-                    </div>
-                </form> 
-            </div>
-        </div>
-    </div>
-</div> {% endcomment %}
 
 <div class="col-md-12">
     <div class="row">
@@ -115,7 +60,6 @@
                             <div class="card">
                                 <div class="card-header">
                                     <h3 class="card-title">Permissions</h3>
-
                                     <div class="card-tools">
                                         <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
                                     </div>
@@ -124,8 +68,22 @@
                                 <div class="card-body">
                                     <form method="post">
                                         {% csrf_token %}
-                                        {{ form.as_p }}
-                                        <button type="submit" class="btn btn-outline-primary" >Appliquer</button>
+                                        <div class="row">
+                                            {% for permission in form.permissions %}
+                                                <div class="col-md-4 form-group">
+                                                    <div class="form-check">
+                                                        {{ permission.tag }}
+                                                        <label class="form-check-label" for="{{ permission.id_for_label }}">
+                                                            {{ permission.choice_label }}
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+
+                                        <div class="form-group mt-3 text-center">
+                                            <button type="submit" class="btn btn-outline-primary w-50"style='border-radius:50px' >Enregistrer</button>
+                                        </div>
                                     </form>
                                 </div>
                                 <!-- /.card-body -->

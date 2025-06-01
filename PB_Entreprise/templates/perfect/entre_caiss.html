@@ -41,12 +41,8 @@ de caisse
                         <button type="submit" class="btn btn-primary">Enregistrer</button>
                     </div>
                 </form>
-            </div>
-
         </div>
-        <!-- /.modal-content -->
     </div>
-    <!-- /.modal-dialog -->
 </div>
 
 <div class="col-md-12">
@@ -132,13 +128,9 @@ de caisse
                             <div class="card" style="box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);backdrop-filter: blur(5.2px);-webkit-backdrop-filter: blur(5.2px);">
                                 <div class="card-header">
                                     <h3 class="card-title">
-                                        <button type="button" class="btn btn-default text-danger">PDF <i class='fa fa-file-pdf-o'></i></button>
+                                        <button type="button" class="btn btn-default text-danger" id="printButton">PDF <i class='fa fa-file-pdf-o'></i></button>
                                         <button type="button" class="btn btn-default text-success">Excell <i class='fa fa-file-excel-o'></i></button>
-                                        {% if user.user_type == '1' or user.user_type == '3' %}
-                                            <button type="button" class="btn btn-default text-primary" data-toggle="modal" data-target="#modal-lg">Saisir <i class='fa fa-plus-square'></i></button>
-                                        {% else %}
-                                            <button type="button" class="btn btn-default text-primary">Saisir <i class='fa fa-plus-square'></i></button>
-                                        {% endif %}
+                                        <button type="button" class="btn btn-default text-primary" data-toggle="modal" data-target="#modal-lg">Saisir <i class='fa fa-plus-square'></i></button>
                                     </h3>
                                     <div class="card-tools">
                                         <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
@@ -148,7 +140,7 @@ de caisse
                                 <div class="card-body">
                                     <table id="example1" class="table table-bordered table-striped">
                                         <thead>
-                                            <tr class=" text-center text-danger ">
+                                            <tr class=" text-center text-danger">
                                                 <th>N°PIECE</th>
                                                 <th>LIBELLE</th>
                                                 <th>MONTANT</th>
