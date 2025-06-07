@@ -9,11 +9,10 @@ urlpatterns = [
     
     path("se connecter", loginview, name="login"),
     path("deconnexion", logout_view, name="log_out"),
-    path("", pb_home, name="pb_holdind"),
+    path("pb", pb_home, name="pb_holdind"),
 
     path("liste des comptes", list_users, name="compte"),
     path('Utilisateur/<int:user_id>/permissions/', edit_user_permissions, name='edit_user_permissions'),
-    path("", pb_home, name="pb_holdind"),
     
     path('Créer admin', add_administrateur, name="addadministrateur"),
     path('Créer chef exploitation', add_chefexploit, name="addchefexploit"),

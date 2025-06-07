@@ -471,7 +471,7 @@ def loginview(request):
 def logout_view(request):
     logout(request)
     messages.success(request, "Vous êtes deconnecté.")
-    return redirect("pb_holdind")
+    return redirect("home")
 
 def interneView(request):
     return render(request,"userauths/interne.html")
