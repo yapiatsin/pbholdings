@@ -1171,9 +1171,9 @@ class DashboardView(CustomPermissionRequiredMixin, LoginRequiredMixin, TemplateV
         }
         return context
     
-class BilletageView(CustomPermissionRequiredMixin,CreateView):
+class BilletageView(CustomPermissionRequiredMixin, CreateView):
     model = Billetage
-    permission_url = 'caisse'
+    permission_url = 'billetage'
     form_class = BilletageForm
     template_name = 'perfect/caisse.html'
     success_message = 'Saisie enrégistrée avec succès✓✓'
