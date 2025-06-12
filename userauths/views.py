@@ -139,7 +139,6 @@ def delete_admin(request, pk):
         messages.error(request, f"Erreur lors de la suppression : {str(e)}")
     return redirect('addadministrateur')
 
-
 @login_required(login_url='/login/')
 def add_chefexploit(request):
     user=request.user
@@ -160,7 +159,7 @@ def add_chefexploit(request):
                 user = userform.save(commit=False)
                 password = generate_random_password()
                 user.set_password(password)
-                user.user_type = "2"  # CentreSante
+                user.user_type = "2" 
                 user.save()
                 
                 chefexploitation = chefexploitform.save(commit=False)
@@ -193,7 +192,7 @@ def add_chefexploit(request):
                     messages.success(request, 'Compte créé avec succès. Un email a été envoyé.')
                 else:
                     messages.error(request, 'Centre de santé enregistré avec succès, mais l\'email n\'a pas pu être envoyé.')
-                return redirect('add_centre_sante')
+                return redirect('addchefexploit')
             except Exception as e:
                 messages.error(request, f"Erreur: {str(e)}")
         else:
@@ -277,7 +276,7 @@ def add_comptable(request):
                     messages.success(request, 'Compte créé avec succès. Un email a été envoyé.')
                 else:
                     messages.error(request, 'Centre de santé enregistré avec succès, mais l\'email n\'a pas pu être envoyé.')
-                return redirect('add_centre_sante')
+                return redirect('addcomptable')
             except Exception as e:
                 messages.error(request, f"Erreur: {str(e)}")
         else:
@@ -316,9 +315,9 @@ def add_gerant(request):
     user=request.user
     try:
         # admins = Administ.objects.get(user=user)
-        gerant = Comptable.objects.all()
+        list_gerant = Gerant.objects.all()
     except Administ.DoesNotExist:
-        gerant = Comptable.objects.none()
+        list_gerant = Gerant.objects.none()
     cxt = {}
     employ = CustomUser.objects.all()
     if request.method == 'POST':
@@ -360,7 +359,7 @@ def add_gerant(request):
                     messages.success(request, 'Compte créé avec succès. Un email a été envoyé.')
                 else:
                     messages.error(request, 'Centre de santé enregistré avec succès, mais l\'email n\'a pas pu être envoyé.')
-                return redirect('add_centre_sante')
+                return redirect('addgerant')
             except Exception as e:
                 messages.error(request, f"Erreur: {str(e)}")
         else:
@@ -379,7 +378,7 @@ def add_gerant(request):
         'gerantform_form': gerantform,
         'cxt': cxt,
         'employes': employ,
-        'list_gerant': gerant,
+        'list_gerant': list_gerant,
         'permission_form': permission_form,
     })
 
@@ -387,50 +386,15 @@ def delete_gerant(request, pk):
     try:
         gerant = get_object_or_404(Gerant, id=pk)
         user = gerant.user  
-
         gerant.delete()
         user.delete()
-        messages.success(request, "Le gérantà été supprimés avec succès.")
+        messages.success(request, f"Le gérant {user.username} été supprimés avec succès.")
     except Exception as e:
         messages.error(request, f"Erreur lors de la suppression : {str(e)}")
     return redirect('addgerant')
 
 def password_success(request):
     return render(request,'userauths/success.html')
-
-class CreateUserProfile(CreateView):
-    model = UserProfile
-    template_name = 'userauths/create_profil.html'
-    form_class = CreateUserProfileForm
-    success_message = 'Profil créé avec succès👍✓✓'
-    success_url = reverse_lazy('profil_user')
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        user_group = self.request.user.groups.first()
-        context['user_group'] = user_group.name if user_group else None
-        return context
-    def form_valid(self, form):
-        form.instance.user = self.request.user
-        messages.success(self.request, self.success_message)
-        return super().form_valid(form)
-    
-class EditProfilView(UpdateView):
-    model = UserProfile
-    form_class = EditUserProfileForm
-    template_name = "userauths/edit_profil.html"
-    success_url = reverse_lazy('profil_user')
-    success_message = 'Profil modifié avec succès👍✓✓'
-    def form_valid(self, form):
-        reponse =  super().form_valid(form)
-        messages.success(self.request, self.success_message)
-        return reponse
-    def get_object(self):
-        return self.request.user
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        user_group = self.request.user.groups.first()
-        context['user_group'] = user_group.name if user_group else None
-        return context   
 
 def pb_home(request):
     return render(request,'perfect/pb_home.html')

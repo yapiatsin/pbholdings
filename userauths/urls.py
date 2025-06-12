@@ -1,8 +1,7 @@
 from django.urls import path
 from userauths.views import *
-from .views import EditProfilView
 from django.contrib.auth import views as auth_views
-from .views import PasswordChangeView, CreateUserProfile
+from .views import PasswordChangeView
 name = "userauths"
 
 urlpatterns = [
@@ -32,8 +31,6 @@ urlpatterns = [
     path('verify-otp/', VerifyOtpView.as_view(), name='verify_otp'),
     path('password_change/', PasswordChangeView.as_view(), name='change_password'),
     
-    path('Créer profile', CreateUserProfile.as_view(), name="creat_profil"),
-    path('modifier profile',EditProfilView.as_view(), name="edit_profil"),
     path('Changer mot de passe/',PasswordChangeView.as_view(template_name="userauths/chang_password.html"), name="chang_pass"),
     path('password_success/',password_success, name="password_success"),
 ]

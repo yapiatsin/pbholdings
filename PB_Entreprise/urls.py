@@ -39,7 +39,7 @@ urlpatterns = [
     
     #-------------------------------Categorie Véhicule & Véhicule--------------------------------- 
     path('Ajouter nouveau véhicule', AddVehiculeView.as_view(), name='add_car'),
-    path('vehicule/<int:pk>/detail', DetailVehiculeView.as_view(), name='detavehi'),
+    path('vehicule/<int:pk>/detail financier', DetailVehiculeView.as_view(), name='detavehi'),
     path('vehicule/detail_financier', CarFinanceView.as_view(), name='detail_car_financier'),
     path('vehicule/<int:pk>/modifier', UpdatVehiculeView.as_view(), name='updatecar'),
     path('vehicule/<int:pk>/delet', delete_vehicule, name='delvehi'),

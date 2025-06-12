@@ -13,7 +13,7 @@ SECRET_KEY = config('SECRET_KEY')
 # DEBUG = True--  django-insecure-of03a0_f)5yamk9g&p9p2f^a*l8!6t#+r_c4oq42+sb&#y5znt
 
 ALLOWED_HOSTS = ['*']
-# ALLOWED_HOSTS = ['pbholdingsite.com', 'www.pbholdingsite.com','45.92.109.86']
+# ALLOWED_HOSTS = ['pbholdingsite.com','www.pbholdingsite.com','45.92.109.86']
 # CSRF_TRUSTED_ORIGINS = [
 #     'https://pbholdingsite.com',
 # ]
@@ -62,7 +62,15 @@ TEMPLATES = [
         },
     },
 ]
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+    }
+}
 
+print('###########')
+print('###########', CACHES)
+print('###########')
 WSGI_APPLICATION = 'PBEntrep.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases

@@ -813,9 +813,6 @@ class DashboardView(CustomPermissionRequiredMixin, LoginRequiredMixin, TemplateV
         label = [calendar.month_name[month][:1] for month in range(1, 13)]
         vehicules = Vehicule.objects.all()
 
-        # permissions = self.request.user.custom_permissions.all()
-        # print("################################",permissions)
-#-----------------------------------Pour Faire les filtre selon les dates entrées---------------------------------
         form = self.form_class(self.request.GET)
         if form.is_valid():
             date_debut = form.cleaned_data['date_debut'] 
@@ -1344,15 +1341,15 @@ class BilletageView(CustomPermissionRequiredMixin, CreateView):
         }
         return context
 
-class AddDecaissementView(CustomPermissionRequiredMixin, CreateView):
+class AddDecaissementView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateView):
+    login_url = 'login'
     permission_url = 'add_decaisse'
     model = Decaissement
     form_class = DecaissementForm
     template_name = 'perfect/sortie_caiss.html'
     success_message = 'Sortie de caisse enregistrée avec succès✓✓'
-    error_message = "Erreur de saisie ✘✘ "
-    success_url = reverse_lazy ('add_decaisse')
-    timeout_minutes = 120
+    error_message = "Erreur de saisie ✘✘"
+    timeout_minutes = 500
     def dispatch(self, request, *args, **kwargs):
         last_activity = request.session.get('last_activity')
         if last_activity:
@@ -1363,6 +1360,7 @@ class AddDecaissementView(CustomPermissionRequiredMixin, CreateView):
                 return redirect("login")
         return super().dispatch(request, *args, **kwargs)
     def form_valid(self, form):
+        form.instance.auteur = self.request.user
         reponse =  super().form_valid(form)
         messages.success(self.request, self.success_message)
         return reponse
@@ -1412,6 +1410,8 @@ class AddDecaissementView(CustomPermissionRequiredMixin, CreateView):
             'annee': annee_en_cours,
         }
         return context
+    def get_success_url(self):
+        return reverse('add_decaisse')
 
 def delete_sortie_caisse(request, pk):
     try:
@@ -1422,24 +1422,14 @@ def delete_sortie_caisse(request, pk):
         messages.error(request, f"Erreur lors de la suppression : {str(e)}")
     return redirect('add_decaisse')
 
-class AddEncaissementView(CustomPermissionRequiredMixin, CreateView):
+class AddEncaissementView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateView):
+    login_url = 'login'
     permission_url = 'addencaisse'
     model = Encaissement
     form_class = EncaissementForm
-    template_name = 'perfect/entre_caiss.html'
+    template_name = 'perfect/entre_caisse.html'
     success_message = 'Entrée de caisse enregistrée avec succès✓✓'
-    error_message = "Erreur de saisie ✘✘ "
-    success_url = reverse_lazy ('addencaisse')
-    timeout_minutes = 120
-    def dispatch(self, request, *args, **kwargs):
-        last_activity = request.session.get('last_activity')
-        if last_activity:
-            last_activity = datetime.strptime(last_activity, '%Y-%m-%d %H:%M:%S')
-            if datetime.now() - last_activity > timedelta(minutes=self.timeout_minutes):
-                logout(request)
-                messages.warning(request, "Vous avez été déconnecté ")
-                return redirect("login")
-        return super().dispatch(request, *args, **kwargs)
+    error_message = "Erreur de saisie ✘✘"
     def form_valid(self, form):
         form.instance.auteur = self.request.user
         reponse =  super().form_valid(form)
@@ -1463,7 +1453,6 @@ class AddEncaissementView(CustomPermissionRequiredMixin, CreateView):
             date_fin = form.cleaned_data['date_fin'] 
             enter_liste = Encaissement.objects.filter(date_saisie__range=[date_debut, date_fin])  
             result_filtre = Encaissement.objects.filter(date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
-    
             tot_entre_jour = Encaissement.objects.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
             tot_entree_mois = Encaissement.objects.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
             tot_entree_annuel = Encaissement.objects.filter(date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
@@ -1471,7 +1460,6 @@ class AddEncaissementView(CustomPermissionRequiredMixin, CreateView):
         else:
             enter_liste = Encaissement.objects.filter(date_saisie=date.today())  
             result_filtre = Encaissement.objects.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
-            
             tot_entre_jour = Encaissement.objects.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
             tot_entree_mois = Encaissement.objects.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
             tot_entree_annuel = Encaissement.objects.filter(date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
@@ -1491,6 +1479,8 @@ class AddEncaissementView(CustomPermissionRequiredMixin, CreateView):
             'forms': forms,
         }
         return context
+    def get_success_url(self):
+        return reverse('addencaisse')
     
 def delete_entre_caisse(request, pk):
     try:
@@ -1912,7 +1902,6 @@ class AddVehiculeView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateV
             'mois':libelle_mois_en_cours,
             'annee':annee_en_cours,
             'cars_events':car_event,
-            
         }
         return context
     def get_success_url(self):
@@ -2046,60 +2035,59 @@ class DashboardGaragView(CustomPermissionRequiredMixin, TemplateView):
             rep_vtc_data = Reparation.objects.filter(vehicule__category__category="VTC",date_saisie__range=[date_debut, date_fin])
             rep_mois_vtc_data = {month: 0 for month in range(1, 13)}
             for commande in rep_vtc_data:
-                rep_mois_vtc_data[commande.date_saisie.month] += 1
+                rep_mois_vtc_data[commande.date_saisie.month] += commande.montant
             rep_mois_vtc_data = [rep_mois_vtc_data[month] for month in range(1, 13)]
             
             rep_taxi_data = Reparation.objects.filter(vehicule__category__category="TAXI",date_saisie__range=[date_debut, date_fin])
             rep_mois_taxi_data = {month: 0 for month in range(1, 13)}
             for commande in rep_taxi_data:
-                rep_mois_taxi_data[commande.date_saisie.month] += 1
+                rep_mois_taxi_data[commande.date_saisie.month] += commande.montant
             rep_mois_taxi_data = [rep_mois_taxi_data[month] for month in range(1, 13)]
             
             vis_vtc_data = VisiteTechnique.objects.filter(vehicule__category__category="VTC",date_saisie__range=[date_debut, date_fin])
             vis_mois_vtc_data = {month: 0 for month in range(1, 13)}
             for commande in vis_vtc_data:
-                vis_mois_vtc_data[commande.date_saisie.month] += 1
+                vis_mois_vtc_data[commande.date_saisie.month] += commande.montant
             vis_mois_vtc_data = [vis_mois_vtc_data[month] for month in range(1, 13)]
             vis_taxi_data = VisiteTechnique.objects.filter(vehicule__category__category="TAXI",date_saisie__range=[date_debut, date_fin])
             vis_mois_taxi_data = {month: 0 for month in range(1, 13)}
             for commande in vis_taxi_data:
-                vis_mois_taxi_data[commande.date_saisie.month] += 1
+                vis_mois_taxi_data[commande.date_saisie.month] += commande.montant
             vis_mois_taxi_data = [vis_mois_taxi_data[month] for month in range(1, 13)]
             
             ent_vtc_data = Entretien.objects.filter(vehicule__category__category="VTC", date_saisie__range=[date_debut, date_fin])
             ent_mois_vtc_data = {month: 0 for month in range(1, 13)}
             for commande in ent_vtc_data:
-                ent_mois_vtc_data[commande.date_saisie.month] += 1
+                ent_mois_vtc_data[commande.date_saisie.month] += commande.montant
             ent_mois_vtc_data = [ent_mois_vtc_data[month] for month in range(1, 13)]
             
             ent_taxi_data = Entretien.objects.filter(vehicule__category__category="TAXI", date_saisie__range=[date_debut, date_fin])
             ent_mois_taxi_data = {month: 0 for month in range(1, 13)}
             for commande in ent_taxi_data:
-                ent_mois_taxi_data[commande.date_saisie.month] += 1
+                ent_mois_taxi_data[commande.date_saisie.month] += commande.montant
             ent_mois_taxi_data = [ent_mois_taxi_data[month] for month in range(1, 13)]
             
             piec_vtc_data = Piece.objects.filter(reparation__in=rep_vtc_data,date_saisie__range=[date_debut, date_fin])
             piec_mois_vtc_data = {month: 0 for month in range(1, 13)}
             for commande in piec_vtc_data:
-                piec_mois_vtc_data[commande.date_saisie.month] += 1
+                piec_mois_vtc_data[commande.date_saisie.month] += commande.montant
             piec_mois_vtc_data = [piec_mois_vtc_data[month] for month in range(1, 13)]
             piec_taxi_data = Piece.objects.filter(reparation__in=rep_taxi_data,date_saisie__range=[date_debut, date_fin])
             piec_mois_taxi_data = {month: 0 for month in range(1, 13)}
             for commande in piec_taxi_data:
-                piec_mois_taxi_data[commande.date_saisie.month] += 1
+                piec_mois_taxi_data[commande.date_saisie.month] += commande.montant
             piec_mois_taxi_data = [piec_mois_taxi_data[month] for month in range(1, 13)]
             
             piecha_vtc_data = PiecEchange.objects.filter(vehicule__category__category="VTC",date_saisie__range=[date_debut, date_fin])
             piecha_mois_vtc_data = {month: 0 for month in range(1, 13)}
             for commande in piecha_vtc_data:
-                piecha_mois_vtc_data[commande.date_saisie.month] += 1
+                piecha_mois_vtc_data[commande.date_saisie.month] += commande.montant
             piecha_mois_vtc_data = [piecha_mois_vtc_data[month] for month in range(1, 13)]
             piecha_taxi_data = PiecEchange.objects.filter(vehicule__category__category="TAXI",date_saisie__range=[date_debut, date_fin])
             piecha_mois_taxi_data = {month: 0 for month in range(1, 13)}
             for commande in piecha_taxi_data:
-                piecha_mois_taxi_data[commande.date_saisie.month] += 1
+                piecha_mois_taxi_data[commande.date_saisie.month] += commande.montant
             piecha_mois_taxi_data = [piecha_mois_taxi_data[month] for month in range(1, 13)]
-            
             
         else:
             nb_reparat = Reparation.objects.filter(date_saisie__month=date.today().month).count()
@@ -2144,58 +2132,58 @@ class DashboardGaragView(CustomPermissionRequiredMixin, TemplateView):
             rep_vtc_data = Reparation.objects.filter(vehicule__category__category="VTC",date_saisie__year=datetime.now().year)
             rep_mois_vtc_data = {month: 0 for month in range(1, 13)}
             for commande in rep_vtc_data:
-                rep_mois_vtc_data[commande.date_saisie.month] += 1
+                rep_mois_vtc_data[commande.date_saisie.month] += commande.montant
             rep_mois_vtc_data = [rep_mois_vtc_data[month] for month in range(1, 13)]
             
             rep_taxi_data = Reparation.objects.filter(vehicule__category__category="TAXI",date_saisie__year=datetime.now().year)
             rep_mois_taxi_data = {month: 0 for month in range(1, 13)}
             for commande in rep_taxi_data:
-                rep_mois_taxi_data[commande.date_saisie.month] += 1
+                rep_mois_taxi_data[commande.date_saisie.month] += commande.montant
             rep_mois_taxi_data = [rep_mois_taxi_data[month] for month in range(1, 13)]
             
             vis_vtc_data = VisiteTechnique.objects.filter(vehicule__category__category="VTC",date_saisie__year=datetime.now().year)
             vis_mois_vtc_data = {month: 0 for month in range(1, 13)}
             for commande in vis_vtc_data:
-                vis_mois_vtc_data[commande.date_saisie.month] += 1
+                vis_mois_vtc_data[commande.date_saisie.month] += commande.montant
             vis_mois_vtc_data = [vis_mois_vtc_data[month] for month in range(1, 13)]
             vis_taxi_data = VisiteTechnique.objects.filter(vehicule__category__category="TAXI",date_saisie__year=datetime.now().year)
             vis_mois_taxi_data = {month: 0 for month in range(1, 13)}
             for commande in vis_taxi_data:
-                vis_mois_taxi_data[commande.date_saisie.month] += 1
+                vis_mois_taxi_data[commande.date_saisie.month] += commande.montant
             vis_mois_taxi_data = [vis_mois_taxi_data[month] for month in range(1, 13)]
             
             ent_vtc_data = Entretien.objects.filter(vehicule__category__category="VTC", date_saisie__year=datetime.now().year)
             ent_mois_vtc_data = {month: 0 for month in range(1, 13)}
             for commande in ent_vtc_data:
-                ent_mois_vtc_data[commande.date_saisie.month] += 1
+                ent_mois_vtc_data[commande.date_saisie.month] += commande.montant
             ent_mois_vtc_data = [ent_mois_vtc_data[month] for month in range(1, 13)]
             
             ent_taxi_data = Entretien.objects.filter(vehicule__category__category="TAXI", date_saisie__year=datetime.now().year)
             ent_mois_taxi_data = {month: 0 for month in range(1, 13)}
             for commande in ent_taxi_data:
-                ent_mois_taxi_data[commande.date_saisie.month] += 1
+                ent_mois_taxi_data[commande.date_saisie.month] += commande.montant
             ent_mois_taxi_data = [ent_mois_taxi_data[month] for month in range(1, 13)]
             
             piec_vtc_data = Piece.objects.filter(reparation__in=rep_vtc_data,date_saisie__year=datetime.now().year)
             piec_mois_vtc_data = {month: 0 for month in range(1, 13)}
             for commande in piec_vtc_data:
-                piec_mois_vtc_data[commande.date_saisie.month] += 1
+                piec_mois_vtc_data[commande.date_saisie.month] += commande.montant
             piec_mois_vtc_data = [piec_mois_vtc_data[month] for month in range(1, 13)]
             piec_taxi_data = Piece.objects.filter(reparation__in=rep_taxi_data,date_saisie__year=datetime.now().year)
             piec_mois_taxi_data = {month: 0 for month in range(1, 13)}
             for commande in piec_taxi_data:
-                piec_mois_taxi_data[commande.date_saisie.month] += 1
+                piec_mois_taxi_data[commande.date_saisie.month] += commande.montant
             piec_mois_taxi_data = [piec_mois_taxi_data[month] for month in range(1, 13)]
             
             piecha_vtc_data = PiecEchange.objects.filter(vehicule__category__category="VTC",date_saisie__year=datetime.now().year)
             piecha_mois_vtc_data = {month: 0 for month in range(1, 13)}
             for commande in piecha_vtc_data:
-                piecha_mois_vtc_data[commande.date_saisie.month] += 1
+                piecha_mois_vtc_data[commande.date_saisie.month] += commande.montant
             piecha_mois_vtc_data = [piecha_mois_vtc_data[month] for month in range(1, 13)]
             piecha_taxi_data = PiecEchange.objects.filter(vehicule__category__category="TAXI",date_saisie__year=datetime.now().year)
             piecha_mois_taxi_data = {month: 0 for month in range(1, 13)}
             for commande in piecha_taxi_data:
-                piecha_mois_taxi_data[commande.date_saisie.month] += 1
+                piecha_mois_taxi_data[commande.date_saisie.month] += commande.montant
             piecha_mois_taxi_data = [piecha_mois_taxi_data[month] for month in range(1, 13)]
             
         context.update({
@@ -2411,9 +2399,8 @@ class CarFinanceView(LoginRequiredMixin, CustomPermissionRequiredMixin,TemplateV
         }
         return context
 
-class DetailVehiculeView(LoginRequiredMixin, CustomPermissionRequiredMixin, DetailView):
+class DetailVehiculeView(LoginRequiredMixin, DetailView):
     login_url = 'login'
-    permission_url = 'detavehi'
     model = Vehicule
     template_name = 'perfect/dash_car.html'
     timeout_minutes = 500
@@ -2434,8 +2421,7 @@ class DetailVehiculeView(LoginRequiredMixin, CustomPermissionRequiredMixin, Deta
         mois_en_cours =date.today().month
         libelle_mois_en_cours = calendar.month_name[mois_en_cours]
         label = [calendar.month_name[month][:1] for month in range(1, 13)]
-        
-        
+
         vehicule = Vehicule.objects.all()
         vehicules = self.get_object()
         form = DateForm(self.request.GET)
@@ -2451,12 +2437,10 @@ class DetailVehiculeView(LoginRequiredMixin, CustomPermissionRequiredMixin, Deta
             Total_charge = charge_fix + charge_var
             marg_contr = recettes - charge_var
             taux_marge = (marg_contr*100/(recettes))
-            
             taux_marge_format='{:.2f}'.format(taux_marge)
             resultat = recettes-Total_charge
-            
+
             nbreparation = Reparation.objects.filter(date_entree__range=[date_debut, date_fin], vehicule = vehicules).count() 
-            
             reparations = Reparation.objects.filter(date_entree__range=[date_debut, date_fin],vehicule = vehicules)
             som_piece = Piece.objects.filter(reparation__in=reparations).aggregate(somme=Sum('montant'))['somme'] or 0
             

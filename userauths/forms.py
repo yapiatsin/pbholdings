@@ -80,10 +80,9 @@ class GerantForm(forms.ModelForm):
         model = Gerant
         fields = ('nom','prenom', 'gerant_voiture', 'commune', 'tel1', 'tel2',)
         widgets = {
-            # 'create_by': forms.Select(attrs={'class':'form-control','value':'', 'id': 'elder','type':'hidden'}),
-            'nom': forms.TextInput(attrs={'class':'form-control',"placeholder":"Ville"}),
-            'prenom': forms.TextInput(attrs={'class':'form-control',"placeholder":"Ville"}),
-            'gerant_voiture': forms.Select(attrs={'class':'form-control', "placeholder":"A, O, A, B, AB"}),
+            'nom': forms.TextInput(attrs={'class':'form-control',"placeholder":"Nom"}),
+            'prenom': forms.TextInput(attrs={'class':'form-control',"placeholder":"Prénoms"}),
+            'gerant_voiture': forms.Select(attrs={'class':'form-control',}),
             'commune': forms.TextInput(attrs={'class':'form-control',"placeholder":"Commune",}),
             'tel1': forms.TextInput(attrs={'class':'form-control',"placeholder":"Contact 1",}),
             'tel2': forms.TextInput(attrs={'class':'form-control',"placeholder":"Contact 2",}),

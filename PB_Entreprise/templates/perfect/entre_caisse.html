@@ -4,12 +4,10 @@
 {% block navbar_nav %} {% endblock navbar_nav %} 
 {% block page_title %}
 <a href="{% url 'billetage' %}"><img class="profile-user-img" style="border:none; height:35px;width:35px" src="{% static 'retour.png' %}" alt="Retour"></a>
-<img class="profile-user-img" style="border:none; height:55px;width:55px" src="{% static 'dp.png' %}" alt="User profile picture">Saisie une entrée de caisse {% endblock page_title %} {% block page_a %} {% endblock page_a %} {% block active_page %} Sortie
-de caisse 
+<img class="profile-user-img" style="border:none; height:55px;width:55px" src="{% static 'dp.png' %}" alt="User profile picture">Saisie une entrée de caisse {% endblock page_title %} {% block page_a %} {% endblock page_a %} {% block active_page %} 
+Sortie de caisse 
 {% endblock active_page%} 
 {% block main_content %}
-{% if user.user_type == '4' %}
-{% else %}
 <div class="modal fade" id="modal-lg">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -38,9 +36,10 @@ de caisse
                     </div>
                     <div class="modal-footer justify-content-between">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
-                        <button type="submit" class="btn btn-primary">Enregistrer</button>
+                        <button type="submit" class="btn btn-outline-primary">Enregistrer</button>
                     </div>
                 </form>
+            </div>
         </div>
     </div>
 </div>
@@ -161,10 +160,10 @@ de caisse
                                                     </td>
                                                     <td class="text-center">
                                                         {% for categorie, perms in grouped_permissions.items %}
-                                                            {% if categorie.categorie == 'permcrudenc' %}
-                                                                {% for perm in perms %}:
+                                                            {% if categorie.categorie == 'permencais' %}
+                                                                {% for perm in perms %}
                                                                     {% if perm.name == "sup encaissement" %}
-                                                                        <a href="{% url perm.url e.pk %}" class="text-primary" onclick="return confirm('Etes-vous sûre de vouloir supprimer l'entrée en caisse de {{ e.montant }} saisie le {{ e.date_saisie|date:"d-m-y" }}? Toutes les informations liées seront supprimées.')">
+                                                                        <a href="{% url perm.url e.pk %}" class="text-primary" onclick="return confirm('Etes-vous sûre de vouloir supprimer cette entrée de caisse de {{ e.montant }}frs - {{ e.date_saisie|date:"d-m-y" }} ? Toutes les informations liées seront supprimées.')">
                                                                             <i style="font-size: 20px;" class="fa fa-trash text-danger"></i>
                                                                         </a>
                                                                     {% endif %}
@@ -185,5 +184,4 @@ de caisse
         </div>
     </div>
 </div>
-{% endif %}
 {% endblock main_content %}

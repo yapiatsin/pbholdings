@@ -81,7 +81,7 @@ class EncaissementAdmin(admin.ModelAdmin):
     list_filter = ['libelle','date_saisie', 'date_saisie']
 
 class DecaissementAdmin(admin.ModelAdmin):
-    list_display = ['libelle','montant','auteur','auteur']
+    list_display = ['libelle','montant','date_saisie','auteur','auteur']
     list_filter = ['libelle','date_saisie']
 
 class BilletageAdmin(admin.ModelAdmin):
