@@ -21,7 +21,7 @@ from django.contrib.auth import logout
 # Create your views here.
 class Home(TemplateView):
     template_name = 'pbent/index.html' 
-    timeout_minutes = 60
+    timeout_minutes = 100
     def dispatch(self, request, *args, **kwargs):
         last_activity = request.session.get('last_activity')
         if last_activity:
@@ -40,7 +40,7 @@ class Home(TemplateView):
     
 class Apropos(TemplateView):
     template_name = 'pbent/about.html' 
-    timeout_minutes = 15
+    timeout_minutes = 100
     def dispatch(self, request, *args, **kwargs):
         last_activity = request.session.get('last_activity')
         if last_activity:
@@ -53,7 +53,7 @@ class Apropos(TemplateView):
 
 class Contact(TemplateView):
     template_name = 'pbent/contacts.html' 
-    timeout_minutes = 60 
+    timeout_minutes = 100 
     def dispatch(self, request, *args, **kwargs):
         last_activity = request.session.get('last_activity')
         if last_activity:
@@ -67,7 +67,7 @@ class Contact(TemplateView):
 
 class Equip(TemplateView):
     template_name = 'pbent/equipe.html' 
-    timeout_minutes = 60
+    timeout_minutes = 100
     def dispatch(self, request, *args, **kwargs):
         last_activity = request.session.get('last_activity')
         if last_activity:
@@ -81,7 +81,7 @@ class Equip(TemplateView):
 
 class Identite(TemplateView):
     template_name = 'pbent/identite.html' 
-    timeout_minutes = 60
+    timeout_minutes = 100
     def dispatch(self, request, *args, **kwargs):
         last_activity = request.session.get('last_activity')
         if last_activity:
@@ -95,7 +95,7 @@ class Identite(TemplateView):
 
 class Politiq(TemplateView):
     template_name = 'pbent/politiq.html' 
-    timeout_minutes = 60
+    timeout_minutes = 100
     def dispatch(self, request, *args, **kwargs):
         last_activity = request.session.get('last_activity')
         if last_activity:
@@ -109,7 +109,7 @@ class Politiq(TemplateView):
 #-----------Services-----------#
 class Vtc(TemplateView):
     template_name = 'pbent/details_vtc.html' 
-    timeout_minutes = 60
+    timeout_minutes = 100
     def dispatch(self, request, *args, **kwargs):
         last_activity = request.session.get('last_activity')
         if last_activity:
@@ -123,7 +123,7 @@ class Vtc(TemplateView):
 
 class Location(TemplateView):
     template_name = 'pbent/details_location.html' 
-    timeout_minutes = 60
+    timeout_minutes = 100
     def dispatch(self, request, *args, **kwargs):
         last_activity = request.session.get('last_activity')
         if last_activity:
@@ -136,7 +136,7 @@ class Location(TemplateView):
     
 class Vent_piece(TemplateView):
     template_name = 'pbent/details_ventepiece.html' 
-    timeout_minutes = 60
+    timeout_minutes = 100
     def dispatch(self, request, *args, **kwargs):
         last_activity = request.session.get('last_activity')
         if last_activity:
@@ -149,7 +149,7 @@ class Vent_piece(TemplateView):
 
 class hyrocarbure(TemplateView):
     template_name = 'pbent/details_hydro.html' 
-    timeout_minutes = 60
+    timeout_minutes = 100
     def dispatch(self, request, *args, **kwargs):
         last_activity = request.session.get('last_activity')
         if last_activity:
@@ -162,7 +162,7 @@ class hyrocarbure(TemplateView):
 #-----------media-----------#
 class Photos(TemplateView):
     template_name = 'pbent/photo.html' 
-    timeout_minutes = 60
+    timeout_minutes = 100
     def dispatch(self, request, *args, **kwargs):
         last_activity = request.session.get('last_activity')
         if last_activity:
@@ -186,7 +186,7 @@ class AddPhotoView(CreateView):
     success_message = 'Photo Ajoutée avec succès👍✓✓'
     error_message = "Erreur de saisie ✘✘ "
     success_url = reverse_lazy ('addphoto')
-    timeout_minutes = 60
+    timeout_minutes = 100
     def dispatch(self, request, *args, **kwargs):
         last_activity = request.session.get('last_activity')
         if last_activity:
@@ -217,7 +217,7 @@ class UpdatPhotoView(UpdateView):
     template_name = 'news/site/add_photo.html'
     success_message = 'Photo modifiée avec succès👍✓✓'
     success_url = reverse_lazy ('addphoto')
-    timeout_minutes = 60
+    timeout_minutes = 100
     def dispatch(self, request, *args, **kwargs):
         last_activity = request.session.get('last_activity')
         if last_activity:
@@ -242,7 +242,7 @@ class DeletPhotoView(DeleteView):
     template_name = 'news/site/delet_photo.html' 
     success_message = 'Photo Supprimée avec succès👍✓✓'
     success_url =reverse_lazy ('addphoto')
-    timeout_minutes = 60
+    timeout_minutes = 100
     def dispatch(self, request, *args, **kwargs):
         last_activity = request.session.get('last_activity')
         if last_activity:
@@ -264,7 +264,7 @@ class DeletPhotoView(DeleteView):
 
 class Videos(TemplateView):
     template_name = 'pbent/video.html' 
-    timeout_minutes = 60
+    timeout_minutes = 100
     def dispatch(self, request, *args, **kwargs):
         last_activity = request.session.get('last_activity')
         if last_activity:
@@ -287,7 +287,7 @@ class AddVideoView(CreateView):
     template_name = 'news/site/add_video.html'
     success_message = 'Vidéo Ajoutée avec succès👍✓✓'
     success_url = reverse_lazy ('addvideo')
-    timeout_minutes = 60
+    timeout_minutes = 100
     def dispatch(self, request, *args, **kwargs):
         last_activity = request.session.get('last_activity')
         if last_activity:
@@ -314,7 +314,7 @@ class UpdatVideoView(UpdateView):
     template_name = 'news/site/add_video.html'
     success_message = 'Video modifiée avec succès👍✓✓'
     success_url = reverse_lazy ('addvideo')
-    timeout_minutes = 60
+    timeout_minutes = 100
     def dispatch(self, request, *args, **kwargs):
         last_activity = request.session.get('last_activity')
         if last_activity:
@@ -339,7 +339,7 @@ class DeletVideoView(DeleteView):
     template_name = 'news/site/delet_video.html' 
     success_message = 'Video Supprimée avec succès👍✓✓'
     success_url =reverse_lazy ('addvideo')
-    timeout_minutes = 60
+    timeout_minutes = 100
     def dispatch(self, request, *args, **kwargs):
         last_activity = request.session.get('last_activity')
         if last_activity:
@@ -363,7 +363,7 @@ class Evenements(TemplateView):
     template_name = 'pbent/evenement.html'
     ordering = ['-date_saisie']
     paginate_by = 4
-    timeout_minutes = 60
+    timeout_minutes = 100
     def dispatch(self, request, *args, **kwargs):
         last_activity = request.session.get('last_activity')
         if last_activity:
@@ -399,7 +399,7 @@ class AddEvenementView(CreateView):
     success_message = 'Evenement Ajouté avec succès👍✓✓'
     error_message = "Erreur de saisie ✘✘ "
     success_url = reverse_lazy ('addevent')
-    timeout_minutes = 60
+    timeout_minutes = 100
     def dispatch(self, request, *args, **kwargs):
         last_activity = request.session.get('last_activity')
         if last_activity:
@@ -430,7 +430,7 @@ class UpdatEvenementView(UpdateView):
     template_name = 'news/site/add_event.html'
     success_message = 'Evenement modifié avec succès👍✓✓'
     success_url = reverse_lazy ('addevent')
-    timeout_minutes = 60
+    timeout_minutes = 100
     def dispatch(self, request, *args, **kwargs):
         last_activity = request.session.get('last_activity')
         if last_activity:
@@ -453,7 +453,7 @@ class UpdatEvenementView(UpdateView):
 class DetailEvenementtView(DetailView):
     model = Evenement
     template_name = 'pbent/detail_evenement.html'
-    timeout_minutes = 60
+    timeout_minutes = 100
     def dispatch(self, request, *args, **kwargs):
         last_activity = request.session.get('last_activity')
         if last_activity:
@@ -475,7 +475,7 @@ class DeletEvenementView(DeleteView):
     template_name = 'news/site/delet_event.html' 
     success_message = 'Evenement Supprimé avec succès👍✓✓'
     success_url =reverse_lazy ('addevent')
-    timeout_minutes = 60
+    timeout_minutes = 100
     def dispatch(self, request, *args, **kwargs):
         last_activity = request.session.get('last_activity')
         if last_activity:
@@ -498,7 +498,7 @@ class DeletEvenementView(DeleteView):
 #-----------actualite-----------#
 class Activite(TemplateView):
     template_name = 'pbent/activites.html' 
-    timeout_minutes = 60
+    timeout_minutes = 100
     def dispatch(self, request, *args, **kwargs):
         last_activity = request.session.get('last_activity')
         if last_activity:

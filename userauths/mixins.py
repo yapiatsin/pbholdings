@@ -66,7 +66,7 @@ class CustomPermissionRequiredMixin:
                                 <div class="card">
                                     <h1>Accès interdit</h1>
                                     <p>Vous n'avez pas la permission d'accéder à cette page.</p>
-                                    <a href="/deconnexion" class="btn">Se déconnecter</a>
+                                    <a href="/auths/deconnexion" class="btn">Se déconnecter</a>
                                     <p>P&BEntreprise</p>
                                 </div>
                             </body>
