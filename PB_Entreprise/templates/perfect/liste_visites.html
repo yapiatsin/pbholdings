@@ -221,7 +221,6 @@
                                                             {% for categorie, perms in grouped_permissions.items %}
                                                                 {% if categorie.categorie == "permvisit" %}
                                                                     {% for perm in perms %}
-                                                                        {% if u.date_saisie == dates %}
                                                                             {% if perm.name == "modifier visite" %}
                                                                                 <a href="{% url perm.url u.pk %}" class="text-primary">
                                                                                     <i style="font-size: 20px;" class="fa fa-edit text-warning"></i>
@@ -231,7 +230,6 @@
                                                                                     <i style="font-size: 20px;" class="fa fa-trash text-danger"></i>
                                                                                 </a>
                                                                             {% endif %}
-                                                                        {% endif %}
                                                                     {% endfor %}
                                                                 {% endif %}
                                                             {% endfor %}

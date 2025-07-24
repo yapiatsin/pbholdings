@@ -1,6 +1,7 @@
 # userauths/mixins.py
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse
+
 class CustomPermissionRequiredMixin:
     permission_url = None
     def dispatch(self, request, *args, **kwargs):

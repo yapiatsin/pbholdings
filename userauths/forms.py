@@ -8,7 +8,6 @@ from django.forms.utils import ErrorList
 from userauths.models import *
 from .models import GENDER_SELECTION
 
-
 #forms pour changer le mot de passe
 class ChangePasswordForm(PasswordChangeForm):
     old_password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Ancien mot de passe'}))

@@ -106,8 +106,6 @@
     </div>
 </div>
 
-<!-- -- -------------------------- MEILLEUR_RECETTE -------------------------- -- -->
-
 <div class="col-md-2">
     <div class="card card-outline" style="border-radius:20px">
         <div class="card-body box-profile">
@@ -225,12 +223,10 @@
                                                             {% for categorie, perms in grouped_permissions.items %}
                                                                 {% if categorie.categorie == 'permreparation' %}
                                                                     {% for perm in perms %}
-                                                                        {% if u.date_saisie == dates %}
-                                                                            {% if perm.name == "sup reparation" %}
-                                                                                <a href="{% url perm.url u.pk %}" class="text-primary" onclick="return confirm('Etes-vous sûre de vouloir supprimer la reparation du {{ u.montant }} du {{ u.vehicule.immatriculation }} saisie le {{ u.date_saisie|date:"d-m-y" }}? Toutes les informations liées seront supprimées.')">
-                                                                                    <i style="font-size: 20px;" class="fa fa-trash text-danger"></i>
-                                                                                </a>
-                                                                            {% endif %}
+                                                                        {% if perm.name == "sup reparation" %}
+                                                                            <a href="{% url perm.url u.pk %}" class="text-primary" onclick="return confirm('Etes-vous sûre de vouloir supprimer la reparation du {{ u.montant }} du {{ u.vehicule.immatriculation }} saisie le {{ u.date_saisie|date:"d-m-y" }}? Toutes les informations liées seront supprimées.')">
+                                                                                <i style="font-size: 20px;" class="fa fa-trash text-danger"></i>
+                                                                            </a>
                                                                         {% endif %}
                                                                     {% endfor %}
                                                                 {% endif %}
@@ -240,7 +236,6 @@
                                                 {% endfor %} 
                                             {% endif %}
                                         </tbody>
-
                                     </table>
                                 </div>
                                 <!-- /.card-body -->
