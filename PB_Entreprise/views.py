@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.urls import reverse, reverse_lazy
 from django.views.generic import ListView, DetailView,CreateView, UpdateView, TemplateView
 from django.contrib import messages
-
+from django.core.mail import send_mail
 from userauths.models import *
 from .models import *
 from .forms import *
@@ -1547,7 +1547,6 @@ def delete_solde(request, pk):
         messages.error(request, f"Erreur lors de la suppression : {str(e)}")
     return redirect('add_solde')
      
-from django.core.mail import send_mail
 class GestionalerteView(LoginRequiredMixin, CustomPermissionRequiredMixin, TemplateView):  
     permission_url = 'alerte'  
     login_url = 'login'                                                                      
@@ -1562,24 +1561,6 @@ class GestionalerteView(LoginRequiredMixin, CustomPermissionRequiredMixin, Templ
                 messages.warning(request, "Vous avez été déconnecté ")
                 return redirect("login")
         return super().dispatch(request, *args, **kwargs)
-    def send_alert_email(self, vehicle_reference, alert_types):
-        today_date = datetime.now().strftime("%Y-%m-%d")
-        last_sent_alerts = self.request.session.get('last_sent_alerts', {})
-        if last_sent_alerts.get(vehicle_reference) == today_date:
-            return  
-        alert_message = ", ".join(alert_types)
-        subject = "Alerte : Maintenance du véhicule requise"
-        message = (
-            f"Le véhicule avec l'immatriculation {vehicle_reference} requiert une attention pour : {alert_message}. "
-            "Veuillez vérifier les alertes associées."
-        )
-        recipient_list = ['sorothodaniel@gmail.com', 'atsinyapi1@gmail.com','konangerardk63@gmail.com','kougblaayaoviotodjo@gmail.com']
-        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, recipient_list)
-        
-        # Mettre à jour la session pour éviter un envoi multiple le même jour
-        last_sent_alerts[vehicle_reference] = today_date
-        self.request.session['last_sent_alerts'] = last_sent_alerts
-        
     def get_context_data(self,*args, **kwargs):  
         context = super().get_context_data(*args,**kwargs)  
         dates = date.today()
@@ -1588,23 +1569,17 @@ class GestionalerteView(LoginRequiredMixin, CustomPermissionRequiredMixin, Templ
         mois_en_cours =date.today().month
         libelle_mois_en_cours = calendar.month_name[mois_en_cours]
         user = self.request.user
-        # Define the filtering based on user type and gerant_voiture condition
         if user.user_type == "4":
             try:
                 gerant = user.gerants.get()
-                if gerant.gerant_voiture == "VTC":
-                    vehicules = Vehicule.objects.filter(category__category="VTC")
+                if gerant.gerant_voiture:  
+                    vehicules = Vehicule.objects.filter(category=gerant.gerant_voiture)
                 else:
-                    vehicules = Vehicule.objects.filter(category__category="TAXI")
+                    vehicules = Vehicule.objects.none()
             except Gerant.DoesNotExist:
-                vehicules = Vehicule.objects.none()  # No vehicles if no Gerant linked
-        elif user:
-            try:
-                vehicules = Vehicule.objects.all()
-            except:
-                vehicules = Vehicule.objects.none() 
+                vehicules = Vehicule.objects.none()
         else:
-            print("*****ALL*******")
+            vehicules = Vehicule.objects.all()
         resultat_vehicule = []
         alert_color = " "
         forms = DateForm(self.request.GET)
@@ -1693,7 +1668,6 @@ class GestionalerteView(LoginRequiredMixin, CustomPermissionRequiredMixin, Templ
                         return 0
                 
                 alert_types = []
-                # Ajoutez les types d'alerte en fonction des jours restants
                 if 1 <= safe_int(jours_restant) <= 5:
                     alert_types.append("visite technique")
                 if 1 <= safe_int(jours_ent_restant) <= 5:
@@ -1706,9 +1680,6 @@ class GestionalerteView(LoginRequiredMixin, CustomPermissionRequiredMixin, Templ
                     alert_types.append("patente")
                 if 1 <= safe_int(jours_cartsta_restant) <= 5:
                     alert_types.append("stationnement")
-                # Envoie l'email d'alerte si nécessaire
-                if alert_types:
-                    self.send_alert_email(vehicule.immatriculation, alert_types) 
                 resultat_vehicule.append({'vehicule': vehicule, 'jours_restant':jours_restant, 'alert_color':alert_color, 'alert_ent_color':alert_ent_color, 'jours_ent_restant':jours_ent_restant,'alert_assu_color':alert_assu_color,'jours_assu_restant':jours_assu_restant,'jours_vign_restant':jours_vign_restant,'alert_vign_color':alert_vign_color, 'jours_pate_restant':jours_pate_restant,'alert_pate_color':alert_pate_color, 'jours_cartsta_restant':jours_cartsta_restant,'alert_cartsta_color':alert_cartsta_color,})
             
         else:
@@ -1806,9 +1777,6 @@ class GestionalerteView(LoginRequiredMixin, CustomPermissionRequiredMixin, Templ
                     alert_types.append("patente")
                 if 1 <= safe_int(jours_cartsta_restant) <= 5:
                     alert_types.append("stationnement")
-                # Envoie l'email d'alerte si nécessaire
-                if alert_types:
-                    self.send_alert_email(vehicule.immatriculation, alert_types) 
                 resultat_vehicule.append({'vehicule': vehicule, 'jours_restant':jours_restant, 'alert_color':alert_color, 'alert_ent_color':alert_ent_color, 'jours_ent_restant':jours_ent_restant,'alert_assu_color':alert_assu_color,'jours_assu_restant':jours_assu_restant,'jours_vign_restant':jours_vign_restant,'alert_vign_color':alert_vign_color, 'jours_pate_restant':jours_pate_restant,'alert_pate_color':alert_pate_color, 'jours_cartsta_restant':jours_cartsta_restant,'alert_cartsta_color':alert_cartsta_color,})
         context={
             'dates':dates,
@@ -1853,7 +1821,6 @@ class AddVehiculeView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateV
         mois_en_cours = date.today().month
         libelle_mois_en_cours = calendar.month_name[mois_en_cours]
         user = self.request.user
-        # Define the filtering based on user type and gerant_voiture condition
         if user.user_type == "4":
             try:
                 gerant = user.gerants.get()
@@ -1862,7 +1829,7 @@ class AddVehiculeView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateV
                 else:
                     vehicules = Vehicule.objects.filter(category__category="TAXI")
             except Gerant.DoesNotExist:
-                vehicules = Vehicule.objects.none()  # No vehicles if no Gerant linked
+                vehicules = Vehicule.objects.none()
         else:
             vehicules = Vehicule.objects.all()
         form_admin = DateForm(self.request.GET)
@@ -1906,6 +1873,8 @@ class AddVehiculeView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateV
         return context
     def get_success_url(self):
         return reverse('add_car')
+
+
 
 def delete_vehicule(request, pk):
     try:

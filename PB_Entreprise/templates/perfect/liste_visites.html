@@ -221,15 +221,15 @@
                                                             {% for categorie, perms in grouped_permissions.items %}
                                                                 {% if categorie.categorie == "permvisit" %}
                                                                     {% for perm in perms %}
-                                                                            {% if perm.name == "modifier visite" %}
-                                                                                <a href="{% url perm.url u.pk %}" class="text-primary">
-                                                                                    <i style="font-size: 20px;" class="fa fa-edit text-warning"></i>
-                                                                                </a> 
-                                                                            {% elif perm.name == "sup visite" %}
-                                                                                <a href="{% url perm.url u.pk %}" class="text-primary" onclick="return confirm('Etes-vous sûre de vouloir supprimer la sortie de caisse de {{ u.montant }} saisie le {{ u.date|date:"d-m-y" }}? Toutes les informations liées seront supprimées.')">
-                                                                                    <i style="font-size: 20px;" class="fa fa-trash text-danger"></i>
-                                                                                </a>
-                                                                            {% endif %}
+                                                                        {% if perm.name == "modifier visite" %}
+                                                                            <a href="{% url perm.url u.pk %}" class="text-primary">
+                                                                                <i style="font-size: 20px;" class="fa fa-edit text-warning"></i>
+                                                                            </a> 
+                                                                        {% elif perm.name == "sup visite" %}
+                                                                            <a href="{% url perm.url u.pk %}" class="text-primary" onclick="return confirm('Etes-vous sûre de vouloir supprimer la sortie de caisse de {{ u.montant }} saisie le {{ u.date|date:"d-m-y" }}? Toutes les informations liées seront supprimées.')">
+                                                                                <i style="font-size: 20px;" class="fa fa-trash text-danger"></i>
+                                                                            </a>
+                                                                        {% endif %}
                                                                     {% endfor %}
                                                                 {% endif %}
                                                             {% endfor %}

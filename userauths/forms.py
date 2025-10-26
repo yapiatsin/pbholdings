@@ -65,7 +65,6 @@ class ComptableForm(forms.ModelForm):
         model = Comptable
         fields = ('nom','prenom', 'commune', 'tel1', 'tel2',)
         widgets = {
-            # 'create_by': forms.Select(attrs={'class':'form-control','value':'', 'id': 'elder','type':'hidden'}),
             'nom': forms.TextInput(attrs={'class':'form-control',"placeholder":"Ville"}),
             'prenom': forms.TextInput(attrs={'class':'form-control',"placeholder":"Ville"}),
             'gerant_voiture': forms.Select(attrs={'class':'form-control', "placeholder":"A, O, A, B, AB"}),

@@ -10,7 +10,6 @@ class CategoVehi(models.Model):
     category = models.CharField(unique=True, max_length=10)
     date_saisie = models.DateField(auto_now_add=True)
     recette_defaut = models.IntegerField(default=0)
-    
     def __str__(self):
         return self.category
  
