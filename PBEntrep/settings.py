@@ -12,11 +12,11 @@ TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
 SECRET_KEY = config('SECRET_KEY')
 # DEBUG = True--  django-insecure-of03a0_f)5yamk9g&p9p2f^a*l8!6t#+r_c4oq42+sb&#y5znt
 
-ALLOWED_HOSTS = ['*']
-# ALLOWED_HOSTS = ['pbholdingsite.com','www.pbholdingsite.com','45.92.109.86']
-# CSRF_TRUSTED_ORIGINS = [
-#     'https://pbholdingsite.com',
-# ]
+# ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['pbholdingsite.com','www.pbholdingsite.com','45.92.109.86']
+CSRF_TRUSTED_ORIGINS = [
+    'https://pbholdingsite.com',
+]
 
 handler403 = 'PB_Entreprise.views.permission_denied_view'
 handler404 = 'PB_Entreprise.views.custom_404_view'
