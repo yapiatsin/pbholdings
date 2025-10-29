@@ -1572,14 +1572,22 @@ class GestionalerteView(LoginRequiredMixin, CustomPermissionRequiredMixin, Templ
         if user.user_type == "4":
             try:
                 gerant = user.gerants.get()
-                if gerant.gerant_voiture:  
-                    vehicules = Vehicule.objects.filter(category=gerant.gerant_voiture)
+                print("----------",gerant.tel1)
+                if gerant.gerant_voiture == "VTC":
+                    vehicules = Vehicule.objects.filter(category__category="VTC")
+                    print("************",vehicules)
                 else:
-                    vehicules = Vehicule.objects.none()
+                    vehicules = Vehicule.objects.filter(category__category="TAXI")
+                    print("************",vehicules)
             except Gerant.DoesNotExist:
                 vehicules = Vehicule.objects.none()
+        elif user:
+            try:
+                vehicules = Vehicule.objects.all()
+            except:
+                vehicules = Vehicule.objects.none()
         else:
-            vehicules = Vehicule.objects.all()
+            print("")
         resultat_vehicule = []
         alert_color = " "
         forms = DateForm(self.request.GET)
