@@ -153,8 +153,19 @@
                                                             {% for categorie, perms in grouped_permissions.items %}
                                                                 {% if categorie.categorie == 'permvisit' %}
                                                                     {% for perm in perms %}
+<<<<<<< HEAD
                                                                         {% if perm.name == "sup visite" %}
                                                                             <input type="checkbox" id="select-all">
+=======
+                                                                        {% if perm.name == "modifier visite" %}
+                                                                            <a href="{% url perm.url u.pk %}" class="text-primary">
+                                                                                <i style="font-size: 20px;" class="fa fa-edit text-warning"></i>
+                                                                            </a> 
+                                                                        {% elif perm.name == "sup visite" %}
+                                                                            <a href="{% url perm.url u.pk %}" class="text-primary" onclick="return confirm('Etes-vous sûre de vouloir supprimer la sortie de caisse de {{ u.montant }} saisie le {{ u.date|date:"d-m-y" }}? Toutes les informations liées seront supprimées.')">
+                                                                                <i style="font-size: 20px;" class="fa fa-trash text-danger"></i>
+                                                                            </a>
+>>>>>>> 6b6f98e9edcd698a0d106c07939db0c99e7ee11e
                                                                         {% endif %}
                                                                     {% endfor %}
                                                                 {% endif %}
