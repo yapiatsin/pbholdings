@@ -7,13 +7,20 @@
 {% block page_title %}
 <img class="profile-user-img" style="border:none; height:55px;width:55px" src="{% static 'add-user.png' %}" alt="User profile picture">Créer un compte de gérant
 {% endblock page_title %} 
-{% block active_page %} Nouveau compte {% endblock active_page%} 
+
+{% block page_action %}
+    <form id="quickForm">
+        <button type="button" class="btn btn-default text-primary" data-toggle="modal" data-target="#modal-lg">Créer <i class='fa fa-plus-square'></i></button>
+    </form>
+{% endblock page_action %}
+
 {% block main_content %}
+
     <div class="modal fade" id="modal-lg">
         <div class="modal-dialog modal-lg">
-            <div class="modal-content">
+            <div class="modal-content" style="border-radius:20px">
                 <div class="modal-header">
-                    <h4 class="modal-title" style=" font-weight:700;color: rgb(6,73,124);">Créer un compte de gérant</h4>
+                    <h4 class="modal-title" style="font-weight:700;color: #06497C; font-size:15px;">Créer un compte de gérant</h4>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -56,9 +63,6 @@
                                 <label>VEHICULE GERER</label> {{gerantform_form.gerant_voiture}}
                             </div>
                             <div class="col-md-12 form-group">
-                                {{gerantform_form.create_by}}
-                            </div>
-                            <div class="col-md-12 form-group">
                                 <input type="TEXT" value="LES PERMISSIONS" class="form-control text-center" disabled>
                             </div>
                             {% for permission in permission_form.permissions %}
@@ -87,19 +91,16 @@
                     <div id="" class="">
                         <div class="row p-0 m-0">
                             <div class="col-md-12 p-0">
-                                <div class="card">
+                                <div class="card" style="border-radius:25px">
                                     <div class="card-header">
                                         <h3 class="card-title">
-                                            <button type="button" class="btn btn-default" >PDF <i class='fa fa-file-pdf-o'></i></button>
-                                            <button type="button" class="btn btn-default" >Excell <i class='fa fa-file-excel-o'></i></button>
-                                            <button type="button" class="btn btn-default" data-toggle="modal" data-target="#modal-lg">Créer <i class='fa fa-plus-square'></i></button>
+                                        
                                         </h3>
 
                                         <div class="card-tools">
                                             <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
                                         </div>
                                     </div>
-                                    <!-- /.card-header -->
                                     <div class="card-body">
                                         <table id="example1" class="table table-bordered table-striped">
                                             <thead>
@@ -108,7 +109,6 @@
                                                     <th>PRENOMS</th>
                                                     <th>COMMUNE</th>
                                                     <th>CONTACT 1</th>
-                                                    <th>CONTACT 2</th>
                                                     <th>VEHICULE</th>
                                                     <th>ACTION</th>
                                                 </tr>
@@ -121,7 +121,6 @@
                                                             <td>{{u.prenom}}</td>
                                                             <td>{{u.commune}}</td>
                                                             <td>{{u.tel1}}</td>
-                                                            <td>{{u.tel2}}</td>
                                                             <td>{{u.gerant_voiture}}</td>
                                                             <td class="text-center ">
                                                                 <a href="{% url 'del_gernt' u.pk %}" class="text-danger" onclick="return confirm('Etes-vous sûre de vouloir supprimer les informations concernant {{u.nom|upper}} - {{u.prenom}}? car si vous supprimer toutes les informations liées seront perdues')">
@@ -134,7 +133,6 @@
                                             </tbody>
                                             <tfoot>
                                                 <tr class="text-center ">
-                                                    <th>---</th>
                                                     <th>---</th>
                                                     <th>---</th>
                                                     <th>---</th>

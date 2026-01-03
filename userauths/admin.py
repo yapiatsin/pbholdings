@@ -15,5 +15,5 @@ admin.site.register(CustomPermission, CustomPermissionAdmin)
 admin.site.register(Chefexploitation)
 admin.site.register(Comptable)
 admin.site.register(Administ)
-admin.site.register(Gerant)
+# admin.site.register(Gerant)
 

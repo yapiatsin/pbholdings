@@ -6,6 +6,7 @@ import logging
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.core.mail import send_mail
+from django.db.models import Q
 
 logger = logging.getLogger(__name__)
 
@@ -25,6 +26,20 @@ def send_email_with_html_body(subjet:str, receivers:list, template:str, context:
     except Exception as e:
         logger.error(f"Erreur lors de l'envoi de l'email: {str(e)}")
     return False
+
+#utils
+def search_vehicules(queryset, search_query):
+    """
+    Filtre les véhicules selon l'immatriculation, le numéro de carte grise ou le numéro de châssis
+    """
+    if search_query:
+        queryset = queryset.filter(
+            Q(immatriculation__icontains=search_query) |
+            Q(num_cart_grise__icontains=search_query) |
+            Q(num_Chassis__icontains=search_query) |
+            Q(marque__icontains=search_query)
+        )
+    return queryset
 
 
 #logging.basicConfig(level=logging.INFO)

@@ -1,67 +1,151 @@
 {% extends 'perfect/base.html' %} 
 {% load static %}
-{% block title %} Caisse{% endblock title %} 
-{% block search_form %} 
-    <form class="col-md-12" method="get">
-        {% csrf_token %}
-        <div class="row">
-            <div class="col-md-12">
-                <label>Date </label> {{ forms.date_bilan }}
-            </div>
-            <div class="col-md-12 text-center p-2">
-                <button class="btn btn-primary" type="submit">Valider</button>
-            </div>
-        </div>
-    </form>
-{% endblock search_form %} 
-
+{% block title %} Caisse{% endblock title %}
 {% block page_title %}
     <img class="profile-user-img" style="border:none; height:45px;width:45px" src="{% static 'caisse.png' %}" alt="User profile picture">Caisse 
-{% endblock page_title %} 
-{% block page_a %}
-{% endblock page_a %}
-{% block active_page %} Caisse {% endblock active_page%} 
+{% endblock page_title %}
+
+{% block page_action %}
+        <form id="quickForm">
+            {% if forms.is_valid %}
+                <a id="exporterCSV" class="btn btn-default text-success" href="{% url 'export_caisse_excel' %}?date_bilan={{ forms.date_bilan.value|date:'Y-m-d' }}" style="font-size: 16px;">
+                    <i class="fa fa-file-excel-o"></i> Exporter
+                </a>
+            {% else %}
+                <a id="exporterCSV" class="btn btn-default text-success" href="{% url 'export_caisse_excel' %}?date_bilan={{ dates|date:'Y-m-d' }}" style="font-size: 16px;">
+                    <i class="fa fa-file-excel-o"></i> Exporter
+                </a>
+            {% endif %}
+            {% if forms.is_valid %}
+            {% else %}
+                {% for categorie, perms in grouped_permissions.items %}
+                    {% if categorie.categorie == 'permsolde' %}
+                        <button type="button" id="billetage" class="btn btn-default text-primary" data-toggle="modal" data-target="#modal-lg">Saisie billetage <i class="fa fa-plus-circle"></i></button>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+            <a class="btn btn-default text-info" data-toggle="modal" data-target="#modal-sm" href="#" style="font-size: 16px;"><i style="font-size: 20px;" class="fa fa-calendar"></i></a>
+            <a class="btn btn-default text-info" href="{% url 'billetage' %}" style="font-size: 16px;"><i style="font-size: 20px;" class="fa fa-refresh"></i></a>
+        </form>
+{% endblock page_action %}
 {% block main_content %}
-{% if user.user_type == '4' %}
-{% else %}
-<div class="modal fade" id="modal-lg">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
+
+<div class="modal fade" id="modal-sm">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content" style="border-radius:25px;">
             <div class="modal-header">
-                <h4 class="modal-title" style="font-weight:700;color: #06497C;">BILLETAGE DU {{dates}}</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
+                <h4 class="modal-title" style="font-weight:700;color: #06497C; font-size:15px;">FILTRE</h4>
+                <button type="button" style="border-radius:25px;" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
             <div class="modal-body">
-                <form method='post' role="form" id="quickForm" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <div class="row card-body text-secondary">
-                        <div class="col-md-4 col-sm-6  form-group">
-                            <label for="fullname"><b>Valeur</b></label> {{ form.valeur }}
+                <div class="card-body">
+                    <form id="basic-form" method="get" novalidate>
+                        <div class="row clearfix">
+                            <div class="col-12">
+                                <label style="font-weight:700;color:rgba(152, 152, 152, 0.85); font-size:15px;">Date </label>
+                                <div class="form-group">                                    
+                                    {{ forms.date_bilan }}
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-md-4 col-sm-6 form-group">
-                            <label for="fullname"><b>Type</b></label> {{ form.type }}
+                        <div class="modal-footer justify-content-between">
+                            <button type="button" class="btn btn-outline-secondary" style="border-radius:25px;" data-dismiss="modal">Annuler</button>
+                            <button type="submit" class="btn btn-outline-success" style="border-radius:25px;">Afficher</button>
                         </div>
-                        <div class="col-md-4 col-sm-6 form-group">
-                            <label for="fullname"><b>Nombre</b></label> {{ form.nombre }}
-                        </div>
-                        <div class="col-md-12 col-sm-6  form-group">
-                            {{ form.auteur }}
-                        </div>
-                    </div>
-                    <div class="modal-footer justify-content-between">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
-                        <button type="submit" class="btn btn-primary">Enregistrer</button>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-
-
+<div class="modal fade" id="modal-lg">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content" style="border-radius:25px">
+        <div class="modal-header">
+            <h4 class="modal-title" style="font-weight:700;color: #06497C; font-size:16px;">
+                Enrégistrer un billetage du <b class="text-danger">{{ dates|date:"d/m/y" }}</b>
+            </h4>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+          <form method="post" role="form" id="quickForm">
+            {% csrf_token %}
+            <div class="row card-body">
+              <div class="col-md-12">
+                <div class="text-right mb-3">
+                  <button type="button" class="btn btn-primary" id="add-billet" 
+                          style="position:absolute;right: -80px; top: 200px; z-index:1; border-radius: 50px;">
+                    <i class="fa fa-plus"></i> Ajouter
+                  </button>
+                </div>
+  
+                <div id="billet-formset-container">
+                  {{ formset.management_form }}
+                  {% for form in formset %}
+                    <div class="ligne-billet border p-3 mb-2 bg-light rounded">
+                      <div class="row">
+                        <div class="col-md-4">
+                          {{ form.valeur.label_tag }}
+                          {{ form.valeur }}
+                        </div>
+                        <div class="col-md-4">
+                            {{ form.type.label_tag }}
+                            {{ form.type }}
+                        </div>
+                        <div class="col-md-3">
+                          {{ form.nombre.label_tag }}
+                          {{ form.nombre }}
+                        </div>
+                        <div class="col-md-1 d-flex align-items-end">
+                          <button type="button" class="btn btn-outline-danger btn-sm remove-billet">🗑</button>
+                        </div>
+                      </div>
+                    </div>
+                  {% endfor %}
+                </div>
+              </div>
+  
+              <hr class="col-md-12">
+  
+              <!-- Résumés -->
+              <div class="col-md-12">
+                <h5>Résumé Billets</h5>
+                <ul>
+                  {% for b in biels %}
+                    <li>{{ b.val }} x {{ b.nb }} = <b>{{ b.res }}</b></li>
+                  {% endfor %}
+                </ul>
+                <p>Total Billets : <b>{{ sombiels }}</b></p>
+  
+                <h5>Résumé Pièces</h5>
+                <ul>
+                  {% for p in piecs %}
+                    <li>{{ p.val }} x {{ p.nb }} = <b>{{ p.res }}</b></li>
+                  {% endfor %}
+                </ul>
+                <p>Total Pièces : <b>{{ sompiecs }}</b></p>
+  
+                <hr>
+                <p><b>Total Billets + Pièces : {{ tot_bi_pi }}</b></p>
+                <p><b>Écart : {{ ecart }}</b></p>
+              </div>
+  
+            </div>
+            <div class="modal-footer justify-content-between">
+              <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" aria-label="Close">Annuler</button>
+              <button type="submit" class="btn btn-outline-primary">Enregistrer</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+</div>
+  
 <div class="col-md-12">
     <div class="row">
         <div class="col-md-9">
@@ -71,8 +155,8 @@
                         <div class="col-md-12 p-0">
                             <div class="card" style="box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
                             backdrop-filter: blur(5.2px);
-                            -webkit-backdrop-filter: blur(5.2px);">
-                                <div class="card-header text-center" style="font-size:18px; font-weight: 700; line-height: 1; color: #06497C;">
+                            -webkit-backdrop-filter: blur(5.2px); border-radius:20px;">
+                                <div class="card-header text-center" style="font-size:18px; font-weight: 700; line-height: 1; color:rgb(255, 62, 62);">
                                     SITUATION DE LA CAISSE DU {{dates|date:"d-m-y"}}
                                 </div>
                                 <div class="card-header">
@@ -81,13 +165,13 @@
                                         {% else %} 
                                             {% for categorie, perms in grouped_permissions.items %}
                                                 {% if categorie.categorie == 'permsolde' %}
-                                                    <a href="{% url 'add_solde' %}" id="lien_solde" type="button" class="btn btn border-primary text-primary" style="font-weight:700">Saisir le solde de fin de journée <i class='fa fa-plus-square'></i></a>
+                                                    <a href="{% url 'add_solde' %}" id="lien_solde" type="button" class="btn btn border-primary" style="font-weight:700, color:rgba(134, 134, 134, 0.62);">Saisir le solde de fin de journée <i class='fa fa-plus-square' style="color:rgba(100, 96, 96, 0.66);"></i></a>
                                                 {% endif %}
                                                 {% if categorie.categorie == 'permencais' %}
-                                                    <a href="{% url 'addencaisse' %}" id="entrer" type="button" class="btn btn border-success text-success" style="font-weight:700">Entrée de caisse <i class='fa fa-plus-square'></i></a>
+                                                    <a href="{% url 'addencaisse' %}" id="entrer" type="button" class="btn btn border-success " style="font-weight:700, color:rgba(134, 134, 134, 0.62);">Entrée de caisse <i class='fa fa-plus-square' style="color:rgba(100, 96, 96, 0.66);"></i></a>
                                                 {% endif %}
                                                 {% if categorie.categorie == 'permdecais' %}
-                                                    <a href="{% url 'add_decaisse' %}" id="sortir" type="button" class="btn btn border-danger text-danger" style="font-weight:700">Sortie de caisse <i class='fa fa-plus-square'></i></a> 
+                                                    <a href="{% url 'add_decaisse' %}" id="sortir" type="button" class="btn btn border-danger" style="font-weight:700, color:rgba(134, 134, 134, 0.62);">Sortie de caisse <i class='fa fa-plus-square' style="color:rgba(100, 96, 96, 0.66);"></i></a> 
                                                 {% endif %}
                                             {% endfor %}
                                         {% endif %}
@@ -97,7 +181,6 @@
                                         <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
                                     </div>
                                 </div>
-                                <!-- /.card-header -->
                                 <div class="card-body">
                                     <table id="example1" class="table table-bordered table-striped text-center">
                                         <thead>
@@ -142,17 +225,15 @@
                                                     <td></td>
                                                 </tr>
                                             {% endfor %}
-                                            
                                         </tbody>
                                         <tfoot>
                                             <tr class="text-center">
                                                 <th colspan="6">
                                                 {% if forms.is_valid %} 
-                                                
                                                 {% else %} 
                                                     {% if ecart == 0 %}
-                                                        <button id="fermerButton" type="submit" class="btn btn-outline-danger">
-                                                            <img class="profile-user-img" style="border:none; height:45px;width:45px;text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);" src="{% static 'fermcaisse.png' %}" alt="lock caisse">
+                                                        <button id="fermerButton" type="submit" class="btn btn-outline-danger" style="border-radius:50px;">
+                                                            <img class="profile-user-img" style="border:none; height:45px;width:45px;text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);" src="{% static 'padlock.png' %}" alt="lock caisse">
                                                             Fermer la Caisse
                                                         </button> 
                                                     {% endif %}
@@ -216,17 +297,9 @@
                                 <div class="col-md-12">
                                     <div class="card" style="box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
                                             backdrop-filter: blur(5.2px);
-                                            -webkit-backdrop-filter: blur(5.2px);">
+                                            -webkit-backdrop-filter: blur(5.2px); border-radius:20px;">
                                             <div class="card-header text-center" style="font-size:15px; font-weight: 700; line-height: 1; color: #06497C;">
                                             BIELLETAGE
-                                            {% if forms.is_valid %}
-                                            {% else %}
-                                                {% for categorie, perms in grouped_permissions.items %}
-                                                    {% if categorie.categorie == 'permsolde' %}
-                                                        <a id="billetage" title="cliquer pour faire le billetage" data-toggle="modal" data-target="#modal-lg" ><i class='fa fa-plus-square text-danger'></i></a>
-                                                    {% endif %}
-                                                {% endfor %}
-                                            {% endif %}
                                         </div>
                                         <div class="card-header" style="font-weight:700;">
                                             Billets
@@ -237,7 +310,7 @@
                                         
                                         <div class="card-body" style="background: rgba(255, 255, 255, 0.3);border-radius: 4px;box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
                                         backdrop-filter: blur(8px);
-                                        -webkit-backdrop-filter: blur(8px);">
+                                        -webkit-backdrop-filter: blur(8px); border-radius:20px;">
                                             <div class="card">
                                                 <div class="card-body table-responsive p-0" style="">
                                                     <table class="table table-head-fixed text-nowrap">
@@ -273,7 +346,7 @@
                                         </div>
                                         <div class="card-body" style="background: rgba(255, 255, 255, 0.3);border-radius: 4px;box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
                                         backdrop-filter: blur(8px);
-                                        -webkit-backdrop-filter: blur(8px);">
+                                        -webkit-backdrop-filter: blur(8px); border-radius:20px;">
                                             <div class="card">
                                                 <div class="card-body table-responsive p-0" style="">
                                                     <table class="table table-head-fixed text-nowrap">
@@ -310,7 +383,7 @@
                                         </div>
                                         <div class="card-body" style="background: rgba(255, 255, 255, 0.3);border-radius: 4px;box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
                                         backdrop-filter: blur(8px);
-                                        -webkit-backdrop-filter: blur(8px);">
+                                        -webkit-backdrop-filter: blur(8px); border-radius:20px;">
                                             <div class="card">
                                                 <div class="card-body table-responsive p-0" style="">
                                                     <table class="table table-head-fixed text-nowrap">
@@ -344,5 +417,62 @@
         </div>
     </div>
 </div>
-{% endif %}
+
+{% block custom_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const formsetContainer = document.getElementById('billet-formset-container');
+    const addButton = document.getElementById('add-billet');
+    const totalForms = document.querySelector('#id_form-TOTAL_FORMS'); // ⚠ Vérifie bien le préfixe
+
+    addButton.addEventListener('click', function () {
+      const currentFormCount = parseInt(totalForms.value);
+      const firstForm = formsetContainer.querySelector('.ligne-billet');
+      if (!firstForm) return;
+
+      const newForm = firstForm.cloneNode(true);
+
+      newForm.querySelectorAll('input, select, textarea').forEach(function (input) {
+        input.value = '';
+      });
+
+      newForm.querySelectorAll('input, select, textarea').forEach(function (input) {
+        if (input.name) {
+          input.name = input.name.replace(/-\d+-/, `-${currentFormCount}-`);
+        }
+        if (input.id) {
+          input.id = input.id.replace(/-\d+-/, `-${currentFormCount}-`);
+        }
+      });
+
+      totalForms.value = currentFormCount + 1;
+      formsetContainer.appendChild(newForm);
+    });
+
+    // Suppression
+    formsetContainer.addEventListener('click', function (e) {
+      if (e.target && e.target.classList.contains('remove-billet')) {
+        const ligne = e.target.closest('.ligne-billet');
+        ligne.remove();
+        updateFormIndexes();
+      }
+    });
+
+    function updateFormIndexes() {
+      const forms = document.querySelectorAll('.ligne-billet');
+      forms.forEach(function (form, index) {
+        form.querySelectorAll('input, select, textarea').forEach(function (input) {
+          if (input.name) {
+            input.name = input.name.replace(/-\d+-/, `-${index}-`);
+          }
+          if (input.id) {
+            input.id = input.id.replace(/-\d+-/, `-${index}-`);
+          }
+        });
+      });
+      totalForms.value = forms.length;
+    }
+  });
+</script>
+{% endblock custom_js %}
 {% endblock main_content %}

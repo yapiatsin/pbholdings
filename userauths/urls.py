@@ -33,4 +33,20 @@ urlpatterns = [
     
     path('Changer mot de passe/',PasswordChangeView.as_view(template_name="userauths/chang_password.html"), name="chang_pass"),
     path('password_success/',password_success, name="password_success"),
+
+    path('toggle-active/<int:pk>/', toggle_active_user, name='toggle_active_user'),
+    
+    # ==================== GESTION DES PERMISSIONS ====================
+    path('permissions/', PermissionListView.as_view(), name='list_permissions'),
+    path('permissions/creer/', PermissionCreateView.as_view(), name='create_permission'),
+    path('permissions/<int:pk>/modifier/', PermissionUpdateView.as_view(), name='update_permission'),
+    path('permissions/<int:pk>/supprimer/', delete_permission, name='delete_permission'),
+    path('permissions/export-excel/', ExportPermissionExcelView.as_view(), name='export_permissions_excel'),
+    path('permissions/import-excel/', ImportPermissionExcelView.as_view(), name='import_permissions_excel'),
+    
+    # ==================== GESTION DES CATÉGORIES ====================
+    path('categories/', CategorieListView.as_view(), name='list_categories'),
+    path('categories/creer/', CategorieCreateView.as_view(), name='create_categorie'),
+    path('categories/<int:pk>/modifier/', CategorieUpdateView.as_view(), name='update_categorie'),
+    path('categories/<int:pk>/supprimer/', delete_categorie, name='delete_categorie'),
 ]

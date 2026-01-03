@@ -1,0 +1,88 @@
+{% load static %}
+{% if vehicules %}
+    {% for v in vehicules %}
+        <div class="card card-widget widget-user" style="border-radius:25px; ">
+            <div class="widget-user-header" style="border-radius:25px;">
+                <i class="fa fa-car text-center" style="font-size: 50px; color:rgba(139, 139, 139, 0.39);"></i>
+                <h5 class="widget-user-desc">{{v.immatriculation}}</h5>
+            </div>
+            <div class="card-footer p-0">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        {% for categorie, perms in grouped_permissions.items %}
+                            {% if categorie.categorie == "permassurance" %}
+                                {% for perm in perms %}
+                                    {% if perm.name == "add assurance" %}
+                                        <a href="{% url perm.url v.pk %}" class="nav-link" title="Ajouter une visite">
+                                            Assurance
+                                            <span class="float-right badge bg-primary"><i style="font-size: 20px;" class="fa fa-plus-circle"></i></span>
+                                        </a>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        {% endfor %}
+                    </li>
+                    <li class="nav-item">
+                        {% for categorie, perms in grouped_permissions.items %}
+                            {% if categorie.categorie == "permvign" %}
+                                {% for perm in perms %}
+                                    {% if perm.name == "add vignette" %}
+                                        <a href="{% url perm.url v.pk %}" class="nav-link" title="Ajouter un entretien">
+                                            Vignette
+                                            <span class="float-right badge bg-info"><i style="font-size: 20px;" class="fa fa-plus-circle"></i></span>
+                                        </a>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        {% endfor %}
+                    </li>
+                    <li class="nav-item">
+                        {% for categorie, perms in grouped_permissions.items %}
+                            {% if categorie.categorie == "permpate" %}
+                                {% for perm in perms %}
+                                    {% if perm.name == "add patente" %}
+                                        <a href="{% url perm.url v.pk %}" class="nav-link" title="Ajouter un réparation">
+                                            Patente
+                                            <span class="float-right badge bg-success"><i style="font-size: 20px;" class="fa fa-plus-circle"></i></span>
+                                        </a>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        {% endfor %}
+                    </li>
+                    <li class="nav-item">
+                        {% for categorie, perms in grouped_permissions.items %}
+                            {% if categorie.categorie == "permstation" %}
+                                {% for perm in perms %}
+                                    {% if perm.name == "add stationnement" %}
+                                        <a href="{% url perm.url v.pk %}" class="nav-link" title="Ajouter un autre arrêt">
+                                            Stationnement
+                                            <span class="float-right badge bg-secondary"><i style="font-size: 20px;" class="fa fa-plus-circle"></i></span>
+                                        </a>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        {% endfor %}
+                    </li>
+                    <li class="nav-item">
+                        {% for categorie, perms in grouped_permissions.items %}
+                            {% if categorie.categorie == "permpiechang" %}
+                                {% for perm in perms %}
+                                    {% if perm.name == "add piece changée" %}
+                                        <a href="{% url perm.url v.pk %}" class="nav-link" title="Ajouter un autre arrêt">
+                                            Pièce changée
+                                            <span class="float-right badge bg-warning"><i style="font-size: 20px;" class="fa fa-plus-circle"></i></span>
+                                        </a>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        {% endfor %}
+                    </li>
+                </ul>
+            </div>
+        </div>
+    {% endfor %}
+{% else %}
+    <p>Aucun véhicule trouvé.</p>
+{% endif %}
+

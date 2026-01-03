@@ -6,6 +6,11 @@ Recettes Mensuelles
 
 {% block page_title %} RECETTES {% endblock page_title %} 
 {% block search_form %}
+    <div class="col-sm-12 text-right mb-2">
+        <a href="{% url 'export_recette_mensuelle_excel' %}?month={{ month }}&year={{ year }}" class="btn btn-default text-success" style="font-size: 16px;">
+            <i class="fa fa-file-excel-o"></i> Exporter Excel
+        </a>
+    </div>
     <div class="col-sm-6">
         <li class="breadcrumb-item">
             <select id="month" class="form-control month-select" onchange="selectMonthYear()">
@@ -71,6 +76,15 @@ Recettes Mensuelles
         </tbody>
 
         <tfoot>
+            <!-- Ligne des totaux par date -->
+            <tr style="font-weight: bold; font-size:12px; background-color: #f0f0f0;">
+                <td colspan="2" style="text-align: right; font-weight: 700;">Total par jour:</td>
+                {% for total_day in totals_by_day %}
+                    <td class="text-danger" style="font-weight: 700; background-color: #fff3cd;">{{ total_day|default:0 }}</td>
+                {% endfor %}
+                <td colspan="6" style="background-color: #f0f0f0;"></td>
+            </tr>
+            <!-- Ligne des totaux généraux -->
             <tr style="font-weight: bold; font-size:12px">
                 <td colspan="{{ days_in_month_plus_two }}" style="text-align: right;">Total:</td>
                 <td class="text-danger">{{ sum_recets_jours }}</td>
@@ -80,16 +94,26 @@ Recettes Mensuelles
                 <td class="text-danger">{{ sum_difference_mensuelle }}</td>
                 <td class="text-danger"> {{sum_motif_arrets}} </td>
             </tr>
-            <tr style="font-size:12px" class="text-secondary">
-                <td colspan="25" style="text-align: right;">
-                    Recette à verser de chaque VTC <br> 
-                    Recette à verser de chaque TAXI<br> 
-                </td>
-                <td colspan="8" style="text-align: right;">
-                    <i style="font-weight:700" class="text-success">{{recette_vtc_attendue}} frs</i> <br> 
-                    <i style="font-weight:700" class="text-success" aria-hidden="true">{{recette_taxi_attendue}} frs</i> <br> 
+            <tr style="font-weight: 700; font-size:12px">
+                <td colspan="100" rows="100" style="text-align: right; font-size:14px;background-color:rgb(244, 225, 225);" class="text-secondary">
                 </td>
             </tr>
+            {% for cat in recap_categorie %}
+                <tr style="font-size:12px">
+                    <td colspan="33" style="text-align: right; font-size:14px" class="text-secondary">
+                        {{ cat.categorie}} <br> 
+                    </td>
+                    <td colspan="1" style="text-align: right;" class="text-secondary">
+                        {{ cat.nb_vehicules }} <br> 
+                    </td>
+                    <td colspan="1" style="text-align: right;" class="text-secondary">
+                        {{ cat.recette_defaut|floatformat:0 }} <br> 
+                    </td>
+                    <td colspan="4" style="text-align: right; font-size:14px">
+                        <i style="font-weight:700" class="text-success">{{ cat.recette_attendue|floatformat:0 |default:0 }} frs</i> <br> 
+                    </td>
+                </tr>
+            {% endfor %}
         </tfoot>
     </table>
 </div>

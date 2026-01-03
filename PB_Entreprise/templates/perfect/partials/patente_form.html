@@ -1,0 +1,37 @@
+<form method="post" id="patenteUpdateForm" action="{% url 'updat_patente' object.id %}" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="modal-header">
+        <h5 class="modal-title">
+            Modifier la patente de {{ object.vehicule.immatriculation }}
+        </h5>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+    </div>
+
+    <div class="modal-body row">
+        <div class="form-group col-md-4">
+            <label>Date sortie</label>
+            {{ form.date_saisie }}
+        </div>
+        <div class="form-group col-md-4">
+            <label>Date saisie</label>
+            {{ form.date_proch }}
+        </div>
+        <div class="form-group col-md-4">
+            <label>Montant</label>
+            {{ form.montant }}
+        </div>
+        <div class="form-group col-md-12">
+            <label>Image (si disponible)</label>
+            {{ form.image }}
+            {% if object.image %}
+                <p class="mt-2">
+                    <img src="{{ object.image.url }}" alt="Image actuelle" class="img-fluid" style="max-height:100%; width: 100%;">
+                </p>
+            {% endif %}
+        </div>
+    </div>
+    <div class="modal-footer justify-content-between">
+        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Annuler</button>
+        <button type="submit" class="btn btn-outline-success">Enregistrer</button>
+    </div>
+</form>

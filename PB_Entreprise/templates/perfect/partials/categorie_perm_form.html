@@ -1,0 +1,23 @@
+<form method="post" id="categorieUpdateForm" action="{% url 'update_categorie' object.id %}" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="modal-header">
+        <h5 class="modal-title">
+            Modifier la catégorie <b>{{ object.categorie }}</b>
+        </h5>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+    </div>
+
+    <div class="modal-body row">
+        <div class="form-group col-md-12">
+            <label>Nom de la catégorie</label>
+            {{ form.categorie }}
+            <small class="text-muted">Exemples: bord, comptabilite, garage, saisiefinance, etc.</small>
+        </div>
+    </div>
+
+    <div class="modal-footer justify-content-between p-2">
+        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Annuler</button>
+        <button type="submit" class="btn btn-outline-success">Enregistrer</button>
+    </div>
+</form>
+

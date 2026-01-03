@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Suivi des Vehicules de P&BEntreprise
 
 # les étapes de configuration de l'Application
@@ -35,6 +34,3 @@ python manage.py runserver
 
 
 
-=======
-# pbholdings
->>>>>>> 026f67856a9dad5c5211e6bbad613cdc77bdcd16

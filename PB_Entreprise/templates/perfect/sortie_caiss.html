@@ -1,45 +1,76 @@
 {% extends 'perfect/base.html' %} 
 {% load static %} 
 {% block title %} Sortie de caisse {% endblock title %} 
-{% block navbar_nav %}
-{% endblock navbar_nav %} 
 {% block page_title %}
     <a href="{% url 'billetage' %}"><img class="profile-user-img" style="border:none; height:35px;width:35px" src="{% static 'retour.png' %}" alt="Retour"></a>
     <img class="profile-user-img" style="border:none; height:45px;width:45px" src="{% static 'depenses.png' %}" alt="User profile picture">Saisie une sortie de caisse 
 {% endblock page_title %} 
-{% block page_a %}
-{% endblock page_a %}
+{% block page_action %}
+    <form id="quickForm">
+        <button type="button" class="btn btn-default text-primary" data-toggle="modal" data-target="#modal-lg">Saisie <i class="fa fa-plus-circle"></i></button>
+        <button type="button" class="btn btn-default text-danger" id="printButton">PDF <i class='fa fa-file-pdf-o'></i></button>
+        <a href="{% url 'export_decaissements' %}?date_debut={{ form.date_debut.value }}&date_fin={{ form.date_fin.value }}&immatriculation={{ form.immatriculation.value }}&categorie={{ form.categorie.value }}" class="btn btn-default text-success">
+            Excel <i class="fa fa-file-excel-o"></i> 
+        </a>
+        <a class="btn btn-default text-info" data-toggle="modal" data-target="#modal-sm" href="#" style="font-size: 16px;"> <i style="font-size: 20px;" class="fa fa-calendar"></i></a>
+        <a class="btn btn-default text-info" href="{% url 'add_decaisse' %}" style="font-size: 16px;"><i style="font-size: 20px;" class="fa fa-refresh"></i></a>
+    </form>
+{% endblock page_action %}
+
 {% block active_page %} Sortie de caisse {% endblock active_page%}
 {% block main_content %}
 
 <div class="modal fade" id="modal-lg">
     <div class="modal-dialog modal-lg">
-        <div class="modal-content">
+        <div class="modal-content" style="border-radius:25px">
             <div class="modal-header">
-                <h4 class="modal-title" style="font-weight:700;color: #06497C;">Enrégistrer une sortie de caisse</h4>
+                <h4 class="modal-title" style="font-weight:700;color: #06497C; font-size:16px;">
+                    Enrégistrer une sortie de caisse du <b class="text-danger">{{ dates|date:"d/m/y" }}</b>
+                </h4>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <form method='post' role="form" id="quickForm" enctype="multipart/form-data">
+                <form method="post" role="form" id="quickForm">
                     {% csrf_token %}
-                    <div class="row card-body text-secondary">
-                        <div class="col-md-6 col-sm-6 form-group">
-                            <label for="fullname"><b>Date</b></label> {{forms.date_saisie}}
+                    <div class="row card-body">
+                        <div class="col-md-12">
+                            <div class="text-right mb-3">
+                                <button type="button" class="btn btn-primary" id="add-encaissement"
+                                        style="position:absolute;right: -80px; top: 100px; z-index:1; border-radius: 50px;">
+                                    <i class="fa fa-plus"></i> Ajouter
+                                </button>
+                            </div>
+                            <div id="encaissement-formset-container">
+                                {{ formset.management_form }}
+                                {% for form in formset %}
+                                    <div class="ligne-encaissement border p-3 mb-2 bg-light rounded">
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                {{ form.Num_piece.label_tag }}
+                                                {{ form.Num_piece }}
+                                            </div>
+                                            <div class="col-md-4">
+                                                {{ form.libelle.label_tag }}
+                                                {{ form.libelle }}
+                                            </div>
+                                            <div class="col-md-3">
+                                                {{ form.montant.label_tag }}
+                                                {{ form.montant }}
+                                            </div>
+                                            <div class="col-md-1 d-flex align-items-end">
+                                                <button type="button" class="btn btn-outline-danger btn-sm remove-encaissement">🗑</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
                         </div>
-                        <div class="col-md-6 col-sm-6  form-group">
-                            <label for="fullname"><b>N°Pièce</b></label> {{forms.Num_piece}}
-                        </div>
-                        <div class="col-md-6 col-sm-6 form-group">
-                            <label for="fullname"><b>Libelle</b></label> {{forms.libelle}}
-                        </div>
-                        <div class="col-md-6 col-sm-6 form-group">
-                            <label for="fullname"><b>Montant</b></label> {{forms.montant}}
-                        </div>
+                        <hr class="col-md-12">
                     </div>
                     <div class="modal-footer justify-content-between">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" aria-label="Close">Annuler</button>
                         <button type="submit" class="btn btn-outline-primary">Enregistrer</button>
                     </div>
                 </form>
@@ -48,76 +79,93 @@
     </div>
 </div>
 
-<div class="col-md-12">
-    <div class="card" style="color: #0176bf; border-radius: 20px; border-color: #00217b; font-weight: 700;">
-        <div class="card-body table-responsive p-0" style="border-radius:8px; border:none">
-            <table class="table table text-nowrap">
-                <tr>
-                    <div class="col-md-12">
-                        <div class="row bg-danger">
-                            <div class="col-md-2">
-                                <td style="border: none;">
-                                    <div style="display: flex; align-items: center;">
-                                        <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 9px; margin-left: 0px;" src="{% static 'recet.png' %}" alt="" srcset="">
-                                        </div>
-                                        <div>
-                                            <div style="font-size: 15px;color: #06497C">Aujourd'hui</div>
-                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
-                                                {{tot_sort_jours}}
-                                                <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td style="border: none;">
-                                    <div style="display: flex; align-items: center;">
-                                        <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 6px; margin-left: 0px;" src="{% static 'portefeuille.png' %}" alt="" srcset="">
-                                        </div>
-                                        <div>
-                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
-                                                {{tot_sort_mois}}
-                                                <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
-                                            </div>
-                                            <div style="font-size: 15px;color: #06497C">{{mois}} <small></small></div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td style="border: none;">
-                                    <div style="display: flex; align-items: center;">
-                                        <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 8px; margin-left: 3px;" src="{% static 'calendar.png' %}" alt="" srcset="">
-                                        </div>
-                                        <div>
-                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
-                                                {{tot_sort_annuel}}
-                                                <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
-                                            </div>
-                                            <div style="font-size: 15px;color: #06497C">{{annee}} <small></small></div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td style="border: none;">
-                                    <div style="display: flex; align-items: center;">
-                                        <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 8px; margin-left: 3px;" src="{% static 'rech.png' %}" alt="" srcset="">
-                                        </div>
-                                        <div>
-                                            <div style="font-size: 15px;color: #06497C">Resultat <small></small></div>
-                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
-                                                {{resuults_filtre}}
-                                                <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
+<div class="modal fade" id="modal-sm">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content" style="border-radius:25px;">
+            <div class="modal-header">
+                <h4 class="modal-title" style="font-weight:700;color: #06497C; font-size:15px;">FILTRE</h4>
+                <button type="button" style="border-radius:25px;" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="card-body">
+                    <form id="basic-form" method="get" novalidate>
+                        <div class="row clearfix">
+                            <div class="col-12">
+                                <label style="font-weight:700;color:rgba(152, 152, 152, 0.85); font-size:15px;">Date debut </label>
+                                <div class="form-group">                                    
+                                    {{ form.date_debut }}
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <label style="font-weight:700;color: rgba(152, 152, 152, 0.85); font-size:15px;">Date fin</label>
+                                <div class="form-group">                                    
+                                    {{ form.date_fin }}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </tr>
-            </table>
+                        <div class="modal-footer justify-content-between">
+                            <button type="button" class="btn btn-outline-secondary" style="border-radius:25px;" data-dismiss="modal">Annuler</button>
+                            <button type="submit" class="btn btn-outline-success" style="border-radius:25px;">Afficher</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
+    </div>
+</div>
+
+<div class="col-12 col-sm-6 col-md-3">
+    <div class="info-box" style="border-radius:25px;">
+        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-plus" style="color:rgba(6, 73, 124, 0.54);"></i></span>
+        <div class="info-box-content">
+            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Aujourd'hui</span>
+            <span class="info-box-number" style="font-size:20px;">
+            {{tot_sort_jours}}
+            <small></small>
+            </span>
+        </div>
+    </div>
+</div>
+<div class="clearfix hidden-md-up"></div>
+<div class="col-12 col-sm-6 col-md-3">
+    <div class="info-box" style="border-radius:25px;">
+        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-clock" style="color:rgba(6, 73, 124, 0.54);"></i></span>
+        <div class="info-box-content">
+            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Sortie mensuelle</span>
+            <span class="info-box-number" style="font-size:20px;">
+            {{tot_sort_mois}}
+            <small>frs cfa</small>
+            </span>
+        </div>
+    </div>
+</div>
+<div class="clearfix hidden-md-up"></div>
+<div class="col-12 col-sm-6 col-md-3">
+    <div class="info-box mb-3" style="border-radius:25px;">
+    <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fa fa-calendar" style="color:rgba(6, 73, 124, 0.54);"></i></span>
+    <div class="info-box-content">
+        <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Sortie annuelle</span>
+        <span class="info-box-number" style="font-size:20px;">
+        {{tot_sort_annuel}}
+        <small>frs cfa</small>
+        </span>
+    </div>
+    </div>
+</div>
+
+<div class="clearfix hidden-md-up"></div>
+<div class="col-12 col-sm-6 col-md-3">
+    <div class="info-box mb-3" style="border-radius:25px;">
+    <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fa fa-search" style="color:rgba(6, 73, 124, 0.54);"></i></span>
+    <div class="info-box-content">
+        <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Résultat du filtre</span>
+        <span class="info-box-number" style="font-size:20px;">
+        {{result_filtre}}
+        <small>frs cfa</small>
+        </span>
+    </div>
     </div>
 </div>
 
@@ -128,13 +176,9 @@
                 <div id="" class="">
                     <div class="row p-0 m-0">
                         <div class="col-md-12 p-0">
-                            <div class="card" style="box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);backdrop-filter: blur(5.2px);-webkit-backdrop-filter: blur(5.2px);">
+                            <div class="card" style="box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);backdrop-filter: blur(5.2px);-webkit-backdrop-filter: blur(5.2px); border-radius:25px">
                                 <div class="card-header">
-                                    <h3 class="card-title">
-                                        <button type="button" class="btn btn-default text-danger" id="printButton">PDF <i class='fa fa-file-pdf-o'></i></button>
-                                        <button type="button" class="btn btn-default text-success">Excell <i class='fa fa-file-excel-o'></i></button>
-                                        <button type="button" class="btn btn-default text-primary" data-toggle="modal" data-target="#modal-lg">Saisir <i class='fa fa-plus-square'></i></button>
-                                    </h3>
+                                    <h3 class="card-title"></h3>
                                     <div class="card-tools">
                                         <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
                                     </div>
@@ -147,6 +191,7 @@
                                                 <th>LIBELLE</th>
                                                 <th>MONTANT</th>
                                                 <th>DATE</th>
+                                                <th>DATE ENREGISTREMENT</th>
                                                 <th>ENREGISTRER PAR</th>
                                                 <th>ACTION</th>
                                             </tr>
@@ -158,7 +203,8 @@
                                                         <td>{{e.Num_piece}}</td>
                                                         <td><a class="text-primary" type="button" data-toggle="tooltip" data-placement="top" title="{{e.libelle}}">{{e.libelle|slice:":10"}}{% if e.libelle|length > 6 %}...{% endif %}</a></td>
                                                         <td>{{e.montant}}</td>
-                                                        <td>{{e.date_saisie}}</td>
+                                                        <td>{{e.date_saisie|date:"d-m-y"}}</td>
+                                                        <td>{{e.date|date:"d-m-y à H:m:s"}}</td>
                                                         <td>
                                                             <a href="" class="mr-3 text-primary">{{e.auteur.username}}</a>
                                                         </td>
@@ -167,8 +213,13 @@
                                                                 {% if categorie.categorie == 'permdecais' %}
                                                                     {% for perm in perms %}
                                                                         {% if perm.name == "sup decaissement" %}
-                                                                            <a href="{% url perm.url e.pk %}" class="text-primary" onclick="return confirm('Etes-vous sûre de vouloir supprimer la sortie de caisse de {{ e.montant }}frs - {{ e.date_saisie|date:"d-m-y" }} ? Toutes les informations liées seront supprimées.')">
+                                                                            {% comment %} <a href="{% url perm.url e.pk %}" class="text-primary" onclick="return confirm('Etes-vous sûre de vouloir supprimer la sortie de caisse de {{ e.montant }}frs - {{ e.date_saisie|date:"d-m-y" }} ? Toutes les informations liées seront supprimées.')">
                                                                                 <i style="font-size: 20px;" class="fa fa-trash text-danger"></i>
+                                                                            </a> {% endcomment %}
+
+                                                                        {% elif perm.name == "modif sortie-caisse" %}    
+                                                                            <a href="#" class="edit-sortie-btn" data-url="{% url 'updat_decaisse' e.pk %}">
+                                                                                <i style="font-size: 20px;" class="fa fa-edit text-warning"></i>
                                                                             </a>
                                                                         {% endif %}
                                                                     {% endfor %}
@@ -190,4 +241,116 @@
     </div>
 </div>
 
+<div class="modal fade" id="editSortieModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="border-radius:20px;">
+            <div class="modal-body" id="modalBodyContent">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block custom_js %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const formsetContainer = document.getElementById('encaissement-formset-container');
+            const addButton = document.getElementById('add-encaissement');
+            const totalForms = document.querySelector('#id_form-TOTAL_FORMS'); // vérifier le préfixe
+
+            addButton.addEventListener('click', function () {
+            const currentFormCount = parseInt(totalForms.value);
+            const firstForm = formsetContainer.querySelector('.ligne-encaissement');
+            if (!firstForm) return;
+
+            const newForm = firstForm.cloneNode(true);
+
+            newForm.querySelectorAll('input, select, textarea').forEach(function (input) {
+                input.value = '';
+            });
+
+            newForm.querySelectorAll('input, select, textarea').forEach(function (input) {
+                if (input.name) {
+                input.name = input.name.replace(/-\d+-/, `-${currentFormCount}-`);
+                }
+                if (input.id) {
+                input.id = input.id.replace(/-\d+-/, `-${currentFormCount}-`);
+                }
+            });
+
+            totalForms.value = currentFormCount + 1;
+            formsetContainer.appendChild(newForm);
+            });
+
+            formsetContainer.addEventListener('click', function (e) {
+            if (e.target && e.target.classList.contains('remove-encaissement')) {
+                const ligne = e.target.closest('.ligne-encaissement');
+                ligne.remove();
+                updateFormIndexes();
+            }
+            });
+
+            function updateFormIndexes() {
+            const forms = document.querySelectorAll('.ligne-encaissement');
+            forms.forEach(function (form, index) {
+                form.querySelectorAll('input, select, textarea').forEach(function (input) {
+                if (input.name) {
+                    input.name = input.name.replace(/-\d+-/, `-${index}-`);
+                }
+                if (input.id) {
+                    input.id = input.id.replace(/-\d+-/, `-${index}-`);
+                }
+                });
+            });
+            totalForms.value = forms.length;
+            }
+        });
+    </script>
+{% endblock custom_js %}
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).on("click", ".edit-sortie-btn", function(e) {
+        e.preventDefault();
+        let url = $(this).data("url");
+        $.get(url, function(data) {
+            $("#modalBodyContent").html(data);
+            $("#editSortieModal").modal("show");
+        });
+    });
+    $(document).on("submit", "#decaisUpdateForm", function(e) {
+        e.preventDefault();
+        let form = $(this);
+        let url = form.attr("action");
+        let formData = new FormData(this);
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(data) {
+                if (data.success) {
+                    $("#editSortieModal").modal("hide");
+                    const Toast = Swal.mixin({
+                        toast: true,
+                        position: 'top',
+                        showConfirmButton: false,
+                        timer: 4000,
+                        timerProgressBar: true
+                    });
+                    Toast.fire({
+                        type: 'success',
+                        title: data.message
+                    });
+                    setTimeout(function() {
+                        location.reload();
+                    }, 500);
+                } else {
+                    $("#modalBodyContent").html(data);
+                }
+            }
+        });
+    });    
+</script>
 {% endblock main_content %}

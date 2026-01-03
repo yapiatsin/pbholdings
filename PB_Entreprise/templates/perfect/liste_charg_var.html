@@ -1,253 +1,227 @@
 {% extends 'perfect/base.html' %} 
 {% load static %} 
-{% block title %} Table des charges variables {% endblock title %} 
+{% block title %} Etat des charges variables {% endblock title %}  
 {% block navbar_nav %}
-
-{% endblock navbar_nav %} 
-{% block page_title %}
-<img class="profile-user-img" style="border:none; height:45px;width:45px" src="{% static 'chargfvar.png' %}" alt="User profile picture">Etat des charges variables 
-{% endblock page_title %} 
-{% block page_a %}
-{% endblock page_a %}
-{% block active_page %} Ajouter un véhicule {% endblock active_page%}
-{% block main_content %}
-{% if user.user_type == '4' %}
-{% else %}
-<div class="col-md-12">
-    <div class="card" style="color: #0176bf; border-radius: 20px; border-color: #00217b; font-weight: 700;">
-        <div class="card-body table-responsive p-0" style="border-radius:8px; border:none">
-            <table class="table table text-nowrap">
-                <tr>
-                    <div class="col-md-12">
-                        <div class="row bg-danger">
-                            <div class="col-md-2">
-                                <td style="border: none;">
-                                    <div style="display: flex; align-items: center;">
-                                        <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 9px; margin-left: 1px;" src="{% static 'vtc.png' %}" alt="" srcset="">
-                                        </div>
-                                        <div>
-                                            <div style="font-size: 15px;color: #06497C">Aujourd'hui</div>
-                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
-                                                {{chargevar_jour}} 
-                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td style="border: none;">
-                                    <div style="display: flex; align-items: center;">
-                                        <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 5px; margin-left: px;" src="{% static 'taxi.png' %}" alt="" srcset="">
-                                        </div>
-                                        <div>
-                                            <div style="font-size: 15px;color: #06497C">TAXI: <small>Aujourd'hui</small></div>
-                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
-                                                {{chargevar_jour_taxi}}
-                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td style="border: none;">
-                                    <div style="display: flex; align-items: center;">
-                                        <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 8px; margin-left: 3px;" src="{% static 'vtc.png' %}" alt="" srcset="">
-                                        </div>
-                                        <div>
-                                            <div style="font-size: 15px;color: #06497C">VTC: <small>Aujourd'hui</small></div>
-                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
-                                                {{chargevar_jour_vtc}}
-                                                <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td style="border: none;">
-                                    <div style="display: flex; align-items: center;">
-                                        <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 5px; margin-left: px;" src="{% static 'taxi.png' %}" alt="" srcset="">
-                                        </div>
-                                        <div>
-                                            <div style="font-size: 15px;color: #06497C">TAXI: <small>{{libelles_mois}}</small></div>
-                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
-                                                {{chargevar_mois_taxi}}
-                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td style="border: none;">
-                                    <div style="display: flex; align-items: center;">
-                                        <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 9px;margin-left: 0px;" src="{% static 'vtc.png' %}" alt="" srcset="">
-                                        </div>
-                                        <div>
-                                            <div style="font-size: 15px;color: #06497C">VTC: <small>{{libelles_mois}}</small></div>
-                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
-                                                {{chargevar_mois_vtc}}
-                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td style="border: none;">
-                                    <div style="display: flex; align-items: center;">
-                                        <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 9px;margin-left: 0px;" src="{% static 'calendar.png' %}" alt="" srcset="">
-                                        </div>
-                                        <div>
-                                            <div style="font-size: 15px;color: #06497C">Total de {{libelles_mois}}</div>
-                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">{{chargevar_mois_all}} <small style="color: #06497C; font-weight: 700; line-height: 1;">frs</small></div>
-                                        </div>
-                                    </div>
-                                </td>
-                            </div>
-                        </div>
-                    </div>
-                </tr>
-            </table>
+    <form class="search-form" method="get">
+        <div class="input-group">
+            {{ form.immatriculation }}
+            <div class="input-group-append">
+            <button type="submit" name="submit" class="btn btn-danger"><i class="fas fa-search"></i></button>
+            <a href="{% url 'list_charg_var' %}" name="submit" class="btn btn-danger" style="border-radius: 0 50px 50px 0;"><i class="fas fa-refresh text-light"></i></a>
+            </div>
         </div>
-    </div>
-</div>
+    </form>
+{% endblock navbar_nav %}
+{% block page_title %}
+    <img class="profile-user-img" style="border:none; height:55px;width:55px" src="{% static 'chargvar.png' %}" alt="picture">Etat des charges variables
+{% endblock page_title %} 
 
-<!-- MEILLEUR RECETTE -->
-<div class="col-md-2">
-    <div class="card card-outline" style="border-radius:20px">
-        <div class="card-body box-profile">
-            <div class="row p-0 m-0">
-                <div class="col-md-12 p-0">
-                    <div class="text-center" style="font-size:17px; font-weight: 700; line-height: 1; color: #8b1516; text-decoration: underline;">Resultat du filtre</div>
-                    <div class="row mt-2">
-                        <div class="col-md-12">
-                            <div style="display: flex; align-items: center;">
-                                <div style="height: 40px; width: 40px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-1 text-center">
-                                    <img style="height: 25px; width: 25px; position:relative; margin-top: 8px;" src="{% static 'vtc.png' %}" alt="" srcset="">
+{% block page_action %}
+    <form id="quickForm">
+        {% for categorie, perms in grouped_permissions.items %}
+            {% if categorie.categorie == 'Exporter' %}
+                {% for perm in perms %}
+                    {% if perm.name == "Exporter charge variable" %}
+                        <button type="button" class="btn btn-default text-danger" id="printButton">PDF <i class='fa fa-file-pdf-o'></i></button>
+                        <a href="{% url 'export_charges_variables_excel' %}?date_debut={{ request.GET.date_debut }}&date_fin={{ request.GET.date_fin }}&immatriculation={{ request.GET.immatriculation }}&categorie={{ request.GET.categorie }}" class="btn btn-default text-success">
+                            Excel <i class="fa fa-file-excel-o"></i>
+                        </a>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        {% endfor %}
+        <a class="btn btn-default text-info" data-toggle="modal" data-target="#modal-sm" href="#" style="font-size: 16px;"><i style="font-size: 20px;" class="fa fa-calendar"></i></a>
+        <a class="btn btn-default text-info" href="{% url 'list_charg_var' %}" style="font-size: 16px;"><i style="font-size: 20px;" class="fa fa-refresh"></i></a>
+    </form>
+{% endblock page_action %}
+{% block main_content %}
+
+<div class="modal fade" id="modal-sm">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content" style="border-radius:25px;">
+            <div class="modal-header">
+                <h4 class="modal-title" style="font-weight:700;color: #06497C; font-size:15px;">FILTRE</h4>
+                <button type="button" style="border-radius:25px;" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div class="card-body">
+                    <form id="basic-form" method="get" novalidate>
+                        <div class="row clearfix">
+                            <div class="col-12">
+                                <label style="font-weight:700;color:rgba(152, 152, 152, 0.85); font-size:15px;">Date debut </label>
+                                <div class="form-group">                                    
+                                    {{ form.date_debut }}
                                 </div>
-                                <div>
-                                    <div style="font-size:16px; font-weight: 700; line-height: 1; color: #06497C; text-decoration: underline;">VTC</div>
+                            </div>
+                            <div class="col-12">
+                                <label style="font-weight:700;color: rgba(152, 152, 152, 0.85); font-size:15px;">Date fin</label>
+                                <div class="form-group">                                    
+                                    {{ form.date_fin }}
+                                </div>
+                            </div>
+                            
+                            <div class="col-12">
+                                <label style="font-weight:700;color: rgba(152, 152, 152, 0.85); font-size:15px;">Categorie</label>
+                                <div class="form-group">                                    
+                                    {{ form.categorie }}
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <label style="font-weight:700;color: rgba(152, 152, 152, 0.85); font-size:15px;">Matricule</label>
+                                <div class="form-group">                                    
+                                    {{ form.immatriculation }}
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-12">
-                            <div style="display: flex; align-items: center;">
-                                <div class="text-center p-1 m-2">
-                                    <div class="text-center" style="font-size:14px; color: #06497C; text-align: center;font-weight:700">
-                                        <li>{{chargevar_all_vtc}} Frscfa</li>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary" style="border-radius:25px;" data-dismiss="modal">Annuler</button>
+                            <a href="{% url 'list_charg_var' %}" class="btn btn-outline-info" style="border-radius:25px;"><i class="fa fa-refresh"></i></a>
+                            <button type="submit" class="btn btn-outline-success" style="border-radius:25px;">Afficher</button>
                         </div>
-                        <div class="col-md-12">
-                            <div style="display: flex; align-items: center;">
-                                <div style="height: 40px; width: 40px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-1 text-center">
-                                    <img style="height: 25px; width: 25px; position:relative; margin-top: 8px;" src="{% static 'taxi.png' %}" alt="" srcset="">
-                                </div>
-                                <div>
-                                    <div style="font-size:16px; font-weight: 700; line-height: 1; color: #06497C;text-decoration: underline;">TAXI</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <div style="display: flex; align-items: center;">
-                                <div class="text-center p-1 m-2">
-                                    <div class="text-center" style="font-size:14px; color: #06497C; text-align: center;font-weight:700">
-                                        <li>{{chargevar_all_taxi}} Frscfa</li>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <div style="display: flex; align-items: center;">
-                                <div class="text-center p-1 m-2">
-                                    <div class="text-center" style="font-size:16px; color: #06497C; text-align: center;font-weight:700">
-                                        ---------------------------
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <div style="display: flex; align-items: center;">
-                                <div class="text-center p-1 m-2">
-                                    <div class="text-center" style="font-size:14px; color: #06497C; text-align: center;font-weight:700">
-                                        TOTAL = {{chargvar_all}} Frscfa
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
 </div>
-        <!-- FIN MEILLEUR RECETTE -->
-<div class="col-md-10">
+
+<div class="col-12 col-sm-6 col-md-4">
+    <div class="info-box" style="border-radius:25px;">
+        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-clock" style="color:rgba(6, 73, 124, 0.54);"></i></span>
+        <div class="info-box-content">
+            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Aujourd'hui</span>
+            <span class="info-box-number" style="font-size:20px; color: #fa7832;">
+            {{chargevar_jours_format}}
+            <small>frs cfa</small>
+            </span>
+        </div>
+    </div>
+</div>
+
+<div class="col-12 col-sm-6 col-md-4">
+    <div class="info-box mb-3" style="border-radius:25px;">
+    <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fa fa-calendar" style="color:rgba(6, 73, 124, 0.54);"></i></span>
+    <div class="info-box-content">
+        <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Mensuelle</span>
+        <span class="info-box-number" style="font-size:20px; color: #fa7832;">
+        {{chargevar_mois_format}}
+        <small>frs cfa</small>
+        </span>
+    </div>
+    </div>
+</div>
+
+<div class="clearfix hidden-md-up"></div>
+<div class="col-12 col-sm-6 col-md-4" >
+    <div class="info-box mb-3" style="border-radius:25px;">
+        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-calendar" style="color:rgba(6, 73, 124, 0.54);"></i></span>
+        <div class="info-box-content">
+            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Annuelle</span>
+            <span class="info-box-number" style="font-size:20px; color: #fa7832;">
+            {{chargevar_an_format}}
+            <small>frs cfa</small>
+            </span>
+        </div>
+    </div>
+</div>
+
+<div class="col-md-12">
     <div class="row">
         <div class="col-md-12">
             <div class="" style="border-radius:20px">
                 <div id="" class="">
                     <div class="row p-0 m-0">
                         <div class="col-md-12 p-0">
-                            <div class="card" style="box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);backdrop-filter: blur(5.2px);-webkit-backdrop-filter: blur(5.2px);">
-                                <div class="card-header">
-                                    <h3 class="card-title">
-                                        <button type="button" class="btn btn-default text-danger" id="printButton">PDF <i class='fa fa-file-pdf-o'></i></button>
-                                        <button type="button" class="btn btn-default text-success">Excell <i class='fa fa-file-excel-o'></i></button>
-                                    </h3>
-                                    <div class="card-tools">
-                                        <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+                            <div class="card" style="box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);backdrop-filter: blur(5.2px);-webkit-backdrop-filter: blur(5.2px); border-radius:20px; " >
+                                <form method="post" action="{% url 'delete_selected_chargvar' %}" id="deleteForm">
+                                    {% csrf_token %}
+                                    <div class="card-header">
+                                        <h3 class="card-title">
+                                            {% comment %} <button type="button" class="btn btn-default" id="printButton">PDF <i class='fa fa-file-pdf-o'></i></button> {% endcomment %}
+                                            {% comment %} <button type="button" class="btn btn-default">Excell <i class='fa fa-file-excel-o'></i></button> {% endcomment %}
+                                        </h3>
+                                        <div class="card-tools">
+                                            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+                                        </div>
                                     </div>
-                                </div>
-                                <!-- /.card-header -->
-                                <div class="card-body">
-                                    <table id="example1" class="table table-bordered table-striped">
-                                        <thead>
-                                            <tr class=" text-center text-danger ">
-                                                <th>IMMAT</th>
-                                                <th>MARQUE</th>
-                                                <th>CATEGORIE</th>
-                                                <th>MONTANT</th>
-                                                <th>DATE SAISIE</th>
-                                                <th>SAISIR PAR</th>
-                                                <th>ACTION</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody> 
-                                            {% if list_chargevar %} 
-                                                {% for u in list_chargevar %}
-                                                    <tr class="text-center">
-                                                        <td>
-                                                            <a class="mr-3 text-primary">{{u.vehicule.immatriculation}}</a>
-                                                        </td>
-                                                        <td>{{u.vehicule.marque}}</td>
-                                                        <td>{{u.vehicule.category}}</td>
-                                                        <td>{{u.montant}}</td>
-                                                        <td>{{u.date_saisie|date:"d-m-y"}}</td>
-                                                        <td>{{u.auteur.username}}</td>
-                                                        <td class="text-center">
+                                    <div class="card-body">
+                                        <div id="example1_wrapper" class="dataTables_wrapper dt-bootstrap4">
+                                            <table id="example1" class="table table-bordered table-striped dataTable" role="grid" aria-describedby="example1_info">
+                                                <thead>
+                                                    <tr class="text-center text-danger">
+                                                        <th><input type="checkbox" id="select-all"></th>
+                                                        <th>IMMAT</th>
+                                                        <th>MARQUE</th>
+                                                        <th>CATEGORIE</th>
+                                                        <th>MONTANT</th>
+                                                        <th>DATE SAISIE</th>
+                                                        <th>SAISIR PAR </th>
+                                                        <th>ACTION</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% if liste_chargevar %} 
+                                                        {% for u in liste_chargevar %}
+                                                            <tr class="text-center">
+                                                                <td><input type="checkbox" name="chargvar_ids" value="{{ u.id }}"></td>
+                                                                <td>
+                                                                    <a href="#" class="mr-3 text-primary">{{u.vehicule.immatriculation}}</a>
+                                                                </td>
+                                                                <td>{{u.vehicule.marque}}</td>
+                                                                <td>{{u.vehicule.category}}</td>
+                                                                <td>{{u.montant}}</td>
+                                                                <td>{{u.date_saisie|date:"d-m-y"}}</td>
+                                                                <td>{{u.auteur.username}}</td>
+                                                                <td class="text-center">
+                                                                    {% for categorie, perms in grouped_permissions.items %}
+                                                                        {% if categorie.categorie == 'permchargvar' %}
+                                                                            {% for perm in perms %}
+                                                                                {% if perm.name == "modifier Charge variable" %}
+                                                                                    <a href="#" class="edit-chargvar-btn"
+                                                                                        data-id="{{ u.id }}"
+                                                                                        data-url="{% url 'updat_charg_var' u.id %}">
+                                                                                        <i class="fa fa-edit text-warning"></i>
+                                                                                    </a>
+                                                                                {% endif %}
+                                                                            {% endfor %}
+                                                                        {% endif %}
+                                                                    {% endfor %}
+                                                                </td>
+                                                            </tr>
+                                                        {% endfor %} 
+                                                    {% endif %}
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr class="text-center ">
+                                                        <th>
                                                             {% for categorie, perms in grouped_permissions.items %}
                                                                 {% if categorie.categorie == 'permchargvar' %}
                                                                     {% for perm in perms %}
-                                                                        {% if perm.name == "modifier Charge variable" %}
-                                                                            <a href="{% url perm.url u.pk %}" class="text-primary">
-                                                                                <i style="font-size: 20px;" class="fa fa-edit text-warning"></i>
-                                                                            </a>
-                                                                        {% elif perm.name == "sup Charge variable" %}
-                                                                            <a href="{% url perm.url u.pk %}" class="text-primary" onclick="return confirm('Etes-vous sûre de vouloir supprimer la recette de {{ u.montant }} du {{ u.vehicule.immatriculation }} saisie le {{ u.date_saisie|date:"d-m-y" }}? Toutes les informations liées seront supprimées.')">
-                                                                                <i style="font-size: 20px;" class="fa fa-trash text-danger"></i>
-                                                                            </a>
+                                                                        {% if perm.name == "sup Charge variable" %}
+                                                                            <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Confirmez-vous la suppression des véhicules sélectionnés ?')">
+                                                                                <i class="fa fa-trash"></i>
+                                                                            </button>
                                                                         {% endif %}
                                                                     {% endfor %}
                                                                 {% endif %}
                                                             {% endfor %}
-                                                        </td>
+                                                        </th>
+                                                        <th>---</th>
+                                                        <th>---</th>
+                                                        <th>---</th>
+                                                        <th>---</th>
+                                                        <th>---</th>
+                                                        <th>---</th>
+                                                        <th>---</th>
                                                     </tr>
-                                                {% endfor %} 
-                                            {% endif %}
-                                        </tbody>
-                                    </table>
-                                </div>
+                                                </tfoot>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -256,5 +230,66 @@
         </div>
     </div>
 </div>
-{% endif %}
+
+<div class="modal fade" id="editChargeVarModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="border-radius:20px;">
+            <div class="modal-body" id="modalBodyContentVar">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('select-all').onclick = function() {
+        let checkboxes = document.querySelectorAll('input[name="chargvar_ids"]');
+        for (let checkbox of checkboxes) {
+            checkbox.checked = this.checked;
+        }
+    };
+</script>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).on("click", ".edit-chargvar-btn", function(e) {
+        e.preventDefault();
+        let url = $(this).data("url");
+        $.get(url, function(data) {
+            $("#modalBodyContentVar").html(data);
+            $("#editChargeVarModal").modal("show");
+        });
+    });
+    
+    $(document).on("submit", "#chargeVarUpdateForm", function(e) {
+        e.preventDefault();
+        let form = $(this);
+        let url = form.attr("action");
+    
+        $.post(url, form.serialize(), function(data) {
+            if (data.success) {
+                $("#editChargeVarModal").modal("hide");
+    
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top',
+                    showConfirmButton: false,
+                    timer: 4000,
+                    timerProgressBar: true
+                });
+    
+                Toast.fire({
+                    type: 'success',
+                    title: data.message
+                });
+    
+                setTimeout(function() {
+                    location.reload();
+                }, 100);
+            } else {
+                $("#modalBodyContentVar").html(data);
+            }
+        });
+    });    
+</script>
 {% endblock main_content %}

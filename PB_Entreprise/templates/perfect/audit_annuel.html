@@ -1,0 +1,312 @@
+{% extends 'perfect/base.html' %} 
+{% load static %} 
+{% block title %} Temps d'arrêt {% endblock title %} 
+{% block page_action %}
+    <form id="quickForm">
+        {% if forms.is_valid %}
+        {% else %}
+            {% for categorie, perms in grouped_permissions.items %}
+                {% if categorie.categorie == 'permsolde' %}
+                    <button type="button" class="btn btn-default text-info" data-toggle="modal" data-target="#modal-sm"><i style="font-size: 20px;" class="fa fa-calendar"></i></button>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+        <a class="btn btn-default text-info" href="{% url 'historique' %}" style="font-size: 16px;"><i style="font-size: 20px;" class="fa fa-refresh"></i></a>
+    </form>
+{% endblock page_action %}
+
+{% block page_title %}
+    <img class="profile-user-img" style="border:none; height:45px;width:45px" src="{% static 'audit.png' %}" alt="User profile picture">Bilan Annuel de {% if selected_year %} {{ selected_year }} {% endif %}
+{% endblock page_title %} 
+
+{% block main_content%}
+
+    <div class="modal fade" id="modal-sm">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content" style="border-radius:25px;">
+                <div class="modal-header">
+                    <h4 class="modal-title" style="font-weight:700;color: #06497C; font-size: 16px;">FILTRE</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="card-body">
+                        <form id="basic-form" method="get" novalidate>
+                            <div class="row clearfix">
+                                <div class="col-md-12 form-group"><input type="text" value="Année" class="form-control text-center" disabled></div>
+                                <div class="col-12">
+                                    <select class="form-control" name="annee" onchange="this.form.submit()" style="color: #06497C;">
+                                        {% for an in last_10_years %}
+                                            <option value="{{ an }}" {% if an == selected_year %}selected{% endif %}>{{ an }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            {% comment %} <div class="modal-footer justify-content-between p-2">
+                                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Annuler</button>
+                                <button type="submit" class="btn btn-outline-success" >Afficher</button>
+                            </div> {% endcomment %}
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-md-3">
+        <div class="info-box" style="border-radius:25px;">
+            <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);">
+                <img style="height: 50px; width: 55px; position:relative; margin-top: 4px; margin-left: 0px;" src="{% static 'recet.png' %}" alt="" srcset="">
+            </span>
+            <div class="info-box-content">
+                <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Recette</span>
+                <span class="info-box-number" style="font-size:20px;">
+                {{total_recette }}
+                <small>frs cfa</small>
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="clearfix hidden-md-up"></div>
+    <div class="col-12 col-sm-6 col-md-3">
+        <div class="info-box" style="border-radius:25px;">
+            <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);">
+                <img style="height: 50px; width: 55px; position:relative; margin-top: 3px; margin-left: 0px;" src="{% static 'chargfix.png' %}" alt="" srcset="">
+            </span>
+            <div class="info-box-content">
+                <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Charge fixe</span>
+                <span class="info-box-number" style="font-size:20px;">
+                {{total_chargefixe}}
+                <small>frs cfa</small>
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="clearfix hidden-md-up"></div>
+    <div class="col-12 col-sm-6 col-md-3">
+        <div class="info-box mb-3" style="border-radius:25px;">
+        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);">
+            <img style="height: 45px; width: 45px; position:relative; margin-top: 9px; margin-left: 0px;" src="{% static 'chargvar.png' %}" alt="" srcset="">
+        </span>
+        <div class="info-box-content">
+            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Charge variable</span>
+            <span class="info-box-number" style="font-size:20px;">
+            {{total_chargevariable}}
+            <small>frs cfa</small>
+            </span>
+        </div>
+        </div>
+    </div>
+    <div class="clearfix hidden-md-up"></div>
+    <div class="col-12 col-sm-6 col-md-3" >
+        <div class="info-box mb-3" style="border-radius:25px;">
+            <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);">
+                <img style="height: 45px; width: 45px; position:relative; margin-top: 2px;margin-left: 0px;" src="{% static 'administratif.png' %}" alt="" srcset="">
+            </span>
+            <div class="info-box-content">
+                <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Charge administrative</span>
+                <span class="info-box-number" style="font-size:20px;">
+                {{total_chargeadminis}}
+                <small>frs cfa</small>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-md-3">
+        <div class="info-box" style="border-radius:25px;">
+            <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);">
+                <img style="height: 50px; width: 55px; position:relative; margin-top: 4px; margin-left: 0px;" src="{% static 'depenses.png' %}" alt="" srcset="">
+            </span>
+            <div class="info-box-content">
+                <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Encaissement</span>
+                <span class="info-box-number" style="font-size:20px;">
+                {{total_encaissement}}
+                <small>frs cfa</small>
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="clearfix hidden-md-up"></div>
+    <div class="col-12 col-sm-6 col-md-3">
+        <div class="info-box" style="border-radius:25px;">
+            <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);">
+                <img style="height: 50px; width: 55px; position:relative; margin-top: 3px; margin-left: 0px;" src="{% static 'dp.png' %}" alt="" srcset="">
+            </span>
+            <div class="info-box-content">
+                <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Decaissement</span>
+                <span class="info-box-number" style="font-size:20px;">
+                {{total_decaissement}}
+                <small>frs cfa</small>
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="clearfix hidden-md-up"></div>
+    <div class="col-12 col-sm-6 col-md-3">
+        <div class="info-box mb-3" style="border-radius:25px;">
+        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);">
+            <img style="height: 40px; width: 40px; position:relative; margin-top: 9px; margin-left: 0px;" src="{% static 'clereparat.png' %}" alt="" srcset="">
+        </span>
+        <div class="info-box-content">
+            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Réparation</span>
+            <span class="info-box-number" style="font-size:20px;">
+            {{total_reparation}}
+            <small>frs cfa</small>
+            </span>
+        </div>
+        </div>
+    </div>
+    <div class="clearfix hidden-md-up"></div>
+    <div class="col-12 col-sm-6 col-md-3" >
+        <div class="info-box mb-3" style="border-radius:25px;">
+            <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);">
+                <img style="height: 45px; width: 45px; position:relative; margin-top: 2px;margin-left: 0px;" src="{% static 'gear.png' %}" alt="" srcset="">
+            </span>
+            <div class="info-box-content">
+                <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Pièces</span>
+                <span class="info-box-number" style="font-size:20px;">
+                {{total_piece}}
+                <small>frs cfa</small>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-md-3">
+        <div class="info-box" style="border-radius:25px;">
+            <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);">
+                <img style="height: 50px; width: 50px; position:relative; margin-top: 4px; margin-left: 0px;" src="{% static 'update.png' %}" alt="" srcset="">
+            </span>
+            <div class="info-box-content">
+                <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Pièce changée</span>
+                <span class="info-box-number" style="font-size:20px;">
+                {{total_piecechange}}
+                <small>frs cfa</small>
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="clearfix hidden-md-up"></div>
+    <div class="col-12 col-sm-6 col-md-3">
+        <div class="info-box" style="border-radius:25px;">
+            <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);">
+                <img style="height: 50px; width: 55px; position:relative; margin-top: 3px; margin-left: 0px;" src="{% static 'entret.png' %}" alt="" srcset="">
+            </span>
+            <div class="info-box-content">
+                <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Entretiens</span>
+                <span class="info-box-number" style="font-size:20px;">
+                {{total_entretien}}
+                <small>frs cfa</small>
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="clearfix hidden-md-up"></div>
+    <div class="col-12 col-sm-6 col-md-3">
+        <div class="info-box mb-3" style="border-radius:25px;">
+        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);">
+            <img style="height: 45px; width: 45px; position:relative; margin-top: 9px; margin-left: 0px;" src="{% static 'arret.png' %}" alt="" srcset="">
+        </span>
+        <div class="info-box-content">
+            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Autres arrêts</span>
+            <span class="info-box-number" style="font-size:20px;">
+            {{total_autrarret}}
+            <small>frs cfa</small>
+            </span>
+        </div>
+        </div>
+    </div>
+    <div class="clearfix hidden-md-up"></div>
+    <div class="col-12 col-sm-6 col-md-3" >
+        <div class="info-box mb-3" style="border-radius:25px;">
+            <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);">
+                <img style="height: 45px; width: 45px; position:relative; margin-top: 2px;margin-left: 0px;" src="{% static 'visit.png' %}" alt="" srcset="">
+            </span>
+            <div class="info-box-content">
+                <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Visite technique</span>
+                <span class="info-box-number" style="font-size:20px;">
+                {{total_visitetechnique}}
+                <small>frs cfa</small>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-sm-6 col-md-3">
+        <div class="info-box" style="border-radius:25px;">
+            <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);">
+                <img style="height: 50px; width: 55px; position:relative; margin-top: 4px; margin-left: 0px;" src="{% static 'vignette.png' %}" alt="" srcset="">
+            </span>
+            <div class="info-box-content">
+                <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Patente</span>
+                <span class="info-box-number" style="font-size:20px;">
+                {{total_patente}}
+                <small>frs cfa</small>
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="clearfix hidden-md-up"></div>
+    <div class="col-12 col-sm-6 col-md-3">
+        <div class="info-box" style="border-radius:25px;">
+            <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);">
+                <img style="height: 50px; width: 55px; position:relative; margin-top: 3px; margin-left: 0px;" src="{% static 'park.png' %}" alt="" srcset="">
+            </span>
+            <div class="info-box-content">
+                <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Stationnements</span>
+                <span class="info-box-number" style="font-size:20px;">
+                {{total_stationnement}}
+                <small>frs cfa</small>
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="clearfix hidden-md-up"></div>
+    <div class="col-12 col-sm-6 col-md-3">
+        <div class="info-box mb-3" style="border-radius:25px;">
+        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);">
+            <img style="height: 45px; width: 45px; position:relative; margin-top: 9px; margin-left: 0px;" src="{% static 'assurance.png' %}" alt="" srcset="">
+        </span>
+        <div class="info-box-content">
+            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Assurance</span>
+            <span class="info-box-number" style="font-size:20px;">
+            {{total_assurance}}
+            <small>frs cfa</small>
+            </span>
+        </div>
+        </div>
+    </div>
+    <div class="clearfix hidden-md-up"></div>
+    <div class="col-12 col-sm-6 col-md-3" >
+        <div class="info-box mb-3" style="border-radius:25px;">
+            <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);">
+                <img style="height: 45px; width: 45px; position:relative; margin-top: 2px;margin-left: 0px;" src="{% static 'sold.png' %}" alt="" srcset="">
+            </span>
+            <div class="info-box-content">
+                <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Solde caisse</span>
+                <span class="info-box-number" style="font-size:20px;">
+                {{total_soldejour}}
+                <small>frs cfa</small>
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="clearfix hidden-md-up"></div>
+    <div class="col-12 col-sm-6 col-md-3" >
+        <div class="info-box mb-3" style="border-radius:25px;">
+            <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);">
+                <img style="height: 50px; width: 50px; position:relative; margin-top: 2px;margin-left: 0px;" src="{% static 'vignette.png' %}" alt="" srcset="">
+            </span>
+            <div class="info-box-content">
+                <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Vignette</span>
+                <span class="info-box-number" style="font-size:20px;">
+                {{total_vignette}}
+                <small>frs cfa</small>
+                </span>
+            </div>
+        </div>
+    </div>
+
+{% endblock main_content %}

@@ -3,7 +3,7 @@
 {% block search_form %} 
 {% endblock search_form %} 
 {% block page_title %} 
-
+Profil
 {% endblock page_title %} 
 {% block page_title_info %}
 {% if user.gender == 'Homme' %}
@@ -18,134 +18,154 @@
 
 {% block main_content%}
 
-<div class="modal fade" id="modal-lg">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title" style=" font-weight:700;color: rgb(6,73,124);">Changer de mot de passe</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div class="modal-body">
-                <form method='post' role="form" id="quickForm">
-                    {% csrf_token %}
-                    <div class="row card-body">
-                        <div class="col-md-12 mb-3">
-                            <label class="form-label text-secondary">Ancien</label> {{ form.old_password }}
-                        </div>
-                        <div class="col-md-12 mb-3">
-                            <label class="form-label text-secondary">Nouveau</label> {{ form.new_password1 }}
-                            <div class="text p-2 text-secondary">
-                                <p>Mot de passe doit contenir au moins 8 caractères.</p>
-                                <p>Ne pas le communiquer.</p>
-                                <p>Doit contenir au moins une lettre et un chiffre.</p>
-                            </div>
-                        </div><br>
-                        <div class="col-md-12 mb-3">
-                            <label class="form-label text-secondary">Confirme</label> {{ form.new_password2 }}
-                        </div>
-                    </div>
-                    <div class="modal-footer justify-content-between">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
-                        <button type="submit" class="btn btn-primary">Enregistrer</button>
-                    </div>
-                </form> 
-            </div>
-        </div>
-    </div>
-</div>
-
 <div class="col-md-12">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="" style="border-radius:20px">
-                <div id="" class="">
-                    <div class="row p-0 m-0">
-                        <div class="col-md-12 p-0">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h3 class="card-title">
-                                        <button type="button" class="btn btn-default" data-toggle="modal" data-target="#modal-lg" style=" font-weight:700;color: rgb(6,73,124);">Changer de mot de passe <i class='fa fa-plus-square text-success'></i></button>
-                                    </h3>
-
-                                    <div class="card-tools">
-                                        <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
-                                    </div>
-                                </div>
-                                <!-- /.card-header -->
-                                <div class="row card-body">
-                                    {% if user.user_type == "1" %}
-                                            <div class="col-md-4 mb-3">
-                                                <label class="form-label text-secondary">NOM</label> <input type="text" class="form-control text-center" value="{{ admin_profil.nom|upper }}" style="font-weight:700" disabled>
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label class="form-label text-secondary">PRENOMS</label> <input type="text" class="form-control text-center " value="{{ admin_profil.prenom|upper }}" style="font-weight:700" disabled>
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label class="form-label text-secondary">COMMUNE</label> <input type="text" class="form-control text-center" value="{{ admin_profil.commune|upper }}" style="font-weight:700" disabled>
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <label class="form-label text-secondary">CONTACT 1</label> <input type="text" class="form-control text-center" value="{{ admin_profil.tel1|upper }}" style="font-weight:700" disabled>
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <label class="form-label text-secondary">CONTACT 2</label> <input type="text" class="form-control text-center" value="{{ admin_profil.tel2|upper }}" style="font-weight:700" disabled>
-                                            </div>
-                                        {% elif user.user_type == "2" %}
-                                            <div class="col-md-4 mb-3">
-                                                <label class="form-label text-secondary">NOM</label> <input type="text" class="form-control text-center" value="{{ chefexploit_profil.nom|upper }}" style="font-weight:700" disabled>
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label class="form-label text-secondary">PRENOMS</label> <input type="text" class="form-control text-center " value="{{ chefexploit_profil.prenom|upper }}" style="font-weight:700" disabled>
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label class="form-label text-secondary">COMMUNE</label> <input type="text" class="form-control text-center" value="{{ chefexploit_profil.commune|upper }}" style="font-weight:700" disabled>
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <label class="form-label text-secondary">CONTACT 1</label> <input type="text" class="form-control text-center" value="{{ chefexploit_profil.tel1|upper }}" style="font-weight:700" disabled>
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <label class="form-label text-secondary">CONTACT 2</label> <input type="text" class="form-control text-center" value="{{ chefexploit_profil.tel2|upper }}" style="font-weight:700" disabled>
-                                            </div>
-                                        {% elif user.user_type == "3" %}
-                                            <div class="col-md-4 mb-3">
-                                                <label class="form-label text-secondary">NOM</label> <input type="text" class="form-control text-center" value="{{ comptable_profil.nom|upper }}" style="font-weight:700" disabled>
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label class="form-label text-secondary">PRENOMS</label> <input type="text" class="form-control text-center " value="{{ comptable_profil.prenom|upper }}" style="font-weight:700" disabled>
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label class="form-label text-secondary">COMMUNE</label> <input type="text" class="form-control text-center" value="{{ comptable_profil.commune|upper }}" style="font-weight:700" disabled>
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <label class="form-label text-secondary">CONTACT 1</label> <input type="text" class="form-control text-center" value="{{ comptable_profil.tel1|upper }}" style="font-weight:700" disabled>
-                                            </div>
-                                            <div class="col-md-6 mb-3">
-                                                <label class="form-label text-secondary">CONTACT 2</label> <input type="text" class="form-control text-center" value="{{ comptable_profil.tel2|upper }}" style="font-weight:700" disabled>
-                                            </div>
-                                        {% elif user.user_type == "4" %}
-                                            <div class="col-md-4 mb-3">
-                                                <label class="form-label text-secondary">NOM</label> <input type="text" class="form-control text-center" value="{{ gerant_profil.nom|upper }}" style="font-weight:700" disabled>
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label class="form-label text-secondary">PRENOMS</label> <input type="text" class="form-control text-center " value="{{ gerant_profil.prenom|upper }}" style="font-weight:700" disabled>
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label class="form-label text-secondary">COMMUNE</label> <input type="text" class="form-control text-center" value="{{ gerant_profil.commune|upper }}" style="font-weight:700" disabled>
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label class="form-label text-secondary">CONTACT 1</label> <input type="text" class="form-control text-center" value="{{ gerant_profil.tel1|upper }}" style="font-weight:700" disabled>
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label class="form-label text-secondary">CONTACT 2</label> <input type="text" class="form-control text-center" value="{{ gerant_profil.tel2|upper }}" style="font-weight:700" disabled>
-                                            </div>
-                                            <div class="col-md-4 mb-3">
-                                                <label class="form-label text-secondary">GERANT</label> <input type="text" class="form-control text-center" value="{{ gerant_profil.gerant_voiture|upper }}" style="font-weight:700" disabled>
-                                            </div>
-                                        {% else %}
-                                        {% endif %}
-                                </div>
+    <div class="card p-2">
+        <div class="row">
+        
+            <!-- Colonne gauche : Informations utilisateur -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title" style="font-weight:700;color: rgb(6,73,124);">
+                            Mes informations
+                        </h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label text-secondary" style="font-weight:600;">Nom d'utilisateur:</label>
+                            <p style="margin: 0; font-weight:500;">{{ user.username }}</p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-secondary" style="font-weight:600;">Email:</label>
+                            <p style="margin: 0; font-weight:500;">{{ user.email }}</p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-secondary" style="font-weight:600;">Role:</label>
+                            <p style="margin: 0; font-weight:500;">
+                                {% if user.user_type == "1" %}Administrateur
+                                {% elif user.user_type == "2" %}Chef Exploitation
+                                {% elif user.user_type == "3" %}Comptable
+                                {% elif user.user_type == "4" %}Gerant
+                                {% else %}{{ user.user_type }}{% endif %}
+                            </p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-secondary" style="font-weight:600;">Genre:</label>
+                            <p style="margin: 0; font-weight:500;">{{ user.gender }}</p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-secondary" style="font-weight:600;">Contact:</label>
+                            <p style="margin: 0; font-weight:500;">
+                                {% if user.user_type == "1" and admin_profil %}{{ admin_profil.tel1|default:"-" }}
+                                {% elif user.user_type == "2" and chefexploit_profil %}{{ chefexploit_profil.tel1|default:"-" }}
+                                {% elif user.user_type == "3" and comptable_profil %}{{ comptable_profil.tel1|default:"-" }}
+                                {% elif user.user_type == "4" and gerant_profil %}{{ gerant_profil.tel1|default:"-" }}
+                                {% else %}-{% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title" style="font-weight:700;color: rgb(6,73,124);">
+                            Changer de mot de passe
+                        </h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <form method='post' role="form" id="quickForm">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label class="form-label text-secondary">Ancien mot de passe <span class="text-danger">*</span></label>
+                                {{ form.old_password }}
+                                <small class="text-danger">
+                                    {{ form.old_password.errors }}
+                                </small>
                             </div>
+                            <div class="mb-3">
+                                <label class="form-label text-secondary">Nouveau mot de passe <span class="text-danger">*</span></label>
+                                {{ form.new_password1 }}
+                                <small class="text-danger">
+                                    {{ form.new_password1.errors }}
+                                </small>
+                                <small class="text-muted">
+                                    Contenir au moins 8 caractères.</br> 1 lettre majuscule.</br> 1 lettre minuscule.</br> 1 chiffre et un caractère spécial.
+                                </small>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label text-secondary">Confirmer mot de passe <span class="text-danger">*</span></label>
+                                {{ form.new_password2 }}
+                                <small class="text-danger">
+                                    {{ form.new_password2.errors }}
+                                </small>
+                            </div>
+                            <div class="mt-3 text-center">
+                                <button type="submit" class="btn btn-outline-primary ">
+                                    Enregistrer
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title" style="font-weight:700;color: rgb(6,73,124);">
+                            Mes permissions
+                        </h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <!-- Permissions personnalisées -->
+                        <div class="mb-4">
+                            <h5 style="font-weight:600;color: rgb(6,73,124); font-size:14px; margin-bottom: 15px;">
+                                Permissions:
+                            </h5>
+                            {% if custom_permissions %}
+                                <div class="permissions-list">
+                                    {% for perm in custom_permissions %}
+                                        <div class="mb-2" style="display: flex; align-items: center;">
+                                            <input type="checkbox" checked disabled style="margin-right: 8px; cursor: not-allowed;">
+                                            <label style="margin: 0; font-size: 13px; font-weight:500; flex: 1;">
+                                                {{ perm.name }}
+                                            </label>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p style="font-size: 13px; color: #6c757d; font-style: italic;">Aucune permission personnalisée</p>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Permissions Système -->
+                        <div class="mb-3">
+                            <h5 style="font-weight:600;color: rgb(6,73,124); font-size:14px; margin-bottom: 15px;">
+                                Permissions Système:
+                            </h5>
+                            {% if system_permissions %}
+                                <div class="permissions-list">
+                                    {% for perm in system_permissions %}
+                                        <div class="mb-2" style="display: flex; align-items: center;">
+                                            <input type="checkbox" checked disabled style="margin-right: 8px; cursor: not-allowed;">
+                                            <label style="margin: 0; font-size: 13px; font-weight:500;">
+                                                {{ perm.name|truncatewords:10 }}
+                                            </label>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p style="font-size: 13px; color: #6c757d; font-style: italic;">Aucune permission Système</p>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -154,12 +174,14 @@
     </div>
 </div>
 
-
 {% endblock main_content %} 
 {% block custom_js %}
 <script>
     var name = "{{user.id}}";
-    document.getElementById('elder').value = name;
+    var elderElement = document.getElementById('elder');
+    if (elderElement) {
+        elderElement.value = name;
+    }
 </script>
 <script type="text/javascript">
     $(function() {

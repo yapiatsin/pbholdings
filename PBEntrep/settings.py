@@ -12,7 +12,10 @@ TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
 SECRET_KEY = config('SECRET_KEY')
 # DEBUG = True--  django-insecure-of03a0_f)5yamk9g&p9p2f^a*l8!6t#+r_c4oq42+sb&#y5znt
 
-ALLOWED_HOSTS = ['*']
+# ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1','192.168.100.157']
+# ALLOWED_HOSTS = ['192.168.11.157', 'localhost', '127.0.0.1','192.168.194.157']
+
 # ALLOWED_HOSTS = ['pbholdingsite.com','www.pbholdingsite.com','45.92.109.86']
 # CSRF_TRUSTED_ORIGINS = [
 #     'https://pbholdingsite.com',
@@ -32,6 +35,7 @@ INSTALLED_APPS = [
     'PBFinance',
     'userauths',
     'PB_Entreprise',
+    'simple_history',
 ]
 
 MIDDLEWARE = [
@@ -42,6 +46,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'simple_history.middleware.HistoryRequestMiddleware',
 ]
 
 ROOT_URLCONF = 'PBEntrep.urls'
@@ -58,6 +63,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'PB_Entreprise.context_processors.grouped_user_permissions',
+                'PB_Entreprise.context_processors.alertes_count',
             ],
         },
     },
@@ -70,13 +76,17 @@ DEBUG = True
 # DEBUG = True
 # DEBUG = config('DEBUG') 
 DATABASES = {
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.postgresql',
+    #     'NAME': config('DB_NAME'),
+    #     'USER':config('DB_USER'),
+    #     'PASSWORD': config('DB_PASSWORD'),
+    #     'HOST':config('DB_HOST'),
+    #     'PORT':config('DB_PORT'),
+    # }
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DB_NAME'),
-        'USER':config('DB_USER'),
-        'PASSWORD': config('DB_PASSWORD'),
-        'HOST':config('DB_HOST'),
-        'PORT':config('DB_PORT'),
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 

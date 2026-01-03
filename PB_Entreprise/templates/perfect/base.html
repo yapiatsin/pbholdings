@@ -101,11 +101,10 @@
         }
         {% endblock style %}
     </style>
-
 </head>
 
-<body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed">
-
+<body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed" style="background-image: url('{% static "birdcu.png" %}');
+background-size: cover; background-position: center; background-repeat: no-repeat; opacity: .95">
     <div class="wrapper">
         <nav class="main-header navbar navbar-expand navbar-white navbar-light">
             <!-- Left navbar links -->
@@ -121,10 +120,42 @@
 
             <!-- Right navbar links -->
             <ul class="navbar-nav ml-auto">
-                <li class="nav-item">
-                    <a class="nav-link" data-slide="true" href="#">
-                        <i class="fa fa-calendar" style="font-size: 15px">{{dates|date:"d-m-y"}}</i>
+                <li class="nav-item dropdown">
+                    <a class="nav-link" data-toggle="dropdown" href="#">
+                        <i class="far fa-bell"></i>
+                        {% if total_alertes > 0 %}
+                            <span class="badge badge-danger navbar-badge">{{ total_alertes }}</span>
+                        {% else %}
+                            <span class="badge badge-warning navbar-badge">0</span>
+                        {% endif %}
                     </a>
+                    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+                      <span class="dropdown-item dropdown-header">
+                        {% if total_alertes > 0 %}
+                          {{ total_alertes }} Alerte{{ total_alertes|pluralize }}
+                        {% else %}
+                          Aucune alertes
+                        {% endif %}
+                      </span>
+                      <div class="dropdown-divider"></div>
+                      {% if alertes_list %}
+                        {% for alerte in alertes_list %}
+                          <a href="{% url 'alerte' %}" class="dropdown-item">
+                            <i class="fas fa-exclamation-triangle mr-2 text-danger"></i> 
+                            {{ alerte.type }} - {{ alerte.vehicule }}
+                            <span class="float-right text-muted text-sm">{{ alerte.jours }} jour{{ alerte.jours|pluralize }}</span>
+                          </a>
+                          <div class="dropdown-divider"></div>
+                        {% endfor %}
+                      {% else %}
+                        <a href="#" class="dropdown-item">
+                          <i class="fas fa-check-circle mr-2 text-success"></i> 
+                          <span class="text-muted">Aucune alerte critique</span>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                      {% endif %}
+                      <a href="{% url 'alerte' %}" class="dropdown-item dropdown-footer">Voir toutes les alertes</a>
+                    </div>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" data-widget="control-sidebar" data-slide="true" href="#">
@@ -134,9 +165,8 @@
             </ul>
         </nav>
         <!-- Main Sidebar Container -->
-        <aside class="main-sidebar sidebar-dark-primary elevation-4" style="background-image: linear-gradient(#a80d0dcc,rgb(80, 15, 15))">
-            <!-- <aside class="main-sidebar sidebar-dark-primary elevation-4" style="background-image: linear-gradient(rgba(150, 61, 61, 0.808),rgb(80, 15, 15))"> -->
-            <a href="#" class="brand-link" style="background-color: #ffffff;">
+        <aside class="main-sidebar sidebar-dark-primary elevation-4" style="background-image: linear-gradient(#a80d0dcc,rgb(80, 15, 15)); border-radius: 25px 25px 25px 0;">
+            <a href="#" class="brand-link" style="background-color:rgb(253, 230, 230); border-radius: 0 25px 0 0;">
                 <img src="{% static 'pb.png' %}" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
                 <span class="brand-text font-weight-danger text-danger" style="font-weight: 700; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);">P&BENTREPRISE</span>
             </a>
@@ -144,10 +174,18 @@
                 <div class="user-panel mt-3 pb-3 mb-3 d-flex">
                     <div class="image">
                     {% if user.gender %}
-                        {% if user.gender == 'Homme' %}
+                        {% if user.is_staff %}
+                            <img src="{% static 'adm.png' %}" style="height: 60px; width: 60px;" class="img" alt="User Image"> 
+                        {% elif user.user_type == '1' or user.user_type == '2' %}
                             <img src="{% static 'agent.png' %}" style="height: 60px; width: 60px;" class="img-circle elevation-2" alt="User Image"> 
-                        {% else %}
-                            <img src="{% static 'agente.png' %}" style="height: 60px; width: 60px;" class="img-circle elevation-2" alt="User Image"> 
+                        {% elif user.user_type == '3' %}
+                            {% if user.gender == 'Homme' %}
+                                <img src="{% static 'agent.png' %}" style="height: 60px; width: 60px;" class="img-circle elevation-2" alt="User Image"> 
+                            {% else %}
+                                <img src="{% static 'agente.png' %}" style="height: 60px; width: 60px;" class="img-circle elevation-2" alt="User Image"> 
+                            {% endif %}                      
+                        {% elif user.user_type == '4' %}
+                            <img src="{% static 'agear.png' %}" style="height: 60px; width: 60px;" class="img-circle elevation-2" alt="User Image"> 
                         {% endif %}
                     {% endif %}
                     </div>
@@ -289,7 +327,7 @@
                                         <li class="nav-item">
                                             {% for perm in perms %}
                                                 <a href="{% url perm.url %}" class="nav-link ">
-                                                    <i style="font-size: 10px;" class="far fa-circle nav-icon "></i>
+                                                    <i style="font-size: 10px;" class="far fa-circle nav-icon"></i>
                                                     <p>{{ perm.name }}</p>
                                                 </a>
                                             {% endfor %}
@@ -336,7 +374,7 @@
                                         </li>
                                     </ul>
                                 </li>
-                            {% elif categorie.categorie == "Gestuser" %}
+                            {% elif categorie.categorie == "Gestuser"%}
                                 <li class="nav-header">UTILISATEURS</li>
                                 <li class="nav-item has-treeview ">
                                     <a href="#" class="nav-link ">
@@ -359,31 +397,34 @@
                                         {% endif %}
                                     </ul>
                                 </li>
-                            {% elif categorie.categorie == "Gestpermi" %}
-                                <li class="nav-header">GESTION DES PERMISSIONS</li>
-                                <li class="nav-item has-treeview ">
-                                    <a href="#" class="nav-link ">
-                                        <i class="nav-icon fas fa-user-circle "></i>
-                                        <p>
-                                            Permissions
-                                            <i class="right fas fa-angle-left "></i>
-                                        </p>
-                                    </a>
-                                    <ul class="nav nav-treeview">
-                                        {% if user.is_staff or user.user_type == '1' or user.user_type == '2' %}
-                                            <li class="nav-item">
-                                                {% for perm in perms %}
-                                                    <a href="{% url perm.url %}" class="nav-link ">
-                                                        <i style="font-size: 10px;" class="far fa-circle nav-icon "></i>
-                                                        <p>{{ perm.name }}</p>
-                                                    </a>
-                                                {% endfor %}
-                                            </li>
-                                        {% endif %}
-                                    </ul>
-                                </li>
                             {% endif %}
                         {% endfor %}
+                        {% if user.is_staff %}
+                            <li class="nav-header">GESTION DES PERMISSIONS</li>
+                            <li class="nav-item has-treeview ">
+                                <a href="#" class="nav-link ">
+                                    <i class="nav-icon fas fa-lock-open "></i>
+                                    <p>
+                                        Permissions
+                                        <i class="right fas fa-angle-left "></i>
+                                    </p>
+                                </a>
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="{% url 'list_categories' %}" class="nav-link ">
+                                            <i style="font-size: 10px;" class="far fa-circle nav-icon "></i>
+                                            <p>Catégories</p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="{% url 'list_permissions' %}" class="nav-link ">
+                                            <i style="font-size: 10px;" class="far fa-circle nav-icon "></i>
+                                            <p>Permissions</p>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        {% endif %}
                     </ul>
                 </nav>
             </div>
@@ -391,64 +432,32 @@
 
         <div class="content-wrapper" style="background-color: rgb(247,248,250)">
             {% block content_header %}
-                <div class="content-header ">
-                    <div class="container-fluid ">
-                        <div class="row mb-2 ">
-                            <div class="col-sm-6 ">
-                                <h5 class="m-0" style="font-size:25px; font-weight: 700; line-height: 1; color: rgb(6,73,124); text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);">
-                                    {% block page_title %} Page{% endblock page_title %} {% block page_a %}
-                                    <a class="p-2 mr-1" style="font-size: 25px; border-radius:8px ;color: #06497C; background: rgba(212, 212, 212, 0.301);">
-                                            {% block page_title_info %}
-                                            {% endblock page_title_info %}
-                                    </a> {% endblock page_a %}
+                <div class="content-header">
+                    <div class="container-fluid">
+                        <div class="row mb-2">
+                            <div class="col-sm-6">
+                                <h5 class="m-0" style="font-size:25px; font-weight: 700; line-height: 1; color: rgb(6,73,124);">
+                                    {% block page_title %}Titre{% endblock page_title %} 
                                 </h5>
                             </div>
                             <div class="col-sm-6">
                                 <ol class="breadcrumb float-sm-right ">
-                                    <div class="row">
-                                        <div class="col-lg-12">
-                                        <div class="row">
-                                            <div class="col-lg-12">
-                                                <a class="nav-link" data-toggle="dropdown" href="#" style="font-size: 18px; color: #06497C; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); font-weight: 700;">filtre
-                                                    <i style="font-size: 20px; color: #06497C; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);" class="fa fa-calendar"></i>
-                                                </a>
-                                                <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right col-md-12" style="font-size: 20px; color: #06497C; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); ">
-                                                    <form class="col-md-12" method="get">
-                                                    {% block search_form %}
-                                                        {% csrf_token %}
-                                                        <div class="row">
-                                                            <div class="col-md-12">
-                                                                <label>Debut </label> {{ form.date_debut }}
-                                                            </div>
-                                                            <div class="col-md-12">
-                                                                <label>Fin</label> {{ form.date_fin }}
-                                                            </div>
-                                                            <div class="col-md-12 text-center p-2">
-                                                                <button class="btn btn-primary" type="submit">Valider</button>
-                                                            </div>
-                                                        </div>
-                                                    {% endblock search_form %}
-                                                    </form>
-                                                </div>
-                                            </div>
-                                            {% comment %} <div class="col-lg-6">
-                                                <a class="nav-link" data-toggle="dropdown" href="#" style="font-size: 18px; color: #06497C; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); font-weight: 700;">Actualiser</a>
-                                            </div> {% endcomment %}
-                                        </div>
+                                    <div class="col-lg-12">
+                                        {% block page_action %}
+                                            
+                                        {% endblock page_action %}
                                     </div>
-                                </div>
-                            </ol>
+                                </ol>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
             {% endblock content_header %}
             <div class="content">
                 <div class="container-fluid">
                     <div class="row mt-0">
                         {% block main_content %}
                             {% if perms %} 
-                                
                             {% endif %} 
                         {% endblock main_content %}
                     </div>
@@ -468,7 +477,7 @@
         
         <footer class="main-footer">
             <div class="float-right d-none d-sm-inline">
-                <b><small>Version Bradi One</small></b>
+                <b><small>Thrive One</small></b>
             </div>
             <strong>Copyright &copy; <span id="currentYear"></span> <a>P&BENTREPRISE</a>.</strong>
         </footer>
@@ -478,11 +487,6 @@
     </div>
 
     {% block custom_js %}
-    <script>
-        var name = "{{user.id}}";
-        document.getElementById('elder').value = name;
-    </script>
-
     <script type="text/javascript">
         document.getElementById('printButton').addEventListener('click', function() {
             var printContents = document.getElementById('example1').outerHTML;
@@ -500,9 +504,6 @@
     <script src="{% static 'pb/plugins/bootstrap/js/bootstrap.bundle.min.js' %} "></script>
     <!-- AdminLTE App -->
     <script src="{% static 'pb/dists/js/adminlte.min.js' %} "></script>
-    <!-- AdminLTE for demo purposes -->
-    {% comment %}
-    <script src="{% static 'pb/dists/js/demo.js' %} "></script> {% endcomment %}
 
     <script>
         $(function() {

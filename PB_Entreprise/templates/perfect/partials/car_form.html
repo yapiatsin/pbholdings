@@ -1,0 +1,47 @@
+<form method="post" id="CarUpdateForm" action="{% url 'updat_car' object.id %}" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="modal-header">
+        <h5 class="modal-title">
+            Modifier le véhicule de {{ object.vehicule.immatriculation }}
+        </h5>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+    </div>
+
+    <div class="modal-body row">
+        <div class="col-md-4 col-sm-6 form-group">
+            <label for="fullname"><b>Immatriculation</b></label> {{form.immatriculation}}
+        </div>
+        <div class="col-md-3 col-sm-6 form-group">
+            <label for="fullname"><b>Marque</b></label> {{form.marque}}
+        </div>
+        <div class="col-md-3 col-sm-6 form-group">
+            <label for="fullname"><b>Categorie</b></label> {{form.category}}
+        </div>
+        <div class="col-md-2 col-sm-6 form-group">
+            <label for="fullname"><b>Durée</b></label> {{form.duree}}
+        </div>
+        <div class="col-md-4 col-sm-6 form-group">
+            <label for="fullname"><b>Cout d'Acquisition</b></label> {{form.cout_acquisition}}
+        </div>
+        <div class="col-md-4 col-sm-6 form-group">
+            <label for="fullname"><b>Numero chassis</b></label> {{form.num_Chassis}}
+        </div>
+        <div class="col-md-4 col-sm-6 form-group">
+            <label for="fullname"><b>Numero Carte Grise</b></label> {{form.num_cart_grise}}
+        </div>
+        <div class="col-md-4 col-sm-6 form-group">
+            <label for="fullname"><b>Date d'Acquisition</b></label> {{form.date_acquisition}}
+        </div>
+        <div class="col-md-4 col-sm-6 form-group">
+            <label for="fullname"><b>Date Edit Carte Grise</b></label> {{form.dat_edit_carte_grise}}
+        </div>
+        <div class="col-md-4 col-sm-6 form-group">
+            <label for="fullname"><b>Date Mise en Service</b></label> {{form.date_mis_service}}
+        </div>
+    </div>
+
+    <div class="modal-footer justify-content-between">
+        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Annuler</button>
+        <button type="submit" class="btn btn-outline-success">Enregistrer</button>
+    </div>
+</form>

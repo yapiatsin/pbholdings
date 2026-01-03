@@ -1,0 +1,29 @@
+<form method="post" id="categorieUpdateForm" action="{% url 'updat_catego_vehi' object.id %}" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="modal-header">
+        <h5 class="modal-title">
+            Modifier la categorie <b>{{ object.category }}</b>
+        </h5>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+    </div>
+
+    <div class="modal-body row">
+        <div class="form-group col-md-4">
+            <label>Categorie</label>
+            {{ form.category }}
+        </div>
+        <div class="form-group col-md-4">
+            <label>Recette defaut</label>
+            {{ form.recette_defaut }}
+        </div>
+        <div class="form-group col-md-4">
+            <label>Perte par 30min</label>
+            {{ form.perte_par_30min }}
+        </div>
+    </div>
+
+    <div class="modal-footer justify-content-between p-2">
+        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Annuler</button>
+        <button type="submit" class="btn btn-outline-success">Enregistrer</button>
+    </div>
+</form>

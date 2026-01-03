@@ -3,207 +3,238 @@
 {% block title %} 
     Saisie Garage 
 {% endblock title %} 
-{% block navbar_nav %}
-
-{% endblock navbar_nav %} 
 {% block page_title %}
-<img class="profile-user-img" style="border:none; height:55px;width:55px" src="{% static 'journal_g.png' %}" alt="User profile picture">Journal de saisi garage
+    <img class="profile-user-img" style="border:none; height:55px;width:55px; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);" src="{% static 'bus2.png' %}" alt="User profile picture">Journal de saisi garage
 {% endblock page_title %} 
-{% block page_a %}
-{% endblock page_a %}
-{% block active_page %} Saisie garage {% endblock active_page %}
+{% block page_action %}
+    <a class="nav-link" data-toggle="modal" data-target="#modal-sm" style="font-size: 18px; color: #06497C; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); font-weight: 700;">filtre
+        <i style="font-size: 20px; color: #06497C; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);" class="fa fa-calendar"></i>
+    </a>
+{% endblock page_action %}
+
 {% block main_content%}
-<div class="col-md-12">
-    <div class="card" style="color: #0176bf; border-radius: 20px; border-color: #00217b; font-weight: 700;">
-        <div class="card-body table-responsive p-0" style="border-radius:8px; border:none">
-            <table class="table table text-nowrap" >
-                <tr style="border-color:red">
-                    <div class="col-md-12">
-                        <div class="row ">
-                            <div class="col-md-2" >
-                                <td style="border:none">
-                                    <div style="display: flex; align-items: center;">
-                                        <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 7px; margin-left: 7px;" src="{% static 'assurance.png' %}" alt="" srcset="">
-                                        </div>
-                                        <div>
-                                            <div style="font-size: 15px;color: #06497C">Assurance{% if assu_all > 1 %}s{% endif %}</div>
-                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
-                                                {{ assu_all }}
-                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td style="border:none">
-                                    <div style="display: flex; align-items: center;">
-                                        <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 9px; margin-left: 0px;" src="{% static 'vignette.png' %}" alt="" srcset="">
-                                        </div>
-                                        <div>
-                                            <div style="font-size: 15px;color: #06497C">Vignette{% if vign_all > 1 %}s{% endif %}</div>
-                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
-                                                {{ vign_all }}
-                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td style="border:none">
-                                    <div style="display: flex; align-items: center;">
-                                        <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <img style="height: 30px; width: 30px; position:relative; margin-top: 12px; margin-left: px;" src="{% static 'wind.png' %}" alt="" srcset="">
-                                        </div>
-                                        <div>
-                                            <div class="mt-1" style="font-size:14px; font-weight: 700; line-height: 1;color: #06497C">Patente{% if pat_all > 1 %}s{% endif %}</div>
-                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
-                                                {{ patente_all}} 
-                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td style="border:none">
-                                    <div style="display: flex; align-items: center;">
-                                        <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 9px; margin-left: 0px;" src="{% static 'other.png' %}" alt="" srcset="">
-                                        </div>
-                                        <div>
-                                            <div style="font-size: 15px; color: #06497C">Stationnement{% if stat_all > 1 %}s{% endif %}</div>
-                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">{{ stat_all }}<small style="color: #06497C; font-weight: 700; line-height: 1;"></small></div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td style="border:none">
-                                    <div style="display: flex; align-items: center;">
-                                        <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 9px; margin-left: 1px;" src="{% static 'gear.png' %}" alt="" srcset="">
-                                        </div>
-                                        <div>
-                                            <div class="mt-1" style="font-size:14px; font-weight: 700; line-height: 1;color: #06497C">Pièces changées{% if pat_all > 1 %}s{% endif %}</div>
-                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
-                                                {{ patente_all}} 
-                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
+
+<div class="modal fade" id="modal-sm">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="border-radius:25px;">
+            <div class="modal-header">
+                <h4 class="modal-title" style="font-weight:700;color: #06497C;">FILTRE</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div class="card-body">
+                    <form id="basic-form" method="get" novalidate>
+                        <div class="row clearfix">
+                            <div class="col-md-12 form-group"><input type="text" value="Critère de filtre" class="form-control text-center" disabled></div>
+                            <div class="col-6">
+                                <label>Date debut </label>
+                                <div class="form-group">                                    
+                                    {{ form.date_debut }}
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <label>Date fin</label>
+                                <div class="form-group">                                    
+                                    {{ form.date_fin }}
+                                </div>
+                            </div>
+                            
+                            <div class="col-12">
+                                <label>Categorie</label>
+                                <div class="form-group">                                    
+                                    {{ form.categorie }}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </tr>
-            </table>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Annuler</button>
+                            <a href="{% url 'saisi_garag' %}" class="btn btn-outline-info"><i class="fas fa-refresh"></i></a>
+                            <button type="submit" class="btn btn-outline-success" >Afficher</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 </div>
-<!-- COURBES DE NIVEAUX -->
-<div class="col-md-12">
+
+<div class="col-12 col-sm-6 col-md-3">
+    <div class="info-box" style="border-radius:25px;">
+        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);">
+            <img style="height: 45px; width: 45px; position:relative; margin-top: 8px; margin-left: 0px;" src="{% static 'assurance.png' %}" alt="" srcset="">
+        </span>
+        <div class="info-box-content">
+            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Assurance</span>
+            <span class="info-box-number" style="font-size:20px; color: #fa7832;">
+            {{assure_mois_format}}
+            <small>frs cfa</small>
+            </span>
+        </div>
+    </div>
+    <div class="info-box" style="border-radius:25px;">
+        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);">
+            <img style="height: 55px; width: 55px; position:relative; margin-top: 8px; margin-left: 0px;" src="{% static 'vignette.png' %}" alt="" srcset="">
+        </span>
+        <div class="info-box-content">
+            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Vignette</span>
+            <span class="info-box-number" style="font-size:20px; color: #fa7832;">
+            {{vigne_mois_format}}
+            <small>frs cfa</small>
+            </span>
+        </div>
+    </div>
+    <div class="info-box mb-3" style="border-radius:25px;">
+        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);">
+            <img style="height: 55px; width: 55px; position:relative; margin-top: 8px; margin-left: 0px;" src="{% static 'vignette.png' %}" alt="" srcset="">
+        </span>
+        <div class="info-box-content">
+            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Patente</span>
+            <span class="info-box-number" style="font-size:20px; color: #fa7832;">
+            {{patent_mois_format}}
+            <small>frs cfa</small>
+            </span>
+        </div>
+    </div>
+    <div class="info-box mb-3" style="border-radius:25px;">
+        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);">
+            <img style="height: 45px; width: 45px; position:relative; margin-top: 2px;margin-left: 0px;" src="{% static 'park.png' %}" alt="" srcset="">
+        </span>
+        <div class="info-box-content">
+            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Stationnement</span>
+            <span class="info-box-number" style="font-size:20px; color: #fa7832;">
+            {{station_mois_format}}
+            <small>frs cfa</small>
+            </span>
+        </div>
+    </div>
+    <div class="info-box mb-3" style="border-radius:25px;">
+        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);">
+            <img style="height: 45px; width: 45px; position:relative; margin-top: 2px;margin-left: 0px;" src="{% static 'update.png' %}" alt="" srcset="">
+        </span>
+        <div class="info-box-content">
+            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Pièce changée</span>
+            <span class="info-box-number" style="font-size:20px; color: #fa7832;">
+            {{piechang_mois_format}}
+            <small>frs cfa</small>
+            </span>
+        </div>
+    </div>
+</div>
+
+<div class="col-md-9">
     <div class="row">
         <div class="col-md-12">
-            <div class="" style="border-radius:20px">
+            <div class="" style="border-radius:20px" >
                 <div id="" class="">
                     <div class="row p-0 m-0">
                         <div class="col-md-12 p-0">
-                            <div class="card" style="box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-                            backdrop-filter: blur(5.2px);
-                            -webkit-backdrop-filter: blur(5.2px);">
-                                <div class="card-header">
-                                    <div class="card-tools">
-                                        <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
-                                    </div>
+                            <div class="card" style="box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);backdrop-filter: blur(5.2px);--webkit-backdrop-filter: blur(5.2px); border-radius:25px;">
+                                <div class="card-header col-12 col-sm-12 col-md-12" style="font-size:18px; font-weight: 700; color: #06497C;">
+                                    <form class="search-form">
+                                        <div class="input-group">
+                                            <input type="text" name="search" value="{{ search_query }}" class="form-control" placeholder="Saisissez l'immatriculation du véhicule..." style="border-radius: 50px 0 0 50px;">
+                                            <div class="input-group-append">
+                                            <button type="submit" name="submit" class="btn btn-danger" style="border-radius: 0 "><i class="fas fa-search"></i>
+                                            </button>
+                                            <a href="{% url 'saisi_garag' %}" name="submit" class="btn btn-danger" style="border-radius: 0 50px 50px 0;"><i class="fas fa-refresh text-light"></i></a>
+                                            </div>
+                                        </div>
+                                    </form>
                                 </div>
                                 <!-- /.card-header -->
                                 <div class="card-body">
-                                    <table id="example1" class="table table-bordered table-striped">
-                                        <thead>
-                                            <tr class=" text-center text-danger ">
-                                                <th>IMMAT</th>
-                                                <th>MARQUE</th>
-                                                <th>CATEGORIE</th>
-                                                <th>ASSURANCE</th>
-                                                <th>VIGNETTE</th>
-                                                <th>PATENTE</th>
-                                                <th>STATIONNEMENT</th>
-                                                <th>PIECES CHANGEES</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {% if vehicule %}
-                                                {% for u in vehicule %}
-                                                <tr class="text-center">
-                                                    <td><a href="" title="Cliquez pour accéder à son tableau de bord garage" class="mr-3 text-primary" style='font-weight:700'>{{u.immatriculation}}</a></td>
-                                                    <td>{{u.marque}}</td>
-                                                    <td>{{u.category}}</td>
-                                                    <td>
-                                                        {% for categorie, perms in grouped_permissions.items %}
-                                                            {% if categorie.categorie == "permassurance" %}
-                                                                {% for perm in perms %}
-                                                                    {% if perm.name == "add assurance" %}
-                                                                        <a href="{% url perm.url u.pk %}" class="text-primary">
-                                                                            <i style="font-size: 20px;" class="fa fa-plus-circle "></i>
-                                                                        </a>
-                                                                    {% endif %}
-                                                                {% endfor %}
-                                                            {% endif %}
-                                                        {% endfor %}
-                                                    </td>
-                                                    <td>
-                                                        {% for categorie, perms in grouped_permissions.items %}
-                                                            {% if categorie.categorie == "permvign" %}
-                                                                {% for perm in perms %}
-                                                                    {% if perm.name == "add vignette" %}
-                                                                        <a href="{% url perm.url u.pk %}" class="text-primary">
-                                                                            <i style="font-size: 20px;" class="fa fa-plus-circle "></i>
-                                                                        </a>
-                                                                    {% endif %}
-                                                                {% endfor %}
-                                                            {% endif %}
-                                                        {% endfor %}
-                                                    </td>
-                                                    <td>
-                                                        {% for categorie, perms in grouped_permissions.items %}
-                                                            {% if categorie.categorie == "permpate" %}
-                                                                {% for perm in perms %}
-                                                                    {% if perm.name == "add patente" %}
-                                                                        <a href="{% url perm.url u.pk %}" class="text-primary">
-                                                                            <i style="font-size: 20px;" class="fa fa-plus-circle "></i>
-                                                                        </a>
-                                                                    {% endif %}
-                                                                {% endfor %}
-                                                            {% endif %}
-                                                        {% endfor %}
-                                                    </td>
-                                                    <td class="text-center">
-                                                        {% for categorie, perms in grouped_permissions.items %}
-                                                            {% if categorie.categorie == "permstation" %}
-                                                                {% for perm in perms %}
-                                                                    {% if perm.name == "add stationnement" %}
-                                                                        <a href="{% url perm.url u.pk %}" class="text-primary">
-                                                                            <i style="font-size: 20px;" class="fa fa-plus-circle "></i>
-                                                                        </a>
-                                                                    {% endif %}
-                                                                {% endfor %}
-                                                            {% endif %}
-                                                        {% endfor %}
-                                                    </td>
-                                                    <td class="text-center">
-                                                        {% for categorie, perms in grouped_permissions.items %}
-                                                            {% if categorie.categorie == "permpiechang" %}
-                                                                {% for perm in perms %}
-                                                                    {% if perm.name == "add piece changée" %}
-                                                                        <a href="{% url perm.url u.pk %}" class="text-primary">
-                                                                            <i style="font-size: 20px;" class="fa fa-plus-circle "></i>
-                                                                        </a>
-                                                                    {% endif %}
-                                                                {% endfor %}
-                                                            {% endif %}
-                                                        {% endfor %}
-                                                    </td>
-                                                </tr>
-                                                {% endfor %}
-                                            {% endif %}
-                                        </tbody>
-                                    </table>
+                                    <div class="col-md-4">
+                                        {% if vehicules %}
+                                            {% for v in vehicules %}
+                                                <div class="card card-widget widget-user" style="border-radius:25px; ">
+                                                    <div class="widget-user-header" style="border-radius:25px;">
+                                                        <i class="fa fa-car text-center" style="font-size: 50px; color:rgba(139, 139, 139, 0.39);"></i>
+                                                    <h5 class="widget-user-desc">{{v.immatriculation}}</h5>
+                                                    </div>
+                                                    <div class="card-footer p-0">
+                                                    <ul class="nav flex-column">
+                                                        <li class="nav-item">
+                                                            {% for categorie, perms in grouped_permissions.items %}
+                                                                {% if categorie.categorie == "permassurance" %}
+                                                                    {% for perm in perms %}
+                                                                        {% if perm.name == "add assurance" %}
+                                                                            <a href="{% url perm.url v.pk %}" class="nav-link" title="Ajouter une visite">
+                                                                                Assurance
+                                                                                <span class="float-right badge bg-primary"><i style="font-size: 20px;" class="fa fa-plus-circle"></i></span>
+                                                                            </a>
+                                                                        {% endif %}
+                                                                    {% endfor %}
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </li>
+                                                        <li class="nav-item">
+                                                            {% for categorie, perms in grouped_permissions.items %}
+                                                                {% if categorie.categorie == "permvign" %}
+                                                                    {% for perm in perms %}
+                                                                        {% if perm.name == "add vignette" %}
+                                                                            <a href="{% url perm.url v.pk %}" class="nav-link" title="Ajouter un entretien">
+                                                                                Vignette
+                                                                                <span class="float-right badge bg-info"><i style="font-size: 20px;" class="fa fa-plus-circle"></i></span>
+                                                                            </a>
+                                                                        {% endif %}
+                                                                    {% endfor %}
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </li>
+                                                        <li class="nav-item">
+                                                            {% for categorie, perms in grouped_permissions.items %}
+                                                                {% if categorie.categorie == "permpate" %}
+                                                                    {% for perm in perms %}
+                                                                        {% if perm.name == "add patente" %}
+                                                                            <a href="{% url perm.url v.pk %}" class="nav-link" title="Ajouter un réparation">
+                                                                                Patente
+                                                                                <span class="float-right badge bg-success"><i style="font-size: 20px;" class="fa fa-plus-circle"></i></span>
+                                                                            </a>
+                                                                        {% endif %}
+                                                                    {% endfor %}
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </li>
+                                                        <li class="nav-item">
+                                                            {% for categorie, perms in grouped_permissions.items %}
+                                                                {% if categorie.categorie == "permstation" %}
+                                                                    {% for perm in perms %}
+                                                                        {% if perm.name == "add stationnement" %}
+                                                                            <a href="{% url perm.url v.pk %}" class="nav-link" title="Ajouter un autre arrêt">
+                                                                                Stationnement
+                                                                                <span class="float-right badge bg-secondary"><i style="font-size: 20px;" class="fa fa-plus-circle"></i></span>
+                                                                            </a>
+                                                                        {% endif %}
+                                                                    {% endfor %}
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </li>
+                                                        <li class="nav-item">
+                                                            {% for categorie, perms in grouped_permissions.items %}
+                                                                {% if categorie.categorie == "permpiechang" %}
+                                                                    {% for perm in perms %}
+                                                                        {% if perm.name == "add piece changée" %}
+                                                                            <a href="{% url perm.url v.pk %}" class="nav-link" title="Ajouter un autre arrêt">
+                                                                                Pièce changée
+                                                                                <span class="float-right badge bg-warning"><i style="font-size: 20px;" class="fa fa-plus-circle"></i></span>
+                                                                            </a>
+                                                                        {% endif %}
+                                                                    {% endfor %}
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </li>
+                                                    </ul>
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                            
+                                        {% else %}
+                                            <p>Aucun véhicule trouvé.</p>
+                                        {% endif %}
+                                    </div>
                                 </div>
                             </div>
                         </div>

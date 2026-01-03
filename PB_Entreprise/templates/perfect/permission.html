@@ -1,0 +1,171 @@
+{% extends 'perfect/base.html' %} 
+{% load static %} 
+{% block title %} Gestion des Permissions {% endblock title %} 
+
+{% block page_title %}
+    <img class="profile-user-img" style="border:none; height:55px;width:55px" src="{% static 'recet.png' %}" alt="User profile picture">Gestion des Permissions
+{% endblock page_title %} 
+
+{% block page_action %}
+    <form id="quickForm" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <button type="button" class="btn btn-default text-primary" data-toggle="modal" data-target="#modal-lg">
+            <i class="fa fa-plus-circle"></i> Nouvelle Permission
+        </button>
+        <a href="{% url 'export_permissions_excel' %}" class="btn btn-default text-success">
+            <i class="fa fa-file-excel-o"></i> Exporter Excel
+        </a>
+        <button type="button" class="btn btn-default text-info" data-toggle="modal" data-target="#modal-import">
+            <i class="fa fa-upload"></i> Importer Excel
+        </button>
+        <a href="{% url 'list_permissions' %}" class="btn btn-default text-info">
+            <i class="fa fa-refresh"></i>
+        </a>
+    </form>
+{% endblock page_action %}
+
+{% block main_content %}
+<!-- Modal pour créer une permission -->
+<div class="modal fade" id="modal-lg">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="border-radius:25px;">
+            <div class="modal-header">
+                <h4 class="modal-title" style="font-weight:700;color: #06497C; font-size:16px;">Nouvelle Permission</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method='post' action="{% url 'create_permission' %}" role="form" id="quickForm">
+                    {% csrf_token %}
+                    <div class="row card-body">
+                        <div class="col-md-12 form-group">
+                            <label for="name"><b>Nom de la permission</b></label>
+                            {{ form.name }}
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label for="categorie"><b>Catégorie</b></label>
+                            {{ form.categorie }}
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label for="url"><b>URL</b></label>
+                            {{ form.url }}
+                        </div>
+                    </div>
+                    <div class="modal-footer justify-content-between">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-outline-primary">Enregistrer</button>
+                    </div>
+                </form> 
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal pour importer Excel -->
+<div class="modal fade" id="modal-import">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content" style="border-radius:25px;">
+            <div class="modal-header">
+                <h4 class="modal-title" style="font-weight:700;color: #06497C; font-size:16px;">Importer depuis Excel</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method='post' action="{% url 'import_permissions_excel' %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="excel_file"><b>Fichier Excel</b></label>
+                        <input type="file" name="excel_file" class="form-control" accept=".xlsx,.xls" required>
+                        <small class="text-muted">Format: ID | Nom | Catégorie | URL</small>
+                    </div>
+                    <div class="modal-footer justify-content-between p-2">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-outline-primary">Importer</button>
+                    </div>
+                </form> 
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-md-12">
+    <div class="card" style="border-radius:25px;">
+        <div class="card-header">
+            <h3 class="card-title">Liste des Permissions ({{ permissions|length }})</h3>
+            <div class="card-tools">
+                <form method="get" class="form-inline">
+                    <input type="text" name="search" class="form-control form-control-sm" placeholder="Rechercher..." value="{{ request.GET.search }}">
+                    <select name="categorie" class="form-control form-control-sm ml-2">
+                        <option value="">Toutes les catégories</option>
+                        {% for cat in categories %}
+                            <option value="{{ cat.id }}" {% if request.GET.categorie == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.categorie }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="btn btn-sm btn-primary ml-2"><i class="fa fa-search"></i></button>
+                </form>
+            </div>
+        </div>
+        <div class="card-body table-responsive p-0" style="border-radius:25px;">
+            <table class="table table-hover text-nowrap" >
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nom</th>
+                        <th>Catégorie</th>
+                        <th>URL</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for permission in permissions %}
+                    <tr>
+                        <td>{{ permission.id }}</td>
+                        <td>{{ permission.name }}</td>
+                        <td><span class="badge badge-info">{{ permission.categorie.categorie }}</span></td>
+                        <td><code>{{ permission.url }}</code></td>
+                        <td>
+                            <button type="button" class="btn btn-sm btn-warning" data-toggle="modal" data-target="#modal-update-{{ permission.pk }}">
+                                <i class="fa fa-edit"></i>
+                            </button>
+                            <a href="{% url 'delete_permission' permission.pk %}" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette permission?');">
+                                <i class="fa fa-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    <!-- Modal pour modifier -->
+                    <div class="modal fade" id="modal-update-{{ permission.pk }}">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content" style="border-radius:25px;">
+                                {% with permission as object %}
+                                    {% include 'perfect/partials/permission_form.html' %}
+                                {% endwith %}
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center">Aucune permission trouvée</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% if is_paginated %}
+            <div class="card-footer">
+                <ul class="pagination pagination-sm m-0 float-right">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">&laquo;</a></li>
+                    {% endif %}
+                    <li class="page-item"><span class="page-link">Page {{ page_obj.number }} sur {{ page_obj.paginator.num_pages }}</span></li>
+                    {% if page_obj.has_next %}
+                        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">&raquo;</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock main_content %}
+

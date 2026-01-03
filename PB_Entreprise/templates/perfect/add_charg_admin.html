@@ -4,19 +4,27 @@
 {% block navbar_nav %}
 {% endblock navbar_nav %} 
 {% block page_title %}
-    <img class="profile-user-img" style="border:none; height:50px;width: 10%;" src="{% static 'administratif.png' %}" alt="User profile picture">Charge Administrative 
+    <img class="profile-user-img" style="border:none; height:45px;width:45px" src="{% static 'administratif.png' %}" alt="User profile picture">Charge Administrative <b class="text-danger"></b> 
 {% endblock page_title %} 
-{% block page_a %}
-{% endblock page_a %}
-{% block active_page %} Charges administratives {% endblock active_page%}
+
+{% block page_action %}
+        <form id="quickForm">
+            <button type="button" class="btn btn-default text-primary" data-toggle="modal" data-target="#modal-lg">Saisie <i class="fa fa-plus-circle"></i></button>
+            <a href="{% url 'export_charge_admin_excel' %}?date_debut={{ form.date_debut.value }}&date_fin={{ form.date_fin.value }}" class="btn btn-default text-success">
+            Excel 
+            <i class="fa fa-file-excel-o"></i>
+            </a>
+            <a class="btn btn-default text-info" data-toggle="modal" data-target="#modal-sm" href="#" style="font-size: 16px;"><i style="font-size: 20px;" class="fa fa-calendar"></i></a>
+            <a class="btn btn-default text-info" href="{% url 'add_chargadminist' %}" style="font-size: 16px;"><i style="font-size: 20px;" class="fa fa-refresh"></i></a>
+        </form>
+{% endblock page_action %}
 {% block main_content %}
-{% if user.user_type == '4' %}
-{% else %}
+
 <div class="modal fade" id="modal-lg">
     <div class="modal-dialog modal-lg">
-        <div class="modal-content">
+        <div class="modal-content" style="border-radius:25px">
             <div class="modal-header">
-                <h4 class="modal-title" style=" font-weight:700;color: rgb(6,73,124);">Enrégistrer une charge administrative</h4>
+                <h4 class="modal-title" style="font-weight:700;color: #06497C; font-size:16px;">Enrégistrer une charge administrative</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -60,308 +68,305 @@
     </div>
 </div>
 
-<div class="col-md-12">
-    <div class="card" style="color: #0176bf; border-radius: 20px; border-color: #00217b; font-weight: 700;">
-        <div class="card-body table-responsive p-0" style="border-radius:8px; border:none">
-            <table class="table table text-nowrap">
-                <tr>
-                    <div class="col-md-12">
-                        <div class="row bg-danger">
-                            <div class="col-md-2">
-                                <td style="border: none;">
-                                    <div style="display: flex; align-items: center;">
-                                        <div style="height: 45px; width: 45px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <img style="height: 30px; width: 30px; position:relative; margin-top: 9px; margin-left: 0px;" src="{% static 'vtc.png' %}" alt="" srcset="">
-                                        </div>
-                                        <div>
-                                            <div style="font-size: 16px;color: #06497C"><small style="color: #06497C; font-weight: 700; line-height: 1;">Aujourd'hui</small></div>
-                                            <div style="font-size:14px; font-weight: 700; line-height: 1; color: #fa7832;">
-                                                {{charg_adm_jour_format}}
-                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td style="border: none;">
-                                    <div style="display: flex; align-items: center;">
-                                        <div style="height: 45px; width: 45px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <img style="height: 30px; width: 30px; position:relative; margin-top: 9px; margin-left: 0px;" src="{% static 'calendar.png' %}" alt="" srcset="">
-                                        </div>
-                                        <div>
-                                            <div style="font-size: 14px;color: #06497C"><small style="color: #06497C; font-weight: 700; line-height: 1;">{{mois}}</small></div>
-                                            <div style="font-size:14px; font-weight: 700; line-height: 1; color: #fa7832;">
-                                                {{ charg_adm_mois_format }}
-                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td style="border: none;">
-                                    <div style="display: flex; align-items: center;">
-                                        <div style="height: 45px; width: 45px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <img style="height: 30px; width: 30px; position:relative; margin-top: 8px; margin-left: 3px;" src="{% static 'marge.png' %}" alt="" srcset="">
-                                        </div>
-                                        <div>
-                                            <div style="font-size: 14px;color: #06497C"><small style="color: #06497C; font-weight: 700; line-height: 1;">{{ annee }}</small></div>
-                                            <div style="font-size:14px; font-weight: 700; line-height: 1; color: #fa7832;">
-                                                {{ charg_adm_annuel_format }}
-                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td style="border: none;">
-                                    <div style="display: flex; align-items: center;">
-                                        <div style="height: 45px; width: 45px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <img style="height: 30px; width: 30px; position:relative; margin-top: 7px; margin-left: 0px;" src="{% static 'recet.png' %}" alt="" srcset="">
-                                        </div>
-                                        <div>
-                                            <div style="font-size: 14px;color: #06497C">Recette</div>
-                                            <div style="font-size:14px; font-weight: 700; line-height: 1; color: #fa7832;">
-                                                {{ total_recette_format }}
-                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td style="border: none;">
-                                    <div style="display: flex; align-items: center;">
-                                        <div style="height: 45px; width: 45px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <img style="height: 30px; width: 30px; position:relative; margin-top: 9px; margin-left: 7px;" src="{% static 'brute.png' %}" alt="" srcset="">
-                                        </div>
-                                        <div>
-                                            <div style="font-size: 14px;color: #06497C">Marge Brute</div>
-                                            <div style="font-size:14px; font-weight: 700; line-height: 1; color: #fa7832;">
-                                                {{ marge_brute_format }}
-                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td style="border: none;">
-                                    <div style="display: flex; align-items: center;">
-                                        <div style="height: 45px; width: 45px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <img style="height: 30px; width: 30px; position:relative; margin-top: 8px; margin-left: 3px;" src="{% static 'marge.png' %}" alt="" srcset="">
-                                        </div>
-                                        <div>
-                                            <div style="font-size: 16px;color: #06497C"><small style="color: #06497C; font-weight: 700; line-height: 1;">M de contribution</small></div>
-                                            <div style="font-size:14px; font-weight: 700; line-height: 1; color: #fa7832;">
-                                                {{taux_marge_format}}
-                                                <small style="color: #06497C; font-weight: 700; line-height: 1;">%</small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td style="border: none;">
-                                    <div style="display: flex; align-items: center;">
-                                        <div style="height: 45px; width: 45px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <img style="height: 30px; width: 30px; position:relative; margin-top: 9px;margin-left: 0px;" src="{% static 'chargfix.png' %}" alt="" srcset="">
-                                        </div>
-                                        <div>
-                                            <div style="font-size: 14px;color: #06497C">Charges Fixes</div>
-                                            <div style="font-size:14px; font-weight: 700; line-height: 1; color: #fa7832;">{{ total_chargfix_format }} <small style="color: #06497C; font-weight: 700; line-height: 1;"></small></div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td style="border: none;">
-                                    <div style="display: flex; align-items: center;">
-                                        <div style="height: 45px; width: 45px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <img style="height: 30px; width: 30px; position:relative; margin-top: 9px; margin-left: 0px;" src="{% static 'chargfvar.png' %}" alt="" srcset="">
-                                        </div>
-                                        <div>
-                                            <div style="font-size: 14px; color: #06497C">Charges Variables</div>
-                                            <div style="font-size:14px; font-weight: 700; line-height: 1; color: #fa7832;">
-                                                {{ total_chargvar_format }}
-                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td style="border: none;">
-                                    <div style="display: flex; align-items: center;">
-                                        <div style="height: 45px; width: 45px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <img style="height: 30px; width: 30px; position:relative; margin-top: 9px; margin-left: 0px;" src="{% static 'gear.png' %}" alt="" srcset="">
-                                        </div>
-                                        <div>
-                                            <div class="mt-1" style="font-size:14px; font-weight: 700; line-height: 1;color: #06497C">Pièces réparations</div>
-                                            <div style="font-size:14px; font-weight: 700; line-height: 1; color: #fa7832;">
-                                                {{ total_piece_format}} 
-                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td style="border: none;">
-                                    <div style="display: flex; align-items: center;">
-                                        <div style="height: 45px; width: 45px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <img style="height: 30px; width: 30px; position:relative; margin-top: 9px; margin-left: 0px;" src="{% static 'update.png' %}" alt="" srcset="">
-                                        </div>
-                                        <div>
-                                            <div class="mt-1" style="font-size:14px; font-weight: 700; line-height: 1;color: #06497C">Pièces échanges</div>
-                                            <div style="font-size:14px; font-weight: 700; line-height: 1; color: #fa7832;">{{ total_piece_echang_format }}  <small style="color: #06497C; font-weight: 700; line-height: 1;"></small></div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td style="border: none;">
-                                    <div style="display: flex; align-items: center;">
-                                        <div style="height: 45px; width: 45px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <img style="height: 30px; width: 30px; position:relative; margin-top: 7px; margin-left: 0px;" src="{% static 'result.png' %}" alt="" srcset="">
-                                        </div>
-                                        <div>
-                                            <div class="mt-1" style="font-size:14px; font-weight: 700; line-height: 1;color: #06497C">Résultats</div>
-                                            <div style="font-size:14px; font-weight: 700; line-height: 1; color: #fa7832;">{{resultat_format}} <small style="color: #06497C; font-weight: 700; line-height: 1;"></small></div>
-                                        </div>
-                                    </div>
-                                </td>
+<div class="modal fade" id="modal-sm">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content" style="border-radius:25px;">
+            <div class="modal-header">
+                <h4 class="modal-title" style="font-weight:700;color: #06497C; font-size:15px;">FILTRE</h4>
+                <button type="button" style="border-radius:25px;" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="card-body">
+                    <form id="basic-form" method="get" novalidate>
+                        <div class="row clearfix">
+                            <div class="col-12">
+                                <label style="font-weight:700;color:rgba(152, 152, 152, 0.85); font-size:15px;">Date debut </label>
+                                <div class="form-group">                                    
+                                    {{ form.date_debut }}
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <label style="font-weight:700;color: rgba(152, 152, 152, 0.85); font-size:15px;">Date fin</label>
+                                <div class="form-group">                                    
+                                    {{ form.date_fin }}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </tr>
-            </table>
+                        <div class="modal-footer justify-content-between p-2">
+                            <button type="button" class="btn btn-outline-secondary" style="border-radius:25px;" data-dismiss="modal">Annuler</button>
+                            <button type="submit" class="btn btn-outline-success" style="border-radius:25px;">Afficher</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
+<div class="col-12 col-sm-6 col-md-3">
+    <div class="info-box" style="border-radius:25px;">
+        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-plus" style="color:rgba(6, 73, 124, 0.54);"></i></span>
+        <div class="info-box-content">
+            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Charge administrative</span>
+            <span class="info-box-number" style="font-size:20px;">
+            {{total_chargeadmin_format}}
+            <small></small>
+            </span>
+        </div>
+    </div>
+</div>
+<div class="col-12 col-sm-6 col-md-3">
+    <div class="info-box" style="border-radius:25px;">
+        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-plus" style="color:rgba(6, 73, 124, 0.54);"></i></span>
+        <div class="info-box-content">
+            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Recette</span>
+            <span class="info-box-number" style="font-size:20px;">
+            {{total_recette_format}}
+            <small></small>
+            </span>
+        </div>
+    </div>
+</div>
+{% comment %} <div class="clearfix hidden-md-up"></div> {% endcomment %}
+<div class="col-12 col-sm-6 col-md-3">
+    <div class="info-box" style="border-radius:25px;">
+        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-clock" style="color:rgba(6, 73, 124, 0.54);"></i></span>
+        <div class="info-box-content">
+            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Marge brute</span>
+            <span class="info-box-number" style="font-size:20px;">
+            {{marge_brute_format}}
+            <small>frs cfa</small>
+            </span>
+        </div>
+    </div>
+</div>
+{% comment %} <div class="clearfix hidden-md-up"></div> {% endcomment %}
+<div class="col-12 col-sm-6 col-md-3">
+    <div class="info-box mb-3" style="border-radius:25px;">
+    <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fa fa-calendar" style="color:rgba(6, 73, 124, 0.54);"></i></span>
+    <div class="info-box-content">
+        <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Marge de contribution</span>
+        <span class="info-box-number" style="font-size:20px;">
+        {{taux_marge_format}}
+        <small>%</small>
+        </span>
+    </div>
+    </div>
+</div>
+
 <div class="col-md-12">
-    <div class="row">
-        <div class="col-md-8">
-            <div class="" style="border-radius:20px">
-                <div id="" class="">
-                    <div class="row p-0 m-0">
-                        <div class="col-md-12 p-0">
-                            <div class="card" style="box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);backdrop-filter: blur(5.2px);--webkit-backdrop-filter: blur(5.2px);">
-                                <div class="card-header">
-                                    <h3 class="card-title">
-                                        <button type="button" class="btn btn-default text-danger" id="printButton">PDF <i class='fa fa-file-pdf-o'></i></button>
-                                        <button type="button" class="btn btn-default text-success">Excell <i class='fa fa-file-excel-o'></i></button>
-                                        <button type="button" class="btn btn-default text-primary" style="font-weight:700" data-toggle="modal" data-target="#modal-lg">Saisir <i class='fa fa-plus-square'></i></button>
-                                    </h3>
-                                    <div class="card-tools">
-                                        <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
-                                    </div>
-                                </div>
-                                <div class="card-body">
-                                    <table id="example1" class="table table-bordered table-striped">
-                                        <thead>
-                                            <tr class=" text-center text-danger ">
-                                                <th>N°FACTURE</th>
-                                                <th>LIBELLE</th>
-                                                <th>MONTANT</th>
-                                                <th>COMPTE</th>
-                                                <th>N°PIECE</th>
-                                                <th>DATE</th>
-                                                <th>SAISIR PAR</th>
-                                                <th>ACTION</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody class="text-center">
-                                        {% if list_charge_adminis %}
-                                            {% for c in list_charge_adminis %}
-                                                <tr>
-                                                    <td>{{c.Num_fact}}</td>
-                                                    <td><a class="text-primary" type="button" data-toggle="tooltip" data-placement="top" title="{{c.libelle}}">{{c.libelle|slice:":30"}}{% if c.libelle|length > 6 %}...{% endif %}</a></td>
-                                                    <td>{{c.montant}}</td>
-                                                    <td>{{c.cpte_comptable}}</td>
-                                                    <td>{{c.Num_piece}}</td>
-                                                    <td>{{c.date_saisie|date:"d-m-y"}}</td>
-                                                    <td>{{c.auteur.username}}</td>
-                                                    <td class="text-center ">
-                                                        {% for categorie, perms in grouped_permissions.items %}
-                                                            {% if categorie.categorie == "permchargadmin" %}
-                                                                {% for perm in perms %}
-                                                                    {% if c.date_saisie == dates %}
-                                                                        {% if perm.name == "modifier charge administrative" %}
-                                                                            <a href="{% url perm.url c.pk %}" class="text-primary">
-                                                                                <i style="font-size: 20px;" class="fa fa-edit text-warning"></i>
-                                                                            </a>
-                                                                        {% elif perm.name == "sup charge administrative" %}
-                                                                            <a href="{% url perm.url c.pk %}" class="text-primary" onclick="return confirm('Etes-vous sûre de vouloir supprimer la charge de {{ c.montant }}frs saisie le {{ c.date_saisie|date:"d-m-y" }}? Toutes les informations liées seront supprimées.')">
-                                                                                <i style="font-size: 20px;" class="fa fa-trash text-danger"></i>
-                                                                            </a>
-                                                                        {% endif %}
-                                                                    {% endif %}
-                                                                {% endfor %}
-                                                            {% endif %}
-                                                        {% endfor %}
-                                                    </td>
-                                                </tr>
+    <div class="card" style="border-radius:25px;">
+      <div class="card-header">
+        <h5 class="card-title">Evolution des charges administratives</h5>
+
+        <div class="card-tools">
+          <button type="button" class="btn btn-tool" data-card-widget="collapse">
+            <i class="fas fa-minus"></i>
+          </button>
+          <button type="button" class="btn btn-tool" data-card-widget="remove">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>
+      <!-- /.card-header -->
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-8">
+            <div class="chart">
+                <canvas id="barChart" style="min-height: 250px; height: 260px; max-height: 300px; max-width: 100%;"></canvas>
+                <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                <script>
+                    const cta = document.getElementById('barChart').getContext('2d');
+                    const gradient = cta.createLinearGradient(0, 0, 0, 400); // Adjust the gradient orientation as needed
+                    gradient.addColorStop(0, 'rgb(255,99,132)'); // Start color
+                    gradient.addColorStop(1, 'rgb(255,99,132,.1)');
+
+                    new Chart(cta, {
+                        type: 'line',
+                        data: {
+                            labels: {{ label|safe}},
+                            datasets: [{
+                                label: "Evolution des charges administratives",
+                                data: {{ chargadmin_data }},
+                                fill: true,
+                                borderColor: gradient,
+                                tension: 0.4,
+                                backgroundColor: [
+                                    gradient
+                                ],
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    easing: 'linear',
+                                    from: 1,
+                                }
+                            }
+                        }
+                    });
+                </script>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <p class="text-center">
+              <strong>Statistique</strong>
+            </p>
+            <div class="progress-group">
+                Charges annuelles
+                <span class="float-right"><b>{{total_chargeadmin_annuel_format}}</b></span>
+            </div>
+            <div class="progress-group">
+                Charges Fixes
+                <span class="float-right"><b>{{total_chargfix_format}}</b></span>
+            </div>
+            <div class="progress-group">
+                Charges Variables
+                <span class="float-right"><b>{{total_chargvar_format}}</b></span>
+            </div>
+            <div class="progress-group">
+                Pièces réparations
+                <span class="float-right"><b>{{total_piece_format}}</b></span>
+            </div>
+            <div class="progress-group">
+                Pièces échanges
+                <span class="float-right"><b>{{total_piec_echange_format}}</b></span>
+            </div>
+            <div class="progress-group">
+                Resultat
+                <span class="float-right"><b>{{resultat_format}}</b></span>
+            </div>
+          </div>
+          <!-- /.col -->
+        </div>
+        <!-- /.row -->
+      </div>
+      <!-- ./card-body -->
+      <div class="card-footer">
+        <div class="row">
+            <div class="col-md-12 p-0">
+                <div class="card" style="border-radius:25px;">
+                    <div class="card-header">
+                        <h3 class="card-title">Liste des charges administratives</h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <table id="example1" class="table table-bordered table-striped">
+                            <thead>
+                                <tr class=" text-center text-danger ">
+                                    <th>N°FACTURE</th>
+                                    <th>LIBELLE</th>
+                                    <th>MONTANT</th>
+                                    <th>COMPTE</th>
+                                    <th>N°PIECE</th>
+                                    <th>DATE</th>
+                                    <th>SAISIR PAR</th>
+                                    <th>ACTION</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-center">
+                            {% if list_charge_adminis %}
+                                {% for c in list_charge_adminis %}
+                                    <tr>
+                                        <td>{{c.Num_fact}}</td>
+                                        <td><a class="text-primary" type="button" data-toggle="tooltip" data-placement="top" title="{{c.libelle}}">{{c.libelle|slice:":500"}}{% if c.libelle|length > 100 %}...{% endif %}</a></td>
+                                        <td>{{c.montant}}</td>
+                                        <td>{{c.cpte_comptable}}</td>
+                                        <td>{{c.Num_piece}}</td>
+                                        <td>{{c.date_saisie|date:"d-m-y"}}</td>
+                                        <td>{{c.auteur.username}}</td>
+                                        <td class="text-center ">
+                                            {% for categorie, perms in grouped_permissions.items %}
+                                                {% if categorie.categorie == "permchargadmin" %}
+                                                    {% for perm in perms %}
+                                                        {% if perm.name == "modifier charge administrative" %}
+                                                            {% comment %} <a href="{% url perm.url c.pk %}" class="text-primary">
+                                                                <i style="font-size: 20px;" class="fa fa-edit text-warning"></i>
+                                                            </a> {% endcomment %}
+                                                            <a href="#" class="edit-chargadmin-btn" data-url="{% url 'updat_charg_administ' c.pk %}">
+                                                                <i style="font-size: 20px;" class="fa fa-edit text-warning"></i>
+                                                            </a>
+                                                        {% elif perm.name == "sup charge administrative" %}
+                                                            <a href="{% url perm.url c.pk %}" class="text-primary" onclick="return confirm('Etes-vous sûre de vouloir supprimer la charge de {{ c.montant }}frs saisie le {{ c.date_saisie|date:"d-m-y" }}? Toutes les informations liées seront supprimées.')">
+                                                                <i style="font-size: 20px;" class="fa fa-trash text-danger"></i>
+                                                            </a>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                {% endif %}
                                             {% endfor %}
-                                        {% endif %}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
+                                            
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% endif %}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
+      </div>
+    </div>
+</div>
 
-        <div class="col-md-4">
-            <div class="" style="border-radius:20px">
-                <div class="">
-                    <div class="row p-0 m-0">
-                        <div class="col-md-12 p-0">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="card" style="box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-                                        backdrop-filter: blur(5.2px);-webkit-backdrop-filter: blur(5.2px);">
-                                        <div class="card-header">
-                                            <div class="card-tools">
-                                                <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
-                                            </div>
-                                        </div>
-                                        <div class="card-body" style="background: rgba(255, 255, 255, 0.3);border-radius: 16px;box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-                                        backdrop-filter: blur(8px);
-                                        -webkit-backdrop-filter: blur(8px);">
-                                            <div class="chart">
-                                                <canvas id="barChart" style="min-height: 250px; height: 260px; max-height: 300px; max-width: 100%;"></canvas>
-                                                <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-                                            </div>
-                                            <script>
-                                                const cta = document.getElementById('barChart').getContext('2d');
-                                                const gradient = cta.createLinearGradient(0, 0, 0, 400); // Adjust the gradient orientation as needed
-                                                gradient.addColorStop(0, 'rgb(23,84,133)'); // Start color
-                                                gradient.addColorStop(1, 'rgb(154, 214, 241,.1)');
+<div class="modal fade" id="editchargadminModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="border-radius:20px;">
+            <div class="modal-body" id="modalBodyContentVisite">
 
-                                                new Chart(cta, {
-                                                    type: 'line',
-                                                    data: {
-                                                        labels: {{ labels|safe}},
-                                                        datasets: [{
-                                                            label: "Evolution des charges administratives",
-                                                            data: {{ chargadmin_data }},
-                                                            fill: true,
-                                                            borderColor: gradient,
-                                                            tension: 0.4,
-                                                            backgroundColor: [
-                                                                gradient
-                                                            ],
-                                                        }]
-                                                    },
-                                                    options: {
-                                                        scales: {
-                                                            y: {
-                                                                beginAtZero: true,
-                                                                easing: 'linear',
-                                                                from: 1,
-                                                            }
-                                                        }
-                                                    }
-                                                });
-                                            </script>
-
-                                        </div>
-                                    </div>
-                                    <!-- FIN BAR -->
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
 </div>
-{% endif %}
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).on("click", ".edit-chargadmin-btn", function(e) {
+        e.preventDefault();
+        let url = $(this).data("url");
+        $.get(url, function(data) {
+            $("#modalBodyContentVisite").html(data);
+            $("#editchargadminModal").modal("show");
+        });
+    });
+    $(document).on("submit", "#chardadminUpdateForm", function(e) {
+        e.preventDefault();
+        let form = $(this);
+        let url = form.attr("action");
+        let formData = new FormData(this);
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(data) {
+                if (data.success) {
+                    $("#editchargadminModal").modal("hide");
+                    const Toast = Swal.mixin({
+                        toast: true,
+                        position: 'top',
+                        showConfirmButton: false,
+                        timer: 4000,
+                        timerProgressBar: true
+                    });
+                    Toast.fire({
+                        type: 'success',
+                        title: data.message
+                    });
+                    setTimeout(function() {
+                        location.reload();
+                    }, 100);
+                } else {
+                    $("#modalBodyContentVisite").html(data);
+                }
+            }
+        });
+    });    
+</script>
 {% endblock main_content %}

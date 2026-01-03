@@ -7,6 +7,7 @@ from django.db.models.base import Model
 from django.forms.utils import ErrorList
 from userauths.models import *
 from .models import GENDER_SELECTION
+from PB_Entreprise.models import Gerant
 
 #forms pour changer le mot de passe
 class ChangePasswordForm(PasswordChangeForm):
@@ -23,9 +24,28 @@ class CustomUserCreationForm(forms.ModelForm):
         fields = ['username','email','gender']
 
 class CustomPermissionForm(forms.ModelForm):
+    name = forms.CharField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nom de la permission'})
+    )
+    categorie = forms.ModelChoiceField(
+        queryset=TypeCustomPermission.objects.all(),
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        empty_label="Sélectionner une catégorie"
+    )
+    url = forms.CharField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'URL (ex: dash)'})
+    )
     class Meta:
         model = CustomPermission
         fields = ['name', 'categorie', 'url']
+
+class TypeCustomPermissionForm(forms.ModelForm):
+    categorie = forms.CharField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nom de la catégorie'})
+    )
+    class Meta:
+        model = TypeCustomPermission
+        fields = ['categorie']
 
 class UserPermissionForm(forms.Form):
     permissions = forms.ModelMultipleChoiceField(
@@ -65,7 +85,6 @@ class ComptableForm(forms.ModelForm):
         model = Comptable
         fields = ('nom','prenom', 'commune', 'tel1', 'tel2',)
         widgets = {
-            # 'create_by': forms.Select(attrs={'class':'form-control','value':'', 'id': 'elder','type':'hidden'}),
             'nom': forms.TextInput(attrs={'class':'form-control',"placeholder":"Ville"}),
             'prenom': forms.TextInput(attrs={'class':'form-control',"placeholder":"Ville"}),
             'gerant_voiture': forms.Select(attrs={'class':'form-control', "placeholder":"A, O, A, B, AB"}),

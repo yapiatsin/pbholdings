@@ -1,0 +1,40 @@
+
+<form method="post" id="recetteUpdateForm" action="{% url 'updat_recet' object.id %}">
+    {% csrf_token %}
+    <div class="modal-header">
+        <h5 class="modal-title">
+            Modifier la recette - {{ object.vehicule.immatriculation }}
+        </h5>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+    </div>
+    <div class="modal-body row">
+        <div class="form-group col-md-6">
+            <label>Chauffeur</label>
+            {{ form.chauffeur }}
+        </div>
+        <div class="form-group col-md-6">
+            <label>Cpte comptable</label>
+            {{ form.cpte_comptable }}
+        </div>
+        <div class="form-group col-md-6">
+            <label>N°pièce</label>
+            {{ form.Num_piece }}
+        </div>
+        <div class="form-group col-md-6">
+            <label>N°facture</label>
+            {{ form.numero_fact }}
+        </div>
+        <div class="form-group col-md-6">
+            <label>Date saisie</label>
+            {{ form.date_saisie }}
+        </div>
+        <div class="form-group col-md-6">
+            <label>Montant</label>
+            {{ form.montant }}
+        </div>
+    </div>
+    <div class="modal-footer justify-content-between">
+        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Annuler</button>
+        <button type="submit" class="btn btn-outline-success">Enregistrer</button>
+    </div>
+</form>

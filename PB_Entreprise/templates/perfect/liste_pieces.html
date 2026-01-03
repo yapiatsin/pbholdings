@@ -1,0 +1,237 @@
+{% extends 'perfect/base.html' %} 
+{% load static %} 
+{% block title %}Liste des pièces{% endblock title %}  
+{% block navbar_nav %}
+    <form class="search-form" method="get">
+        <div class="input-group">
+            {{ form.immatriculation }}
+            <div class="input-group-append">
+            <button type="submit" name="submit" class="btn btn-danger"><i class="fas fa-search"></i></button>
+            <a href="{% url 'list_piechange' %}" name="submit" class="btn btn-danger" style="border-radius: 0 50px 50px 0;"><i class="fas fa-refresh text-light"></i></a>
+            </div>
+        </div>
+    </form>
+{% endblock navbar_nav %}
+{% block page_title %}
+    <img class="profile-user-img" style="border:none; height:45px;width:45px" src="{% static 'gear.png' %}" alt="User profile picture">Liste des pièces avec garage
+{% endblock page_title %} 
+
+{% block page_action %}
+    <form id="quickForm">
+        {% for categorie, perms in grouped_permissions.items %}
+            {% if categorie.categorie == 'Exporter' %}
+                {% for perm in perms %}
+                    {% if perm.name == "Exporter pieces" %}
+                        <button type="button" class="btn btn-default text-danger" id="printButton">PDF <i class='fa fa-file-pdf-o'></i></button>
+                        <a href="{% url 'export_piece_excel' %}?date_debut={{ request.GET.date_debut }}&date_fin={{ request.GET.date_fin }}&immatriculation={{ request.GET.immatriculation }}&categorie={{ request.GET.categorie }}" 
+                            class="btn btn-default text-success">
+                            Excel<i class="fa fa-file-excel-o"></i>
+                        </a>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        {% endfor %}
+        <a class="btn btn-default text-info" data-toggle="modal" data-target="#modal-sm" href="#" style="font-size: 16px;"><i style="font-size: 20px;" class="fa fa-calendar"></i></a>
+        <a class="btn btn-default text-info" href="{% url 'list_piece' %}" style="font-size: 16px;"><i style="font-size: 20px;" class="fa fa-refresh"></i></a>
+    </form>
+{% endblock page_action %}
+{% block main_content %}
+<div class="modal fade" id="modal-sm">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content" style="border-radius:25px;">
+            <div class="modal-header">
+                <h4 class="modal-title" style="font-weight:700;color: #06497C; font-size:15px;">FILTRE</h4>
+                <button type="button" style="border-radius:25px;" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="card-body">
+                    <form id="basic-form" method="get" novalidate>
+                        <div class="row clearfix">
+                            <div class="col-12">
+                                <label style="font-weight:700;color:rgba(152, 152, 152, 0.85); font-size:15px;">Date debut </label>
+                                <div class="form-group">                                    
+                                    {{ form.date_debut }}
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <label style="font-weight:700;color: rgba(152, 152, 152, 0.85); font-size:15px;">Date fin</label>
+                                <div class="form-group">                                    
+                                    {{ form.date_fin }}
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <label style="font-weight:700;color: rgba(152, 152, 152, 0.85); font-size:15px;">Lieu</label>
+                                <div class="form-group">                                    
+                                    {{ form.lieu }}
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <label style="font-weight:700;color: rgba(152, 152, 152, 0.85); font-size:15px;">Categorie</label>
+                                <div class="form-group">                                    
+                                    {{ form.categorie }}
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <label style="font-weight:700;color: rgba(152, 152, 152, 0.85); font-size:15px;">Matricule</label>
+                                <div class="form-group">                                    
+                                    {{ form.immatriculation }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer justify-content-between">
+                            <button type="button" class="btn btn-outline-secondary" style="border-radius:25px;" data-dismiss="modal">Annuler</button>
+                            <button type="submit" class="btn btn-outline-success" style="border-radius:25px;">Afficher</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-12 col-sm-6 col-md-4">
+    <div class="info-box" style="border-radius:25px;">
+        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-clock" style="color:rgba(6, 73, 124, 0.54);"></i></span>
+        <div class="info-box-content">
+            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Aujourd'hui</span>
+            <span class="info-box-number" style="font-size:20px; color: #fa7832;">
+            {{piece_jours_format}}
+            <small>frs cfa</small>
+            </span>
+        </div>
+    </div>
+</div>
+<div class="clearfix hidden-md-up"></div>
+<div class="col-12 col-sm-6 col-md-4">
+    <div class="info-box mb-3" style="border-radius:25px;">
+    <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fa fa-calendar" style="color:rgba(6, 73, 124, 0.54);"></i></span>
+    <div class="info-box-content">
+        <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Mensuelle</span>
+        <span class="info-box-number" style="font-size:20px; color: #fa7832;">
+        {{piece_mois_format}}
+        <small>frs cfa</small>
+        </span>
+    </div>
+    </div>
+</div>
+
+<div class="clearfix hidden-md-up"></div>
+<div class="col-12 col-sm-6 col-md-4" >
+    <div class="info-box mb-3" style="border-radius:25px;">
+        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-calendar" style="color:rgba(6, 73, 124, 0.54);"></i></span>
+        <div class="info-box-content">
+            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Annuelle</span>
+            <span class="info-box-number" style="font-size:20px; color: #fa7832;">
+            {{piece_an_format}}
+            <small>frs cfa</small>
+            </span>
+        </div>
+    </div>
+</div>
+
+<div class="col-md-12">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="" style="border-radius:20px">
+                <div id="" class="">
+                    <div class="row p-0 m-0">
+                        <div class="col-md-12 p-0">
+                            <div class="card" style="box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);backdrop-filter: blur(5.2px);-webkit-backdrop-filter: blur(5.2px); border-radius:20px; " >
+                                <form method="post" action="{% url 'delete_selected_piechange' %}" id="deleteForm">
+                                    {% csrf_token %}
+                                    <div class="card-header">
+                                        <h3 class="card-title">
+                                            {% comment %} <button type="button" class="btn btn-default text-danger" id="printButton">PDF <i class='fa fa-file-pdf-o'></i></button> {% endcomment %}
+                                            {% comment %} <button type="button" class="btn btn-default text-success">Excell <i class='fa fa-file-excel-o'></i></button> {% endcomment %}
+                                        </h3>
+                                        <div class="card-tools">
+                                            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="example1_wrapper" class="dataTables_wrapper dt-bootstrap4">
+                                            <table id="example1" class="table table-bordered table-striped dataTable" role="grid" aria-describedby="example1_info">
+                                                <thead>
+                                                    <tr class="text-center text-danger">
+                                                        {% comment %} <th><input type="checkbox" id="select-all"></th> {% endcomment %}
+                                                        <th>N°FICHE</th>
+                                                        <th>IMMAT</th>
+                                                        <th>MARQUE</th>
+                                                        <th>CATEGORIE</th>
+                                                        <th>LIEU</th>
+                                                        <th>MONTANT</th>
+                                                        <th>DATE SAISIE</th>
+                                                        <th>SAISIR PAR </th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% if liste_piece %} 
+                                                        {% for u in liste_piece %}
+                                                            <tr class="text-center">
+                                                                {% comment %} <td><input type="checkbox" name="piechange_ids" value="{{ u.id }}"></td> {% endcomment %}
+                                                                <td>{{u.reparation.num_fich}}</td>
+                                                                <td>
+                                                                    <a href="#" class="mr-3 text-primary">{{u.reparation.vehicule.immatriculation}}</a>
+                                                                </td>
+                                                                <td>{{u.reparation.vehicule.marque}}</td>
+                                                                <td>{{u.reparation.vehicule.category}}</td>
+                                                                <td>{{u.lieu}}</td>
+                                                                <td>{{u.montant}}</td>
+                                                                <td>{{u.date_saisie|date:"d-m-y"}}</td>
+                                                                <td>{{u.auteur.username}}</td>
+                                                            </tr>
+                                                        {% endfor %} 
+                                                    {% endif %}
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr class="text-center ">
+                                                        <th>
+                                                            {% for categorie, perms in grouped_permissions.items %}
+                                                                {% if categorie.categorie == 'permchargvar' %}
+                                                                    {% for perm in perms %}
+                                                                        {% if perm.name == "sup Charge variable" %}
+                                                                            {% comment %} <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Confirmez-vous la suppression des véhicules sélectionnés ?')">
+                                                                                <i class="fa fa-trash"></i>
+                                                                            </button> {% endcomment %}
+                                                                        {% endif %}
+                                                                    {% endfor %}
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                            {% comment %} <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Confirmez-vous la suppression des pièces changées sélectionnées ?')">
+                                                                <i class="fa fa-trash"></i>
+                                                            </button> {% endcomment %}
+                                                        </th>
+                                                        {% comment %} <th>---</th> {% endcomment %}
+                                                        <th>---</th>
+                                                        <th>---</th>
+                                                        <th>---</th>
+                                                        <th>---</th>
+                                                        <th>---</th>
+                                                        <th>---</th>
+                                                        <th>---</th>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('select-all').onclick = function() {
+        let checkboxes = document.querySelectorAll('input[name="piechange_ids"]');
+        for (let checkbox of checkboxes) {
+            checkbox.checked = this.checked;
+        }
+    };
+</script>
+{% endblock main_content %}

@@ -54,7 +54,6 @@
         .context h1{
             text-align: center;
             color: rgba(255,255,255,0.5);
-            --font-border: 1px solid rgba(255, 255, 255, 0.65);
             font-size: 50px;
             backdrop-filter: blur(10px);
         }
@@ -70,14 +69,8 @@
             position: absolute;
             display: block;
             list-style: none;
-            width: 20px;
-            height: 20px;
-            background: rgba(255, 255, 255, 0.4);
-            box-shadow: 0 2px 2px 0 rgba(31, 38, 135, 0.64);
-            backdrop-filter: blur(10px);
-            --webkit-backdrop-filter: blur(10px);
-            border-radius: 80px;
-            border: 1px solid rgba(159, 255, 255, 0.6);
+            width: 40px;
+            height: 40px;
             animation: animate 25s linear infinite;
             bottom: -150px;
         }
@@ -89,15 +82,15 @@
         }
         .circles li:nth-child(2){
             left: 10%;
-            width: 20px;
-            height: 20px;
+            width: 60px;
+            height: 60px;
             animation-delay: 2s;
             animation-duration: 12s;
         }
         .circles li:nth-child(3){
             left: 70%;
-            width: 20px;
-            height: 20px;
+            width: 40px;
+            height: 40px;
             animation-delay: 8s;
         }
         .circles li:nth-child(4){
@@ -109,14 +102,14 @@
         }
         .circles li:nth-child(5){
             left: 65%;
-            width: 20px;
-            height: 20px;
+            width: 30px;
+            height: 30px;
             animation-delay: 4s;
         }
         .circles li:nth-child(6){
             left: 75%;
-            width: 60px;
-            height: 60px;
+            width: 65px;
+            height: 65px;
             animation-delay: 5s;
         }
         .circles li:nth-child(7){
@@ -134,8 +127,8 @@
         }
         .circles li:nth-child(9){
             left: 20%;
-            width: 15px;
-            height: 15px;
+            width: 35px;
+            height: 35px;
             animation-delay: 2s;
             animation-duration: 15s;
         }
@@ -178,19 +171,63 @@
         }
     </style>
 </head>
-<body class="hold-transition login-page" style="background-image: linear-gradient(135deg,rgba(255, 255, 255, 0.94) 10%,rgba(255, 255, 255, 0.91) 100%)">
-    <div class="area" >
+<body class="hold-transition login-page" style="background-image: url('{% static "birdcus.png" %}');
+background-size: cover;
+background-position: center;
+background-repeat: no-repeat;
+opacity:1">
+    <div class="area">
         <ul class="circles">
-            <li></li>
-            <li></li>
-            <li></li>
-            <li></li>
-            <li></li>
-            <li></li>
-            <li></li>
-            <li></li>
-            <li></li>
-            <li></li>
+            <li style="background-image: url('{% static "bird_amico.png" %}');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: .95"></li>
+            <li style="background-image: url('{% static "bird_amico.png" %}');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: .95"></li>
+            <li style="background-image: url('{% static "bird_amico.png" %}');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: .95"></li>
+            <li style="background-image: url('{% static "bird_amico.png" %}');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: .95"></li>
+            <li style="background-image: url('{% static "bird_amico.png" %}');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: .95"></li>
+            <li style="background-image: url('{% static "bird_amico.png" %}');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: .95"></li>
+            <li style="background-image: url('{% static "bird_amico.png" %}');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: .95"></li>
+            <li style="background-image: url('{% static "bird_amico.png" %}');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: .95"></li>
+            <li style="background-image: url('{% static "bird_amico.png" %}');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: .95"></li>
+            <li style="background-image: url('{% static "bird_amico.png" %}');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: .95"></li>
         </ul>  
     </div>
     {% block content %}

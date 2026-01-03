@@ -1,0 +1,318 @@
+{% extends 'perfect/base.html' %} 
+{% load static %} 
+{% block title %}Saisie & Etat des visites techniques  {% endblock title %} 
+{% block navbar_nav %}
+
+{% endblock navbar_nav %} 
+{% block page_title %}
+<a href="{% url 'temps_arrets' %}"><img class="profile-user-img" style="border:none; height:35px;width:35px" src="{% static 'retour.png' %}" alt="Retour"></a>
+<img class="profile-user-img" style="border:none; height:45px;width:45px" src="{% static 'visit.png' %}" alt="User profile picture">Saisie & Etat des visites techniques du <b class="text-danger"> {{vehicule}}</b> 
+{% endblock page_title %}
+{% block page_action %}
+    <form id="quickForm">
+        <button type="button" class="btn btn-outline-info" id="printButton">PDF <i class='fa fa-file-pdf-o'></i></button>
+        <button type="button" class="btn btn-outline-success" data-toggle="modal" data-target="#modal-lg">Excel <i class="fa fa-file-excel-o"></i></button>
+        <a class="btn btn-outline-info" href="{% url 'list_charg_var' %}" style="font-size: 16px;"><i style="font-size: 20px;" class="fa fa-refresh"></i></a>
+        <a class="btn btn-outline-info" data-toggle="modal" data-target="#modal-sm" href="#" style="font-size: 16px;"><i style="font-size: 20px;" class="fa fa-calendar"></i></a>
+    </form>
+{% endblock page_action %}
+{% block main_content %}
+
+<div class="modal fade" id="modal-sm">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content" style="border-radius:25px;">
+            <div class="modal-header">
+                <h4 class="modal-title" style="font-weight:700;color: #06497C;">FILTRE</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="card-body">
+                    <form id="basic-form" method="get" novalidate>
+                        <div class="row clearfix">
+                            <div class="col-md-12 form-group"><input type="text" value="Critère de filtre" class="form-control text-center" disabled></div>
+                            <div class="col-6">
+                                <label>Date debut</label>
+                                <div class="form-group">                                    
+                                    {{ form.date_debut }}
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <label>Date fin</label>
+                                <div class="form-group">                                    
+                                    {{ form.date_fin }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Annuler</button>
+                            <a href="{% url 'add_visit' vehicule.pk %}" class="btn btn-outline-info">Actualiser</a>
+                            <button type="submit" class="btn btn-outline-success" >Afficher</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-12 col-sm-6 col-md-4">
+    <div class="info-box" style="border-radius:25px;">
+        <span class="info-box-icon bg-info elevation-1" style="border-radius:25px;"><i class="fas fa-clock"></i></span>
+        <div class="info-box-content">
+            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Aujourd'hui</span>
+            <span class="info-box-number" style="font-size:20px;">
+            {{visitech_jours_format}}
+            <small>frs cfa</small>
+            </span>
+        </div>
+    </div>
+</div>
+<div class="clearfix hidden-md-up"></div>
+<div class="col-12 col-sm-6 col-md-4">
+    <div class="info-box mb-3" style="border-radius:25px;">
+    <span class="info-box-icon bg-primary elevation-1" style="border-radius:25px;"><i class="fa fa-calendar"></i></span>
+    <div class="info-box-content">
+        <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Mensuelle</span>
+        <span class="info-box-number" style="font-size:20px;">
+        {{visitech_mois_format}}
+        <small>frs cfa</small>
+        </span>
+    </div>
+    </div>
+</div>
+<div class="clearfix hidden-md-up"></div>
+<div class="col-12 col-sm-6 col-md-4" >
+    <div class="info-box mb-3" style="border-radius:25px;">
+        <span class="info-box-icon bg-success elevation-1" style="border-radius:25px;"><i class="fas fa-calendar"></i></span>
+        <div class="info-box-content">
+            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Annuelle</span>
+            <span class="info-box-number" style="font-size:20px;">
+            {{visitech_an_format}}
+            <small>frs cfa</small>
+            </span>
+        </div>
+    </div>
+</div>
+
+{% comment %} 
+<div class="col-md-12">
+    <div class="card" style="color: #0176bf; border-radius: 20px; border-color: #00217b; font-weight: 700;">
+        <div class="card-body table-responsive p-0" style="border-radius:8px; border:none">
+            <table class="table table text-nowrap">
+                <tr>
+                    <div class="col-md-12">
+                        <div class="row bg-danger">
+                            <div class="col-md-2">
+                                <td style="border: none;">
+                                    <div style="display: flex; align-items: center;">
+                                        <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
+                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 7px;margin-left: 0px;" src="{% static 'vtc.png' %}" alt="" srcset="">
+                                        </div>
+                                        <div>
+                                            <div style="font-size: 15px;color: #06497C">Aujourd'hui</div>
+                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
+                                                {{visite_jours}}
+                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td style="border: none;">
+                                    <div style="display: flex; align-items: center;">
+                                        <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
+                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 7px;margin-left: 0px;" src="{% static 'taxi.png' %}" alt="" srcset="">
+                                        </div>
+                                        <div>
+                                            <div style="font-size: 15px;color: #06497C"><small>{{mois}}</small></div>
+                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
+                                                {{visite_mois}}
+                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td style="border: none;">
+                                    <div style="display: flex; align-items: center;">
+                                        <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
+                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 8px; margin-left: 3px;" src="{% static 'marge.png' %}" alt="" srcset="">
+                                        </div>
+                                        <div>
+                                            <div style="font-size: 15px;color: #06497C"><small>{{annee}}</small></div>
+                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
+                                                {{visite_an}}
+                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td style="border: none;">
+                                    <div style="display: flex; align-items: center;">
+                                        <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
+                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 7px;margin-left: 0px;" src="{% static 'rech.png' %}" alt="" srcset="">
+                                        </div>
+                                        <div>
+                                            <div style="font-size: 15px;color: #06497C"><small>{{mois}}</small></div>
+                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">{{visite_result}}
+                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </div>
+                        </div>
+                    </div>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div> {% endcomment %}
+
+<div class="modal fade" id="modal-lg">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="border-radius:25px;">
+            <div class="modal-header">
+                <h4 class="modal-title" style="font-weight:700;color: #06497C;">Enrégistrer une nouvelle visite techniques</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+                <form method='post' role="form" id="quickForm" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="row card-body text-secondary">
+                        <div class="col-md-6 col-sm-6  form-group">
+                            <label for="fullname"><b>Date de visite</b></label> {{forms.date_vis}}
+                        </div>
+                        <div class="col-md-6 col-sm-6 form-group">
+                            <label for="fullname"><b>Date de sortie</b></label> {{forms.date_sortie}}
+                        </div>
+                        <div class="col-md-6 col-sm-6 form-group">
+                            <label for="fullname"><b>Date prochaine visite</b></label> {{forms.date_proch}}
+                        </div>
+                        <div class="col-md-6 col-sm-6 form-group">
+                            <label for="fullname"><b>Montant</b></label> {{forms.montant}}
+                        </div>
+                        <div class="col-md-12 col-sm-6 form-group">
+                            <label for="fullname"><b>Reçu</b></label> {{forms.image}}
+                        </div>
+                    </div>
+                    <div class="modal-footer justify-content-between">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-outline-primary">Enregistrer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-md-5">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="">
+                <div class="row p-0 m-0">
+                    <div class="col-md-12 p-0">
+                        <div class="card" style="border-radius:25px;">
+                            <div class="card-header" style="font-size:15px; font-weight: 700; line-height: 1; color: #8b1516;">
+                                SELECTIONNER UN VEHICULE
+                                <div class="card-tools">
+                                    <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <table id="example2" class="table table-bordered table-striped">
+                                    <thead>
+                                        <tr class=" text-center text-danger ">
+                                            <th>IMMATRICULATION</th>
+                                            <th>CATEGORIE</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody> 
+                                        {% if vehicules %} 
+                                            {% for u in vehicules %}
+                                                <tr class="text-center">
+                                                    <td><a href="{% url 'add_visit' u.pk %}" class="mr-3 text-primary">{{u.immatriculation}}</a></td>
+                                                    <td>{{u.category}}</td>
+                                                </tr>
+                                            {% endfor %} 
+                                        {% endif %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div> 
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-md-7">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="" style="border-radius:20px">
+                <div id="" class="">
+                    <div class="row p-0 m-0">
+                        <div class="col-md-12 p-0">
+                            <div class="card" style="box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);backdrop-filter: blur(3.2px);-webkit-backdrop-filter: blur(3.2px); border-radius:25px;">
+                                <div class="card-header">
+                                    <h3 class="card-title">
+                                        <button type="button" class="btn btn-default" id="printButton">PDF <i class='text-danger fa fa-file-pdf-o'></i></button>
+                                        <button type="button" class="btn btn-default">Excell <i class='text-success fa fa-file-excel-o'></i></button>
+                                        <button type="button" class="btn btn-default text-primary" style="font-weight:700" data-toggle="modal" data-target="#modal-lg">Saisie <i class='fa fa-plus-square'></i></button>
+                                    </h3>
+                                    <div class="card-tools">
+                                        <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <table id="example1" class="table table-bordered table-striped">
+                                        <thead>
+                                            <tr class=" text-center text-danger ">
+                                                <th>IMMAT</th>
+                                                <th>DATE VISITE</th>
+                                                <th>MONTANT</th>
+                                                <th>DATE SAISIE</th>
+                                                <th>ACTION</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody> 
+                                            {% if liste_visitech %} 
+                                                {% for u in liste_visitech %}
+                                                    <tr class="text-center">
+                                                        <td>
+                                                            <a class="mr-3 text-primary">{{u.vehicule.immatriculation}}</a>
+                                                        </td>
+                                                        <td>{{u.date_vis|date:"d-m-y à H:m:s"}}</td>
+                                                        <td>{{u.montant}}</td>
+                                                        <td>{{u.date_saisie|date:"d-m-y"}}</td>
+                                                        <td class="text-center">
+                                                            {% for categorie, perms in grouped_permissions.items %}
+                                                                {% if categorie.categorie == "permvisit" %}
+                                                                    {% for perm in perms %}
+                                                                        {% if perm.name == "sup visite" %}
+                                                                            <a href="{% url perm.url u.pk %}" class="text-primary" onclick="return confirm('Etes-vous sûre de vouloir supprimer la sortie de caisse de {{ u.montant }} saisie le {{ u.date|date:"d-m-y" }}? Toutes les informations liées seront supprimées.')">
+                                                                                <i style="font-size: 20px;" class="fa fa-trash text-danger"></i>
+                                                                            </a>
+                                                                        {% endif %}
+                                                                    {% endfor %}
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %} 
+                                            {% endif %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock main_content %}

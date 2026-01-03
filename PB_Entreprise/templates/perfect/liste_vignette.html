@@ -1,256 +1,240 @@
 {% extends 'perfect/base.html' %} 
 {% load static %} 
-{% block title %} Table des vignettes {% endblock title %} 
+{% block title %} Liste des vignettes {% endblock title %}  
 {% block navbar_nav %}
+    <form class="search-form" method="get">
+        <div class="input-group">
+            {{ form.immatriculation }}
+            <div class="input-group-append">
+            <button type="submit" name="submit" class="btn btn-danger"><i class="fas fa-search"></i></button>
+            <a href="{% url 'liste_vignette' %}" name="submit" class="btn btn-danger" style="border-radius: 0 50px 50px 0;"><i class="fas fa-refresh text-light"></i></a>
+            </div>
+        </div>
+    </form>
+{% endblock navbar_nav %}
 
-{% endblock navbar_nav %} 
 {% block page_title %}
-<img class="profile-user-img" style="border:none; height:55px;width:55px" src="{% static 'addcar.png' %}" alt="User profile picture">Liste des vignettes 
+    <img class="profile-user-img" style="border:none; height:45px;width:45px" src="{% static 'visit.png' %}" alt="User profile picture">Liste des vignettes
 {% endblock page_title %} 
-{% block page_a %}
-{% endblock page_a %}
-{% block active_page %} Vignettes {% endblock active_page%}
+
+{% block page_action %}
+    <form id="quickForm">
+        {% for categorie, perms in grouped_permissions.items %}
+            {% if categorie.categorie == 'Exporter' %}
+                {% for perm in perms %}
+                    {% if perm.name == "Exporter vignette" %}
+                        <button type="button" class="btn btn-default text-danger" id="printButton">PDF <i class='fa fa-file-pdf-o'></i></button>
+                        <a href="{% url 'export_vignette_excel' %}?date_debut={{ form.date_debut.value }}&date_fin={{ form.date_fin.value }}&immatriculation={{ form.immatriculation.value }}&categorie={{ form.categorie.value }}" class="btn btn-default text-success">
+                            Excel <i class="fa fa-file-excel-o"></i> 
+                        </a>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        {% endfor %}
+        <a class="btn btn-default text-info" data-toggle="modal" data-target="#modal-sm" href="#" style="font-size: 16px;"><i style="font-size: 20px;" class="fa fa-calendar"></i></a>
+        <a class="btn btn-default text-info" href="{% url 'liste_vignette' %}" style="font-size: 16px;"><i style="font-size: 20px;" class="fa fa-refresh"></i></a>
+    </form>
+{% endblock page_action %}
 {% block main_content %}
+<div class="modal fade" id="modal-sm">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content" style="border-radius:25px;">
+            <div class="modal-header">
+                <h4 class="modal-title" style="font-weight:700;color: #06497C; font-size:15px;">FILTRE</h4>
+                <button type="button" style="border-radius:25px;" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="card-body">
+                    <form id="basic-form" method="get" novalidate>
+                        <div class="row clearfix">
+                            <div class="col-12">
+                                <label style="font-weight:700;color:rgba(152, 152, 152, 0.85); font-size:15px;">Date debut </label>
+                                <div class="form-group">                                    
+                                    {{ form.date_debut }}
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <label style="font-weight:700;color: rgba(152, 152, 152, 0.85); font-size:15px;">Date fin</label>
+                                <div class="form-group">                                    
+                                    {{ form.date_fin }}
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <label style="font-weight:700;color: rgba(152, 152, 152, 0.85); font-size:15px;">Categorie</label>
+                                <div class="form-group">                                    
+                                    {{ form.categorie }}
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <label style="font-weight:700;color: rgba(152, 152, 152, 0.85); font-size:15px;">Matricule</label>
+                                <div class="form-group">                                    
+                                    {{ form.immatriculation }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer justify-content-between">
+                            <button type="button" class="btn btn-outline-secondary" style="border-radius:25px;" data-dismiss="modal">Annuler</button>
+                            <button type="submit" class="btn btn-outline-success" style="border-radius:25px;">Afficher</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-12 col-sm-6 col-md-4">
+    <div class="info-box" style="border-radius:25px;">
+        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-clock" style="color:rgba(6, 73, 124, 0.54);"></i></span>
+        <div class="info-box-content">
+            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Aujourd'hui</span>
+            <span class="info-box-number" style="font-size:20px; color: #fa7832;">
+            {{vignet_jours_format}}
+            <small>frs cfa</small>
+            </span>
+        </div>
+    </div>
+</div>
+<div class="clearfix hidden-md-up"></div>
+<div class="col-12 col-sm-6 col-md-4">
+    <div class="info-box mb-3" style="border-radius:25px;">
+    <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fa fa-calendar" style="color:rgba(6, 73, 124, 0.54);"></i></span>
+    <div class="info-box-content">
+        <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Mensuelle</span>
+        <span class="info-box-number" style="font-size:20px; color: #fa7832;">
+        {{vignet_mois_format}}
+        <small>frs cfa</small>
+        </span>
+    </div>
+    </div>
+</div>
+
+<div class="clearfix hidden-md-up"></div>
+<div class="col-12 col-sm-6 col-md-4" >
+    <div class="info-box mb-3" style="border-radius:25px;">
+        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-calendar" style="color:rgba(6, 73, 124, 0.54);"></i></span>
+        <div class="info-box-content">
+            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Annuelle</span>
+            <span class="info-box-number" style="font-size:20px; color: #fa7832;">
+            {{vignet_an_format}}
+            <small>frs cfa</small>
+            </span>
+        </div>
+    </div>
+</div>
+
 <div class="col-md-12">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card card-outline" style="border-radius:20px">
-                <div class="card-body box-profile">
-                    <div class="row p-0 m-0">
-                        <div class="col-md-12 p-0">
-                            <div class="row">
-                                <div class="col-md-2">
-                                    <div style="display: flex; align-items: center;">
-                                        <div style="height: 55px; width: 55px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <a title="Cliquer pour accéder à la liste" href=""><img style="height: 40px; width: 40px; position:relative; margin-top: 7px;" src="{% static 'recet.png' %}" alt="" srcset=""></a>
-                                        </div>
-                                        <div>
-                                            <div style="color: #06497C; font-weight: 700;font-size:14px">Total Assurance</div>
-                                            <div style="font-size:20px; font-weight: 700; line-height: 1; color:rgb(255, 123, 0)">{{vignette_jour}}</div>
-                                            <div style="color: #06497C; font-weight: 700;font-size:12px">{{dates|date:'d-m-y'}}</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-2 mt-1">
-                                    <div style="display: flex; align-items: center;">
-                                        <div style="height: 55px; width: 55px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <a><img style="height: 40px; width: 40px; position:relative; margin-top: 6px;" src="{% static 'taxi.png' %}" alt="" srcset=""></a>
-                                        </div>
-                                        <div>
-                                            <div style="color: #06497C; font-weight: 700;font-size:14px">TAXI</div>
-                                            <div style="font-size:20px; font-weight: 700; line-height: 1; color:rgb(255, 123, 0)">{{vignette_jour_taxi}}</div>
-                                            <div style="color: #06497C; font-weight: 700;font-size:12px">{{dates|date:'d-m-y'}}</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-2 mt-1">
-                                    <div style="display: flex; align-items: center;">
-                                        <div style="height: 55px; width: 55px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <a><img style="height: 40px; width: 40px; position:relative; margin-top: 8px;" src="{% static 'vtc.png' %}" alt="" srcset=""></a>
-                                        </div>
-                                        <div>
-                                            <div style="color: #06497C; font-weight: 700;font-size:14px">VTC </div>
-                                            <div style="font-size:20px; font-weight: 700; line-height: 1; color:rgb(255, 123, 0)">{{vignette_jour_vtc}}</div>
-                                            <div style="color: #06497C; font-weight: 700;font-size:12px">{{dates|date:'d-m-y'}}</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-2 mt-1">
-                                    <div style="display: flex; align-items: center;">
-                                        <div style="height: 55px; width: 55px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <a><img style="height: 40px; width: 40px; position:relative; margin-top: 6px;" src="{% static 'taxi.png' %}" alt="" srcset=""></a>
-                                        </div>
-                                        <div>
-                                            <div style="color: #06497C; font-weight: 700;font-size:14px">TAXI </div>
-                                            <div style="font-size:20px; font-weight: 700; line-height: 1; color:rgb(255, 123, 0)">{{vignette_mois_taxi}} <small></small></div>
-                                            <div style="color: #06497C; font-weight: 700;font-size:12px">{{libelles_mois}}</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-2 mt-1">
-                                    <div style="display: flex; align-items: center;">
-                                        <div style="height: 55px; width: 55px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <a title="Cliquer pour accéder à la liste"><img style="height: 40px; width: 40px; position:relative; margin-top: 8px;" src="{% static 'vtc.png' %}" alt="" srcset=""></a>
-                                        </div>
-                                        <div>
-                                            <div style="color: #06497C; font-weight: 700;font-size:14px">VTC</div>
-                                            <div style="font-size:20px; font-weight: 700; line-height: 1; color:rgb(255, 123, 0)">{{vignette_mois_vtc}} <small></small></div>
-                                            <div style="color: #06497C; font-weight: 700;font-size:12px">{{libelles_mois}}</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-2 mt-1">
-                                    <div style="display: flex; align-items: center;">
-                                        <div style="height: 55px; width: 55px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <a title="Cliquer pour accéder à la liste"><img style="height: 40px; width: 40px; position:relative; margin-top: 9px;" src="{% static 'calendar.png' %}" alt="" srcset=""></a>
-                                        </div>
-                                        <div>
-                                            <div style="color: #06497C; font-weight: 700;font-size:14px">Total de {{libelles_mois}}</div>
-                                            <div style="font-size:20px; font-weight: 700; line-height: 1; color:rgb(255, 123, 0)">{{vignette_mois_all}} <small> </small></div>
-                                            <div style="color: #06497C; font-weight: 700;font-size:12px">{{annees}}</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-<div class="col-md-2">
-    <div class="card card-outline" style="border-radius:20px">
-        <div class="card-body box-profile">
-            <div class="row p-0 m-0">
-                <div class="col-md-12 p-0">
-                    <div class="text-center" style="font-size:17px; font-weight: 700; line-height: 1; color: #8b1516; text-decoration: underline;">Resultat du filtre</div>
-                    <div class="row mt-2">
-                        <div class="col-md-12">
-                            <div style="display: flex; align-items: center;">
-                                <div style="height: 40px; width: 40px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-1 text-center">
-                                    <img style="height: 25px; width: 25px; position:relative; margin-top: 8px;" src="{% static 'vtc.png' %}" alt="" srcset="">
-                                </div>
-                                <div>
-                                    <div style="font-size:16px; font-weight: 700; line-height: 1; color: #06497C; text-decoration: underline;">VTC</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <div style="display: flex; align-items: center;">
-                                <div class="text-center p-1 m-2">
-                                    <div class="text-center" style="font-size:16px; color: #06497C; text-align: center;font-weight:700">
-                                        <li>{{vignette_an_fil_vtc}} </li>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <div style="display: flex; align-items: center;">
-                                <div style="height: 40px; width: 40px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-1 text-center">
-                                    <img style="height: 25px; width: 25px; position:relative; margin-top: 8px;" src="{% static 'taxi.png' %}" alt="" srcset="">
-                                </div>
-                                <div>
-                                    <div style="font-size:16px; font-weight: 700; line-height: 1; color: #06497C;text-decoration: underline;">TAXI</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <div style="display: flex; align-items: center;">
-                                <div class="text-center p-1 m-2">
-                                    <div class="text-center" style="font-size:16px; color: #06497C; text-align: center;font-weight:700">
-                                        <li>{{vignette_an_fil_taxi}} </li>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <div style="display: flex; align-items: center;">
-                                <div class="text-center m-2">
-                                    <div class="text-center" style="font-size:16px; color: #06497C; text-align: center;font-weight:400">
-                                        -------------------------------
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <div style="display: flex; align-items: center;">
-                                <div class="text-center m-2">
-                                    <div class="text-center" style="font-size:16px; color: #06497C; text-align: center;font-weight:700">
-                                        = {{vignette_all}} 
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-        <!-- FIN MEILLEUR RECETTE -->
-<div class="col-md-10">
     <div class="row">
         <div class="col-md-12">
             <div class="" style="border-radius:20px">
                 <div id="" class="">
                     <div class="row p-0 m-0">
                         <div class="col-md-12 p-0">
-                            <div class="card" style="box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);backdrop-filter: blur(5.2px);-webkit-backdrop-filter: blur(5.2px);">
-                                <div class="card-header">
-                                    <h3 class="card-title">
-                                        <button type="button" class="btn btn-default text-danger" id="printButton">PDF <i class='fa fa-file-pdf-o'></i></button>
-                                        <button type="button" class="btn btn-default text-success">Excell <i class='fa fa-file-excel-o'></i></button>
-                                    </h3>
-                                    <div class="card-tools">
-                                        <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+                            <div class="card" style="box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);backdrop-filter: blur(5.2px);-webkit-backdrop-filter: blur(5.2px); border-radius:20px; " >
+                                <form method="post" action="{% url 'delete_selected_vignette' %}" id="deleteForm">
+                                    {% csrf_token %}
+                                    <div class="card-header">
+                                        <h3 class="card-title">
+                                        </h3>
+                                        <div class="card-tools">
+                                            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+                                        </div>
                                     </div>
-                                </div>
-                                <!-- /.card-header -->
-                                <div class="card-body">
-                                    <table id="example1" class="table table-bordered table-striped">
-                                        <thead>
-                                            <tr class=" text-center text-danger ">
-                                                <th>IMMAT</th>
-                                                <th>MARQUE</th>
-                                                <th>CATEGORIE</th>
-                                                <th>MONTANT</th>
-                                                <th>DATE VISITE</th>
-                                                <th>PROCHAINE VISITE</th>
-                                                <th>SAISIE PAR</th>
-                                                <th>ACTION</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody> 
-                                            {% if list_vignette %} 
-                                                {% for u in list_vignette %}
-                                                    <tr class="text-center">
-                                                        <td>
-                                                            <a class="mr-3 text-primary">{{u.vehicule.immatriculation}}</a>
-                                                        </td>
-                                                        <td>{{u.vehicule.marque}}</td>
-                                                        <td>{{u.vehicule.category}}</td>
-                                                        <td>{{u.montant}}</td>
-                                                        <td>{{u.date_saisie|date:"d-m-y"}}</td>
-                                                        <td>{{u.date_proch|date:"d-m-y"}}</td>
-                                                        <td>{{u.auteur.username}}</td>
-                                                        <td class="text-center">
+                                    <div class="card-body">
+                                        <div id="example1_wrapper" class="dataTables_wrapper dt-bootstrap4">
+                                            <table id="example1" class="table table-bordered table-striped dataTable" role="grid" aria-describedby="example1_info">
+                                                <thead>
+                                                    <tr class="text-center text-danger">
+                                                        <th>
                                                             {% for categorie, perms in grouped_permissions.items %}
                                                                 {% if categorie.categorie == 'permvign' %}
-                                                                    {% for perm in perms %}£
-                                                                        {% if perm.name == "modifier vignette" %}
-                                                                            <a href="{% url perm.url u.pk %}" class="text-primary">
-                                                                                <i style="font-size: 20px;" class="fa fa-edit text-warning"></i>
-                                                                            </a>
-                                                                        {% elif perm.name == "sup vignette" %}
-                                                                            <a href="{% url perm.url u.pk %}" class="text-primary" onclick="return confirm('Etes-vous sûre de vouloir supprimer la recette de {{ u.montant }} du {{ u.vehicule.immatriculation }} saisie le {{ u.date_saisie|date:"d-m-y" }}? Toutes les informations liées seront supprimées.')">
-                                                                                <i style="font-size: 20px;" class="fa fa-trash text-danger"></i>
-                                                                            </a>
+                                                                    {% for perm in perms %}
+                                                                        {% if perm.name == "supprimer vignette" %}
+                                                                            <input type="checkbox" id="select-all">
                                                                         {% endif %}
                                                                     {% endfor %}
                                                                 {% endif %}
                                                             {% endfor %}
-                                                        </td>
+                                                        </th>
+                                                        <th>IMMAT</th>
+                                                        <th>MARQUE</th>
+                                                        <th>CATEGORIE</th>
+                                                        <th>MONTANT</th>
+                                                        <th>DATE SAISIE</th>
+                                                        <th>SAISIR PAR </th>
+                                                        <th>ACTION</th>
                                                     </tr>
-                                                {% endfor %} 
-                                            {% endif %}
-                                        </tbody>
-                                        <tfoot>
-                                            <tr class="text-center ">
-                                                <th>---</th>
-                                                <th>---</th>
-                                                <th>---</th>
-                                                <th>---</th>
-                                                <th>---</th>
-                                                <th>---</th>
-                                                <th>---</th>
-                                                <th>---</th>
-                                            </tr>
-                                        </tfoot>
-                                    </table>
-                                </div>
+                                                </thead>
+                                                <tbody>
+                                                    {% if liste_vignet %} 
+                                                        {% for u in liste_vignet %}
+                                                            <tr class="text-center">
+                                                                <td>
+                                                                    {% for categorie, perms in grouped_permissions.items %}
+                                                                        {% if categorie.categorie == 'permvign' %}
+                                                                            {% for perm in perms %}
+                                                                                {% if perm.name == "supprimer vignette" %}
+                                                                                    <input type="checkbox" name="vignette_ids" value="{{ u.id }}">
+                                                                                {% endif %}
+                                                                            {% endfor %}
+                                                                        {% endif %}
+                                                                    {% endfor %}
+                                                                </td>
+                                                                <td>
+                                                                    <a href="#" class="mr-3 text-primary">{{u.vehicule.immatriculation}}</a>
+                                                                </td>
+                                                                <td>{{u.vehicule.marque}}</td>
+                                                                <td>{{u.vehicule.category}}</td>
+                                                                <td>{{u.montant}}</td>
+                                                                <td>{{u.date_saisie|date:"d-m-y"}}</td>
+                                                                <td>{{u.auteur.username}}</td>
+                                                                <td class="text-center">
+                                                                    {% for categorie, perms in grouped_permissions.items %}
+                                                                        {% if categorie.categorie == 'permvign' %}
+                                                                            {% for perm in perms %}
+                                                                                {% if perm.name == "modifier vignette" %}
+                                                                                    <a href="#" class="edit-vignet-btn" data-url="{% url 'updat_vignet' u.pk %}">
+                                                                                        <i style="font-size: 20px;" class="fa fa-edit text-warning"></i>
+                                                                                    </a>
+                                                                                {% endif %}
+                                                                            {% endfor %}
+                                                                        {% endif %}
+                                                                    {% endfor %}
+                                                                </td>
+                                                            </tr>
+                                                        {% endfor %} 
+                                                    {% endif %}
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr class="text-center ">
+                                                        <th>
+                                                            {% for categorie, perms in grouped_permissions.items %}
+                                                                {% if categorie.categorie == 'permvign' %}
+                                                                    {% for perm in perms %}
+                                                                        {% if perm.name == "supprimer vignette" %}
+                                                                            <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Confirmez-vous la suppression des vignettes sélectionnées ?')">
+                                                                                <i class="fa fa-trash"></i>
+                                                                            </button>
+                                                                        {% endif %}
+                                                                    {% endfor %}
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </th>
+                                                        <th>---</th>
+                                                        <th>---</th>
+                                                        <th>---</th>
+                                                        <th>---</th>
+                                                        <th>---</th>
+                                                        <th>---</th>
+                                                        <th>---</th>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </form>
                             </div>
                         </div>
                     </div>
@@ -259,4 +243,66 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="editVignetModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="border-radius:20px;">
+            <div class="modal-body" id="modalBodyContent">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('select-all').onclick = function() {
+        let checkboxes = document.querySelectorAll('input[name="vignette_ids"]');
+        for (let checkbox of checkboxes) {
+            checkbox.checked = this.checked;
+        }
+    };
+</script>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).on("click", ".edit-vignet-btn", function(e) {
+        e.preventDefault();
+        let url = $(this).data("url");
+        $.get(url, function(data) {
+            $("#modalBodyContent").html(data);
+            $("#editVignetModal").modal("show");
+        });
+    });
+    $(document).on("submit", "#vignetUpdateForm", function(e) {
+        e.preventDefault();
+        let form = $(this);
+        let url = form.attr("action") || window.location.href;
+        $.post(url, form.serialize(), function(data) {
+            if (data.success) {
+                $("#editVignetModal").modal("hide");
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top',
+                    showConfirmButton: false,
+                    timer: 4000,
+                    timerProgressBar: true
+                });
+    
+                Toast.fire({
+                    type: 'success',
+                    title: data.message
+                });
+    
+                setTimeout(function() {
+                    location.reload();
+                }, 100);
+            } else {
+                $("#modalBodyContent").html(data); 
+            }
+        });
+    });
+</script>
 {% endblock main_content %}
+
+
+

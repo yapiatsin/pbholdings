@@ -1,101 +1,89 @@
 {% extends 'perfect/base.html' %} 
 {% load static %} 
 {% block title %} Listes des véhicules {% endblock title %} 
-{% block navbar_nav %}
 
-{% endblock navbar_nav %} 
 {% block page_title %}
-<img class="profile-user-img" style="border:none; height:55px;width:55px" src="{% static 'addcar.png' %}" alt="User profile picture">Ajouter un nouveau véhicule 
+    <img class="profile-user-img" style="border:none; height:55px;width:55px" src="{% static 'addcar.png' %}" alt="User profile picture">{% if categorie %}Catégorie Véhicule : {{categorie}}{% else %}Tous les véhicules{% endif %}
 {% endblock page_title %} 
-{% block page_a %}
-{% endblock page_a %}
-{% block active_page %} Ajouter un véhicule {% endblock active_page%}
+{% block page_action %}
+    {% if categorie %}
+        <form method="post" enctype="multipart/form-data" role="form" id="quickForm">
+            {% csrf_token %}
+            <div class="row card-body">
+                <div class="col-md-12 form-group">
+                    <label for="excel_file">Fichier Excel (.xlsx)</label>
+                    <input type="file" name="excel_file" accept=".xls,.xlsx" required>
+                    <button type="submit" class="btn btn-outline-success"><i class="fa fa-upload"></i> Enregistrer</button>
+                    <button type="button" class="btn btn-outline-info" data-toggle="modal" data-target="#modal-lg"><i class="fa fa-plus-circle"></i></button>
+                </div>
+            </div>
+        </form>
+    {% endif %}
+{% endblock page_action %}
+
 {% block main_content %}
-<div class="col-md-12">
-    <div class="card" style="color: #0176bf; border-radius: 20px; border-color: #00217b; font-weight: 700;">
-        <div class="card-body table-responsive p-0" style="border-radius:8px; border:none">
-            <table class="table table text-nowrap">
-                <tr>
-                    <div class="col-md-12">
-                        <div class="row bg-danger">
-                            <div class="col-md-2">
-                                <td style="border: none;">
-                                    <div style="display: flex; align-items: center;">
-                                        <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 9px; margin-left: 0px;" src="{% static 'vtc.png' %}" alt="" srcset="">
-                                        </div>
-                                        <div>
-                                            <div style="font-size: 15px;color: #06497C">Total véhicule</div>
-                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
-                                                {{car_counts}}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td style="border: none;">
-                                    <div style="display: flex; align-items: center;">
-                                        <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 6px; margin-left: 0px;" src="{% static 'vtc.png' %}" alt="" srcset="">
-                                        </div>
-                                        <div>
-                                            <div style="font-size: 15px;color: #06497C">Total VTC</div>
-                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
-                                                T: {{car_vtc_counts}}-{{car_vtc_invent}}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td style="border: none;">
-                                    <div style="display: flex; align-items: center;">
-                                        <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 6px; margin-left: 0px;" src="{% static 'taxi.png' %}" alt="" srcset="">
-                                        </div>
-                                        <div>
-                                            <div style="font-size: 15px;color: #06497C">Total TAXI</div>
-                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
-                                                T: {{car_taxi_counts}}-{{car_taxi_invent}}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td style="border: none;">
-                                    <div style="display: flex; align-items: center;">
-                                        <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 8px;margin-left: 0px;" src="{% static 'rech.png' %}" alt="" srcset="">
-                                        </div>
-                                        <div>
-                                            <div style="font-size: 15px;color: #06497C">Résultat du filtre</div>
-                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">{{cars_events}}
-                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
+<div class="modal fade" id="modal-sm">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content" style="border-radius:25px;">
+            <div class="modal-header">
+                <h4 class="modal-title" style="font-weight:700;color: #06497C; font-size:15px;">FILTRE</h4>
+                <button type="button" style="border-radius:25px;" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="card-body">
+                    <form id="basic-form" method="get" novalidate>
+                        <div class="row clearfix">
+                            <div class="col-12">
+                                <label style="font-weight:700;color:rgba(152, 152, 152, 0.85); font-size:15px;">Date debut </label>
+                                <div class="form-group">                                    
+                                    {{ form.date_debut }}
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <label style="font-weight:700;color: rgba(152, 152, 152, 0.85); font-size:15px;">Date fin</label>
+                                <div class="form-group">                                    
+                                    {{ form.date_fin }}
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <label style="font-weight:700;color: rgba(152, 152, 152, 0.85); font-size:15px;">Categorie</label>
+                                <div class="form-group">                                    
+                                    {{ form.categorie }}
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <label style="font-weight:700;color: rgba(152, 152, 152, 0.85); font-size:15px;">Matricule</label>
+                                <div class="form-group">                                    
+                                    {{ form.immatriculation }}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </tr>
-            </table>
+                        <div class="modal-footer justify-content-between">
+                            <button type="button" class="btn btn-outline-secondary" style="border-radius:25px;" data-dismiss="modal">Annuler</button>
+                            <button type="submit" class="btn btn-outline-success" style="border-radius:25px;">Afficher</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 <div class="modal fade" id="modal-lg">
     <div class="modal-dialog modal-lg">
-        <div class="modal-content">
+        <div class="modal-content" style="border-radius: 25px">
             <div class="modal-header">
-                <h4 class="modal-title" style="font-weight:700;color: #06497C;">Enrégistrer un nouveau véhicule</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
+                <h4 class="modal-title" style="font-weight:700;color: #06497C;">Nouveau véhicule "{{categorie}}"</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="border-radius: 50px">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
             <div class="modal-body">
                 <form method='post' role="form" id="quickForm" enctype="multipart/form-data">
                     {% csrf_token %}
                     <div class="row card-body text-secondary">
-                        <div class="col-md-6 col-sm-6  form-group">
-                            <label for="fullname"><b>Categorie</b></label> {{forms.category}}
-                        </div>
                         <div class="col-md-6 col-sm-6 form-group">
                             <label for="fullname"><b>Immatriculation</b></label> {{forms.immatriculation}}
                         </div>
@@ -112,21 +100,15 @@
                             <label for="fullname"><b>Numero chassis</b></label> {{forms.num_Chassis}}
                         </div>
                         <div class="col-md-6 col-sm-6 form-group">
-                            <label for="fullname"><b>Photo</b></label> {{forms.image}}
-                        </div>
-                        <div class="col-md-6 col-sm-6 form-group">
-                            <label for="fullname"><b>Photo Carte Grise</b></label> {{forms.photo_carte_grise}}
-                        </div>
-                        <div class="col-md-6 col-sm-6 form-group">
-                            <label for="fullname"><b>Date d'Acquisition</b></label> {{forms.date_acquisition}}
-                        </div>
-                        <div class="col-md-6 col-sm-6 form-group">
                             <label for="fullname"><b>Numero Carte Grise</b></label> {{forms.num_cart_grise}}
                         </div>
-                        <div class="col-md-6 col-sm-6 form-group">
+                        <div class="col-md-4 col-sm-6 form-group">
+                            <label for="fullname"><b>Date d'Acquisition</b></label> {{forms.date_acquisition}}
+                        </div>
+                        <div class="col-md-4 col-sm-6 form-group">
                             <label for="fullname"><b>Date Edit Carte Grise</b></label> {{forms.dat_edit_carte_grise}}
                         </div>
-                        <div class="col-md-6 col-sm-6 form-group">
+                        <div class="col-md-4 col-sm-6 form-group">
                             <label for="fullname"><b>Date Mise en Service</b></label> {{forms.date_mis_service}}
                         </div>
                     </div>
@@ -140,14 +122,112 @@
     </div>
 </div>
 
-
-<div class="col-md-12">
+{% comment %} color: #fa7832 {% endcomment %}
+<div class="col-12 col-sm-6 col-md-4">
+    <div class="info-box" style="border-radius:25px;">
+        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);">
+            <img style="height: 40px; width: 40px; position:relative; margin-top: 6px; margin-left: 0px;" src="{% static 'categ.png' %}" alt="" srcset="">
+        </span>
+        <div class="info-box-content">
+            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Catégorie{% if categories|length > 1 %}s{% endif %}</span>
+            <span class="info-box-number" style="font-size:20px;color: #fa7832;">
+                {{categories|length}}
+            <small></small>
+            </span>
+        </div>
+    </div>
+</div>
+<div class="clearfix hidden-md-up"></div>
+<div class="col-12 col-sm-6 col-md-4">
+    <div class="info-box mb-3" style="border-radius:25px;">
+    <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);">
+        <img style="height: 40px; width: 40px; position:relative; margin-top: 6px; margin-left: 0px;" src="{% static 'summ.png' %}" alt="" srcset="">
+    </span>
+    <div class="info-box-content">
+        <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Total</span>
+        <span class="info-box-number" style="font-size:20px;color: #fa7832;">
+        {{total_veh}}
+        <small></small>
+        </span>
+    </div>
+    </div>
+</div>
+<div class="clearfix hidden-md-up"></div>
+<div class="col-12 col-sm-6 col-md-4" >
+    <div class="info-box mb-3" style="border-radius:25px;">
+        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-coins" style="color:rgba(6, 73, 124, 0.54);"></i></span>
+        <div class="info-box-content">
+            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Coût total</span>
+            <span class="info-box-number" style="font-size:20px;color: #fa7832;">
+            {{cout_total}}
+            <small>cfa</small>
+            </span>
+        </div>
+    </div>
+</div>
+<div class="col-md-3">
     <div class="row">
         <div class="col-md-12">
-            <div class="card" style="box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);backdrop-filter: blur(5.2px);-webkit-backdrop-filter: blur(5.2px);">
+            <div class="card" style="box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);backdrop-filter: blur(5.2px);-webkit-backdrop-filter: blur(5.2px); border-radius:25px 25px 0 0;">
+                <div class="card-header">
+                    <h3 class="card-title">Catégories</h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <ul class="products-list product-list-in-card pl-2 pr-2">
+                        <li class="item">
+                            <div class="product-img">
+                                <a href="{% url "all_vehi" %}" class="product-title text-secondary">Tous les véhicules</a>
+                            </div>
+                            <div class="product-info">
+                                <a href="javascript:void(0)" class="product-title">
+                                    <span class="badge badge-warning float-right p-2">- {{total_veh}} -</span>
+                                </a>
+                            </div>
+                        </li>
+                        {% for categorie, perms in grouped_permissions.items %}
+                            {% if categorie.categorie == 'permvehi' %}
+                                {% for perm in perms %}
+                                    {% if perm.name == "nouveau véhilcule" %}
+                                        {% for c in categories %}
+                                            <li class="item">
+                                                <div class="product-img">
+                                                    <a href="{% url 'add_vehi' c.pk %}" class="product-title">{{c.category}}</a>
+                                                </div>
+                                                <div class="product-info">
+                                                    <a href="javascript:void(0)" class="product-title">
+                                                        <span class="badge badge-light float-right p-2">- {{c.nb_vehicules}} -</span>
+                                                    </a>
+                                                </div>
+                                            </li>
+                                        {% endfor %}
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-md-9">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card" style="box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);backdrop-filter: blur(5.2px);-webkit-backdrop-filter: blur(5.2px); border-radius:25px;">
+                <form method="POST" action="{% url 'delete_multiple_vehicules' %}" id="deleteForm">
+                    {% csrf_token %}
                 <div class="card-header">
                     <h3 class="card-title">
-                        <button type="button" class="btn btn-default text-danger" style="font-weight:700" data-toggle="modal" data-target="#modal-lg">Nouveau Véhicule <i class='fa fa-plus-square'></i></button>
+                        <a href="{% url 'export_vehicules_excel' %}?date_debut={{ request.GET.date_debut }}&date_fin={{ request.GET.date_fin }}&immatriculation={{ request.GET.immatriculation }}&categorie={{ request.GET.categorie }}" class="btn btn-default text-success">
+                            Excel <i class="fa fa-file-excel-o"></i>
+                        </a>
+                        <a class="btn btn-default text-info" data-toggle="modal" data-target="#modal-sm" href="#" style="font-size: 16px;"><i style="font-size: 20px;" class="fa fa-calendar"></i></a>
                     </h3>
                     <div class="card-tools">
                         <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
@@ -157,26 +237,40 @@
                     <table id="example1" class="table table-bordered table-striped">
                         <thead>
                             <tr class=" text-center text-danger ">
+                                <th><input type="checkbox" id="checkAll"></th>
                                 <th>IMMAT</th>
                                 <th>MARQUE</th>
                                 <th>CATEGORIE</th>
+                                <th>COUT</th>
+                                <th>DUREE</th>
+                                <th>AGE</th>
                                 <th>ACTION</th>
                             </tr>
                         </thead>
                         <tbody> 
-                            {% if list_cars %} 
-                                {% for u in list_cars %}
+                            {% if vehicules %} 
+                                {% for u in vehicules %}
                                     <tr class="text-center">
-                                        <td><a href="{% url 'updatecar' u.pk %}" class="mr-3 text-danger">{{u.immatriculation}}</a></td>
-                                        <td><a class="mr-3 text-primary">{{u.marque}}</a></td>
-                                        <td><a class="mr-3 text-primary">{{u.category}}</a></td>
+                                        <td>
+                                            <input type="checkbox" name="vehicule_ids" value="{{ u.id }}">
+                                        </td>
+                                        <td><a class="mr-3 text-primary">{{u.immatriculation}}</a></td>
+                                        <td><a class="mr-3">{{u.marque}}</a></td>
+                                        <td><a class="mr-3">{{u.category}}</a></td>
+                                        <td><a class="mr-3">{{u.cout_acquisition}}</a></td>
+                                        <td><a class="mr-3">{{u.duree}}</a></td>
+                                        <td><a class="mr-3">
+                                            <span class="badge bg-{{ u.color_age }}" style="font-size: 14px;">
+                                                {{ u.age }} ans
+                                            </span>
+                                        </a></td>
                                         <td>
                                             {% for categorie, perms in grouped_permissions.items %}
                                                 {% if categorie.categorie == 'permvehi' %}
                                                     {% for perm in perms %}
-                                                        {% if perm.name == "sup véhicule" %}
-                                                            <a href="{% url perm.url u.pk %}" class="text-primary" onclick="return confirm('Etes-vous sûre de vouloir supprimer le véhicule {{ u.immatriculation }} - {{ u.marque }} - {{ u.category|upper }} ? Toutes les informations liées seront supprimées.')">
-                                                                <i style="font-size: 20px;" class="fa fa-trash text-danger"></i>
+                                                        {% if perm.name == "modifier véhicule" %}
+                                                            <a href="#" class="edit-vehicule-btn" data-url="{% url 'updat_car' u.pk %}">
+                                                                <i style="font-size: 20px;" class="fa fa-edit text-warning"></i>
                                                             </a>
                                                         {% endif %}
                                                     {% endfor %}
@@ -189,6 +283,22 @@
                         </tbody>
                         <tfoot>
                             <tr class="text-center ">
+                                <th>
+                                    {% for categorie, perms in grouped_permissions.items %}
+                                        {% if categorie.categorie == 'permvehi' %}
+                                            {% for perm in perms %}
+                                                {% if perm.name == "sup véhicule" %}
+                                                    <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Confirmez-vous la suppression des véhicules sélectionnés ?')">
+                                                        <i class="fa fa-trash"></i>
+                                                    </button>
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endif %}
+                                    {% endfor %}
+                                </th>
+                                <th>---</th>
+                                <th>---</th>
+                                <th>---</th>
                                 <th>---</th>
                                 <th>---</th>
                                 <th>---</th>
@@ -196,9 +306,68 @@
                             </tr>
                         </tfoot>
                     </table>
+                        
+                    </form>
                 </div>
             </div>      
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="editCarModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="border-radius:20px;">
+            <div class="modal-body" id="modalBodyContent">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('checkAll').addEventListener('click', function() {
+        const checkboxes = document.querySelectorAll('input[name="vehicule_ids"]');
+        for (let checkbox of checkboxes) {
+            checkbox.checked = this.checked;
+        }
+    });
+</script>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).on("click", ".edit-vehicule-btn", function(e) {
+        e.preventDefault();
+        let url = $(this).data("url");
+        $.get(url, function(data) {
+            $("#modalBodyContent").html(data);
+            $("#editCarModal").modal("show");
+        });
+    });
+    $(document).on("submit", "#CarUpdateForm", function(e) {
+        e.preventDefault();
+        let form = $(this);
+        let url = form.attr("action") || window.location.href;
+        $.post(url, form.serialize(), function(data) {
+            if (data.success) {
+                $("#editCarModal").modal("hide");
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top',
+                    showConfirmButton: false,
+                    timer: 4000,
+                    timerProgressBar: true
+                });
+                Toast.fire({
+                    type: 'success',
+                    title: data.message
+                });
+                setTimeout(function() {
+                    location.reload();
+                }, 100);
+            } else {
+                $("#modalBodyContent").html(data); 
+            }
+        });
+    });
+</script>
 {% endblock main_content %}

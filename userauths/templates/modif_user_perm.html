@@ -6,11 +6,10 @@
 {% endblock navbar_nav %} 
 {% block page_title %}
 <a href="{% url 'compte' %}"><img class="profile-user-img" style="border:none; height:35px;width:35px" src="{% static 'retour.png' %}" alt="Retour"></a>
-<img class="profile-user-img" style="border:none; height:55px;width:55px" src="{% static 'add-user.png' %}" alt="User profile picture">Permission
+<img class="profile-user-img" style="border:none; height:55px;width:55px" src="{% static 'add-user.png' %}" alt="User profile picture">Permissions
 {% endblock page_title %} 
 {% block active_page %}Modifier permission compte {% endblock active_page%} 
 {% block main_content %}
-
 <div class="col-md-12">
     <div class="row">
         <div class="col-md-4">
@@ -80,13 +79,11 @@
                                                 </div>
                                             {% endfor %}
                                         </div>
-
                                         <div class="form-group mt-3 text-center">
                                             <button type="submit" class="btn btn-outline-primary w-50"style='border-radius:50px' >Enregistrer</button>
                                         </div>
                                     </form>
                                 </div>
-                                <!-- /.card-body -->
                             </div>
                         </div>
                     </div>
@@ -95,5 +92,4 @@
         </div>
     </div>
 </div>
-
 {% endblock main_content %}

@@ -14,12 +14,16 @@ class ReparationAdmin(admin.ModelAdmin):
     list_filter = ['vehicule','date_saisie']
 
 class PieceAdmin(admin.ModelAdmin):
-    list_display = ['reparation','libelle','lieu','montant','date_saisie']
+    list_display = ['reparation','libelle','lieu', 'montant', 'quantite', 'prix_total', 'date_saisie']
     list_filter = ['libelle','date_saisie','lieu']
  
 class PiecEchangeAdmin(admin.ModelAdmin):
-    list_display = ['vehicule','libelle','lieu','montant','date_saisie','auteur','date','auteur']
-    list_filter = ['libelle','date_saisie','lieu']
+    list_display = ['vehicule','date_saisie','auteur',]
+    list_filter = ['date_saisie']
+ 
+class LignePiecEchangeAdmin(admin.ModelAdmin):
+    list_display = ['piecec','libelle','lieu','montant','quantite','prix_total']
+    list_filter = ['libelle','lieu','piecec','quantite']
  
 class AccidentAdmin(admin.ModelAdmin):
     list_display = ['vehicule', 'date_saisie', 'auteur','date','auteur']
@@ -105,6 +109,7 @@ admin.site.register(Vehicule, VehiculeAdmin)
 admin.site.register(ChargeAdminis, ChargeAdminisAdmin)
 admin.site.register(Piece, PieceAdmin)
 admin.site.register(PiecEchange, PiecEchangeAdmin)
+admin.site.register(LignePiecEchange, LignePiecEchangeAdmin)
 admin.site.register(Recette, RecetteAdmin)
 admin.site.register(Reparation,ReparationAdmin)
 admin.site.register(VisiteTechnique, VisiteTechniqueAdmin)
@@ -113,3 +118,4 @@ admin.site.register(CategoVehi, CategoVehiAdmin)
 admin.site.register(ChargeFixe, ChargeFixeAdmin)
 admin.site.register(Assurance, AssuranceAdmin)
 admin.site.register(ChargeVariable, ChargeVariableAdmin)
+admin.site.register(Gerant)

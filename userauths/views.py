@@ -16,13 +16,15 @@ from django.views.generic import ListView, DetailView,CreateView, DeleteView, Up
 from django.views import View, generic
 from django.contrib.auth.forms import UserChangeForm, PasswordChangeForm
 from django.contrib.auth.views import PasswordChangeView
+from django.contrib.auth.mixins import LoginRequiredMixin
 #User = settings.AUTH_USER_MODEL
 from django.contrib.auth.decorators import login_required
-
+from django.views.decorators.http import require_POST
 from .models import UserProfile
 from .models import *
 from userauths.forms import *
 from .models import CustomUser
+from PB_Entreprise.models import Gerant
 # Create your views here.
 # from .utils import generate_greeting, generate_goodbye
 from django.core.mail import send_mail
@@ -33,8 +35,16 @@ from django.contrib.auth.hashers import make_password
 from django.core.mail import EmailMultiAlternatives
 from django.contrib.auth import get_user_model
 # Vue pour vérifier l'OTP envoyé par email
-CustomUser = get_user_model()
 from django.utils import timezone
+from .forms import ChangePasswordForm
+
+from userauths.forms import CustomPermissionForm, TypeCustomPermissionForm
+import openpyxl
+from openpyxl.utils import get_column_letter
+from openpyxl.styles import Font, PatternFill, Alignment
+from django.http import HttpResponse
+CustomUser = get_user_model()
+
 
 def list_users(request):
     users = CustomUser.objects.filter(is_superuser=False)
@@ -43,25 +53,39 @@ def list_users(request):
 @login_required
 def edit_user_permissions(request, user_id):
     user = get_object_or_404(CustomUser, id=user_id)
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    
     if request.method == 'POST':
         form = UserPermissionForm(request.POST)
-        # form = UserPermissionForm(initial={'permissions': user.custom_permissions.all()})
         if form.is_valid():
             permissions = form.cleaned_data['permissions']
             user.custom_permissions.set(permissions)
             messages.success(request, 'Permissions mises à jour avec succès.')
+            if is_ajax:
+                return JsonResponse({
+                    'success': True,
+                    'message': 'Permissions mises à jour avec succès.'
+                })
             return redirect('edit_user_permissions', user.id)  
     else:
         form = UserPermissionForm(initial={
             'permissions': user.custom_permissions.all()
         })
+    
+    # Si c'est une requête AJAX, retourner seulement le contenu de la modal
+    if is_ajax:
+        html = render_to_string('modif_user_perm_modal.html', {
+            'form': form,
+            'user': user
+        }, request=request)
+        return JsonResponse({'html': html})
+    
     return render(request, 'modif_user_perm.html', {
         'form': form,
         'user': user
     })
 
 def generate_random_password(length=8):
-    # characters = string.ascii_letters + string.digits #+ string.punctuation
     characters = string.ascii_letters + string.digits 
     return ''.join(random.choice(characters) for i in range(length))
 
@@ -142,9 +166,25 @@ def delete_admin(request, pk):
 @login_required(login_url='/login/')
 def add_chefexploit(request):
     user=request.user
+    # Vérifier que l'utilisateur connecté est un administrateur
+    if user.user_type != "1":
+        messages.error(request, "Seuls les administrateurs peuvent créer des comptes de chef d'exploitation.")
+        return redirect('home')
+    
+    # S'assurer que l'utilisateur connecté a un profil Administ
+    # Si le profil n'existe pas, le créer avec des valeurs par défaut
+    admin_profile, created = Administ.objects.get_or_create(
+        user=user,
+        defaults={
+            'nom': user.username,
+            'prenom': '',
+            'commune': '',
+        }
+    )
+    if created:
+        messages.info(request, f"Votre profil administrateur a été créé automatiquement. Veuillez le compléter dans votre profil.")
+    
     try:
-        # admins = Administ.objects.get(user=user)
-        # chefexp = Chefexploitation.objects.select_related('user',).filter(create_by=admins)
         chefexp = Chefexploitation.objects.all()
     except Administ.DoesNotExist:
         chefexp = Chefexploitation.objects.none()
@@ -165,8 +205,8 @@ def add_chefexploit(request):
                 chefexploitation = chefexploitform.save(commit=False)
                 chefexploitation.user = user
                 
-                create_by = Administ.objects.get(user=request.user)
-                chefexploitation.create_by = create_by
+                # Utiliser le profil Administ de l'utilisateur connecté
+                chefexploitation.create_by = admin_profile
                 chefexploitation.save()
 
                 ################ Ajouter des permissions #################
@@ -229,6 +269,24 @@ def delete_chefexploit(request, pk):
 @login_required(login_url='/login/')
 def add_comptable(request):
     user=request.user
+    # Vérifier que l'utilisateur connecté est un administrateur
+    if user.user_type != "1":
+        messages.error(request, "Seuls les administrateurs peuvent créer des comptes comptable.")
+        return redirect('home')
+    
+    # S'assurer que l'utilisateur connecté a un profil Administ
+    # Si le profil n'existe pas, le créer avec des valeurs par défaut
+    admin_profile, created = Administ.objects.get_or_create(
+        user=user,
+        defaults={
+            'nom': user.username,
+            'prenom': '',
+            'commune': '',
+        }
+    )
+    if created:
+        messages.info(request, f"Votre profil administrateur a été créé automatiquement. Veuillez le compléter dans votre profil.")
+    
     try:
         # admins = Administ.objects.get(user=user)
         compt = Comptable.objects.all()
@@ -251,8 +309,8 @@ def add_comptable(request):
                 comptable = comptableform.save(commit=False)
                 comptable.user = user
                 
-                create_by = Administ.objects.get(user=request.user)
-                comptable.create_by = create_by
+                # Utiliser le profil Administ de l'utilisateur connecté
+                comptable.create_by = admin_profile
                 comptable.save()
                 permissions = permission_form.cleaned_data['permissions']
                 user.custom_permissions.set(permissions)
@@ -313,8 +371,25 @@ def delete_comptable(request, pk):
 @login_required(login_url='/login/')
 def add_gerant(request):
     user=request.user
+    # Vérifier que l'utilisateur connecté est un administrateur
+    if user.user_type != "1":
+        messages.error(request, "Seuls les administrateurs peuvent créer des comptes de gérant.")
+        return redirect('home')
+    
+    # S'assurer que l'utilisateur connecté a un profil Administ
+    # Si le profil n'existe pas, le créer avec des valeurs par défaut
+    admin_profile, created = Administ.objects.get_or_create(
+        user=user,
+        defaults={
+            'nom': user.username,
+            'prenom': '',
+            'commune': '',
+        }
+    )
+    if created:
+        messages.info(request, f"Votre profil administrateur a été créé automatiquement. Veuillez le compléter dans votre profil.")
+    
     try:
-        # admins = Administ.objects.get(user=user)
         list_gerant = Gerant.objects.all()
     except Administ.DoesNotExist:
         list_gerant = Gerant.objects.none()
@@ -334,8 +409,8 @@ def add_gerant(request):
                 gerant = gerantform.save(commit=False)
                 gerant.user = user
                 
-                create_by = Administ.objects.get(user=request.user)
-                gerant.create_by = create_by
+                # Utiliser le profil Administ de l'utilisateur connecté
+                gerant.create_by = admin_profile
                 gerant.save()
                 permissions = permission_form.cleaned_data['permissions']
                 user.custom_permissions.set(permissions)
@@ -413,16 +488,16 @@ def loginview(request):
                 login(request, user)
                 user_type=user.user_type
                 if user_type == '1':
-                    messages.success(request, f"Bienvenue Administrateur")
+                    messages.success(request, f"Bienvenue Administrateur {user.username}")
                     return redirect('dash')
                 elif user_type == '2':
-                    messages.success(request, "Bienvenue Chef d'exploitation")
+                    messages.success(request, f"Bienvenue Chef d'exploitation {user.username}")
                     return redirect('dash')
                 elif user_type == '3':
-                    messages.success(request, "Bienvenue Comptable")
+                    messages.success(request, f"Bienvenue Comptable {user.username}")
                     return redirect('dash')
                 elif user_type == '4':
-                    messages.success(request,  "Bienvenue Gérant")
+                    messages.success(request,  f"Bienvenue Gérant {user.username}")
                     return redirect('dashgarage')
                 else:
                    return redirect('login')
@@ -433,9 +508,18 @@ def loginview(request):
     return render(request, "perfect/logins.html")
 
 def logout_view(request):
+    user=request.user
     logout(request)
-    messages.success(request, "Vous êtes deconnecté.")
+    messages.success(request, f"Vous êtes deconnecté {user.username}")
     return redirect("home")
+
+@require_POST
+@login_required(login_url="login")
+def toggle_active_user(request, pk):
+    user = get_object_or_404(CustomUser, id=pk)
+    user.is_active = not user.is_active
+    user.save()
+    return JsonResponse({"success": True, "is_active": user.is_active})    
 
 def interneView(request):
     return render(request,"userauths/interne.html")
@@ -549,12 +633,6 @@ class OptValid(View):
                  messages.error(request, "OTP non valide.")
                  return  render(request, "perfect/otp.html")
                      
-from .forms import ChangePasswordForm
-from django.contrib.auth.views import PasswordChangeView 
-from django.urls import reverse_lazy
-from django.shortcuts import render
-from django.contrib.auth.mixins import LoginRequiredMixin
-
 class PasswordChangeView(PasswordChangeView):
     form_class = ChangePasswordForm
     template_name = 'profil.html'
@@ -602,6 +680,20 @@ class PasswordChangeView(PasswordChangeView):
         else: 
             print()
 
+        # Récupérer les permissions personnalisées de l'utilisateur
+        from userauths.models import TypeCustomPermission
+        grouped_permissions = {}
+        for category in TypeCustomPermission.objects.all():
+            perms = category.cat_permis.filter(users=user)
+            if perms.exists():
+                grouped_permissions[category] = perms
+        
+        # Récupérer toutes les permissions personnalisées (sans groupement)
+        custom_permissions = user.custom_permissions.all()
+        
+        # Récupérer les permissions système (Django permissions)
+        system_permissions = user.user_permissions.all()
+
         # Passer les informations récupérées au contexte
         context = {
             'form': form,
@@ -610,9 +702,340 @@ class PasswordChangeView(PasswordChangeView):
             'chefexploit_profil': chefexploit_profil,
             'comptable_profil': comptable_profil,
             'gerant_profil': gerant_profil,
+            'grouped_permissions': grouped_permissions,
+            'custom_permissions': custom_permissions,
+            'system_permissions': system_permissions,
         }
         return render(request, self.template_name, context)
+    
+    def post(self, request, *args, **kwargs):
+        form = self.get_form()
+        user = get_object_or_404(CustomUser, id=request.user.id)
+        admin_profil = None
+        chefexploit_profil = None
+        comptable_profil = None
+        gerant_profil = None
+        
+        if user.user_type == "1":
+            try:
+                admin_profil = Administ.objects.get(user=user)
+            except Administ.DoesNotExist:
+                admin_profil = None
+        elif user.user_type == "2":
+            try:
+                chefexploit_profil = Chefexploitation.objects.get(user=user)
+            except Chefexploitation.DoesNotExist:
+                chefexploit_profil = None
+        elif user.user_type == "3":
+            try:
+                comptable_profil = Comptable.objects.get(user=user)
+            except Comptable.DoesNotExist:
+                comptable_profil = None
+        elif user.user_type == "4":
+            try:
+                gerant_profil = Gerant.objects.get(user=user)
+            except Gerant.DoesNotExist:
+                gerant_profil = None
+        # Récupérer les permissions personnalisées de l'utilisateur
+        from userauths.models import TypeCustomPermission
+        grouped_permissions = {}
+        for category in TypeCustomPermission.objects.all():
+            perms = category.cat_permis.filter(users=user)
+            if perms.exists():
+                grouped_permissions[category] = perms
+        # Récupérer toutes les permissions personnalisées (sans groupement)
+        custom_permissions = user.custom_permissions.all()
+        # Récupérer les permissions système (Django permissions)
+        system_permissions = user.user_permissions.all()
+
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            # Ajouter le contexte pour afficher les erreurs
+            context = {
+                'form': form,
+                'user': user,
+                'admin_profil': admin_profil,
+                'chefexploit_profil': chefexploit_profil,
+                'comptable_profil': comptable_profil,
+                'gerant_profil': gerant_profil,
+                'grouped_permissions': grouped_permissions,
+                'custom_permissions': custom_permissions,
+                'system_permissions': system_permissions,
+            }
+            return self.render_to_response(context)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = get_object_or_404(CustomUser, id=self.request.user.id)
+        admin_profil = None
+        chefexploit_profil = None
+        comptable_profil = None
+        gerant_profil = None
+        
+        if user.user_type == "1":
+            try:
+                admin_profil = Administ.objects.get(user=user)
+            except Administ.DoesNotExist:
+                admin_profil = None
+        elif user.user_type == "2":
+            try:
+                chefexploit_profil = Chefexploitation.objects.get(user=user)
+            except Chefexploitation.DoesNotExist:
+                chefexploit_profil = None
+        elif user.user_type == "3":
+            try:
+                comptable_profil = Comptable.objects.get(user=user)
+            except Comptable.DoesNotExist:
+                comptable_profil = None
+        elif user.user_type == "4":
+            try:
+                gerant_profil = Gerant.objects.get(user=user)
+            except Gerant.DoesNotExist:
+                gerant_profil = None
+
+        # Récupérer les permissions personnalisées de l'utilisateur
+        from userauths.models import TypeCustomPermission
+        grouped_permissions = {}
+        for category in TypeCustomPermission.objects.all():
+            perms = category.cat_permis.filter(users=user)
+            if perms.exists():
+                grouped_permissions[category] = perms
+        
+        # Récupérer toutes les permissions personnalisées (sans groupement)
+        custom_permissions = user.custom_permissions.all()
+        
+        # Récupérer les permissions système (Django permissions)
+        system_permissions = user.user_permissions.all()
+
+        context.update({
+            'user': user,
+            'admin_profil': admin_profil,
+            'chefexploit_profil': chefexploit_profil,
+            'comptable_profil': comptable_profil,
+            'gerant_profil': gerant_profil,
+            'grouped_permissions': grouped_permissions,
+            'custom_permissions': custom_permissions,
+            'system_permissions': system_permissions,
+        })
+        return context
 
 class PasswordChangeDoneView(View):
     def get(self, request):
          return render(request, 'password_change_done.html')
+
+# ==================== GESTION DES PERMISSIONS ====================
+class PermissionListView(LoginRequiredMixin, ListView):
+    model = CustomPermission
+    template_name = 'perfect/permission.html'
+    context_object_name = 'permissions'
+    paginate_by = 20
+    
+    def get_queryset(self):
+        queryset = CustomPermission.objects.select_related('categorie').all()
+        search = self.request.GET.get('search', '')
+        categorie_filter = self.request.GET.get('categorie', '')
+        
+        if search:
+            queryset = queryset.filter(name__icontains=search)
+        if categorie_filter:
+            queryset = queryset.filter(categorie__id=categorie_filter)
+        
+        return queryset.order_by('categorie__categorie', 'name')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categories'] = TypeCustomPermission.objects.all()
+        context['form'] = CustomPermissionForm()
+        return context
+
+class PermissionCreateView(LoginRequiredMixin, CreateView):
+    model = CustomPermission
+    form_class = CustomPermissionForm
+    template_name = 'perfect/permission.html'
+    success_url = reverse_lazy('list_permissions')
+    
+    def form_valid(self, form):
+        messages.success(self.request, 'Permission créée avec succès ✓✓')
+        return super().form_valid(form)
+    
+    def form_invalid(self, form):
+        messages.error(self.request, 'Erreur lors de la création de la permission ✘✘')
+        return super().form_invalid(form)
+
+class PermissionUpdateView(LoginRequiredMixin, UpdateView):
+    model = CustomPermission
+    form_class = CustomPermissionForm
+    template_name = 'perfect/partials/permission_form.html'
+    success_url = reverse_lazy('list_permissions')
+    success_message = 'Permission modifiée avec succès ✓✓'
+    
+    def form_valid(self, form):
+        messages.success(self.request, self.success_message)
+        return super().form_valid(form)
+    
+    def form_invalid(self, form):
+        messages.error(self.request, 'Erreur lors de la modification ✘✘')
+        return super().form_invalid(form)
+
+@login_required
+def delete_permission(request, pk):
+    permission = get_object_or_404(CustomPermission, pk=pk)
+    permission.delete()
+    messages.success(request, 'Permission supprimée avec succès ✓✓')
+    return redirect('list_permissions')
+
+class ExportPermissionExcelView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        permissions = CustomPermission.objects.select_related('categorie').all().order_by('categorie__categorie', 'name')
+        
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "Permissions"
+        
+        # En-tête
+        headers = ['ID', 'Nom', 'Catégorie', 'URL']
+        ws.append(headers)
+        
+        # Style des en-têtes
+        for col_num, header in enumerate(headers, 1):
+            cell = ws.cell(row=1, column=col_num)
+            cell.font = Font(bold=True)
+            cell.fill = PatternFill(start_color="CCCCCC", end_color="CCCCCC", fill_type="solid")
+            cell.alignment = Alignment(horizontal='center', vertical='center')
+        
+        # Données
+        for perm in permissions:
+            ws.append([
+                perm.id,
+                perm.name,
+                perm.categorie.categorie,
+                perm.url
+            ])
+        
+        # Ajuster la largeur des colonnes
+        ws.column_dimensions['A'].width = 10
+        ws.column_dimensions['B'].width = 30
+        ws.column_dimensions['C'].width = 25
+        ws.column_dimensions['D'].width = 30
+        
+        response = HttpResponse(
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+        response['Content-Disposition'] = 'attachment; filename="Permissions.xlsx"'
+        wb.save(response)
+        return response
+
+class ImportPermissionExcelView(LoginRequiredMixin, View):
+    def post(self, request, *args, **kwargs):
+        if 'excel_file' not in request.FILES:
+            messages.error(request, 'Aucun fichier sélectionné ✘✘')
+            return redirect('list_permissions')
+        
+        try:
+            file = request.FILES['excel_file']
+            wb = openpyxl.load_workbook(file)
+            ws = wb.active
+            
+            created_count = 0
+            updated_count = 0
+            errors = []
+            
+            # Ignorer la première ligne (en-têtes)
+            for row in ws.iter_rows(min_row=2, values_only=True):
+                if not row[0]:  # Ignorer les lignes vides
+                    continue
+                
+                try:
+                    perm_id = row[0]
+                    name = row[1]
+                    categorie_name = row[2]
+                    url = row[3]
+                    
+                    # Récupérer ou créer la catégorie
+                    categorie, _ = TypeCustomPermission.objects.get_or_create(
+                        categorie=categorie_name
+                    )
+                    
+                    # Créer ou mettre à jour la permission
+                    permission, created = CustomPermission.objects.update_or_create(
+                        id=perm_id,
+                        defaults={
+                            'name': name,
+                            'categorie': categorie,
+                            'url': url
+                        }
+                    )
+                    
+                    if created:
+                        created_count += 1
+                    else:
+                        updated_count += 1
+                        
+                except Exception as e:
+                    errors.append(f"Ligne {row}: {str(e)}")
+            
+            if created_count > 0 or updated_count > 0:
+                messages.success(
+                    request, 
+                    f'Import réussi: {created_count} créé(s), {updated_count} mis à jour ✓✓'
+                )
+            if errors:
+                messages.warning(request, f'Erreurs: {len(errors)} ligne(s) en erreur')
+                
+        except Exception as e:
+            messages.error(request, f'Erreur lors de l\'import: {str(e)} ✘✘')
+        
+        return redirect('list_permissions')
+
+# ==================== GESTION DES CATÉGORIES ====================
+
+class CategorieListView(LoginRequiredMixin, ListView):
+    model = TypeCustomPermission
+    template_name = 'perfect/categorie.html'
+    context_object_name = 'categories'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = TypeCustomPermissionForm()
+        return context
+
+class CategorieCreateView(LoginRequiredMixin, CreateView):
+    model = TypeCustomPermission
+    form_class = TypeCustomPermissionForm
+    template_name = 'perfect/categorie.html'
+    success_url = reverse_lazy('list_categories')
+    
+    def form_valid(self, form):
+        messages.success(self.request, 'Catégorie créée avec succès ✓✓')
+        return super().form_valid(form)
+    
+    def form_invalid(self, form):
+        messages.error(self.request, 'Erreur lors de la création de la catégorie ✘✘')
+        return super().form_invalid(form)
+
+class CategorieUpdateView(LoginRequiredMixin, UpdateView):
+    model = TypeCustomPermission
+    form_class = TypeCustomPermissionForm
+    template_name = 'perfect/partials/categorie_perm_form.html'
+    success_url = reverse_lazy('list_categories')
+    success_message = 'Catégorie modifiée avec succès ✓✓'
+    
+    def form_valid(self, form):
+        messages.success(self.request, self.success_message)
+        return super().form_valid(form)
+    
+    def form_invalid(self, form):
+        messages.error(self.request, 'Erreur lors de la modification ✘✘')
+        return super().form_invalid(form)
+
+@login_required
+def delete_categorie(request, pk):
+    categorie = get_object_or_404(TypeCustomPermission, pk=pk)
+    # Vérifier si la catégorie est utilisée
+    if CustomPermission.objects.filter(categorie=categorie).exists():
+        messages.error(request, 'Impossible de supprimer: cette catégorie contient des permissions ✘✘')
+    else:
+        categorie.delete()
+        messages.success(request, 'Catégorie supprimée avec succès ✓✓')
+    return redirect('list_categories')

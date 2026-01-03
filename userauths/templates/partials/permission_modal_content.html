@@ -1,0 +1,37 @@
+<div class="row">
+    <div class="col-md-4">
+        <div class="card-body box-profile">
+            <h3 class="profile-username text-center">{{user.username}}</h3>
+            <p class="text-muted text-center">{{user.email}}</p>
+            <ul class="list-group list-group-unbordered mb-3">
+                <li class="list-group-item">
+                    <b>Genre</b> <a class="float-right">{{user.gender}}</a>
+                </li>
+                <li class="list-group-item">
+                    <b>Role</b> <a class="float-right">{{user.user_type}}</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <form method="post" id="permission-form" data-user-id="{{user.id}}">
+            {% csrf_token %}
+            <div class="row">
+                {% for permission in form.permissions %}
+                    <div class="col-md-4 form-group">
+                        <div class="form-check">
+                            {{ permission.tag }}
+                            <label class="form-check-label" for="{{ permission.id_for_label }}">
+                                {{ permission.choice_label }}
+                            </label>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="form-group mt-3 text-center">
+                <button type="submit" class="btn btn-outline-primary w-50" style='border-radius:50px'>Enregistrer</button>
+            </div>
+        </form>
+    </div>
+</div>
+

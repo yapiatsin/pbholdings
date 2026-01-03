@@ -1,45 +1,41 @@
 {% extends 'perfect/base.html' %} 
 {% load static %} 
 {% block title %} Nouvelle catégorie {% endblock title %} 
-{% block navbar_nav %}
-{% endblock navbar_nav %} 
+
 {% block page_title %}
-    <img class="profile-user-img" style="border:none; height:55px;width:55px" src="{% static 'addcar.png' %}" alt="User profile picture">Ajouter une nouvelle catégorie
+    <img class="profile-user-img" style="border:none; height:55px;width:55px" src="{% static 'addcar.png' %}" alt="User profile picture">Catégorie véhicule
 {% endblock page_title %} 
-{% block page_a %}
+{% block page_action %}
+    <button type="button" class="btn btn-default text-success" data-toggle="modal" data-target="#modal-lg">Nouvelle catégorie <i class='fa fa-plus-circle'></i></button>
+{% endblock page_action %}
 
-{% endblock page_a %}
-{% block active_page %} Ajouter une catégorie {% endblock active_page%} 
 {% block main_content %}
-
 <div class="modal fade" id="modal-lg">
     <div class="modal-dialog modal-lg">
-        <div class="modal-content">
+        <div class="modal-content" style="border-radius:25px;">
             <div class="modal-header">
-                <h4 class="modal-title" style="font-weight:700;color: #06497C;">Enrégistrer une catégorie</h4>
+                <h4 class="modal-title" style="font-weight:700;color: #06497C; font-size:16px;">Enrégistrer une catégorie</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
 
             <div class="modal-body">
                 <form method='post' role="form" id="quickForm">
                     {% csrf_token %}
                     <div class="row card-body">
-                        <div class="col-md-12 col-sm-6  form-group">
-							<label for="fullname"><b>Identifiant</b></label>
-							{{form.cid}}
-						</div>
-						<div class="col-md-12 col-sm-6  form-group">
+						<div class="col-md-4 col-sm-6  form-group">
 							<label for="fullname"><b>Catégorie</b></label>
 							{{form.category}}
 						</div>
-						
-						<div class="col-md-12 col-sm-6  form-group">
+						<div class="col-md-4 col-sm-6  form-group">
 							<label for="fullname"><b>Recette par defaut</b></label>
 							{{form.recette_defaut}}
 						</div>
-						
+						<div class="col-md-4 col-sm-6  form-group">
+							<label for="fullname"><b>Valeur perdue par arrêt</b></label>
+							{{form.perte_par_30min}}
+						</div>
                     </div>
                     <div class="modal-footer justify-content-between">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
@@ -51,7 +47,58 @@
     </div>
 </div>
 
-<div class="col-md-12">
+<div class="col-md-3">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card" style="border-radius:25px 25px 0 0 ;">
+                <div class="card-header">
+                    <h3 class="card-title">{{ categories|length }} Catégorie{% if categories|length > 1  %}s{% endif %}</h3>
+                    <div class="card-tools">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                    </div>
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body p-0">
+                    <ul class="products-list product-list-in-card pl-2 pr-2">
+                        <li class="item">
+                            <div class="product-img">
+                                <a href="{% url "all_vehi" %}" class="product-title text-secondary">Tous les véhicules</a>
+                            </div>
+                            <div class="product-info">
+                                <a href="javascript:void(0)" class="product-title">
+                                    <span class="badge badge-warning float-right p-2">- {{total_veh}} -</span>
+                                </a>
+                            </div>
+                        </li>
+                        {% for categorie, perms in grouped_permissions.items %}
+                            {% if categorie.categorie == 'permvehi' %}
+                                {% for perm in perms %}
+                                    {% if perm.name == "nouveau véhilcule" %}
+                                        {% for c in categories %}
+                                            <li class="item">
+                                                <div class="product-img">
+                                                    <a href="{% url 'add_vehi' c.pk %}" class="product-title">{{c.category}}</a>
+                                                </div>
+                                                <div class="product-info">
+                                                    <a href="javascript:void(0)" class="product-title">
+                                                        <span class="badge badge-light float-right p-2">- {{c.nb_vehicules}} -</span>
+                                                    </a>
+                                                </div>
+                                            </li>
+                                        {% endfor %}
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-md-9">
     <div class="row">
         <div class="col-md-12">
             <div class="" style="border-radius:20px">
@@ -60,45 +107,53 @@
                         <div class="col-md-12 p-0">
                             <div class="card" style="box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
                             backdrop-filter: blur(5.2px);
-                            -webkit-backdrop-filter: blur(5.2px);">
+                            -webkit-backdrop-filter: blur(5.2px); border-radius:25px;">
                                 <div class="card-header">
                                     <h3 class="card-title">
-                                        <button type="button" class="btn btn-default text-danger" id="printButton">PDF <i class='fa fa-file-pdf-o'></i></button>
-                                        <button type="button" class="btn btn-default text-success">Excell <i class='fa fa-file-excel-o'></i></button>
-                                        <button type="button" class="btn btn-default" data-toggle="modal" data-target="#modal-lg">Ajouter une catégorie <i class='fa fa-plus-circle text-success'></i></button>
+                                        Liste des catégories
                                     </h3>
-
                                     <div class="card-tools">
                                         <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
                                     </div>
                                 </div>
-                                <!-- /.card-header -->
                                 <div class="card-body">
                                     <table id="example1" class="table table-bordered table-striped">
                                         <thead>
                                             <tr class="text-center text-danger">
-                                                <th>N°IDENTIFICATION</th>
+                                                <th>N°CID</th>
                                                 <th>LIBELLE</th>
-                                                <th>MONTANT</th>
+                                                <th>RECETTE</th>
+                                                <th>PERTE PAR ARRET</th>
                                                 <th>DATE</th>
                                                 <th>ACTION</th>
-                                                {% comment %}
-                                                <th>CSS grade</th> {% endcomment %}
                                             </tr>
                                         </thead>
                                         <tbody>
                                             {% if catego_vehi %}
                                                 {% for u in catego_vehi %}
                                                     <tr class="text-center">
-                                                        <td>{{u.cid}}</td>
-                                                        <td>{{u.category}}</td>
+                                                        <td><a>{{forloop.counter}}</a></td>
+                                                        <td><a href="{% url 'add_vehi' u.pk %}" class="mr-3 text-primary ">{{u.category}}</a></td>
                                                         <td>{{u.recette_defaut}}</td>
-                                                        <td>{{u.date_saisie}}</td>
+                                                        <td>{{u.perte_par_30min}}</td>
+                                                        <td>{{u.date_saisie|date:"d/m/Y"}}</td>
                                                         <td class="text-center ">
-                                                            <a href=" " class="mr-3 text-warning ">
-                                                                <i style="font-size: 20px; " class="fa fa-edit "></i>
+                                                            {% for categorie, perms in grouped_permissions.items %}
+                                                                {% if categorie.categorie == 'permvehi' %}
+                                                                    {% for perm in perms %}
+                                                                        {% if perm.name == "nouveau véhilcule" %}
+                                                                            <a href="{% url 'add_vehi' u.pk %}" class="mr-3 text-warning ">
+                                                                                <i style="font-size: 20px; "class="fa fa-plus-circle text-success" title='add véhicule'></i>
+                                                                            </a>
+                                                                        {% endif %}
+                                                                    {% endfor %}
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                            
+                                                            <a href="#" class="edit-categorie-btn mr-3" data-url="{% url 'updat_catego_vehi' u.pk %}">
+                                                                <i style="font-size: 20px;" class="fa fa-edit text-warning"></i>
                                                             </a>
-                                                            <a href="{% url 'delete_catego' u.pk %}" class="text-danger" onclick="return confirm('Etes-vous sûre de vouloir supprimer la categorie de véhicule  {{u.cid}} - {{u.category|upper}}? car si vous supprimer toutes les véhicules liées seront supprimés')">
+                                                            <a href="{% url 'delete_catego' u.pk %}" class="text-danger" onclick="return confirm('Etes-vous sûre de vouloir supprimer la categorie de véhicule {{u.category|upper}}? car si vous supprimer toutes les véhicules liées seront supprimés')">
                                                                 <i style="font-size: 20px; " class="fa fa-trash "></i>
                                                             </a>
                                                         </td>
@@ -116,4 +171,53 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="editcategorieModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="border-radius:20px;">
+            <div class="modal-body" id="modalBodyContent">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).on("click", ".edit-categorie-btn", function(e) {
+        e.preventDefault();
+        let url = $(this).data("url");
+        $.get(url, function(data) {
+            $("#modalBodyContent").html(data);
+            $("#editcategorieModal").modal("show");
+        });
+    });
+    $(document).on("submit", "#categorieUpdateForm", function(e) {
+        e.preventDefault();
+        let form = $(this);
+        let url = form.attr("action") || window.location.href;
+        $.post(url, form.serialize(), function(data) {
+            if (data.success) {
+                $("#editcategorieModal").modal("hide");
+                const Toast = Swal.mixin({
+                    toast: true,
+                    position: 'top',
+                    showConfirmButton: false,
+                    timer: 4000,
+                    timerProgressBar: true
+                });
+                Toast.fire({
+                    type: 'success',
+                    title: data.message
+                });
+                setTimeout(function() {
+                    location.reload();
+                }, 500);
+            } else {
+                $("#modalBodyContent").html(data); 
+            }
+        });
+    });
+</script>
+
 {% endblock main_content %}

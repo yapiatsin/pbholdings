@@ -3,14 +3,15 @@ from shortuuid.django_fields import ShortUUIDField
 from django.utils.html import mark_safe 
 from django.utils import timezone
 from userauths.models import CustomUser
-
+from simple_history.models import HistoricalRecords 
+from userauths.models import Administ
 #-------------------------categorie de vehicule-----------------------------#
 class CategoVehi(models.Model):
     cid = ShortUUIDField(unique=True, length=6, prefix='AT', alphabet="abcd1234")
     category = models.CharField(unique=True, max_length=10)
     date_saisie = models.DateField(auto_now_add=True)
     recette_defaut = models.IntegerField(default=0)
-    
+    perte_par_30min = models.IntegerField(default=0)
     def __str__(self):
         return self.category
  
@@ -18,9 +19,9 @@ class Vehicule(models.Model):
     auteur = models.ForeignKey(CustomUser,on_delete=models.SET_NULL, null=True, blank=True, related_name='user_add_veh')
     immatriculation = models.CharField(unique=True, max_length=30)
     marque = models.CharField(max_length=20)
-    duree= models.IntegerField(default=0)
-    image = models.ImageField(upload_to="CARS")
-    photo_carte_grise = models.ImageField(upload_to="Photo_Carte_Grise")
+    duree = models.IntegerField(default=0)
+    image = models.ImageField(upload_to="CARS", null=True, blank=True,)
+    photo_carte_grise = models.ImageField(upload_to="Photo_Carte_Grise", null=True, blank=True,)
     num_cart_grise = models.CharField(max_length=50, unique=True)
     num_Chassis = models.CharField(max_length=50, unique=True)
     date_acquisition = models.DateField()
@@ -29,6 +30,7 @@ class Vehicule(models.Model):
     date_mis_service = models.DateField()
     category = models.ForeignKey(CategoVehi, on_delete=models.CASCADE, related_name="catego_vehicule")
     date_saisie = models.DateField(auto_now_add=True)
+    history = HistoricalRecords()
     def __str__(self):
         return self.immatriculation
     @property
@@ -38,6 +40,26 @@ class Vehicule(models.Model):
         tday = datetime.date.today() 
         age = (tday.year - date_nai.year) - int((date_nai.month,tday.day ) < (date_nai.month, tday.day))
         return age
+    @property
+    def color_age(self):
+        """Retourne une couleur selon la durée"""
+        if self.age <= self.duree / 2:
+            return "success"
+        elif self.age < self.duree:
+            return "warning"
+        else:
+            return "danger"
+
+class DocumentVehicule(models.Model):
+    vehicule = models.ForeignKey(Vehicule, on_delete=models.CASCADE, related_name='documents')
+    nom_doc = models.CharField(max_length=100)
+    image = models.ImageField(upload_to='documents_vehicules/', null=True, blank=True)
+    date_saisie = models.DateField(auto_now_add=True)
+    history = HistoricalRecords()
+    class Meta:
+        ordering = ['-date_saisie']
+    def __str__(self):
+        return f"{self.nom_doc} - {self.vehicule.immatriculation}"
 
 class Recette(models.Model):
     auteur = models.ForeignKey(CustomUser,on_delete=models.SET_NULL,null=True, blank=True, related_name='user_add_rec')
@@ -49,8 +71,8 @@ class Recette(models.Model):
     montant = models.IntegerField(default=0)
     date_saisie = models.DateField()
     date = models.DateTimeField(auto_now_add=True)
+    history = HistoricalRecords()
     def save(self, *args, **kwargs):
-        # Remplir automatiquement auteur_nom si l'auteur existe
         if self.auteur:
             self.auteur_nom = f"{self.auteur.username} ({self.auteur.email})"
         super().save(*args, **kwargs)
@@ -67,6 +89,7 @@ class ChargeFixe(models.Model):
     Num_fact = models.CharField(max_length=100)
     date_saisie = models.DateField()
     date = models.DateTimeField(auto_now_add=True)
+    history = HistoricalRecords()
     def __str__(self) : 
         return '%s ' % (self.vehicule.immatriculation)
     
@@ -80,6 +103,7 @@ class ChargeVariable(models.Model):
     Num_fact = models.CharField(max_length=100)
     date_saisie = models.DateField()
     date = models.DateTimeField(auto_now_add=True)
+    history = HistoricalRecords()
     def __str__(self) : 
         return '%s ' % (self.vehicule.immatriculation)
     
@@ -92,6 +116,7 @@ class ChargeAdminis(models.Model):
     Num_fact = models.CharField(max_length=100)
     date_saisie = models.DateField()
     date = models.DateTimeField(auto_now_add=True)
+    history = HistoricalRecords()
     def __str__(self) : 
         return '%s ' % (self.libelle)
 
@@ -119,7 +144,7 @@ class Billetage(models.Model):
                                           (10, '10'),           
                                           (5, '5')]
                                         )        
-    nombre = models.IntegerField()
+    nombre = models.IntegerField(default=0)
     auteur = models.ForeignKey(CustomUser,on_delete=models.SET_NULL, null=True, blank=True, related_name='bielletages')
     type = models.CharField(max_length=10, choices=[('Billet', 'Billet'), ('Pièce', 'Pièce')])
     date_saisie = models.DateField(auto_now_add=True)
@@ -131,6 +156,7 @@ class SoldeJour(models.Model):
     montant = models.IntegerField(default=0)
     auteur = models.ForeignKey(CustomUser,on_delete=models.SET_NULL, null=True, blank=True, related_name='user_add_sold')
     date = models.DateField(auto_now_add=True)
+    history = HistoricalRecords()
     def __str__(self):
         return '%s - %s' % (self.date_saisie, self.montant)
     
@@ -139,9 +165,10 @@ class Encaissement(models.Model):
     Num_piece = models.CharField(max_length=100)
     libelle = models.CharField(max_length=100)
     montant = models.IntegerField(default=0)
-    date_saisie = models.DateField()
+    date_saisie = models.DateField(auto_now_add=True)
     date = models.DateTimeField(auto_now_add=True)
-    def __str__(self):  # sourcery skip: replace-interpolation-with-fstring
+    history = HistoricalRecords()
+    def __str__(self):
         return '%s - %s' % (self.libelle, self.montant)
 
 class Decaissement(models.Model):
@@ -149,9 +176,10 @@ class Decaissement(models.Model):
     Num_piece = models.CharField(max_length=100)
     libelle = models.CharField(max_length=200)
     montant = models.IntegerField(default=0)
-    date_saisie = models.DateField()
+    date_saisie = models.DateField(auto_now_add=True)
     date = models.DateTimeField(auto_now_add=True)
-    def __str__(self):  # sourcery skip: replace-interpolation-with-fstring
+    history = HistoricalRecords()
+    def __str__(self):
         return '%s - %s' % (self.libelle, self.montant)
   
 class Vignette(models.Model):
@@ -162,7 +190,8 @@ class Vignette(models.Model):
     date_saisie = models.DateField()
     date_proch = models.DateField()
     date = models.DateTimeField(auto_now_add=True)
-    def __str__(self):  # sourcery skip: replace-interpolation-with-fstring
+    history = HistoricalRecords()
+    def __str__(self):
          return '%s - %s' % (self.vehicule.immatriculation, self.montant)
     @property
     def jours_vign_restant(self):
@@ -181,12 +210,13 @@ class Reparation(models.Model):
     date_sortie = models.DateTimeField()
     motif = models.CharField(max_length=20, choices=MOTIF_REPARATION)
     image = models.ImageField(upload_to="reparation_fil", blank=True)
-    num_fich = models.IntegerField()
+    num_fich = models.CharField(max_length=50)
     description = models.TextField(max_length=500, null=True, blank=True)
     montant = models.IntegerField(default=0)
     prestation = models.IntegerField(default=0)
     date_saisie = models.DateField(auto_now_add=True)
     date = models.DateTimeField(auto_now_add=True)
+    history = HistoricalRecords()
     def __str__(self):
         return '%s ' % (self.vehicule.immatriculation)  
 
@@ -198,21 +228,38 @@ class Piece(models.Model):
     reparation = models.ForeignKey(Reparation, on_delete=models.CASCADE, related_name="pieces")
     libelle = models.CharField(max_length=30, null=True, blank=True)
     lieu = models.CharField(max_length=20, choices=LIEU_PIECE)
+    quantite = models.PositiveIntegerField(default=1)
     montant = models.IntegerField(default=0)
     date_saisie = models.DateField(auto_now_add=True)
+    auteur = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, related_name='user_piece', null=True, blank=True)
+    history = HistoricalRecords()
+    @property
+    def prix_total(self):
+        return self.quantite * self.montant
     def __str__(self):
         return '%s ' % (self.libelle)
     
 class PiecEchange(models.Model):
     auteur = models.ForeignKey(CustomUser,on_delete=models.CASCADE, related_name='user_piechange')
     vehicule = models.ForeignKey(Vehicule, on_delete=models.CASCADE, related_name="piechang")
-    libelle = models.CharField(max_length=30, null=True, blank=True)
-    lieu = models.CharField(max_length=20, choices=LIEU_PIECE)
     montant = models.IntegerField(default=0)
     date_saisie = models.DateField()
     date = models.DateTimeField(auto_now_add=True)
+    history = HistoricalRecords()
     def __str__(self):
-        return '%s ' % (self.libelle)
+        return '%s ' % (self.vehicule.immatriculation)
+
+class LignePiecEchange(models.Model):
+    piecec = models.ForeignKey(PiecEchange, on_delete=models.CASCADE, related_name="lignes")
+    libelle = models.CharField(max_length=30, null=True, blank=True)
+    lieu = models.CharField(max_length=20, choices=LIEU_PIECE)
+    montant = models.IntegerField(default=0)
+    quantite = models.PositiveIntegerField(default=1)
+    @property
+    def prix_total(self):
+        return self.quantite * self.montant
+    def __str__(self):
+        return f"{self.libelle} ({self.quantite}) - {self.montant} FCFA"
 
 class Entretien(models.Model):
     auteur = models.ForeignKey(CustomUser,on_delete=models.SET_NULL, null=True, blank=True, related_name='user_add_ent')
@@ -224,6 +271,7 @@ class Entretien(models.Model):
     montant = models.IntegerField(default=0)
     date_saisie = models.DateField(auto_now_add=True)
     date = models.DateTimeField(auto_now_add=True)
+    history = HistoricalRecords()
     def __str__(self):
         return self.vehicule.immatriculation
     @property
@@ -240,6 +288,7 @@ class Autrarret(models.Model):
     numfich = models.CharField(max_length=100, null=True, blank=True)
     montant = models.IntegerField(default=0)
     date_saisie = models.DateField(auto_now_add=True)
+    history = HistoricalRecords()
     def __str__(self):
         return '%s ' % (self.vehicule.immatriculation)
 
@@ -253,6 +302,7 @@ class VisiteTechnique(models.Model):
     montant = models.IntegerField(default=0)
     date_saisie = models.DateField(auto_now_add=True)
     date = models.DateTimeField(auto_now_add=True)
+    history = HistoricalRecords()
     def __str__(self):
         return self.vehicule.immatriculation
     @property
@@ -268,7 +318,8 @@ class Patente(models.Model):
     date_saisie = models.DateField()
     date_proch = models.DateField()
     date = models.DateTimeField(auto_now_add=True)
-    def __str__(self):  # sourcery skip: replace-interpolation-with-fstring
+    history = HistoricalRecords()
+    def __str__(self):
          return '%s - %s' % (self.vehicule.immatriculation, self.montant)
     @property
     def jours_pate_restant(self):
@@ -283,6 +334,7 @@ class Stationnement(models.Model):
     date_saisie = models.DateField()
     date_proch = models.DateField()
     date = models.DateTimeField(auto_now_add=True)
+    history = HistoricalRecords()
     def __str__(self):  
         return '%s - %s' % (self.vehicule.immatriculation, self.montant)
     @property
@@ -298,9 +350,24 @@ class Assurance(models.Model):
     date_proch = models.DateField()
     montant = models.IntegerField(default=0)
     date = models.DateTimeField(auto_now_add=True)
+    history = HistoricalRecords()
     def __str__(self):
         return self.vehicule.immatriculation
     @property
     def jours_assu_restant(self):
         jours_assu_restant = (self.date_proch - timezone.now().date()).days
         return jours_assu_restant
+
+class Gerant(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='gerants')
+    create_by = models.ForeignKey(Administ, on_delete=models.CASCADE, related_name="admingerants")
+    gerant_voiture = models.ForeignKey(CategoVehi, on_delete=models.SET_NULL, null=True, blank=True, related_name="gerants")
+    nom = models.CharField(max_length=255,)
+    prenom = models.CharField(max_length=30,)
+    commune = models.CharField(max_length=255, null=True, blank=True)
+    tel1 = models.CharField(max_length=255, null=True, blank=True)
+    tel2 = models.CharField(max_length=255, null=True, blank=True)
+    date_creation=models.DateField(auto_now_add=True)
+    objects = models.Manager()
+    def __str__(self):
+        return '%s - %s - %s ' %(self.nom, self.user.user_type, self.user.username)
