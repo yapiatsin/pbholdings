@@ -9,11 +9,7 @@ from django.urls import reverse, reverse_lazy
 from django.views import View
 from django.views.generic import ListView, DetailView,CreateView, UpdateView, TemplateView
 from django.contrib import messages
-<<<<<<< HEAD
 import pandas as pd
-=======
-from django.core.mail import send_mail
->>>>>>> 6b6f98e9edcd698a0d106c07939db0c99e7ee11e
 from userauths.models import *
 from .models import *
 from .forms import *
@@ -283,7 +279,6 @@ class TableaustopView(CustomPermissionRequiredMixin,TemplateView):
 
         context['current_date'] = date.today()
         total_actions_sum =total_cost_parts_sum = total_income_sum = total_piece_sum = total_visit_sum = total_panne_sum = total_accident_sum = total_autrarret_sum = total_visitechique_sum = total_entretien_sum = total_repairs_by_motifs = total_motif_arrets = total_visitechique_sum = total_entretien_sum = total_repairs_by_motifs = total_motif_arrets = 0 
-        
         # Calculer les totaux par jour pour tous les véhicules
         daily_totals = [0] * days_in_month
         for day in range(1, days_in_month + 1):
@@ -2378,7 +2373,6 @@ class GestionalerteView(LoginRequiredMixin, CustomPermissionRequiredMixin, Templ
                 messages.warning(request, "Vous avez été déconnecté ")
                 return redirect("login")
         return super().dispatch(request, *args, **kwargs)
-<<<<<<< HEAD
     # def send_alert_email(self, vehicle_reference, alert_types):
     #     today_date = datetime.now().strftime("%Y-%m-%d")
     #     last_sent_alerts = self.request.session.get('last_sent_alerts', {})
@@ -2397,8 +2391,6 @@ class GestionalerteView(LoginRequiredMixin, CustomPermissionRequiredMixin, Templ
     #     last_sent_alerts[vehicle_reference] = today_date
     #     self.request.session['last_sent_alerts'] = last_sent_alerts
         
-=======
->>>>>>> 6b6f98e9edcd698a0d106c07939db0c99e7ee11e
     def get_context_data(self,*args, **kwargs):  
         context = super().get_context_data(*args,**kwargs)  
         dates = date.today()
@@ -2410,7 +2402,6 @@ class GestionalerteView(LoginRequiredMixin, CustomPermissionRequiredMixin, Templ
         if user.user_type == "4":
             try:
                 gerant = user.gerants.get()
-<<<<<<< HEAD
                 if gerant.gerant_voiture:  
                     vehicules = Vehicule.objects.filter(category=gerant.gerant_voiture)
                 else:
@@ -2419,24 +2410,6 @@ class GestionalerteView(LoginRequiredMixin, CustomPermissionRequiredMixin, Templ
                 vehicules = Vehicule.objects.none()
         else:
             vehicules = Vehicule.objects.all()
-=======
-                print("----------",gerant.tel1)
-                if gerant.gerant_voiture == "VTC":
-                    vehicules = Vehicule.objects.filter(category__category="VTC")
-                    print("************",vehicules)
-                else:
-                    vehicules = Vehicule.objects.filter(category__category="TAXI")
-                    print("************",vehicules)
-            except Gerant.DoesNotExist:
-                vehicules = Vehicule.objects.none()
-        elif user:
-            try:
-                vehicules = Vehicule.objects.all()
-            except:
-                vehicules = Vehicule.objects.none()
-        else:
-            print("")
->>>>>>> 6b6f98e9edcd698a0d106c07939db0c99e7ee11e
         resultat_vehicule = []
         alert_color = " "
         forms = DateForm(self.request.GET)
@@ -2520,11 +2493,7 @@ class GestionalerteView(LoginRequiredMixin, CustomPermissionRequiredMixin, Templ
                     alert_color = "#e0e7eb"
                 # Calculer les alertes critiques
                 alert_types = []
-<<<<<<< HEAD
                 if isinstance(jours_restant, int) and 1 <= jours_restant <= 32:
-=======
-                if 1 <= safe_int(jours_restant) <= 5:
->>>>>>> 6b6f98e9edcd698a0d106c07939db0c99e7ee11e
                     alert_types.append("visite technique")
                 if isinstance(jours_ent_restant, int) and 1 <= jours_ent_restant <= 3:
                     alert_types.append("entretien")
@@ -2536,7 +2505,6 @@ class GestionalerteView(LoginRequiredMixin, CustomPermissionRequiredMixin, Templ
                     alert_types.append("patente")
                 if isinstance(jours_cartsta_restant, int) and 1 <= jours_cartsta_restant <= 10:
                     alert_types.append("stationnement")
-<<<<<<< HEAD
                 
                 # Envoie l'email d'alerte si nécessaire
                 # if alert_types:
@@ -2557,9 +2525,6 @@ class GestionalerteView(LoginRequiredMixin, CustomPermissionRequiredMixin, Templ
                     'alert_cartsta_color': alert_cartsta_color,
                     'alert_types': alert_types
                 })
-=======
-                resultat_vehicule.append({'vehicule': vehicule, 'jours_restant':jours_restant, 'alert_color':alert_color, 'alert_ent_color':alert_ent_color, 'jours_ent_restant':jours_ent_restant,'alert_assu_color':alert_assu_color,'jours_assu_restant':jours_assu_restant,'jours_vign_restant':jours_vign_restant,'alert_vign_color':alert_vign_color, 'jours_pate_restant':jours_pate_restant,'alert_pate_color':alert_pate_color, 'jours_cartsta_restant':jours_cartsta_restant,'alert_cartsta_color':alert_cartsta_color,})
->>>>>>> 6b6f98e9edcd698a0d106c07939db0c99e7ee11e
             
         else:
             
@@ -2650,7 +2615,6 @@ class GestionalerteView(LoginRequiredMixin, CustomPermissionRequiredMixin, Templ
                     alert_types.append("patente")
                 if isinstance(jours_cartsta_restant, int) and 1 <= jours_cartsta_restant <= 10:
                     alert_types.append("stationnement")
-<<<<<<< HEAD
                 
                 # Envoie l'email d'alerte si nécessaire
                 # if alert_types:
@@ -2671,9 +2635,6 @@ class GestionalerteView(LoginRequiredMixin, CustomPermissionRequiredMixin, Templ
                     'alert_cartsta_color': alert_cartsta_color,
                     'alert_types': alert_types
                 })
-=======
-                resultat_vehicule.append({'vehicule': vehicule, 'jours_restant':jours_restant, 'alert_color':alert_color, 'alert_ent_color':alert_ent_color, 'jours_ent_restant':jours_ent_restant,'alert_assu_color':alert_assu_color,'jours_assu_restant':jours_assu_restant,'jours_vign_restant':jours_vign_restant,'alert_vign_color':alert_vign_color, 'jours_pate_restant':jours_pate_restant,'alert_pate_color':alert_pate_color, 'jours_cartsta_restant':jours_cartsta_restant,'alert_cartsta_color':alert_cartsta_color,})
->>>>>>> 6b6f98e9edcd698a0d106c07939db0c99e7ee11e
         context={
             'dates':dates,
             'vehicules':vehicules,
@@ -2722,74 +2683,17 @@ class AddCategoriVehi(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateV
         total_veh = Vehicule.objects.all().order_by('id').count()
         # vehicules = Vehicule.objects.filter(category=catego_vehi).order_by('id')
         forms = self.get_form()
-<<<<<<< HEAD
         context = {
             'form':forms,
             'catego_vehi':catego_vehi,
             'categories':categories,
             'total_veh':total_veh,
-=======
-        annee_en_cours = date.today().year
-        today = date.today()
-        mois_en_cours = date.today().month
-        libelle_mois_en_cours = calendar.month_name[mois_en_cours]
-        user = self.request.user
-        if user.user_type == "4":
-            try:
-                gerant = user.gerants.get()
-                if gerant.gerant_voiture == "VTC":
-                    vehicules = Vehicule.objects.filter(category__category="VTC")
-                else:
-                    vehicules = Vehicule.objects.filter(category__category="TAXI")
-            except Gerant.DoesNotExist:
-                vehicules = Vehicule.objects.none()
-        else:
-            vehicules = Vehicule.objects.all()
-        form_admin = DateForm(self.request.GET)
-        if form_admin.is_valid():
-            date_debut = form_admin.cleaned_data['date_debut']       
-            date_fin = form_admin.cleaned_data['date_fin']
-            car_count = Vehicule.objects.filter(date_saisie__range=[date_debut, date_fin]).count()
-            car_event = Vehicule.objects.filter(date_saisie__range=[date_debut, date_fin]).aggregate(Sum('cout_acquisition'))['cout_acquisition__sum'] or 0
-            vehicules = Vehicule.objects.filter(date_saisie__range=[date_debut, date_fin])
-            car_vtc_count = Vehicule.objects.filter(category__category ='VTC', date_saisie__range=[date_debut, date_fin]).count()
-            car_taxi_count = Vehicule.objects.filter(category__category ='TAXI', date_saisie__range=[date_debut, date_fin]).count()
-            
-            car_vtc_invent = Vehicule.objects.filter(category__category ='VTC', date_saisie__range=[date_debut, date_fin]).aggregate(Sum('cout_acquisition'))['cout_acquisition__sum'] or 0
-            car_taxi_invent = Vehicule.objects.filter(category__category ='TAXI', date_saisie__range=[date_debut, date_fin]).aggregate(Sum('cout_acquisition'))['cout_acquisition__sum'] or 0
-              
-        else:
-            car_count = Vehicule.objects.all().count()
-            #vehicules = Vehicule.objects.all()
-            car_event = Vehicule.objects.all().aggregate(Sum('cout_acquisition'))['cout_acquisition__sum'] or 0
-            #vehicule__category__category#
-            car_vtc_count = Vehicule.objects.filter(category__category= 'VTC').count()
-            car_taxi_count = Vehicule.objects.filter(category__category = 'TAXI').count()
-            
-            car_vtc_invent = Vehicule.objects.filter(category__category = 'VTC').aggregate(Sum('cout_acquisition'))['cout_acquisition__sum'] or 0
-            car_taxi_invent = Vehicule.objects.filter(category__category = 'TAXI').aggregate(Sum('cout_acquisition'))['cout_acquisition__sum'] or 0
-            
-        context={
-            'car_vtc_counts':car_vtc_count,
-            'car_taxi_counts':car_taxi_count,
-            'car_vtc_invent':car_vtc_invent,
-            'car_taxi_invent':car_taxi_invent,
-            'car_counts':car_count,
-            'list_cars':vehicules,
-            'forms':forms,
-            'form':form_admin,
-            'dates':today,
-            'mois':libelle_mois_en_cours,
-            'annee':annee_en_cours,
-            'cars_events':car_event,
->>>>>>> 6b6f98e9edcd698a0d106c07939db0c99e7ee11e
         }
         return context
 
-<<<<<<< HEAD
 class UpdateCategoView(LoginRequiredMixin, CustomPermissionRequiredMixin, UpdateView):
     login_url = 'login'
-    permission_url = 'updat_visit'
+    permission_url = 'updat_catego_vehi'
     model = CategoVehi
     form_class = CategorieForm
     template_name = "perfect/partials/categ_form.html"
@@ -2808,11 +2712,6 @@ class UpdateCategoView(LoginRequiredMixin, CustomPermissionRequiredMixin, Update
 
 
 def delete_catego(request, pk):
-=======
-
-
-def delete_vehicule(request, pk):
->>>>>>> 6b6f98e9edcd698a0d106c07939db0c99e7ee11e
     try:
         catego = get_object_or_404(CategoVehi, id=pk)
         catego.delete()

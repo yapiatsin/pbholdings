@@ -60,7 +60,7 @@
                 </div>
                 <!-- /.card-header -->
                 <div class="card-body p-0">
-                    <ul class="products-list product-list-in-card pl-2 pr-2">
+                    <ul class="products-list product-list-in-card pl-2 pr-2 p-2 m-2">
                         <li class="item">
                             <div class="product-img">
                                 <a href="{% url "all_vehi" %}" class="product-title text-secondary">Tous les véhicules</a>
@@ -74,7 +74,7 @@
                         {% for categorie, perms in grouped_permissions.items %}
                             {% if categorie.categorie == 'permvehi' %}
                                 {% for perm in perms %}
-                                    {% if perm.name == "nouveau véhilcule" %}
+                                    {% if perm.name == "add véhicule" %}
                                         {% for c in categories %}
                                             <li class="item">
                                                 <div class="product-img">
@@ -140,21 +140,22 @@
                                                             {% for categorie, perms in grouped_permissions.items %}
                                                                 {% if categorie.categorie == 'permvehi' %}
                                                                     {% for perm in perms %}
-                                                                        {% if perm.name == "nouveau véhilcule" %}
+                                                                        {% if perm.name == "add véhicule" %}
                                                                             <a href="{% url 'add_vehi' u.pk %}" class="mr-3 text-warning ">
                                                                                 <i style="font-size: 20px; "class="fa fa-plus-circle text-success" title='add véhicule'></i>
+                                                                            </a>
+                                                                        {% elif perm.name == "Update Categorie" %}
+                                                                            <a href="#" class="edit-categorie-btn mr-3" data-url="{% url 'updat_catego_vehi' u.pk %}">
+                                                                                <i style="font-size: 20px;" class="fa fa-edit text-warning"></i>
+                                                                            </a>
+                                                                        {% elif perm.name == "sup categorie" %}
+                                                                            <a href="{% url 'delete_catego' u.pk %}" class="text-danger" onclick="return confirm('Etes-vous sûre de vouloir supprimer la categorie de véhicule {{u.category|upper}}? car si vous supprimer toutes les véhicules liées seront supprimés')">
+                                                                                <i style="font-size: 20px; " class="fa fa-trash "></i>
                                                                             </a>
                                                                         {% endif %}
                                                                     {% endfor %}
                                                                 {% endif %}
                                                             {% endfor %}
-                                                            
-                                                            <a href="#" class="edit-categorie-btn mr-3" data-url="{% url 'updat_catego_vehi' u.pk %}">
-                                                                <i style="font-size: 20px;" class="fa fa-edit text-warning"></i>
-                                                            </a>
-                                                            <a href="{% url 'delete_catego' u.pk %}" class="text-danger" onclick="return confirm('Etes-vous sûre de vouloir supprimer la categorie de véhicule {{u.category|upper}}? car si vous supprimer toutes les véhicules liées seront supprimés')">
-                                                                <i style="font-size: 20px; " class="fa fa-trash "></i>
-                                                            </a>
                                                         </td>
                                                     </tr>
                                                 {% endfor %}

@@ -2,9 +2,7 @@
 {% load static %} 
 {% block title %} Temps d'arrêt {% endblock title %} 
 {% block page_action %}
-    <a class="nav-link" data-toggle="modal" data-target="#modal-sm" style="font-size: 18px; color: #06497C; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); font-weight: 700;">filtre
-        <i style="font-size: 20px; color: #06497C; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);" class="fa fa-calendar"></i>
-    </a>
+    <button type="button" class="btn btn-default text-info" data-toggle="modal" data-target="#modal-sm"><i style="font-size: 20px;" class="fa fa-calendar"></i></button>
 {% endblock page_action %}
 {% block page_title %}
     <img class="profile-user-img" style="border:none; height:45px;width:45px" src="{% static 'temp_arret.png' %}" alt="User profile picture">Temps d'arrêt 
@@ -46,9 +44,8 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="modal-footer">
+                        <div class="modal-footer justify-content-between p-2">
                             <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Annuler</button>
-                            <a href="{% url 'temps_arrets' %}" class="btn btn-outline-info"><i class="fas fa-refresh"></i></a>
                             <button type="submit" class="btn btn-outline-success" >Afficher</button>
                         </div>
                     </form>

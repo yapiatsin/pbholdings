@@ -7,26 +7,19 @@ from decouple import config
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
-# BASE_DIR = os.path.dirname(os.path.dirname(__file__))  # ✅ correct
-
+# BASE_DIR = os.path.dirname(os.path.dirname(__file__))  
+# # # ✅ correct
 SECRET_KEY = config('SECRET_KEY')
 # DEBUG = True--  django-insecure-of03a0_f)5yamk9g&p9p2f^a*l8!6t#+r_c4oq42+sb&#y5znt
 
-# ALLOWED_HOSTS = ['*']
-<<<<<<< HEAD
-ALLOWED_HOSTS = ['localhost', '127.0.0.1','192.168.100.157']
+ALLOWED_HOSTS = ['*']
+# ALLOWED_HOSTS = ['localhost', '127.0.0.1','192.168.100.157']
 # ALLOWED_HOSTS = ['192.168.11.157', 'localhost', '127.0.0.1','192.168.194.157']
 
 # ALLOWED_HOSTS = ['pbholdingsite.com','www.pbholdingsite.com','45.92.109.86']
 # CSRF_TRUSTED_ORIGINS = [
 #     'https://pbholdingsite.com',
 # ]
-=======
-ALLOWED_HOSTS = ['pbholdingsite.com','www.pbholdingsite.com','45.92.109.86']
-CSRF_TRUSTED_ORIGINS = [
-    'https://pbholdingsite.com',
-]
->>>>>>> 6b6f98e9edcd698a0d106c07939db0c99e7ee11e
 
 handler403 = 'PB_Entreprise.views.permission_denied_view'
 handler404 = 'PB_Entreprise.views.custom_404_view'

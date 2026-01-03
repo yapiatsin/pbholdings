@@ -178,7 +178,7 @@
                     </div>
                 </div>
                 <div class="card-body p-0">
-                    <ul class="products-list product-list-in-card pl-2 pr-2">
+                    <ul class="products-list product-list-in-card pl-2 pr-2 p-2 m-2">
                         <li class="item">
                             <div class="product-img">
                                 <a href="{% url "all_vehi" %}" class="product-title text-secondary">Tous les véhicules</a>
@@ -192,7 +192,7 @@
                         {% for categorie, perms in grouped_permissions.items %}
                             {% if categorie.categorie == 'permvehi' %}
                                 {% for perm in perms %}
-                                    {% if perm.name == "nouveau véhilcule" %}
+                                    {% if perm.name == "add véhicule" %}
                                         {% for c in categories %}
                                             <li class="item">
                                                 <div class="product-img">
@@ -363,7 +363,7 @@
                 });
                 setTimeout(function() {
                     location.reload();
-                }, 100);
+                }, 2000);
             } else {
                 $("#modalBodyContent").html(data); 
             }
