@@ -192,7 +192,10 @@
     <div class="footer-legal text-center position-relative">
       <div class="container">
         <div class="copyright">
-          &copy; Copyright <strong><span>P&BENTREPRISE</span></strong>. All Rights Reserved
+          <strong>Copyright &copy; <span id="currentYear"></span> <a>P&BENTREPRISE</a>.</strong>
+          <script>
+            document.getElementById("currentYear").textContent = new Date().getFullYear();
+          </script>
         </div>
       </div>
     </div>

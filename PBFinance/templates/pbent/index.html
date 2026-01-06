@@ -35,12 +35,6 @@
       <a class="logo d-flex align-items-center me-auto">
         <i style="color: black;" class="bi bi-telephone-fill"></i> <i class="tel">+225 27 21 73 78 96</i>
       </a>
-      {% comment %} {% if user.is_authenticated %}
-        <a href="{% url 'log_out' %}" style="font-size: 15px; color: rgb(145, 2, 2); padding:0" class="bx">Deconnexion</a>
-      {% else %}
-        <a class="link" href="{% url 'login' %}" style="font-size: 15px; color: rgb(145, 2, 2);padding:0" class="bx">Connexion</a>
-      {% endif %} {% endcomment %}
-
       <nav id="navbar" class="navbar">
         <div id="topba" class="d-flex align-items-center fixed-top">
           <div class="container d-flex align-items-center justify-content-center justify-content-md-between">
@@ -413,7 +407,7 @@
             <ul>
               <li><a href="{% url 'home' %}">Accueil</a></li>
               <li><a href="{% url 'Apropos' %}">Notre identité</a></li>
-              <li><a href="{% url 'politiq_pb' %}">Politique Qualité</a></li>
+              <li><a href="#">Politique Qualité</a></li>
               <li><a href="{% url 'equipes' %}">Equipe</a></li>
             </ul>
           </div>
@@ -449,7 +443,10 @@
     <div class="footer-legal text-center position-relative">
       <div class="container">
         <div class="copyright">
-          &copy; Copyright 2024 <strong><span>P&BENTREPRISE</span></strong>. All Rights Reserved 
+          <strong>Copyright &copy; <span id="currentYear"></span> <a>P&BENTREPRISE</a>.</strong>
+          <script>
+            document.getElementById("currentYear").textContent = new Date().getFullYear();
+          </script>
         </div>
         <div class="credits">
           <!-- Designed by <a href="">P&BENTREPRISE</a> -->

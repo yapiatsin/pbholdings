@@ -244,6 +244,7 @@
                                 <th>COUT</th>
                                 <th>DUREE</th>
                                 <th>AGE</th>
+                                <th>STATUT</th>
                                 <th>ACTION</th>
                             </tr>
                         </thead>
@@ -264,6 +265,17 @@
                                                 {{ u.age }} ans
                                             </span>
                                         </a></td>
+                                        <td>
+                                            <div class="custom-control custom-switch custom-switch-off-danger custom-switch-on-success">
+                                                <input type="checkbox"
+                                                       class="custom-control-input toggle-car-statut"
+                                                       id="switch-car-{{ u.id }}"
+                                                       data-url="{% url 'toggle_car_statut' u.id %}"
+                                                       data-vehicule-id="{{ u.id }}"
+                                                       {% if u.car_statut %} checked {% endif %}>
+                                                <label class="custom-control-label" for="switch-car-{{ u.id }}"></label>
+                                            </div>
+                                        </td>
                                         <td>
                                             {% for categorie, perms in grouped_permissions.items %}
                                                 {% if categorie.categorie == 'permvehi' %}
@@ -303,6 +315,7 @@
                                 <th>---</th>
                                 <th>---</th>
                                 <th>---</th>
+                                <th>---</th>
                             </tr>
                         </tfoot>
                     </table>
@@ -319,6 +332,32 @@
         <div class="modal-content" style="border-radius:20px;">
             <div class="modal-body" id="modalBodyContent">
 
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="motifSortiModal" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content" style="border-radius:25px;">
+            <div class="modal-header">
+                <h4 class="modal-title" style="font-weight:700;color: #06497C; font-size:15px;">Motif de sortie</h4>
+                <button type="button" style="border-radius:25px;" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="motifSortiForm">
+                    <div class="form-group">
+                        <label for="motif_sorti_input" style="font-weight:700;color:rgba(152, 152, 152, 0.85); font-size:15px;">Motif de sortie du stock</label>
+                        <input type="text" class="form-control" id="motif_sorti_input" name="motif_sorti" maxlength="100" required>
+                        <input type="hidden" id="vehicule_id_hidden" name="vehicule_id">
+                    </div>
+                    <div class="modal-footer justify-content-between">
+                        <button type="button" class="btn btn-outline-secondary" style="border-radius:25px;" data-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-outline-danger" style="border-radius:25px;">Confirmer</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -368,6 +407,108 @@
                 $("#modalBodyContent").html(data); 
             }
         });
+    });
+
+    // Gestion du toggle car_statut
+    let currentCheckbox = null;
+    $(document).on("change", ".toggle-car-statut", function() {
+        let checkbox = $(this);
+        let url = checkbox.data("url");
+        let vehiculeId = checkbox.data("vehicule-id");
+        let isChecked = checkbox.is(":checked");
+        
+        // Si on désactive (on décoche), on demande le motif
+        if (!isChecked) {
+            currentCheckbox = checkbox;
+            $("#vehicule_id_hidden").val(vehiculeId);
+            $("#motif_sorti_input").val("");
+            $("#motifSortiModal").modal("show");
+            // On remet la checkbox à checked en attendant la confirmation
+            checkbox.prop("checked", true);
+        } else {
+            // Si on réactive, on envoie directement
+            $.ajax({
+                url: url,
+                type: "POST",
+                data: {
+                    csrfmiddlewaretoken: "{{ csrf_token }}",
+                },
+                success: function(response) {
+                    if (response.success) {
+                        const Toast = Swal.mixin({
+                            toast: true,
+                            position: 'top',
+                            showConfirmButton: false,
+                            timer: 4000,
+                            timerProgressBar: true
+                        });
+                        Toast.fire({
+                            type: 'success',
+                            title: 'Véhicule réintégré dans le stock avec succès !'
+                        });
+                    }
+                },
+                error: function() {
+                    checkbox.prop("checked", false);
+                    alert("⚠️ Erreur lors de la mise à jour du statut.");
+                }
+            });
+        }
+    });
+
+    // Gestion du formulaire de motif
+    $(document).on("submit", "#motifSortiForm", function(e) {
+        e.preventDefault();
+        let form = $(this);
+        let motif = $("#motif_sorti_input").val().trim();
+        let vehiculeId = $("#vehicule_id_hidden").val();
+        
+        if (!motif) {
+            alert("⚠️ Veuillez saisir un motif de sortie.");
+            return;
+        }
+        let checkbox = currentCheckbox;
+        let url = checkbox.data("url");
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: {
+                csrfmiddlewaretoken: "{{ csrf_token }}",
+                motif_sorti: motif
+            },
+            success: function(response) {
+                if (response.success) {
+                    $("#motifSortiModal").modal("hide");
+                    checkbox.prop("checked", false);
+                    const Toast = Swal.mixin({
+                        toast: true,
+                        position: 'top',
+                        showConfirmButton: false,
+                        timer: 4000,
+                        timerProgressBar: true
+                    });
+                    Toast.fire({
+                        type: 'error',
+                        title: 'Véhicule retiré du stock avec succès !'
+                    });
+                } else {
+                    alert("⚠️ " + (response.error || "Erreur lors de la mise à jour."));
+                    checkbox.prop("checked", true);
+                }
+            },
+            error: function() {
+                alert("⚠️ Erreur lors de la mise à jour du statut.");
+                checkbox.prop("checked", true);
+            }
+        });
+    });
+    // Réinitialiser le modal quand il se ferme
+    $("#motifSortiModal").on("hidden.bs.modal", function() {
+        if (currentCheckbox) {
+            currentCheckbox.prop("checked", true);
+            currentCheckbox = null;
+        }
+        $("#motif_sorti_input").val("");
     });
 </script>
 {% endblock main_content %}

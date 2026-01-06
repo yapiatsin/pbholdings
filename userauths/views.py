@@ -273,9 +273,6 @@ def add_comptable(request):
     if user.user_type != "1":
         messages.error(request, "Seuls les administrateurs peuvent créer des comptes comptable.")
         return redirect('home')
-    
-    # S'assurer que l'utilisateur connecté a un profil Administ
-    # Si le profil n'existe pas, le créer avec des valeurs par défaut
     admin_profile, created = Administ.objects.get_or_create(
         user=user,
         defaults={

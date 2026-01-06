@@ -29,6 +29,8 @@ class Vehicule(models.Model):
     dat_edit_carte_grise = models.DateField()
     date_mis_service = models.DateField()
     category = models.ForeignKey(CategoVehi, on_delete=models.CASCADE, related_name="catego_vehicule")
+    car_statut = models.BooleanField(default=True)
+    motif_sorti = models.CharField(max_length=100, null=True, blank=True)
     date_saisie = models.DateField(auto_now_add=True)
     history = HistoricalRecords()
     def __str__(self):

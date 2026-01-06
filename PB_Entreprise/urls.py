@@ -50,6 +50,7 @@ urlpatterns = [
     path('Nouveau #<int:pk> véhicule', AddVehiculeExcelView.as_view(), name='add_vehi'),
     path('vehicule /detail_financier', CarFinanceView.as_view(), name='detail_car_financier'),
     path('vehicule /<int:pk>/ modifier', UpdatVehiculeView.as_view(), name='updat_car'),
+    path('vehicule /<int:pk>/ toggle-statut/', toggle_car_statut, name='toggle_car_statut'),
     path('vehicules /delete-multiple/', delete_multiple_vehicules, name='delete_multiple_vehicules'),
     path('vehicules/export-excel/', ExportVehiculeExcelView.as_view(), name='export_vehicules_excel'),
 

@@ -841,7 +841,6 @@ class MyRecetteView(CustomPermissionRequiredMixin, LoginRequiredMixin, TemplateV
                 'recette_verse': recette_verse,
                 'ecart': ecart,
             })
-        
         # Calculer les totaux par date (colonne)
         total_cost_parts_sum = sum(vehicule.category.recette_defaut for vehicule in vehicules)
         totals_by_day = []
@@ -2762,23 +2761,6 @@ class AllVehiculeView(LoginRequiredMixin, CustomPermissionRequiredMixin, View):
         cout_totals = vehicules.aggregate(total=Sum('cout_acquisition'))['total'] or 0
         cout_total = '{:,}'.format(cout_totals).replace(',', ' ')
         total_veh = vehicules.count()
-
-        # categories = CategoVehi.objects.annotate(nb_vehicules=Count('catego_vehicule')).order_by('id')
-        # # vehicules = Vehicule.objects.none()
-        # cout_totals = 0
-        # total_veh = 0
-        # categorie = None
-        # if pk:
-        #     categorie = get_object_or_404(CategoVehi, pk=pk)
-        #     vehicules = Vehicule.objects.filter(category=categorie).order_by('id')
-        #     cout_totals = vehicules.aggregate(total=Sum('cout_acquisition'))['total'] or 0
-        #     cout_total = '{:,}'.format(cout_totals).replace(',', ' ')
-        #     total_veh = vehicules.count()
-        # else:
-        #     vehicules = Vehicule.objects.all().order_by('id')
-        #     cout_totals = vehicules.aggregate(total=Sum('cout_acquisition'))['total'] or 0
-        #     cout_total = '{:,}'.format(cout_totals).replace(',', ' ')
-        #     total_veh = vehicules.count()
         return render(request, self.template_name, {
             'vehicules': vehicules,
             'categorie': categorie,
@@ -2786,112 +2768,6 @@ class AllVehiculeView(LoginRequiredMixin, CustomPermissionRequiredMixin, View):
             'cout_total': cout_total,
             'total_veh': total_veh
         })
-
-# class AddVehiculeExcelView(View, LoginRequiredMixin,):
-#     login_url = 'login'
-#     # permission_url = 'add_car'
-#     template_name = 'perfect/add_vehicule.html'
-#     success_message = 'Véhicule enregistré avec succès ✓✓'
-#     error_message = "Erreur de saisie ✘✘"
-#     def get(self, request, pk=None):
-#         cout_totals = 0
-#         total_veh = 0
-#         categories = CategoVehi.objects.annotate(nb_vehicules=Count('catego_vehicule')).order_by('id')
-#         if pk:
-#             categorie = get_object_or_404(CategoVehi, pk=pk)
-#             vehicules = Vehicule.objects.filter(category=categorie).order_by('id')
-#             cout_totals = vehicules.aggregate(total=Sum('cout_acquisition'))['total'] or 0
-#             cout_total = '{:,}'.format(cout_totals).replace(',', ' ')
-
-#             total_veh = vehicules.count()
-#             form = VehiculeForm()
-#         else:
-#             categorie = None
-#             vehicules = Vehicule.objects.none()
-#             cout_totals = vehicules.aggregate(total=Sum('cout_acquisition'))['total'] or 0
-#             cout_total = '{:,}'.format(cout_totals).replace(',', ' ')
-#             total_veh = vehicules.count()
-#             form = VehiculeForm()
-#         return render(request, self.template_name, {
-#             'forms': form,
-#             'vehicules': vehicules,
-#             'categorie': categorie,
-#             'categories': categories,
-#             'cout_total': cout_total,
-#             'total_veh': total_veh,
-#         })
-#     def post(self, request, pk=None):
-#         categorie = get_object_or_404(CategoVehi, pk=pk)
-#         categories = CategoVehi.objects.all().order_by('id')
-#         if request.FILES.get('excel_file'):
-#             excel_file = request.FILES['excel_file']
-            
-#             try:
-#                 df = pd.read_excel(excel_file)
-#                 required_columns = [
-#                     'immatriculation', 'marque', 'duree', 'num_cart_grise',
-#                     'num_Chassis', 'date_acquisition', 'cout_acquisition',
-#                     'dat_edit_carte_grise', 'date_mis_service', 
-#                 ]
-#                 missing_columns = [col for col in required_columns if col not in df.columns]
-#                 if missing_columns:
-#                     messages.error(request, f"Colonnes manquantes : {', '.join(missing_columns)}")
-#                     return redirect('add_vehi', pk=pk)
-#                 created_count = 0
-#                 updated_count = 0
-#                 for _, row in df.iterrows():
-#                     immatriculation = str(row['immatriculation']).strip()
-#                     if not immatriculation:
-#                         continue  
-#                     vehicule_data = {
-#                         'marque': str(row.get('marque', '')).strip(),
-#                         'duree': int(row.get('duree', 0)),
-#                         'num_cart_grise': str(row.get('num_cart_grise')).strip(),
-#                         'num_Chassis': str(row.get('num_Chassis')).strip(),
-#                         'date_acquisition': pd.to_datetime(row.get('date_acquisition')).date(),
-#                         'cout_acquisition': int(row.get('cout_acquisition', 0)),
-#                         'dat_edit_carte_grise': pd.to_datetime(row.get('dat_edit_carte_grise')).date(),
-#                         'date_mis_service': pd.to_datetime(row.get('date_mis_service')).date(),
-#                         'category': categorie,
-#                         'auteur': request.user,
-#                     }
-#                     vehicule, created = Vehicule.objects.update_or_create(
-#                         immatriculation=immatriculation,
-#                         defaults=vehicule_data
-#                     )
-#                     if created:
-#                         created_count += 1
-#                     else:
-#                         updated_count += 1
-#                 messages.success(request, f"✅ {created_count} véhicule(s) créé(s), {updated_count} mis à jour.")
-#                 return redirect('add_vehi', pk=pk)
-
-#             except Exception as e:
-#                 messages.error(request, f"Erreur d'importation vérifier les informations du fichier Excel ")
-#                 return redirect('add_vehi', pk=pk)
-#         # Traitement manuel du formulaire
-#         form = VehiculeForm(request.POST, request.FILES)
-#         if form.is_valid():
-#             vehicule = form.save(commit=False)
-#             vehicule.auteur = request.user
-#             vehicule.category = categorie
-#             vehicule.save()
-#             messages.success(request, self.success_message)
-#             return redirect('all_vehi')
-#         else:
-#             messages.error(request, self.error_message)
-#             vehicules = Vehicule.objects.filter(category=categorie).order_by('-id')
-#             cout_total = vehicules.aggregate(total=Sum('cout_acquisition'))['total'] or 0
-#             total_veh = vehicules.count()
-#             return render(request, self.template_name, {
-#                 'forms': form,
-#                 'vehicules': vehicules,
-#                 'categorie': categorie,
-#                 'categories': categories,
-#                 'cout_total': cout_total,
-#                 'total_veh': total_veh,
-#             })
-
 
 class AddVehiculeExcelView(LoginRequiredMixin, View):
     login_url = 'login'
@@ -2972,7 +2848,6 @@ class AddVehiculeExcelView(LoginRequiredMixin, View):
                         'category': categorie,
                         'auteur': request.user,
                     }
-
                     vehicule, created = Vehicule.objects.update_or_create(
                         immatriculation=immatriculation,
                         defaults=vehicule_data
@@ -3073,6 +2948,33 @@ class ExportVehiculeExcelView(LoginRequiredMixin, View):
         response['Content-Disposition'] = 'attachment; filename=Véhicules.xlsx'
         wb.save(response)
         return response
+
+@login_required(login_url='/login/')
+@require_POST
+def toggle_car_statut(request, pk):
+    vehicule = get_object_or_404(Vehicule, id=pk)
+    # Si on désactive (car_statut passe de True à False), on demande le motif
+    if vehicule.car_statut:
+        motif_sorti = request.POST.get('motif_sorti', '').strip()
+        if not motif_sorti:
+            return JsonResponse({
+                "success": False, 
+                "error": "Le motif de sortie est requis",
+                "requires_motif": True
+            })
+        vehicule.motif_sorti = motif_sorti
+        vehicule.car_statut = False
+    else:
+        # Si on réactive, on peut vider le motif
+        vehicule.car_statut = True
+        vehicule.motif_sorti = None
+    
+    vehicule.save()
+    return JsonResponse({
+        "success": True, 
+        "car_statut": vehicule.car_statut,
+        "message": "Statut du véhicule mis à jour avec succès"
+    })
 
 @login_required(login_url='login')
 def delete_multiple_vehicules(request):
@@ -6360,6 +6262,7 @@ def delete_selected_piechange(request):
         messages.warning(request, "Aucune pièce changé sélectionnée.")
     return redirect('list_piechange')
 
+# class DetailReparatView(LoginRequiredMixin, DetailView):
 class DetailReparatView(LoginRequiredMixin, CustomPermissionRequiredMixin, DetailView):
     login_url = 'login'
     permission_url = 'detail_reparat'
