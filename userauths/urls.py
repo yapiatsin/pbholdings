@@ -17,6 +17,8 @@ urlpatterns = [
     path('Créer chef exploitation', add_chefexploit, name="addchefexploit"),
     path('Créer comptable', add_comptable, name="addcomptable"),
     path('Créer gerant', add_gerant, name="addgerant"),
+    path('modifier gerant/<int:pk>/', edit_gerant, name="edit_gerant"),
+    path('modifier gerant par user/<int:user_id>/', edit_gerant_by_user, name="edit_gerant_by_user"),
    
     path('supprimer compte gerant/<int:pk>/delete', delete_gerant, name="del_gernt"),
     path('supprimer compte comptable/<int:pk>/delete', delete_comptable, name="del_comptable"),

@@ -8,8 +8,10 @@ Résumé de la réparation du <b class="text-danger"> {{ reparation.vehicule.imm
 {% endblock page_title %} 
 
 {% block page_action %}
+<a href="{% url 'export_reparation_pdf' reparation.pk %}" class="btn btn-outline-danger" target="_blank">
+    <i class="fa fa-file-pdf-o"></i> Exporter PDF
+</a>
 <button onclick="window.print()" class="btn btn-outline-primary">🖨️ Imprimer</button>
-
 {% endblock page_action %}
 {% block main_content %}
 

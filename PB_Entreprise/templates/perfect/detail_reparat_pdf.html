@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fiche de Réparation - {{ reparation.num_fich }}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 1.5cm;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 11pt;
+            color: #000;
+            margin: 0;
+            padding: 0;
+        }
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+        .company-info {
+            width: 60%;
+        }
+        .company-info img {
+            width: 200px;
+            height: 70px;
+            margin-bottom: 5px;
+        }
+        .company-info strong {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 3px;
+        }
+        .client-info {
+            width: 35%;
+            text-align: right;
+        }
+        .client-info strong {
+            font-weight: bold;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #033c9f;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+        }
+        .text-primary {
+            color: #033c9f;
+            font-weight: bold;
+        }
+        .text-danger {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .text-secondary {
+            color: #6c757d;
+        }
+        .fiche-header {
+            color: rgb(3, 92, 159);
+            font-weight: bold;
+            text-align: center;
+        }
+        .table-header {
+            font-weight: 700;
+            color: rgb(3, 92, 159);
+        }
+        .image-section {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .image-section img {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="header-section">
+        <!-- Coordonnées DEVH -->
+        <div class="company-info">
+            {% if logo_path %}
+                <img src="file://{{ logo_path }}" alt="Logo" style="width: 200px; height:70px"><br>
+            {% endif %}
+            <strong>Tel : +225 27 21 73 78 96</strong>
+            <strong>Cel : +225 01 02 31 91 12</strong>
+            <strong>Email : pacomebertine@gmail.com</strong>
+            <strong>Adresse : 17 BP 204 ABIDJAN 17</strong>
+            <strong>RCCM : CI-ABJ-03-2019-B12-16714</strong>
+        </div>
+
+        <!-- Coordonnées Client -->
+        <div class="client-info">
+            Enregistrer par : <strong>{{ reparation.auteur.username|upper }}</strong><br>
+            le : <strong>{{ reparation.date|date:"d/m/y" }}</strong><br>
+            à : <strong>{{ reparation.date|date:"H:m:s" }}</strong>
+            <br>
+            <br>
+            <strong>Véhicule : {{ reparation.vehicule.immatriculation }}</strong>
+            <br>
+            <strong>Catégorie: {{ reparation.vehicule.category }}</strong>
+        </div>
+    </div>
+    <br><br>
+    <table>
+        <thead>
+            <tr>
+                <th colspan="12" class="fiche-header">N° Fiche {{ reparation.num_fich }}</th>
+            </tr>
+            <tr class="table-header">
+                <th>MOTIF</th>
+                <th>DATE ENTREE</th>
+                <th>DATE SORTIE</th>
+                <th>DUREE</th>
+                <th colspan="4">PERTE</th>
+                <th colspan="4">NETTE</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="text-primary">{{ reparation.motif }}</td>
+                <td>{{ reparation.date_entree|date:"d/m/y à H:m:s" }}</td>
+                <td>{{ reparation.date_sortie|date:"d/m/y à H:m:s" }}</td>
+                <td class="text-danger" style="font-weight:700;">{{ duree_effective_heures }}</td>
+                <td colspan="4" class="text-danger" style="font-weight:700;">{{ perte }} frs</td>
+                <td colspan="4" class="text-danger" style="font-weight:700;">{{ recette_nette }} frs</td>
+            </tr>
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="2" style="color: rgb(3, 92, 159);">
+                    Description
+                </td>
+                <td colspan="10">
+                    {{ reparation.description }}
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" style="color: rgb(3, 92, 159);">
+                    Main d'oeuvre
+                </td>
+                <td colspan="10" class="text-danger" style="font-weight:700;">
+                    {{ reparation.prestation }} frs
+                </td>
+            </tr>
+            <tr>
+                <td colspan="12" class="text-secondary"></td>
+            </tr>
+            <tr>
+                <td colspan="12" class="text-secondary">
+                   <b> LISTE DES PIECES POUR LA REPARATION</b>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="12">
+                    <table style="margin: 0; width: 100%;">
+                        <thead>
+                            <tr class="table-header">
+                                <th colspan="2">LIBELLE</th>
+                                <th colspan="2">LIEU</th>
+                                <th colspan="2">QTE</th>
+                                <th colspan="2">MONTANT</th>
+                                <th colspan="2">TOTAL</th>
+                                <th colspan="2">DATE SAISIE</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if list_piece %}
+                                {% for u in list_piece %}
+                                    <tr>
+                                        <td colspan="2" class="text-">{{ u.libelle }}</td>
+                                        <td colspan="2" class="text-">{{ u.lieu }}</td>
+                                        <td colspan="2" class="text-">{{ u.quantite }}</td>
+                                        <td colspan="2" class="text-danger">{{ u.montant }} frs</td>
+                                        <td colspan="2" class="text-danger">{{ u.prix_total }} frs</td>
+                                        <td colspan="2" class="text-danger">{{ u.date_saisie }}</td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="12" class="text-secondary">Pas de pièce....</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+            <tr class="text-danger" style="font-weight:700;">
+                <td colspan="4">
+                    TOTAL REPARATION
+                </td>
+                <td colspan="8">
+                    {{ reparation.montant }} frs
+                </td>
+            </tr>
+            <tr>
+                <td colspan="12" class="text-secondary"></td>
+            </tr>
+            <tr>
+                <td colspan="12" class="text-secondary">
+                    {% if image_path %}
+                        <div class="image-section">
+                            <img src="file://{{ image_path }}" style="height: 500px; width: 900px; max-width: 100%; height: auto;">
+                        </div>
+                    {% endif %}
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+</body>
+</html>
+

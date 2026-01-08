@@ -51,6 +51,11 @@
                                                         <td>{{u.gender}}</td>
                                                         <td>{{u.user_type}}</td>
                                                         <td class="text-center ">
+                                                            {% if u.user_type == "4" %}
+                                                                <a href="#" class="mr-3 text-primary edit-gerant-by-user-btn" data-user-id="{{u.id}}" data-username="{{u.username}}" data-toggle="modal" data-target="#editGerantByUserModal">
+                                                                    <i style="font-size: 20px;" class="fa fa-edit"></i>
+                                                                </a>
+                                                            {% endif %}
                                                             <a href="#" class="mr-3 text-warning edit-permissions-btn" data-user-id="{{u.id}}" data-username="{{u.username}}" data-toggle="modal" data-target="#permissionModal">
                                                                 <i style="font-size: 20px;" class="fa fa-lock"></i>
                                                             </a>
@@ -85,6 +90,30 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal pour modifier un gérant (depuis liste_compte.html) -->
+<div class="modal fade" id="editGerantByUserModal" tabindex="-1" role="dialog" aria-labelledby="editGerantByUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" style="border-radius:20px">
+            <div class="modal-header">
+                <h4 class="modal-title" style="font-weight:700;color: #06497C; font-size:15px;" id="editGerantByUserModalLabel">
+                    <img class="profile-user-img" style="border:none; height:35px;width:35px" src="{% static 'add-user.png' %}" alt="User profile picture">
+                    Modifier le compte gérant
+                </h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="edit-gerant-by-user-modal-body">
+                <div class="text-center">
+                    <div class="spinner-border" role="status">
+                        <span class="sr-only">Chargement...</span>
                     </div>
                 </div>
             </div>
@@ -258,6 +287,127 @@
     // Réinitialiser la modal quand elle est fermée
     $('#permissionModal').on('hidden.bs.modal', function () {
         $("#permission-modal-body").html(
+            '<div class="text-center"><div class="spinner-border" role="status"><span class="sr-only">Chargement...</span></div></div>'
+        );
+    });
+
+    // Charger le contenu de la modal d'édition de gérant (depuis liste_compte.html)
+    $(document).on("click", ".edit-gerant-by-user-btn", function(e) {
+        e.preventDefault();
+        let userId = $(this).data("user-id");
+        let username = $(this).data("username");
+        // Construire l'URL en utilisant le préfixe auth/ et en remplaçant correctement l'ID
+        let url = "/auth/modifier gerant par user/" + userId + "/";
+        
+        // Mettre à jour le titre de la modal
+        $("#editGerantByUserModalLabel").html(
+            '<img class="profile-user-img" style="border:none; height:35px;width:35px" src="{% static "add-user.png" %}" alt="User profile picture"> ' +
+            'Modifier le compte gérant - ' + username
+        );
+        
+        // Afficher le spinner
+        $("#edit-gerant-by-user-modal-body").html(
+            '<div class="text-center"><div class="spinner-border" role="status"><span class="sr-only">Chargement...</span></div></div>'
+        );
+        
+        // Afficher l'URL pour débogage
+        console.log('URL appelée:', url);
+        console.log('User ID:', userId);
+        
+        // Charger le contenu via AJAX
+        $.ajax({
+            url: url,
+            type: "GET",
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            success: function(response) {
+                console.log('Réponse reçue:', response);
+                if (response.html) {
+                    $("#edit-gerant-by-user-modal-body").html(response.html);
+                } else {
+                    $("#edit-gerant-by-user-modal-body").html('<div class="alert alert-danger">Erreur lors du chargement du formulaire. Aucun contenu HTML reçu.</div>');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.log('Erreur AJAX:', xhr, status, error);
+                console.log('URL appelée:', url);
+                let errorHtml = '<div class="alert alert-danger">Erreur lors du chargement du formulaire.<br>';
+                errorHtml += 'URL: ' + url + '<br>';
+                errorHtml += 'Status: ' + xhr.status + '<br>';
+                errorHtml += 'Error: ' + error + '<br>';
+                if (xhr.responseJSON && xhr.responseJSON.html) {
+                    errorHtml += 'Détails: ' + xhr.responseJSON.html;
+                } else if (xhr.responseText) {
+                    try {
+                        let response = JSON.parse(xhr.responseText);
+                        if (response.html) {
+                            errorHtml += 'Détails: ' + response.html;
+                        } else {
+                            errorHtml += 'Réponse: ' + xhr.responseText.substring(0, 500);
+                        }
+                    } catch(e) {
+                        errorHtml += 'Réponse brute: ' + xhr.responseText.substring(0, 500);
+                    }
+                }
+                errorHtml += '</div>';
+                $("#edit-gerant-by-user-modal-body").html(errorHtml);
+            }
+        });
+    });
+
+    // Gérer la soumission du formulaire d'édition de gérant (depuis liste_compte.html)
+    $(document).on("submit", "#gerant-edit-by-user-form-modal", function(e) {
+        e.preventDefault();
+        let form = $(this);
+        let url = form.attr("action");
+        let formData = form.serialize();
+        
+        // Désactiver le bouton de soumission
+        let submitBtn = form.find('button[type="submit"]');
+        let originalText = submitBtn.html();
+        submitBtn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Enregistrement...');
+        
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            success: function(response) {
+                if (response.success) {
+                    // Fermer immédiatement la modal
+                    $('#editGerantByUserModal').modal('hide');
+                    // Recharger la page pour afficher les modifications
+                    window.location.reload();
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Erreur',
+                        text: response.message || 'Une erreur est survenue lors de la mise à jour du compte gérant.'
+                    });
+                    submitBtn.prop('disabled', false).html(originalText);
+                }
+            },
+            error: function(xhr) {
+                let errorMsg = 'Une erreur est survenue lors de la mise à jour du compte gérant.';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMsg = xhr.responseJSON.message;
+                }
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erreur',
+                    text: errorMsg
+                });
+                submitBtn.prop('disabled', false).html(originalText);
+            }
+        });
+    });
+
+    // Réinitialiser la modal quand elle est fermée
+    $('#editGerantByUserModal').on('hidden.bs.modal', function () {
+        $("#edit-gerant-by-user-modal-body").html(
             '<div class="text-center"><div class="spinner-border" role="status"><span class="sr-only">Chargement...</span></div></div>'
         );
     });

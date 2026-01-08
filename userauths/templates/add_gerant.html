@@ -60,7 +60,17 @@
                                 <label>TEL 2</label> {{gerantform_form.tel2}}
                             </div>
                             <div class="col-md-12 form-group">
-                                <label>VEHICULE GERER</label> {{gerantform_form.gerant_voiture}}
+                                <label>VÉHICULES GÉRÉS</label>
+                                <div class="form-check-group" style="display: flex; flex-wrap: wrap; gap: 15px; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                                    {% for checkbox in gerantform_form.gerant_voiture %}
+                                        <div class="form-check" style="min-width: 150px;">
+                                            {{ checkbox.tag }}
+                                            <label class="form-check-label" for="{{ checkbox.id_for_label }}">
+                                                {{ checkbox.choice_label }}
+                                            </label>
+                                        </div>
+                                    {% endfor %}
+                                </div>
                             </div>
                             <div class="col-md-12 form-group">
                                 <input type="TEXT" value="LES PERMISSIONS" class="form-control text-center" disabled>
@@ -109,7 +119,7 @@
                                                     <th>PRENOMS</th>
                                                     <th>COMMUNE</th>
                                                     <th>CONTACT 1</th>
-                                                    <th>VEHICULE</th>
+                                                    <th>VÉHICULES</th>
                                                     <th>ACTION</th>
                                                 </tr>
                                             </thead>
@@ -121,8 +131,17 @@
                                                             <td>{{u.prenom}}</td>
                                                             <td>{{u.commune}}</td>
                                                             <td>{{u.tel1}}</td>
-                                                            <td>{{u.gerant_voiture}}</td>
+                                                            <td>
+                                                                {% for cat in u.gerant_voiture.all %}
+                                                                    <span class="badge badge-info">{{ cat }}</span>{% if not forloop.last %}, {% endif %}
+                                                                {% empty %}
+                                                                    <span class="text-muted">Aucune catégorie</span>
+                                                                {% endfor %}
+                                                            </td>
                                                             <td class="text-center ">
+                                                                <a href="#" class="mr-3 text-primary edit-gerant-btn" data-gerant-id="{{u.pk}}" data-gerant-nom="{{u.nom}}" data-toggle="modal" data-target="#editGerantModal">
+                                                                    <i style="font-size: 20px;" class="fa fa-edit"></i>
+                                                                </a>
                                                                 <a href="{% url 'del_gernt' u.pk %}" class="text-danger" onclick="return confirm('Etes-vous sûre de vouloir supprimer les informations concernant {{u.nom|upper}} - {{u.prenom}}? car si vous supprimer toutes les informations liées seront perdues')">
                                                                     <i style="font-size: 20px; " class="fa fa-trash "></i>
                                                                 </a>
@@ -151,4 +170,144 @@
             </div>
         </div>
     </div>
+
+<!-- Modal pour modifier un gérant -->
+<div class="modal fade" id="editGerantModal" tabindex="-1" role="dialog" aria-labelledby="editGerantModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" style="border-radius:20px">
+            <div class="modal-header">
+                <h4 class="modal-title" style="font-weight:700;color: #06497C; font-size:15px;" id="editGerantModalLabel">
+                    <img class="profile-user-img" style="border:none; height:35px;width:35px" src="{% static 'add-user.png' %}" alt="User profile picture">
+                    Modifier le compte gérant
+                </h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="edit-gerant-modal-body">
+                <div class="text-center">
+                    <div class="spinner-border" role="status">
+                        <span class="sr-only">Chargement...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    // Charger le contenu de la modal d'édition de gérant
+    $(document).on("click", ".edit-gerant-btn", function(e) {
+        e.preventDefault();
+        let gerantId = $(this).data("gerant-id");
+        let gerantNom = $(this).data("gerant-nom");
+        // Construire l'URL en utilisant le préfixe auth/ et en remplaçant correctement l'ID
+        let url = "/auth/modifier gerant/" + gerantId + "/";
+        console.log('URL appelée:', url);
+        console.log('Gerant ID:', gerantId);
+        
+        // Mettre à jour le titre de la modal
+        $("#editGerantModalLabel").html(
+            '<img class="profile-user-img" style="border:none; height:35px;width:35px" src="{% static "add-user.png" %}" alt="User profile picture"> ' +
+            'Modifier le compte gérant - ' + gerantNom
+        );
+        
+        // Afficher le spinner
+        $("#edit-gerant-modal-body").html(
+            '<div class="text-center"><div class="spinner-border" role="status"><span class="sr-only">Chargement...</span></div></div>'
+        );
+        
+        // Charger le contenu via AJAX
+        $.ajax({
+            url: url,
+            type: "GET",
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            success: function(response) {
+                if (response.html) {
+                    $("#edit-gerant-modal-body").html(response.html);
+                } else {
+                    $("#edit-gerant-modal-body").html('<div class="alert alert-danger">Erreur lors du chargement du formulaire.</div>');
+                }
+            },
+            error: function(xhr, status, error) {
+                let errorHtml = '<div class="alert alert-danger">Erreur lors du chargement du formulaire.';
+                if (xhr.responseJSON && xhr.responseJSON.html) {
+                    errorHtml = xhr.responseJSON.html;
+                } else if (xhr.responseText) {
+                    try {
+                        let response = JSON.parse(xhr.responseText);
+                        if (response.html) {
+                            errorHtml = response.html;
+                        }
+                    } catch(e) {
+                        errorHtml += '<br>Status: ' + xhr.status + '<br>Error: ' + error;
+                    }
+                } else {
+                    errorHtml += '<br>Status: ' + xhr.status + '<br>Error: ' + error;
+                }
+                errorHtml += '</div>';
+                $("#edit-gerant-modal-body").html(errorHtml);
+            }
+        });
+    });
+
+    // Gérer la soumission du formulaire d'édition de gérant dans la modal
+    $(document).on("submit", "#gerant-edit-form-modal", function(e) {
+        e.preventDefault();
+        let form = $(this);
+        let url = form.attr("action");
+        let formData = form.serialize();
+        
+        // Désactiver le bouton de soumission
+        let submitBtn = form.find('button[type="submit"]');
+        let originalText = submitBtn.html();
+        submitBtn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Enregistrement...');
+        
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            success: function(response) {
+                if (response.success) {
+                    // Fermer immédiatement la modal
+                    $('#editGerantModal').modal('hide');
+                    // Recharger la page pour afficher les modifications
+                    window.location.reload();
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Erreur',
+                        text: response.message || 'Une erreur est survenue lors de la mise à jour du compte gérant.'
+                    });
+                    submitBtn.prop('disabled', false).html(originalText);
+                }
+            },
+            error: function(xhr) {
+                let errorMsg = 'Une erreur est survenue lors de la mise à jour du compte gérant.';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMsg = xhr.responseJSON.message;
+                }
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erreur',
+                    text: errorMsg
+                });
+                submitBtn.prop('disabled', false).html(originalText);
+            }
+        });
+    });
+
+    // Réinitialiser la modal quand elle est fermée
+    $('#editGerantModal').on('hidden.bs.modal', function () {
+        $("#edit-gerant-modal-body").html(
+            '<div class="text-center"><div class="spinner-border" role="status"><span class="sr-only">Chargement...</span></div></div>'
+        );
+    });
+</script>
 {% endblock main_content %}

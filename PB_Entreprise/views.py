@@ -37,6 +37,10 @@ from userauths.utils import search_vehicules
 import openpyxl
 from openpyxl.utils import get_column_letter
 from openpyxl.styles import Font, PatternFill, Alignment
+from xhtml2pdf import pisa
+from django.conf import settings
+import os
+
 
 def permission_denied_view(request, exception):
     return render(request, 'no_acces.html',status=403)
@@ -268,8 +272,9 @@ class TableaustopView(CustomPermissionRequiredMixin,TemplateView):
         if user.user_type == "4":
             try:
                 gerant = user.gerants.get()
-                if gerant.gerant_voiture:  
-                    vehicules = Vehicule.objects.filter(category=gerant.gerant_voiture)
+                categories_gerant = gerant.gerant_voiture.all()
+                if categories_gerant.exists():  
+                    vehicules = Vehicule.objects.filter(category__in=categories_gerant)
                 else:
                     vehicules = Vehicule.objects.none()
             except Gerant.DoesNotExist:
@@ -291,8 +296,9 @@ class TableaustopView(CustomPermissionRequiredMixin,TemplateView):
                 if user.user_type == "4":
                     try:
                         gerant = user.gerants.get()
-                        if gerant.gerant_voiture:
-                            count = count.filter(vehicule__category=gerant.gerant_voiture)
+                        categories_gerant = gerant.gerant_voiture.all()
+                        if categories_gerant.exists():
+                            count = count.filter(vehicule__category__in=categories_gerant)
                         else:
                             count = count.none()
                     except Gerant.DoesNotExist:
@@ -430,8 +436,9 @@ class ExportTempsArretExcelView(LoginRequiredMixin, View):
         if user.user_type == "4":
             try:
                 gerant = user.gerants.get()
-                if gerant.gerant_voiture:  
-                    vehicules = Vehicule.objects.filter(category=gerant.gerant_voiture)
+                categories_gerant = gerant.gerant_voiture.all()
+                if categories_gerant.exists():  
+                    vehicules = Vehicule.objects.filter(category__in=categories_gerant)
                 else:
                     vehicules = Vehicule.objects.none()
             except Gerant.DoesNotExist:
@@ -1342,8 +1349,9 @@ class DashboardGaragView(CustomPermissionRequiredMixin, TemplateView):
         if user.user_type == "4":
             try:
                 gerant = user.gerants.get()
-                if gerant.gerant_voiture:  
-                    vehicules = Vehicule.objects.filter(category=gerant.gerant_voiture)
+                categories_gerant = gerant.gerant_voiture.all()
+                if categories_gerant.exists():  
+                    vehicules = Vehicule.objects.filter(category__in=categories_gerant)
                 else:
                     vehicules = Vehicule.objects.none()
             except Gerant.DoesNotExist:
@@ -2401,8 +2409,9 @@ class GestionalerteView(LoginRequiredMixin, CustomPermissionRequiredMixin, Templ
         if user.user_type == "4":
             try:
                 gerant = user.gerants.get()
-                if gerant.gerant_voiture:  
-                    vehicules = Vehicule.objects.filter(category=gerant.gerant_voiture)
+                categories_gerant = gerant.gerant_voiture.all()
+                if categories_gerant.exists():  
+                    vehicules = Vehicule.objects.filter(category__in=categories_gerant)
                 else:
                     vehicules = Vehicule.objects.none()
             except Gerant.DoesNotExist:
@@ -2740,8 +2749,9 @@ class AllVehiculeView(LoginRequiredMixin, CustomPermissionRequiredMixin, View):
         if user.user_type == "4":
             try:
                 gerant = Gerant.objects.get(user=user)
-                if gerant.gerant_voiture:
-                    vehicules = Vehicule.objects.filter(category=gerant.gerant_voiture)
+                categories_gerant = gerant.gerant_voiture.all()
+                if categories_gerant.exists():
+                    vehicules = Vehicule.objects.filter(category__in=categories_gerant)
                 else:
                     vehicules = Vehicule.objects.none()
             except Gerant.DoesNotExist:
@@ -3020,8 +3030,9 @@ class CarFinanceView(LoginRequiredMixin, CustomPermissionRequiredMixin,TemplateV
         if user.user_type == "4":
             try:
                 gerant = user.gerants.get()
-                if gerant.gerant_voiture:  
-                    vehicules = Vehicule.objects.filter(category=gerant.gerant_voiture)
+                categories_gerant = gerant.gerant_voiture.all()
+                if categories_gerant.exists():  
+                    vehicules = Vehicule.objects.filter(category__in=categories_gerant)
                 else:
                     vehicules = Vehicule.objects.none() 
             except Gerant.DoesNotExist:
@@ -3224,8 +3235,9 @@ class SaisieGaragView(LoginRequiredMixin, CustomPermissionRequiredMixin, Templat
         if user.user_type == "4":
             try:
                 gerant = user.gerants.get()
-                if gerant.gerant_voiture:  
-                    vehicules = Vehicule.objects.filter(category=gerant.gerant_voiture)
+                categories_gerant = gerant.gerant_voiture.all()
+                if categories_gerant.exists():  
+                    vehicules = Vehicule.objects.filter(category__in=categories_gerant)
                 else:
                     vehicules = Vehicule.objects.none() 
             except Gerant.DoesNotExist:
@@ -3320,8 +3332,9 @@ class TempsArretsView(LoginRequiredMixin, CustomPermissionRequiredMixin, Templat
         if user.user_type == "4":
             try:
                 gerant = user.gerants.get()
-                if gerant.gerant_voiture:  
-                    vehicules = Vehicule.objects.filter(category=gerant.gerant_voiture)
+                categories_gerant = gerant.gerant_voiture.all()
+                if categories_gerant.exists():  
+                    vehicules = Vehicule.objects.filter(category__in=categories_gerant)
                 else:
                     vehicules = Vehicule.objects.none() 
             except Gerant.DoesNotExist:
@@ -3413,8 +3426,9 @@ class SaisiComptaView(LoginRequiredMixin, CustomPermissionRequiredMixin,Template
         if user.user_type == "4":
             try:
                 gerant = user.gerants.get()
-                if gerant.gerant_voiture:  
-                    vehicules = Vehicule.objects.filter(category=gerant.gerant_voiture)
+                categories_gerant = gerant.gerant_voiture.all()
+                if categories_gerant.exists():  
+                    vehicules = Vehicule.objects.filter(category__in=categories_gerant)
                 else:
                     vehicules = Vehicule.objects.none()
             except Gerant.DoesNotExist:
@@ -3573,7 +3587,6 @@ class AddRecetteView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateVi
             'forms': forms,
         }   
         return context  
-    
     def get_success_url(self):
         return reverse('add_recettes', kwargs={'pk': self.kwargs['pk']})
 
@@ -3598,8 +3611,6 @@ class ListRecetView(LoginRequiredMixin, CustomPermissionRequiredMixin, ListView)
         context = super().get_context_data(**kwargs)
         dates = date.today()
         annee = date.today().year
-        mois = date.today().month
-
         recette_queryset = Recette.objects.all()
         form = self.form_class(self.request.GET)
         if form.is_valid():
@@ -3745,8 +3756,9 @@ class AddAutrarretView(LoginRequiredMixin, CustomPermissionRequiredMixin, Create
         if user.user_type == "4":
             try:
                 gerant = user.gerants.get()
-                if gerant.gerant_voiture:  
-                    vehicules = Vehicule.objects.filter(category=gerant.gerant_voiture)
+                categories_gerant = gerant.gerant_voiture.all()
+                if categories_gerant.exists():  
+                    vehicules = Vehicule.objects.filter(category__in=categories_gerant)
                 else:
                     vehicules = Vehicule.objects.none() 
             except Gerant.DoesNotExist:
@@ -4109,8 +4121,9 @@ class AddChargeFixView(LoginRequiredMixin, CustomPermissionRequiredMixin, Create
         if user.user_type == "4":
             try:
                 gerant = user.gerants.get()
-                if gerant.gerant_voiture:  
-                    vehicules = Vehicule.objects.filter(category=gerant.gerant_voiture)
+                categories_gerant = gerant.gerant_voiture.all()
+                if categories_gerant.exists():  
+                    vehicules = Vehicule.objects.filter(category__in=categories_gerant)
                 else:
                     vehicules = Vehicule.objects.none() 
             except Gerant.DoesNotExist:
@@ -4342,7 +4355,8 @@ class AddChargeVarView(LoginRequiredMixin, CustomPermissionRequiredMixin, Create
         if user.user_type == "4":
             try:
                 gerant = user.gerants.get()
-                if gerant.gerant_voiture == "VTC":
+                categories_gerant = gerant.gerant_voiture.all()
+                if categories_gerant.filter(category="VTC").exists():
                     vehicules = Vehicule.objects.filter(category__category="VTC")
                 else:
                     vehicules = Vehicule.objects.filter(category__category="TAXI")
@@ -4802,8 +4816,9 @@ class AddCartStationView(LoginRequiredMixin, CustomPermissionRequiredMixin, Crea
         if user.user_type == "4":
             try:
                 gerant = user.gerants.get()
-                if gerant.gerant_voiture:  
-                    vehicules = Vehicule.objects.filter(category=gerant.gerant_voiture)
+                categories_gerant = gerant.gerant_voiture.all()
+                if categories_gerant.exists():  
+                    vehicules = Vehicule.objects.filter(category__in=categories_gerant)
                 else:
                     vehicules = Vehicule.objects.none() 
             except Gerant.DoesNotExist:
@@ -5041,8 +5056,9 @@ class AddPatenteView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateVi
         if user.user_type == "4":
             try:
                 gerant = user.gerants.get()
-                if gerant.gerant_voiture:  
-                    vehicules = Vehicule.objects.filter(category=gerant.gerant_voiture)
+                categories_gerant = gerant.gerant_voiture.all()
+                if categories_gerant.exists():  
+                    vehicules = Vehicule.objects.filter(category__in=categories_gerant)
                 else:
                     vehicules = Vehicule.objects.none() 
             except Gerant.DoesNotExist:
@@ -5273,8 +5289,9 @@ class AddVignetteView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateV
         if user.user_type == "4":
             try:
                 gerant = user.gerants.get()
-                if gerant.gerant_voiture:  
-                    vehicules = Vehicule.objects.filter(category=gerant.gerant_voiture)
+                categories_gerant = gerant.gerant_voiture.all()
+                if categories_gerant.exists():  
+                    vehicules = Vehicule.objects.filter(category__in=categories_gerant)
                 else:
                     vehicules = Vehicule.objects.none() 
             except Gerant.DoesNotExist:
@@ -5528,7 +5545,8 @@ class AddVisitView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateView
         if user.user_type == "4":
             try:
                 gerant = user.gerants.get()
-                if gerant.gerant_voiture == "VTC":
+                categories_gerant = gerant.gerant_voiture.all()
+                if categories_gerant.filter(category="VTC").exists():
                     vehicules = Vehicule.objects.filter(category__category="VTC")
                 else:
                     vehicules = Vehicule.objects.filter(category__category="TAXI")
@@ -5767,8 +5785,9 @@ class AddAssuranceView(LoginRequiredMixin, CustomPermissionRequiredMixin, Create
         if user.user_type == "4":
             try:
                 gerant = user.gerants.get()  
-                if gerant.gerant_voiture:  
-                    vehicules = Vehicule.objects.filter(category=gerant.gerant_voiture)
+                categories_gerant = gerant.gerant_voiture.all()
+                if categories_gerant.exists():  
+                    vehicules = Vehicule.objects.filter(category__in=categories_gerant)
                 else:
                     vehicules = Vehicule.objects.none() 
             except Gerant.DoesNotExist:
@@ -6009,8 +6028,9 @@ class AddReparationView(LoginRequiredMixin, CustomPermissionRequiredMixin, Creat
         if user.user_type == "4":
             try:
                 gerant = user.gerants.get()  
-                if gerant.gerant_voiture:  
-                    vehicules = Vehicule.objects.filter(category=gerant.gerant_voiture)
+                categories_gerant = gerant.gerant_voiture.all()
+                if categories_gerant.exists():  
+                    vehicules = Vehicule.objects.filter(category__in=categories_gerant)
                 else:
                     vehicules = Vehicule.objects.none() 
             except Gerant.DoesNotExist:
@@ -6199,8 +6219,9 @@ class AddPiecEchangeView(LoginRequiredMixin, CustomPermissionRequiredMixin, Crea
         if user.user_type == "4":
             try:
                 gerant = user.gerants.get()  
-                if gerant.gerant_voiture:  
-                    vehicules = Vehicule.objects.filter(category=gerant.gerant_voiture)
+                categories_gerant = gerant.gerant_voiture.all()
+                if categories_gerant.exists():  
+                    vehicules = Vehicule.objects.filter(category__in=categories_gerant)
                 else:
                     vehicules = Vehicule.objects.none() 
             except Gerant.DoesNotExist:
@@ -6303,8 +6324,9 @@ class DetailReparatView(LoginRequiredMixin, CustomPermissionRequiredMixin, Detai
         if user.user_type == "4":
             try:
                 gerant = user.gerants.get()  
-                if gerant.gerant_voiture:  
-                    vehicules = Vehicule.objects.filter(category=gerant.gerant_voiture)
+                categories_gerant = gerant.gerant_voiture.all()
+                if categories_gerant.exists():  
+                    vehicules = Vehicule.objects.filter(category__in=categories_gerant)
                 else:
                     vehicules = Vehicule.objects.none() 
             except Gerant.DoesNotExist:
@@ -6333,6 +6355,120 @@ class DetailReparatView(LoginRequiredMixin, CustomPermissionRequiredMixin, Detai
             'dates':dates
         }
         return context
+
+class ExportReparationPDFView(LoginRequiredMixin, CustomPermissionRequiredMixin, View):
+    login_url = 'login'
+    permission_url = 'detail_reparat'
+    timeout_minutes = 500
+    def dispatch(self, request, *args, **kwargs):
+        last_activity = request.session.get('last_activity')
+        if last_activity:
+            last_activity = datetime.strptime(last_activity, '%Y-%m-%d %H:%M:%S')
+            if datetime.now() - last_activity > timedelta(minutes=self.timeout_minutes):
+                logout(request)
+                messages.warning(request, "Vous avez été déconnecté ")
+                return redirect("login")
+        return super().dispatch(request, *args, **kwargs)
+    
+    def calculate_effective_hours(self, start, end):
+        total_seconds = 0
+        current = start
+        while current < end:
+            next_hour = (current + timedelta(hours=1)).replace(minute=0, second=0, microsecond=0)
+            if next_hour > end:
+                next_hour = end
+            if time(5, 0) <= current.time() < time(22, 0):
+                total_seconds += (next_hour - current).total_seconds()
+            current = next_hour
+        return total_seconds / 3600
+    
+    def get(self, request, pk):
+        try:
+            from xhtml2pdf import pisa
+            from django.conf import settings
+            import os
+        except ImportError:
+            messages.error(request, "La bibliothèque xhtml2pdf n'est pas installée. Veuillez installer: pip install xhtml2pdf")
+            return redirect('detail_reparat', pk=pk)
+        
+        reparation = get_object_or_404(Reparation, pk=pk)
+        list_piece = reparation.pieces.all()
+        vehicule = reparation.vehicule
+        
+        date_entree = reparation.date_entree
+        date_sortie = reparation.date_sortie
+        duree_effective_heures = round(self.calculate_effective_hours(date_entree, date_sortie), 2)
+        perte_par_30min = vehicule.category.perte_par_30min or 0
+        recette_categorie = vehicule.category.recette_defaut or 0
+        perte = round((duree_effective_heures * 2) * perte_par_30min, 2)
+        recette_nette = round(recette_categorie - perte, 2)
+        total_piece = Piece.objects.filter(reparation=reparation).aggregate(somme=Sum('montant'))['somme'] or 0
+        
+        # Préparer le chemin de l'image si elle existe
+        image_path = None
+        if reparation.image:
+            image_path = os.path.join(settings.MEDIA_ROOT, str(reparation.image))
+            if not os.path.exists(image_path):
+                image_path = None
+        
+        # Préparer le chemin du logo
+        logo_path = None
+        if hasattr(settings, 'STATIC_ROOT') and settings.STATIC_ROOT:
+            logo_path = os.path.join(settings.STATIC_ROOT, 'pb_logo.png')
+        elif hasattr(settings, 'STATICFILES_DIRS') and settings.STATICFILES_DIRS:
+            logo_path = os.path.join(settings.STATICFILES_DIRS[0], 'pb_logo.png')
+        
+        if logo_path and not os.path.exists(logo_path):
+            logo_path = None
+        
+        context = {
+            'reparation': reparation,
+            'duree_effective_heures': duree_effective_heures,
+            'perte': perte,
+            'recette_nette': recette_nette,
+            'total_piece': total_piece,
+            'list_piece': list_piece,
+            'dates': date.today(),
+            'image_path': image_path,
+            'logo_path': logo_path,
+        }
+        
+        # Rendre le template HTML
+        html_content = render(request, 'perfect/detail_reparat_pdf.html', context).content.decode('utf-8')
+        
+        # Créer le PDF
+        response = HttpResponse(content_type='application/pdf')
+        filename = f"Fiche_Reparation_{reparation.num_fich}_{reparation.vehicule.immatriculation}.pdf"
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        
+        # Générer le PDF avec gestion des erreurs
+        def link_callback(uri, rel):
+            """
+            Convertit les URIs HTML en chemins système pour les images
+            """
+            if uri.startswith('http://') or uri.startswith('https://'):
+                return uri
+            if uri.startswith(settings.MEDIA_URL):
+                path = os.path.join(settings.MEDIA_ROOT, uri.replace(settings.MEDIA_URL, ''))
+            elif uri.startswith(settings.STATIC_URL):
+                path = os.path.join(settings.STATIC_ROOT or settings.STATICFILES_DIRS[0], uri.replace(settings.STATIC_URL, ''))
+            else:
+                return uri
+            if os.path.exists(path):
+                return path
+            return uri
+        # Générer le PDF
+        pisa_status = pisa.CreatePDF(
+            html_content,
+            dest=response,
+            link_callback=link_callback,
+            encoding='utf-8'
+        )
+        if pisa_status.err:
+            messages.error(request, f"Erreur lors de la génération du PDF: {pisa_status.err}")
+            return redirect('detail_reparat', pk=pk)
+        
+        return response
 
 class ListPiechangeView(LoginRequiredMixin, CustomPermissionRequiredMixin, ListView):
     login_url = 'login'
@@ -6690,19 +6826,23 @@ class ExportReparationExcelView(LoginRequiredMixin, View):
             "Description",
             "Date Entrée",
             "Date Sortie",
-            "Durée (jours)",
+            "Durée (jj/hh:mm)",
             "Montant (FCFA)",
             "Prestation (FCFA)",
             "Date Saisie",
             "Auteur"
         ]
         ws.append(headers)
-
         for r in reparations:
             duree = ""
             if r.date_entree and r.date_sortie:
-                duree = (r.date_sortie.date() - r.date_entree.date()).days
-
+                # Calculer la différence totale
+                delta = r.date_sortie - r.date_entree
+                jours = delta.days
+                heures = delta.seconds // 3600
+                minutes = (delta.seconds % 3600) // 60
+                # Format: jour-heure:minute
+                duree = f"{jours}/{heures:02d}:{minutes:02d}"
             ws.append([
                 r.vehicule.immatriculation if r.vehicule else "",
                 r.vehicule.marque if r.vehicule else "",
@@ -6831,7 +6971,8 @@ class AddEntretienView(LoginRequiredMixin, CustomPermissionRequiredMixin, Create
         if user.user_type == "4":
             try:
                 gerant = user.gerants.get()
-                if gerant.gerant_voiture == "VTC":
+                categories_gerant = gerant.gerant_voiture.all()
+                if categories_gerant.filter(category="VTC").exists():
                     vehicules = Vehicule.objects.filter(category__category="VTC")
                 else:
                     vehicules = Vehicule.objects.filter(category__category="TAXI")

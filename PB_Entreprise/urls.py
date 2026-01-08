@@ -96,6 +96,7 @@ urlpatterns = [
     path('liste reparation',ListReparationView.as_view(), name="list_repa"),
     path('top vehicule reparation',BestReparationView.as_view(), name="top_repa"),
     path('reparation /<int:pk>/ detail', DetailReparatView.as_view(), name="detail_reparat"),
+    path('reparation /<int:pk>/ export-pdf/', ExportReparationPDFView.as_view(), name='export_reparation_pdf'),
     path('reparation /delete-selected/', views.delete_selected_reparation, name='delete_selected_reparation'),
     path('reparation/export-excel/', ExportReparationExcelView.as_view(), name='export_reparation_excel'),
     

@@ -1,0 +1,90 @@
+<form method="post" id="gerant-edit-by-user-form-modal" action="/auth/modifier gerant par user/{{ user.id }}/">
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-md-12 form-group">
+            <input type="TEXT" value="INFORMATION DE CONNEXION" class="form-control text-center" disabled>
+        </div>
+        <div class="col-md-6 form-group">
+            <label>USERNAME</label>
+            {{ form.username }}
+            {% if form.username.errors %}
+                <div class="text-danger">{{ form.username.errors }}</div>
+            {% endif %}
+        </div>
+        <div class="col-md-6 form-group">
+            <label>EMAIL</label>
+            {{ form.email }}
+            {% if form.email.errors %}
+                <div class="text-danger">{{ form.email.errors }}</div>
+            {% endif %}
+        </div>
+        <div class="col-md-12 form-group">
+            <label>GENDER</label>
+            {{ form.gender }}
+            {% if form.gender.errors %}
+                <div class="text-danger">{{ form.gender.errors }}</div>
+            {% endif %}
+        </div>
+        <div class="col-md-12 form-group">
+            <input type="TEXT" value="INFORMATION DU PROFIL" class="form-control text-center" disabled>
+        </div>
+        <div class="col-md-6 form-group">
+            <label>NOM</label>
+            {{ form.nom }}
+            {% if form.nom.errors %}
+                <div class="text-danger">{{ form.nom.errors }}</div>
+            {% endif %}
+        </div>
+        <div class="col-md-6 form-group">
+            <label>PRENOMS</label>
+            {{ form.prenom }}
+            {% if form.prenom.errors %}
+                <div class="text-danger">{{ form.prenom.errors }}</div>
+            {% endif %}
+        </div>
+        <div class="col-md-4 form-group">
+            <label>COMMUNE</label>
+            {{ form.commune }}
+            {% if form.commune.errors %}
+                <div class="text-danger">{{ form.commune.errors }}</div>
+            {% endif %}
+        </div>
+        <div class="col-md-4 form-group">
+            <label>TEL 1</label>
+            {{ form.tel1 }}
+            {% if form.tel1.errors %}
+                <div class="text-danger">{{ form.tel1.errors }}</div>
+            {% endif %}
+        </div>
+        <div class="col-md-4 form-group">
+            <label>TEL 2</label>
+            {{ form.tel2 }}
+            {% if form.tel2.errors %}
+                <div class="text-danger">{{ form.tel2.errors }}</div>
+            {% endif %}
+        </div>
+        <div class="col-md-12 form-group">
+            <label>VÉHICULES GÉRÉS</label>
+            <div class="form-check-group" style="display: flex; flex-wrap: wrap; gap: 15px; padding: 10px; border: 1px solid #ddd; border-radius: 5px; max-height: 200px; overflow-y: auto;">
+                {% for checkbox in form.gerant_voiture %}
+                    <div class="form-check" style="min-width: 150px;">
+                        {{ checkbox.tag }}
+                        <label class="form-check-label" for="{{ checkbox.id_for_label }}">
+                            {{ checkbox.choice_label }}
+                        </label>
+                    </div>
+                {% empty %}
+                    <p class="text-muted">Aucune catégorie disponible.</p>
+                {% endfor %}
+            </div>
+            {% if form.gerant_voiture.errors %}
+                <div class="text-danger">{{ form.gerant_voiture.errors }}</div>
+            {% endif %}
+        </div>
+    </div>
+    <div class="modal-footer justify-content-between">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+        <button type="submit" class="btn btn-primary">Enregistrer</button>
+    </div>
+</form>
+

@@ -5,14 +5,8 @@ Temps d'arrêt
 {% endblock title %} 
 {% block liste %}
 <li class="nav-item">
-    <a href="{% url 'dashgarage' %}" class="nav-link">Accueil</a>
+    <a href="{% url 'dashgarage' %}" class="nav-link"></a>
 </li>
-{% if user.user_type == '4' %}
-{% else %}
-<li class="nav-item">
-    <a href="{% url 'rec_day' %}" class="nav-link">Recettes</a>
-</li>
-{% endif %}
 {% endblock liste %}
 {% block page_title %} TEMPS D'ARRET {% endblock page_title %} 
 {% block search_form %}

@@ -6,6 +6,7 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse_lazy
 from .utils import send_email_with_html_body
 from django.http import HttpResponse, JsonResponse
+from django.template.loader import render_to_string
 from userauths.forms import EditUserProfileForm, CustomUserCreationForm, PasswordChangingForm, CreateUserProfileForm
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
@@ -372,7 +373,6 @@ def add_gerant(request):
     if user.user_type != "1":
         messages.error(request, "Seuls les administrateurs peuvent créer des comptes de gérant.")
         return redirect('home')
-    
     # S'assurer que l'utilisateur connecté a un profil Administ
     # Si le profil n'existe pas, le créer avec des valeurs par défaut
     admin_profile, created = Administ.objects.get_or_create(
@@ -405,10 +405,12 @@ def add_gerant(request):
                 user.save()
                 gerant = gerantform.save(commit=False)
                 gerant.user = user
-                
                 # Utiliser le profil Administ de l'utilisateur connecté
                 gerant.create_by = admin_profile
                 gerant.save()
+                # Enregistrer les catégories de véhicules (ManyToMany)
+                categories_vehicules = gerantform.cleaned_data.get('gerant_voiture', [])
+                gerant.gerant_voiture.set(categories_vehicules)
                 permissions = permission_form.cleaned_data['permissions']
                 user.custom_permissions.set(permissions)
                 
@@ -464,6 +466,183 @@ def delete_gerant(request, pk):
     except Exception as e:
         messages.error(request, f"Erreur lors de la suppression : {str(e)}")
     return redirect('addgerant')
+
+@login_required(login_url='/login/')
+def edit_gerant(request, pk):
+    """Vue pour charger le formulaire d'édition d'un gérant dans un modal"""
+    try:
+        gerant = get_object_or_404(Gerant, id=pk)
+        user = gerant.user
+        is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+        
+        if request.method == 'POST':
+            form = GerantEditForm(request.POST, instance=gerant)
+            if form.is_valid():
+                try:
+                    # Mettre à jour CustomUser
+                    user.username = form.cleaned_data['username']
+                    user.email = form.cleaned_data['email']
+                    user.gender = form.cleaned_data['gender']
+                    user.save()
+                    
+                    # Mettre à jour Gerant
+                    gerant.nom = form.cleaned_data['nom']
+                    gerant.prenom = form.cleaned_data['prenom']
+                    gerant.commune = form.cleaned_data['commune']
+                    gerant.tel1 = form.cleaned_data['tel1']
+                    gerant.tel2 = form.cleaned_data['tel2']
+                    gerant.save()
+                    
+                    # Mettre à jour les catégories de véhicules (ManyToMany)
+                    categories_vehicules = form.cleaned_data.get('gerant_voiture', [])
+                    gerant.gerant_voiture.set(categories_vehicules)
+                    
+                    if is_ajax:
+                        return JsonResponse({
+                            'success': True,
+                            'message': 'Compte gérant modifié avec succès.'
+                        })
+                    messages.success(request, 'Compte gérant modifié avec succès.')
+                    return redirect('addgerant')
+                except Exception as e:
+                    if is_ajax:
+                        return JsonResponse({
+                            'success': False,
+                            'message': f"Erreur: {str(e)}"
+                        })
+                    messages.error(request, f"Erreur: {str(e)}")
+        else:
+            form = GerantEditForm(instance=gerant)
+        
+        # Si c'est une requête AJAX, retourner seulement le contenu de la modal
+        if is_ajax:
+            try:
+                html = render_to_string('edit_gerant_modal.html', {
+                    'form': form,
+                    'gerant': gerant,
+                    'user': user
+                }, request=request)
+                return JsonResponse({'html': html})
+            except Exception as e:
+                import traceback
+                error_detail = traceback.format_exc()
+                return JsonResponse({
+                    'html': f'<div class="alert alert-danger">Erreur lors du rendu du formulaire: {str(e)}<br><small>{error_detail}</small></div>'
+                }, status=500)
+        
+        return render(request, 'edit_gerant.html', {
+            'form': form,
+            'gerant': gerant,
+            'user': user
+        })
+    except Exception as e:
+        import traceback
+        error_detail = traceback.format_exc()
+        is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+        if is_ajax:
+            return JsonResponse({
+                'html': f'<div class="alert alert-danger">Erreur lors du chargement: {str(e)}<br><small>{error_detail}</small></div>'
+            }, status=500)
+        messages.error(request, f"Erreur: {str(e)}")
+        return redirect('addgerant')
+
+@login_required(login_url='/login/')
+def edit_gerant_by_user(request, user_id):
+    """Vue pour charger le formulaire d'édition d'un gérant à partir de son user_id (pour liste_compte.html)"""
+    try:
+        user = get_object_or_404(CustomUser, id=user_id)
+        if user.user_type != "4":
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Cet utilisateur n\'est pas un gérant.'
+                })
+            messages.error(request, "Cet utilisateur n'est pas un gérant.")
+            return redirect('compte')
+        
+        try:
+            gerant = user.gerants.get()
+        except Gerant.DoesNotExist:
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Profil gérant introuvable.'
+                })
+            messages.error(request, "Profil gérant introuvable.")
+            return redirect('compte')
+        
+        is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+        
+        if request.method == 'POST':
+            form = GerantEditForm(request.POST, instance=gerant)
+            if form.is_valid():
+                try:
+                    # Mettre à jour CustomUser
+                    user.username = form.cleaned_data['username']
+                    user.email = form.cleaned_data['email']
+                    user.gender = form.cleaned_data['gender']
+                    user.save()
+                    
+                    # Mettre à jour Gerant
+                    gerant.nom = form.cleaned_data['nom']
+                    gerant.prenom = form.cleaned_data['prenom']
+                    gerant.commune = form.cleaned_data['commune']
+                    gerant.tel1 = form.cleaned_data['tel1']
+                    gerant.tel2 = form.cleaned_data['tel2']
+                    gerant.save()
+                    
+                    # Mettre à jour les catégories de véhicules (ManyToMany)
+                    categories_vehicules = form.cleaned_data.get('gerant_voiture', [])
+                    gerant.gerant_voiture.set(categories_vehicules)
+                    
+                    if is_ajax:
+                        return JsonResponse({
+                            'success': True,
+                            'message': 'Compte gérant modifié avec succès.'
+                        })
+                    messages.success(request, 'Compte gérant modifié avec succès.')
+                    return redirect('compte')
+                except Exception as e:
+                    if is_ajax:
+                        return JsonResponse({
+                            'success': False,
+                            'message': f"Erreur: {str(e)}"
+                        })
+                    messages.error(request, f"Erreur: {str(e)}")
+        else:
+            form = GerantEditForm(instance=gerant)
+        
+        # Si c'est une requête AJAX, retourner seulement le contenu de la modal
+        if is_ajax:
+            try:
+                html = render_to_string('edit_gerant_by_user_modal.html', {
+                    'form': form,
+                    'gerant': gerant,
+                    'user': user
+                }, request=request)
+                return JsonResponse({'html': html})
+            except Exception as e:
+                import traceback
+                error_detail = traceback.format_exc()
+                return JsonResponse({
+                    'html': f'<div class="alert alert-danger">Erreur lors du rendu du formulaire: {str(e)}<br><small>{error_detail}</small></div>'
+                }, status=500)
+        
+        return render(request, 'edit_gerant.html', {
+            'form': form,
+            'gerant': gerant,
+            'user': user
+        })
+    except Exception as e:
+        import traceback
+        error_detail = traceback.format_exc()
+        is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+        if is_ajax:
+            return JsonResponse({
+                'html': f'<div class="alert alert-danger">Erreur lors du chargement: {str(e)}<br><small>{error_detail}</small></div>'
+            }, status=500)
+        messages.error(request, f"Erreur: {str(e)}")
+        return redirect('compte')
 
 def password_success(request):
     return render(request,'userauths/success.html')
