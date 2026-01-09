@@ -8,15 +8,15 @@
 {% endblock page_title %} 
 
 {% block page_action %}
-        <form id="quickForm">
-            <button type="button" class="btn btn-default text-primary" data-toggle="modal" data-target="#modal-lg">Saisie <i class="fa fa-plus-circle"></i></button>
-            <a href="{% url 'export_charge_admin_excel' %}?date_debut={{ form.date_debut.value }}&date_fin={{ form.date_fin.value }}" class="btn btn-default text-success">
-            Excel 
-            <i class="fa fa-file-excel-o"></i>
-            </a>
-            <a class="btn btn-default text-info" data-toggle="modal" data-target="#modal-sm" href="#" style="font-size: 16px;"><i style="font-size: 20px;" class="fa fa-calendar"></i></a>
-            <a class="btn btn-default text-info" href="{% url 'add_chargadminist' %}" style="font-size: 16px;"><i style="font-size: 20px;" class="fa fa-refresh"></i></a>
-        </form>
+    <form id="quickForm">
+        <button type="button" class="btn btn-default text-primary" data-toggle="modal" data-target="#modal-lg">Saisie <i class="fa fa-plus-circle"></i></button>
+        <a href="{% url 'export_charge_admin_excel' %}?date_debut={{ form.date_debut.value }}&date_fin={{ form.date_fin.value }}" class="btn btn-default text-success">
+        Excel 
+        <i class="fa fa-file-excel-o"></i>
+        </a>
+        <a class="btn btn-default text-info" data-toggle="modal" data-target="#modal-sm" href="#" style="font-size: 16px;"><i style="font-size: 20px;" class="fa fa-calendar"></i></a>
+        <a class="btn btn-default text-info" href="{% url 'add_chargadminist' %}" style="font-size: 16px;"><i style="font-size: 20px;" class="fa fa-refresh"></i></a>
+    </form>
 {% endblock page_action %}
 {% block main_content %}
 
@@ -67,7 +67,6 @@
         </div>
     </div>
 </div>
-
 <div class="modal fade" id="modal-sm">
     <div class="modal-dialog modal-sm">
         <div class="modal-content" style="border-radius:25px;">
@@ -104,7 +103,6 @@
         </div>
     </div>
 </div>
-
 <div class="col-12 col-sm-6 col-md-3">
     <div class="info-box" style="border-radius:25px;">
         <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-plus" style="color:rgba(6, 73, 124, 0.54);"></i></span>
@@ -129,7 +127,6 @@
         </div>
     </div>
 </div>
-{% comment %} <div class="clearfix hidden-md-up"></div> {% endcomment %}
 <div class="col-12 col-sm-6 col-md-3">
     <div class="info-box" style="border-radius:25px;">
         <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-clock" style="color:rgba(6, 73, 124, 0.54);"></i></span>
@@ -142,7 +139,6 @@
         </div>
     </div>
 </div>
-{% comment %} <div class="clearfix hidden-md-up"></div> {% endcomment %}
 <div class="col-12 col-sm-6 col-md-3">
     <div class="info-box mb-3" style="border-radius:25px;">
     <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fa fa-calendar" style="color:rgba(6, 73, 124, 0.54);"></i></span>
@@ -240,11 +236,8 @@
                 <span class="float-right"><b>{{resultat_format}}</b></span>
             </div>
           </div>
-          <!-- /.col -->
         </div>
-        <!-- /.row -->
       </div>
-      <!-- ./card-body -->
       <div class="card-footer">
         <div class="row">
             <div class="col-md-12 p-0">
@@ -284,10 +277,7 @@
                                             {% for categorie, perms in grouped_permissions.items %}
                                                 {% if categorie.categorie == "permchargadmin" %}
                                                     {% for perm in perms %}
-                                                        {% if perm.name == "modifier charge administrative" %}
-                                                            {% comment %} <a href="{% url perm.url c.pk %}" class="text-primary">
-                                                                <i style="font-size: 20px;" class="fa fa-edit text-warning"></i>
-                                                            </a> {% endcomment %}
+                                                        {% if perm.name == "mod charge administrative" %}
                                                             <a href="#" class="edit-chargadmin-btn" data-url="{% url 'updat_charg_administ' c.pk %}">
                                                                 <i style="font-size: 20px;" class="fa fa-edit text-warning"></i>
                                                             </a>

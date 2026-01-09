@@ -2380,24 +2380,6 @@ class GestionalerteView(LoginRequiredMixin, CustomPermissionRequiredMixin, Templ
                 messages.warning(request, "Vous avez été déconnecté ")
                 return redirect("login")
         return super().dispatch(request, *args, **kwargs)
-    # def send_alert_email(self, vehicle_reference, alert_types):
-    #     today_date = datetime.now().strftime("%Y-%m-%d")
-    #     last_sent_alerts = self.request.session.get('last_sent_alerts', {})
-    #     if last_sent_alerts.get(vehicle_reference) == today_date:
-    #         return  
-    #     alert_message = ", ".join(alert_types)
-    #     subject = "Alerte : Maintenance du véhicule requise"
-    #     message = (
-    #         f"Le véhicule avec l'immatriculation {vehicle_reference} requiert une attention pour : {alert_message}. "
-    #         "Veuillez vérifier les alertes associées."
-    #     )
-    #     recipient_list = ['sorothodaniel@gmail.com', 'atsinyapi1@gmail.com','konangerardk63@gmail.com','kougblaayaoviotodjo@gmail.com','yapiatsin0@gmail.com']
-    #     send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, recipient_list)
-        
-    #     # Mettre à jour la session pour éviter un envoi multiple le même jour
-    #     last_sent_alerts[vehicle_reference] = today_date
-    #     self.request.session['last_sent_alerts'] = last_sent_alerts
-        
     def get_context_data(self,*args, **kwargs):  
         context = super().get_context_data(*args,**kwargs)  
         dates = date.today()
@@ -2424,20 +2406,16 @@ class GestionalerteView(LoginRequiredMixin, CustomPermissionRequiredMixin, Templ
         if forms.is_valid():
             date_debut = forms.cleaned_data['date_debut'] 
             date_fin = forms.cleaned_data['date_fin']
-            
+
             assu_all = Assurance.objects.filter(date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
             vign_all = Vignette.objects.filter(date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
             patente_all = Patente.objects.filter(date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
             stat_all = Stationnement.objects.filter(date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
-            
             entretiens = Entretien.objects.filter(Q(date_saisie__lte=now) & Q(date_proch__gte=now)).count()
             visites = VisiteTechnique.objects.filter(Q(date_saisie__lte=now) & Q(date_proch__gte=now)).count()
-            reparations = Reparation.objects.filter(Q(date_saisie__lte=now) & Q(date_sortie__gte=now)).count()
             assurances = Assurance.objects.filter(Q(date_saisie__lte=now) & Q(date_proch__gte=now)).count()
-
             vignette = Vignette.objects.filter(Q(date__lte=now) & Q(date_proch__gte=now)).count()                
             patente = Patente.objects.filter(Q(date__lte=now) & Q(date_proch__gte=now)).count()                 
-            cartstation = Stationnement.objects.filter(Q(date__lte=now) & Q(date_proch__gte=now)).count()
             for vehicule in vehicules:
                 visite = VisiteTechnique.objects.filter(vehicule = vehicule).order_by('date_saisie')
                 entretien = Entretien.objects.filter(vehicule = vehicule).order_by('date_saisie')
@@ -2450,55 +2428,55 @@ class GestionalerteView(LoginRequiredMixin, CustomPermissionRequiredMixin, Templ
                 if jours_cartsta_restant:
                     for cartstaion in jours_cartsta_restant:
                         jours_cartsta_restant = cartstaion.jours_cartsta_restant
-                        alert_cartsta_color = 'red' if jours_cartsta_restant <=10 else 'orange' if jours_cartsta_restant < 30 else 'green'
+                        alert_cartsta_color = 'danger' if jours_cartsta_restant <=10 else 'warning' if jours_cartsta_restant < 30 else 'success'
                 else: 
                     jours_cartsta_restant = "0"    
-                    alert_cartsta_color = "#e0e7eb"
+                    alert_cartsta_color = "info"
                 # 
                 jours_pate_restant = patentes
                 if jours_pate_restant:
                     for patente in jours_pate_restant:
                         jours_pate_restant = patente.jours_pate_restant
-                        alert_pate_color = 'red' if jours_pate_restant <=10 else 'orange' if jours_pate_restant < 30 else 'green'
+                        alert_pate_color = 'danger' if jours_pate_restant <=10 else 'warning' if jours_pate_restant < 30 else 'success'
                 else: 
                     jours_pate_restant = "0"    
-                    alert_pate_color = "#e0e7eb"
+                    alert_pate_color = "info"
                     # 
                 jours_vign_restant = vignettes
                 if jours_vign_restant:
                     for vignette in jours_vign_restant:
                         jours_vign_restant = vignette.jours_vign_restant
-                        alert_vign_color = 'red' if jours_vign_restant <=10 else 'orange' if jours_vign_restant < 334 else 'green'
+                        alert_vign_color = 'danger' if jours_vign_restant <=10 else 'warning' if jours_vign_restant < 334 else 'success'
                 else: 
                     jours_vign_restant = "0"    
-                    alert_vign_color = "#e0e7eb"
+                    alert_vign_color = "info"
                     # 
                 jours_assu_restant = assurances
                 if jours_assu_restant:
                     for assurance in jours_assu_restant:
                         jours_assu_restant = assurance.jours_assu_restant
-                        alert_assu_color = 'red' if jours_assu_restant <=7 else 'orange' if jours_assu_restant < 15 else 'green'
+                        alert_assu_color = 'danger' if jours_assu_restant <=7 else 'warning' if jours_assu_restant < 15 else 'success'
                 else: 
                     jours_assu_restant = "0"    
-                    alert_assu_color = "#e0e7eb"
+                    alert_assu_color = "info"
                     # 
                 jours_ent_restant = entretien
                 if jours_ent_restant:
                     for entretien in jours_ent_restant:
                         jours_ent_restant = entretien.jours_ent_restant
-                        alert_ent_color = 'red' if jours_ent_restant <=3 else 'orange' if jours_ent_restant < 8 else 'green'
+                        alert_ent_color = 'danger' if jours_ent_restant <=3 else 'warning' if jours_ent_restant < 8 else 'success'
                 else: 
                     jours_ent_restant = "0"     
-                    alert_ent_color = "#e0e7eb"    
+                    alert_ent_color = "info"    
                 jours_restant = visite  
                 # 
                 if jours_restant:       
                     for visit in jours_restant:         
                         jours_restant = visit.jour_restant      
-                        alert_color = 'red' if jours_restant <=32 else 'orange' if jours_restant <92 else 'green'
+                        alert_color = 'danger' if jours_restant <=32 else 'warning' if jours_restant <92 else 'success'
                 else: 
                     jours_restant = "0"    
-                    alert_color = "#e0e7eb"
+                    alert_color = "info"
                 # Calculer les alertes critiques
                 alert_types = []
                 if isinstance(jours_restant, int) and 1 <= jours_restant <= 32:
@@ -2514,9 +2492,6 @@ class GestionalerteView(LoginRequiredMixin, CustomPermissionRequiredMixin, Templ
                 if isinstance(jours_cartsta_restant, int) and 1 <= jours_cartsta_restant <= 10:
                     alert_types.append("stationnement")
                 
-                # Envoie l'email d'alerte si nécessaire
-                # if alert_types:
-                #     self.send_alert_email(vehicule.immatriculation, alert_types) 
                 resultat_vehicule.append({
                     'vehicule': vehicule, 
                     'jours_restant': jours_restant, 
@@ -2533,20 +2508,16 @@ class GestionalerteView(LoginRequiredMixin, CustomPermissionRequiredMixin, Templ
                     'alert_cartsta_color': alert_cartsta_color,
                     'alert_types': alert_types
                 })
-            
         else:
-            
             assu_all = Assurance.objects.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
             vign_all = Vignette.objects.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
             patente_all = Patente.objects.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
             stat_all = Stationnement.objects.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
             entretiens = Entretien.objects.filter(Q(date_saisie__lte=now) & Q(date_proch__gte=now)).count()
             visites = VisiteTechnique.objects.filter(Q(date_saisie__lte=now) & Q(date_proch__gte=now)).count()
-            reparations = Reparation.objects.filter(Q(date_saisie__lte=now) & Q(date_sortie__gte=now)).count()
             assurances = Assurance.objects.filter(Q(date_saisie__lte=now) & Q(date_proch__gte=now)).count()
             vignette = Vignette.objects.filter(Q(date__lte=now) & Q(date_proch__gte=now)).count()                
             patente = Patente.objects.filter(Q(date__lte=now) & Q(date_proch__gte=now)).count()                 
-            cartstation = Stationnement.objects.filter(Q(date__lte=now) & Q(date_proch__gte=now)).count()
             # -------------------------#-*-#------------------------- #
             for vehicule in vehicules:
                 visite = VisiteTechnique.objects.filter(vehicule = vehicule).order_by('date_saisie')
@@ -2559,56 +2530,55 @@ class GestionalerteView(LoginRequiredMixin, CustomPermissionRequiredMixin, Templ
                 if jours_cartsta_restant:
                     for cartstaion in jours_cartsta_restant:
                         jours_cartsta_restant = cartstaion.jours_cartsta_restant
-                        alert_cartsta_color = 'red' if jours_cartsta_restant <=10 else 'orange' if jours_cartsta_restant < 30 else 'green'
+                        alert_cartsta_color = 'danger' if jours_cartsta_restant <=10 else 'warning' if jours_cartsta_restant < 30 else 'success'
                 else: 
                     jours_cartsta_restant = "0"    
-                    alert_cartsta_color = "#e0e7eb"
+                    alert_cartsta_color = "info"
                 # 
                 jours_pate_restant = patentes
                 if jours_pate_restant:
                     for patente in jours_pate_restant:
                         jours_pate_restant = patente.jours_pate_restant
-                        alert_pate_color = 'red' if jours_pate_restant <=10 else 'orange' if jours_pate_restant < 30 else 'green'
+                        alert_pate_color = 'danger' if jours_pate_restant <=10 else 'warning' if jours_pate_restant < 30 else 'success'
                 else: 
                     jours_pate_restant = "0"    
-                    alert_pate_color = "#e0e7eb"
+                    alert_pate_color = "info"
                     # 
                 jours_vign_restant = vignettes
                 if jours_vign_restant:
                     for vignette in jours_vign_restant:
                         jours_vign_restant = vignette.jours_vign_restant
-                        alert_vign_color = 'red' if jours_vign_restant <=10 else 'orange' if jours_vign_restant < 334 else 'green'
+                        alert_vign_color = 'danger' if jours_vign_restant <=10 else 'warning' if jours_vign_restant < 334 else 'success'
                 else: 
                     jours_vign_restant = "0"    
-                    alert_vign_color = "#e0e7eb"
+                    alert_vign_color = "info"
                     # 
                 jours_assu_restant = assurances
                 if jours_assu_restant:
                     for assurance in jours_assu_restant:
                         jours_assu_restant = assurance.jours_assu_restant
-                        alert_assu_color = 'red' if jours_assu_restant <=7 else 'orange' if jours_assu_restant < 15 else 'green'
+                        alert_assu_color = 'danger' if jours_assu_restant <=7 else 'warning' if jours_assu_restant < 15 else 'success'
                 else: 
                     jours_assu_restant = "0"    
-                    alert_assu_color = "#e0e7eb"
+                    alert_assu_color = "info"
                     # 
                 jours_ent_restant = entretien
                 if jours_ent_restant:
                     for entretien in jours_ent_restant:
                         jours_ent_restant = entretien.jours_ent_restant
-                        alert_ent_color = 'red' if jours_ent_restant <=3 else 'orange' if jours_ent_restant < 8 else 'green'
+                        alert_ent_color = 'danger' if jours_ent_restant <=3 else 'warning' if jours_ent_restant < 8 else 'success'
                 else: 
                     jours_ent_restant = "0"     
-                    alert_ent_color = "#e0e7eb"    
+                    alert_ent_color = "info"    
                 jours_restant = visite  
                 # 
                 if jours_restant:       
                     for visit in jours_restant:         
                         jours_restant = visit.jour_restant      
-                        alert_color = 'red' if jours_restant <=32 else 'orange' if jours_restant <92 else 'green'
+                        alert_color = 'danger' if jours_restant <=32 else 'warning' if jours_restant <92 else 'success'
                 else: 
                     jours_restant = "0"    
-                    alert_color = "#e0e7eb"   
-                
+                    alert_color = "info"  
                 # Calculer les alertes critiques
                 alert_types = []
                 if isinstance(jours_restant, int) and 1 <= jours_restant <= 32:
@@ -2623,10 +2593,6 @@ class GestionalerteView(LoginRequiredMixin, CustomPermissionRequiredMixin, Templ
                     alert_types.append("patente")
                 if isinstance(jours_cartsta_restant, int) and 1 <= jours_cartsta_restant <= 10:
                     alert_types.append("stationnement")
-                
-                # Envoie l'email d'alerte si nécessaire
-                # if alert_types:
-                #     self.send_alert_email(vehicule.immatriculation, alert_types) 
                 resultat_vehicule.append({
                     'vehicule': vehicule, 
                     'jours_restant': jours_restant, 
@@ -2707,7 +2673,6 @@ class UpdateCategoView(LoginRequiredMixin, CustomPermissionRequiredMixin, Update
     template_name = "perfect/partials/categ_form.html"
     success_url = reverse_lazy('add_catego_vehi')
     success_message = 'Categorie modifiée avec succès✓✓'
-
     def form_valid(self, form):
         response = super().form_valid(form)
         if self.request.headers.get("x-requested-with") == "XMLHttpRequest":
@@ -2717,7 +2682,6 @@ class UpdateCategoView(LoginRequiredMixin, CustomPermissionRequiredMixin, Update
         if self.request.headers.get("x-requested-with") == "XMLHttpRequest":
             return JsonResponse({"success": False, "errors": form.errors})
         return super().form_invalid(form)
-
 
 def delete_catego(request, pk):
     try:
@@ -2751,32 +2715,69 @@ class AllVehiculeView(LoginRequiredMixin, CustomPermissionRequiredMixin, View):
                 gerant = Gerant.objects.get(user=user)
                 categories_gerant = gerant.gerant_voiture.all()
                 if categories_gerant.exists():
-                    vehicules = Vehicule.objects.filter(category__in=categories_gerant)
+                    cars = Vehicule.objects.filter(category__in=categories_gerant, car_statut=True)
                 else:
-                    vehicules = Vehicule.objects.none()
+                    cars = Vehicule.objects.none()
             except Gerant.DoesNotExist:
-                vehicules = Vehicule.objects.none()
+                cars = Vehicule.objects.none()
         else:
-            vehicules = Vehicule.objects.all()
-
+            cars = Vehicule.objects.all()
         categories = CategoVehi.objects.annotate(nb_vehicules=Count('catego_vehicule')).order_by('id')
         cout_totals = 0
         total_veh = 0
         categorie = None
-
         if pk:
             categorie = get_object_or_404(CategoVehi, pk=pk)
-            vehicules = vehicules.filter(category=categorie)
-        
-        cout_totals = vehicules.aggregate(total=Sum('cout_acquisition'))['total'] or 0
+            cars = cars.filter(category=categorie)
+        cout_totals = cars.filter(car_statut=True).aggregate(total=Sum('cout_acquisition'))['total'] or 0
         cout_total = '{:,}'.format(cout_totals).replace(',', ' ')
-        total_veh = vehicules.count()
+        total_veh = cars.filter(car_statut=True).count()
+        total_veh_hors_parc = cars.filter(car_statut=False).count()
         return render(request, self.template_name, {
-            'vehicules': vehicules,
+            'vehicules': cars.filter(car_statut=True),
             'categorie': categorie,
             'categories': categories,
             'cout_total': cout_total,
-            'total_veh': total_veh
+            'total_veh': total_veh,
+            'total_veh_hors_parc': total_veh_hors_parc
+        })
+
+class AllVehiculeHorsParrcView(LoginRequiredMixin, CustomPermissionRequiredMixin, View):
+    login_url = 'login'
+    permission_url = 'all_vehi'
+    template_name = 'perfect/vehi_hors_parc.html'
+    def get(self, request, pk=None):
+        user = request.user
+        if user.user_type == "4":
+            try:
+                gerant = Gerant.objects.get(user=user)
+                categories_gerant = gerant.gerant_voiture.all()
+                if categories_gerant.exists():
+                    cars = Vehicule.objects.filter(category__in=categories_gerant, car_statut=True)
+                else:
+                    cars = Vehicule.objects.none()
+            except Gerant.DoesNotExist:
+                cars = Vehicule.objects.none()
+        else:
+            cars = Vehicule.objects.all()
+        categories = CategoVehi.objects.annotate(nb_vehicules=Count('catego_vehicule')).order_by('id')
+        cout_totals = 0
+        total_veh = 0
+        categorie = None
+        if pk:
+            categorie = get_object_or_404(CategoVehi, pk=pk)
+            cars = cars.filter(category=categorie)
+        cout_totals = cars.filter(car_statut=False).aggregate(total=Sum('cout_acquisition'))['total'] or 0
+        cout_total = '{:,}'.format(cout_totals).replace(',', ' ')
+        total_veh = cars.filter(car_statut=True).count()
+        total_veh_hors_parc = cars.filter(car_statut=False).count()
+        return render(request, self.template_name, {
+            'vehicules': cars.filter(car_statut=False),
+            'categorie': categorie,
+            'categories': categories,
+            'cout_total': cout_total,
+            'total_veh': total_veh,
+            'total_veh_hors_parc': total_veh_hors_parc
         })
 
 class AddVehiculeExcelView(LoginRequiredMixin, View):
@@ -2784,68 +2785,57 @@ class AddVehiculeExcelView(LoginRequiredMixin, View):
     template_name = 'perfect/add_vehicule.html'
     success_message = 'Véhicule enregistré avec succès ✓✓'
     error_message = "Erreur de saisie ✘✘"
-
     def get(self, request, pk=None):
         cout_totals = 0
         total_veh = 0
         categories = CategoVehi.objects.annotate(nb_vehicules=Count('catego_vehicule')).order_by('id')
-
         if pk:
             categorie = get_object_or_404(CategoVehi, pk=pk)
-            vehicules = Vehicule.objects.filter(category=categorie).order_by('id')
-            cout_totals = vehicules.aggregate(total=Sum('cout_acquisition'))['total'] or 0
+            cars = Vehicule.objects.filter(category=categorie).order_by('id')
+            cout_totals = cars.filter(car_statut=True).aggregate(total=Sum('cout_acquisition'))['total'] or 0
             cout_total = '{:,}'.format(cout_totals).replace(',', ' ')
-            total_veh = vehicules.count()
+            total_veh = cars.filter(car_statut=True).count()
         else:
             categorie = None
-            vehicules = Vehicule.objects.none()
+            cars = Vehicule.objects.none()
             cout_total = 0
             total_veh = 0
-
         form = VehiculeForm()
         return render(request, self.template_name, {
             'forms': form,
-            'vehicules': vehicules,
+            'vehicules': cars.filter(car_statut=True),
             'categorie': categorie,
             'categories': categories,
             'cout_total': cout_total,
             'total_veh': total_veh,
         })
-
     def post(self, request, pk=None):
         categorie = get_object_or_404(CategoVehi, pk=pk)
         categories = CategoVehi.objects.all().order_by('id')
-
         # --- Importation depuis Excel ---
         if request.FILES.get('excel_file'):
             excel_file = request.FILES['excel_file']
             try:
                 df = pd.read_excel(excel_file)
-                df = df.fillna('')  # remplace NaN par vide
-
+                df = df.fillna('')
                 required_columns = [
                     'immatriculation', 'marque', 'duree', 'num_cart_grise',
                     'num_Chassis', 'date_acquisition', 'cout_acquisition',
                     'dat_edit_carte_grise', 'date_mis_service',
                 ]
-
                 missing_columns = [col for col in required_columns if col not in df.columns]
                 if missing_columns:
                     messages.error(request, f"Colonnes manquantes : {', '.join(missing_columns)}")
                     return redirect('add_vehi', pk=pk)
-
                 created_count = 0
                 updated_count = 0
-
                 for _, row in df.iterrows():
                     immatriculation = str(row.get('immatriculation', '')).strip()
                     if not immatriculation:
                         continue
-
                     date_acquisition = pd.to_datetime(row.get('date_acquisition'), errors='coerce')
                     dat_edit_carte_grise = pd.to_datetime(row.get('dat_edit_carte_grise'), errors='coerce')
                     date_mis_service = pd.to_datetime(row.get('date_mis_service'), errors='coerce')
-
                     vehicule_data = {
                         'marque': str(row.get('marque', '')).strip(),
                         'duree': int(float(row.get('duree', 0) or 0)),
@@ -2858,40 +2848,36 @@ class AddVehiculeExcelView(LoginRequiredMixin, View):
                         'category': categorie,
                         'auteur': request.user,
                     }
-                    vehicule, created = Vehicule.objects.update_or_create(
+                    cars, created = Vehicule.objects.update_or_create(
                         immatriculation=immatriculation,
                         defaults=vehicule_data
                     )
-
                     if created:
                         created_count += 1
                     else:
                         updated_count += 1
-
                 messages.success(request, f"✅ {created_count} véhicule(s) créé(s), {updated_count} mis à jour.")
                 return redirect('add_vehi', pk=pk)
 
             except Exception as e:
                 messages.error(request, f"Erreur d'importation : {str(e)}")
                 return redirect('add_vehi', pk=pk)
-
         form = VehiculeForm(request.POST, request.FILES)
         if form.is_valid():
-            vehicule = form.save(commit=False)
-            vehicule.auteur = request.user
-            vehicule.category = categorie
-            vehicule.save()
+            cars = form.save(commit=False)
+            cars.auteur = request.user
+            cars.category = categorie
+            cars.save()
             messages.success(request, self.success_message)
             return redirect('all_vehi')
         else:
             messages.error(request, self.error_message)
-            vehicules = Vehicule.objects.filter(category=categorie).order_by('-id')
-            cout_total = vehicules.aggregate(total=Sum('cout_acquisition'))['total'] or 0
-            total_veh = vehicules.count()
-
+            cars = Vehicule.objects.filter(category=categorie).order_by('-id')
+            cout_total = cars.aggregate(total=Sum('cout_acquisition'))['total'] or 0
+            total_veh = cars.filter(car_statut=True).count()
             return render(request, self.template_name, {
                 'forms': form,
-                'vehicules': vehicules,
+                'vehicules': cars.filter(car_statut=True),
                 'categorie': categorie,
                 'categories': categories,
                 'cout_total': cout_total,
@@ -2900,19 +2886,38 @@ class AddVehiculeExcelView(LoginRequiredMixin, View):
 
 class ExportVehiculeExcelView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
-        vehicules = Vehicule.objects.all()
+        user = request.user
+        # Gestion des permissions pour les gérants
+        if user.user_type == "4":
+            try:
+                gerant = Gerant.objects.get(user=user)
+                categories_gerant = gerant.gerant_voiture.all()
+                if categories_gerant.exists():
+                    cars = Vehicule.objects.filter(category__in=categories_gerant, car_statut=True)
+                else:
+                    cars = Vehicule.objects.none()
+            except Gerant.DoesNotExist:
+                cars = Vehicule.objects.none()
+        else:
+            cars = Vehicule.objects.filter(car_statut=True)
+        
+        # Application des filtres
         immatriculation = request.GET.get('immatriculation')
         categorie = request.GET.get('categorie')
         date_debut = request.GET.get('date_debut')
         date_fin = request.GET.get('date_fin')
-
         if date_debut and date_fin:
-            vehicules = vehicules.filter(date_saisie__range=[date_debut, date_fin])
+            cars = cars.filter(date_saisie__range=[date_debut, date_fin])
         if immatriculation:
-            vehicules = vehicules.filter(vehicule__immatriculation=immatriculation)
+            cars = cars.filter(immatriculation__icontains=immatriculation)
         if categorie:
-            vehicules = vehicules.filter(vehicule__category__category=categorie)
-
+            try:
+                # Si c'est un ID (entier)
+                categorie_id = int(categorie)
+                cars = cars.filter(category__id=categorie_id)
+            except (ValueError, TypeError):
+                # Si c'est un nom de catégorie (chaîne)
+                cars = cars.filter(category__category=categorie)
         wb = openpyxl.Workbook()
         ws = wb.active
         ws.title = "Véhicules"
@@ -2932,7 +2937,7 @@ class ExportVehiculeExcelView(LoginRequiredMixin, View):
             "Date de saisie",
         ]
         ws.append(headers)
-        for v in vehicules:
+        for v in cars:
             ws.append([
             v.immatriculation,
             v.marque,
@@ -2951,7 +2956,6 @@ class ExportVehiculeExcelView(LoginRequiredMixin, View):
         for col_num, column_title in enumerate(headers, 1):
             col_letter = get_column_letter(col_num)
             ws.column_dimensions[col_letter].width = 22
-
         response = HttpResponse(
             content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
@@ -2959,11 +2963,90 @@ class ExportVehiculeExcelView(LoginRequiredMixin, View):
         wb.save(response)
         return response
 
+class ExportVehiculeHorsParcExcelView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        # Gestion des permissions pour les gérants
+        if user.user_type == "4":
+            try:
+                gerant = Gerant.objects.get(user=user)
+                categories_gerant = gerant.gerant_voiture.all()
+                if categories_gerant.exists():
+                    cars = Vehicule.objects.filter(category__in=categories_gerant, car_statut=False)
+                else:
+                    cars = Vehicule.objects.none()
+            except Gerant.DoesNotExist:
+                cars = Vehicule.objects.none()
+        else:
+            cars = Vehicule.objects.filter(car_statut=False)
+        # Application des filtres
+        immatriculation = request.GET.get('immatriculation')
+        categorie = request.GET.get('categorie')
+        date_debut = request.GET.get('date_debut')
+        date_fin = request.GET.get('date_fin')
+        if date_debut and date_fin:
+            cars = cars.filter(date_saisie__range=[date_debut, date_fin])
+        if immatriculation:
+            cars = cars.filter(immatriculation__icontains=immatriculation)
+        if categorie:
+            try:
+                # Si c'est un ID (entier)
+                categorie_id = int(categorie)
+                cars = cars.filter(category__id=categorie_id)
+            except (ValueError, TypeError):
+                # Si c'est un nom de catégorie (chaîne)
+                cars = cars.filter(category__category=categorie)
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "Véhicules hors parc"
+        headers = [
+            "Immatriculation",
+            "Marque",
+            "Durée",
+            "Numéro Carte Grise",
+            "Numéro Châssis",
+            "Date Acquisition",
+            "Coût Acquisition",
+            "Date Édition Carte Grise",
+            "Date Mise en Service",
+            "Catégorie",
+            "Âge",
+            "Motif de sortie",
+            "Auteur",
+            "Date de saisie",
+        ]
+        ws.append(headers)
+        for v in cars:
+            ws.append([
+                v.immatriculation,
+                v.marque,
+                v.duree,
+                v.num_cart_grise,
+                v.num_Chassis,
+                v.date_acquisition.strftime("%d/%m/%Y") if v.date_acquisition else "",
+                v.cout_acquisition,
+                v.dat_edit_carte_grise.strftime("%d/%m/%Y") if v.dat_edit_carte_grise else "",
+                v.date_mis_service.strftime("%d/%m/%Y") if v.date_mis_service else "",
+                v.category.category if v.category else "",
+                v.age,
+                v.motif_sorti or "",
+                v.auteur.username if v.auteur else "",
+                v.date_saisie.strftime("%d/%m/%Y") if v.date_saisie else "",
+            ])
+        for col_num, column_title in enumerate(headers, 1):
+            col_letter = get_column_letter(col_num)
+            ws.column_dimensions[col_letter].width = 22
+        response = HttpResponse(
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+        response['Content-Disposition'] = 'attachment; filename=Véhicules_hors_parc.xlsx'
+        wb.save(response)
+        return response
+
 @login_required(login_url='/login/')
 @require_POST
 def toggle_car_statut(request, pk):
     vehicule = get_object_or_404(Vehicule, id=pk)
-    # Si on désactive (car_statut passe de True à False), on demande le motif
     if vehicule.car_statut:
         motif_sorti = request.POST.get('motif_sorti', '').strip()
         if not motif_sorti:
@@ -2975,10 +3058,8 @@ def toggle_car_statut(request, pk):
         vehicule.motif_sorti = motif_sorti
         vehicule.car_statut = False
     else:
-        # Si on réactive, on peut vider le motif
         vehicule.car_statut = True
         vehicule.motif_sorti = None
-    
     vehicule.save()
     return JsonResponse({
         "success": True, 
@@ -3006,14 +3087,12 @@ class UpdatVehiculeView(LoginRequiredMixin, CustomPermissionRequiredMixin, Updat
     template_name = "perfect/partials/car_form.html"  
     success_url = reverse_lazy('list_recet')
     success_message = 'véhicule modifiée avec succès✓✓'
-
     def form_valid(self, form):
         form.instance.auteur = self.request.user
         response = super().form_valid(form)
         if self.request.headers.get("x-requested-with") == "XMLHttpRequest":
             return JsonResponse({"success": True, "message": self.success_message})
         return response
-
     def form_invalid(self, form):
         if self.request.headers.get("x-requested-with") == "XMLHttpRequest":
             return JsonResponse({"success": False, "errors": form.errors})
@@ -4025,6 +4104,89 @@ class BestRecetView(LoginRequiredMixin, CustomPermissionRequiredMixin, TemplateV
             'best_recettes': best_recettes,
         })
         return context 
+
+class ExportBestRecetteExcelView(LoginRequiredMixin, View):
+    """Vue pour exporter les meilleures recettes au format Excel"""
+    login_url = 'login'
+    
+    def get(self, request, *args, **kwargs):
+        form = DateFormMJR(request.GET)
+        recette_queryset = Recette.objects.all()
+        
+        # ------------------ FILTRES (même logique que BestRecetView) -------------------
+        if form.is_valid():
+            categorie_filter = form.cleaned_data.get('categorie')
+            date_debut = form.cleaned_data.get('date_debut')
+            date_fin = form.cleaned_data.get('date_fin')
+
+            if categorie_filter:
+                recette_queryset = recette_queryset.filter(
+                    vehicule__category__category=categorie_filter
+                )
+            if date_debut and date_fin:
+                recette_queryset = recette_queryset.filter(
+                    date_saisie__range=[date_debut, date_fin]
+                )
+        
+        # ------------------ AGREGATION (même logique que BestRecetView) -------------------
+        best_recettes = (
+            recette_queryset.values('vehicule__immatriculation', 'vehicule__category__category')
+            .annotate(total_recette=Sum('montant'))
+            .order_by('-total_recette')  # Du plus grand au plus petit
+        )
+        
+        # ------------------ CREATION DU FICHIER EXCEL -------------------
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "Meilleures Recettes"
+        
+        # En-têtes
+        headers = [
+            "IMMAT",
+            "CATEGORIE",
+            "MONTANT (FCFA)"
+        ]
+        ws.append(headers)
+        
+        # Style pour les en-têtes
+        header_fill = PatternFill(start_color="06497C", end_color="06497C", fill_type="solid")
+        header_font = Font(bold=True, color="FFFFFF", size=12)
+        header_alignment = Alignment(horizontal="center", vertical="center")
+        
+        for col_num, column_title in enumerate(headers, 1):
+            col_letter = get_column_letter(col_num)
+            cell = ws[f"{col_letter}1"]
+            cell.fill = header_fill
+            cell.font = header_font
+            cell.alignment = header_alignment
+            ws.column_dimensions[col_letter].width = 20
+        
+        # Données
+        for rec in best_recettes:
+            ws.append([
+                rec.get('vehicule__immatriculation', ''),
+                rec.get('vehicule__category__category', ''),
+                rec.get('total_recette', 0),
+            ])
+        
+        # Alignement des cellules de données
+        for row in ws.iter_rows(min_row=2, max_row=ws.max_row, min_col=1, max_col=len(headers)):
+            for cell in row:
+                cell.alignment = Alignment(horizontal="center", vertical="center")
+        
+        # Formatage numérique pour la colonne montant
+        for row in range(2, ws.max_row + 1):
+            cell = ws[f"C{row}"]
+            cell.number_format = '#,##0'
+        
+        # Réponse HTTP
+        filename = f"Meilleures-Recettes-{timezone.now().strftime('%Y%m%d_%H%M')}.xlsx"
+        response = HttpResponse(
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+        response['Content-Disposition'] = f'attachment; filename={filename}'
+        wb.save(response)
+        return response
 
 @require_POST
 @login_required
@@ -6896,6 +7058,7 @@ class BestReparationView(LoginRequiredMixin, CustomPermissionRequiredMixin, Temp
             categorie_filter = form.cleaned_data.get('categorie')
             date_debut = form.cleaned_data.get('date_debut')
             date_fin = form.cleaned_data.get('date_fin')
+            motif_filter = form.cleaned_data.get('motif')
 
             if categorie_filter:
                 reparation_queryset = reparation_queryset.filter(
@@ -6905,6 +7068,34 @@ class BestReparationView(LoginRequiredMixin, CustomPermissionRequiredMixin, Temp
                 reparation_queryset = reparation_queryset.filter(
                     date_saisie__range=[date_debut, date_fin]
                 )
+            if motif_filter:
+                reparation_queryset = reparation_queryset.filter(
+                    motif=motif_filter
+                )
+        # ------------------ STATISTIQUES -------------------
+        # Déterminer si un filtre de date est appliqué
+        has_date_filter = form.is_valid() and form.cleaned_data.get('date_debut') and form.cleaned_data.get('date_fin')
+        
+        # Nombre total de réparations
+        if has_date_filter:
+            # Si filtre de date appliqué, compter toutes les réparations filtrées
+            reparat_total = reparation_queryset.count()
+        else:
+            # Sinon, compter les réparations du mois avec les autres filtres appliqués
+            reparat_total = reparation_queryset.filter(date_saisie__month=date.today().month).count()
+        
+        # Montant des réparations aujourd'hui (avec les filtres appliqués)
+        reparat_jours = reparation_queryset.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
+        reparat_jours_format = '{:,}'.format(reparat_jours).replace(',', ' ')
+        
+        # Montant des réparations du mois en cours (avec les filtres appliqués)
+        reparat_mois = reparation_queryset.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
+        reparat_mois_format = '{:,}'.format(reparat_mois).replace(',', ' ')
+        
+        # Montant des réparations de l'année en cours (avec les filtres appliqués)
+        reparat_an = reparation_queryset.filter(date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
+        reparat_an_format = '{:,}'.format(reparat_an).replace(',', ' ')
+        
         # ------------------ AGREGATION -------------------
         best_reparations = (
             reparation_queryset.values(
@@ -6923,8 +7114,110 @@ class BestReparationView(LoginRequiredMixin, CustomPermissionRequiredMixin, Temp
         context.update({
             'form': form,
             'best_reparations': best_reparations,
+            'reparat_total': reparat_total,
+            'reparat_jours_format': reparat_jours_format,
+            'reparat_mois_format': reparat_mois_format,
+            'reparat_an_format': reparat_an_format,
         })
         return context
+
+class ExportBestReparationExcelView(LoginRequiredMixin, View):
+    """Vue pour exporter le top des réparations au format Excel"""
+    login_url = 'login'
+    
+    def get(self, request, *args, **kwargs):
+        form = DateFormMJR(request.GET)
+        reparation_queryset = Reparation.objects.all()
+        
+        # ------------------ FILTRES (même logique que BestReparationView) -------------------
+        if form.is_valid():
+            categorie_filter = form.cleaned_data.get('categorie')
+            date_debut = form.cleaned_data.get('date_debut')
+            date_fin = form.cleaned_data.get('date_fin')
+            motif_filter = form.cleaned_data.get('motif')
+
+            if categorie_filter:
+                reparation_queryset = reparation_queryset.filter(
+                    vehicule__category__category=categorie_filter
+                )
+            if date_debut and date_fin:
+                reparation_queryset = reparation_queryset.filter(
+                    date_saisie__range=[date_debut, date_fin]
+                )
+            if motif_filter:
+                reparation_queryset = reparation_queryset.filter(
+                    motif=motif_filter
+                )
+        
+        # ------------------ AGREGATION (même logique que BestReparationView) -------------------
+        best_reparations = (
+            reparation_queryset.values(
+                'vehicule__id',
+                'vehicule__immatriculation',
+                'vehicule__category__category'
+            )
+            .annotate(
+                total_reparations=Count('id'),
+                total_visite=Count('id', filter=Q(motif="Visite")),
+                total_panne=Count('id', filter=Q(motif="Panne")),
+                total_accident=Count('id', filter=Q(motif="Accident")),
+            )
+            .order_by('-total_reparations')  # classé du plus au moins
+        )
+        
+        # ------------------ CREATION DU FICHIER EXCEL -------------------
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "Top Réparations"
+        
+        # En-têtes
+        headers = [
+            "IMMAT",
+            "CATEGORIE",
+            "VISITE",
+            "PANNE",
+            "ACCIDENT",
+            "TOTAL"
+        ]
+        ws.append(headers)
+        
+        # Style pour les en-têtes
+        header_fill = PatternFill(start_color="06497C", end_color="06497C", fill_type="solid")
+        header_font = Font(bold=True, color="FFFFFF", size=12)
+        header_alignment = Alignment(horizontal="center", vertical="center")
+        
+        for col_num, column_title in enumerate(headers, 1):
+            col_letter = get_column_letter(col_num)
+            cell = ws[f"{col_letter}1"]
+            cell.fill = header_fill
+            cell.font = header_font
+            cell.alignment = header_alignment
+            ws.column_dimensions[col_letter].width = 18
+        
+        # Données
+        for rep in best_reparations:
+            ws.append([
+                rep.get('vehicule__immatriculation', ''),
+                rep.get('vehicule__category__category', ''),
+                rep.get('total_visite', 0),
+                rep.get('total_panne', 0),
+                rep.get('total_accident', 0),
+                rep.get('total_reparations', 0),
+            ])
+        
+        # Alignement des cellules de données
+        for row in ws.iter_rows(min_row=2, max_row=ws.max_row, min_col=1, max_col=len(headers)):
+            for cell in row:
+                cell.alignment = Alignment(horizontal="center", vertical="center")
+        
+        # Réponse HTTP
+        filename = f"Top-Reparations-{timezone.now().strftime('%Y%m%d_%H%M')}.xlsx"
+        response = HttpResponse(
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+        response['Content-Disposition'] = f'attachment; filename={filename}'
+        wb.save(response)
+        return response
 
 class AddEntretienView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateView):
     login_url = 'login'

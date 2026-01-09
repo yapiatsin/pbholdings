@@ -47,16 +47,19 @@ urlpatterns = [
 
     #-------------------------------------------Categorie Véhicule & Véhicule--------------------------------- 
     path('Véhicule', AllVehiculeView.as_view(), name='all_vehi'),
+    path('Véhicule hors parc', AllVehiculeHorsParrcView.as_view(), name='all_vehi_hors_parc'),
     path('Nouveau #<int:pk> véhicule', AddVehiculeExcelView.as_view(), name='add_vehi'),
     path('vehicule /detail_financier', CarFinanceView.as_view(), name='detail_car_financier'),
     path('vehicule /<int:pk>/ modifier', UpdatVehiculeView.as_view(), name='updat_car'),
     path('vehicule /<int:pk>/ toggle-statut/', toggle_car_statut, name='toggle_car_statut'),
     path('vehicules /delete-multiple/', delete_multiple_vehicules, name='delete_multiple_vehicules'),
     path('vehicules/export-excel/', ExportVehiculeExcelView.as_view(), name='export_vehicules_excel'),
+    path('vehicules-hors-parc/export-excel/', ExportVehiculeHorsParcExcelView.as_view(), name='export_vehicules_hors_parc_excel'),
 
     #-------------------------------------------------------Recette---------------------------------------------
     path('vehicule /<int:pk>/ recette', AddRecetteView.as_view(), name="add_recettes"),
     path('Meilleure recette',BestRecetView.as_view(), name="best_recets"),
+    path('meilleures-recettes/export-excel/', ExportBestRecetteExcelView.as_view(), name='export_best_recette_excel'),
     path('liste recette',ListRecetView.as_view(), name="list_recet"),
     path('recette /<int:pk>/ modifier', UpdateRecetView.as_view(), name="updat_recet"),
     path('recettes /delete-selected/', views.delete_selected_recettes, name='delete_selected_recettes'),
@@ -95,6 +98,7 @@ urlpatterns = [
     path('vehicule /<int:pk>/ reparation',AddReparationView.as_view(), name="add_reparation"),
     path('liste reparation',ListReparationView.as_view(), name="list_repa"),
     path('top vehicule reparation',BestReparationView.as_view(), name="top_repa"),
+    path('top-reparations/export-excel/', ExportBestReparationExcelView.as_view(), name='export_top_reparation_excel'),
     path('reparation /<int:pk>/ detail', DetailReparatView.as_view(), name="detail_reparat"),
     path('reparation /<int:pk>/ export-pdf/', ExportReparationPDFView.as_view(), name='export_reparation_pdf'),
     path('reparation /delete-selected/', views.delete_selected_reparation, name='delete_selected_reparation'),

@@ -1,27 +1,18 @@
 {% extends 'perfect/base.html' %} 
 {% load static %} 
-{% block title %} Listes des véhicules {% endblock title %} 
+{% block title %} Véhicules hors parc {% endblock title %} 
 
 {% block page_title %}
-    <img class="profile-user-img" style="border:none; height:55px;width:55px" src="{% static 'addcar.png' %}" alt="User profile picture">{% if categorie %}Catégorie Véhicule : {{categorie}}{% else %}Tous les véhicules{% endif %}
+    <img class="profile-user-img" style="border:none; height:55px;width:55px" src="{% static 'addcar.png' %}" alt="User profile picture">{% if categorie %}Catégorie Véhicule : {{categorie}}{% else %}Les véhicules hors parc{% endif %}
 {% endblock page_title %} 
 {% block page_action %}
-    {% if categorie %}
-        <form method="post" enctype="multipart/form-data" role="form" id="quickForm">
-            {% csrf_token %}
-            <div class="row card-body">
-                <div class="col-md-12 form-group">
-                    <label for="excel_file">Fichier Excel (.xlsx)</label>
-                    <input type="file" name="excel_file" accept=".xls,.xlsx" required>
-                    <button type="submit" class="btn btn-outline-success"><i class="fa fa-upload"></i> Importer</button>
-                    <a href="{% url 'export_vehicules_excel' %}?date_debut={{ request.GET.date_debut }}&date_fin={{ request.GET.date_fin }}&immatriculation={{ request.GET.immatriculation }}&categorie={{ request.GET.categorie }}" class="btn btn-outline-success">
-                        Excel <i class="fa fa-file-excel-o"></i>
-                    </a>
-                    <button type="button" class="btn btn-outline-info" data-toggle="modal" data-target="#modal-lg"><i class="fa fa-plus-circle"></i></button>
-                </div>
-            </div>
-        </form>
-    {% endif %}
+    <div class="row card-body">
+        <div class="col-md-12 form-group">
+            <a href="{% url 'export_vehicules_hors_parc_excel' %}?date_debut={{ request.GET.date_debut }}&date_fin={{ request.GET.date_fin }}&immatriculation={{ request.GET.immatriculation }}&categorie={{ request.GET.categorie }}" class="btn btn-outline-success">
+                Excel <i class="fa fa-file-excel-o"></i>
+            </a>
+        </div>
+    </div>
 {% endblock page_action %}
 
 {% block main_content %}
@@ -147,7 +138,11 @@
         <img style="height: 40px; width: 40px; position:relative; margin-top: 6px; margin-left: 0px;" src="{% static 'summ.png' %}" alt="" srcset="">
     </span>
     <div class="info-box-content">
-        <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Total Véhicules parc</span>
+        <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Total Véhicules parc
+            <a href="{% url 'all_vehi' %}" class="product-title">
+                <span class="badge badge-success float-right p-1"><i class="fa fa-arrow-circle-left"></i></span>
+            </a>
+        </span>
         <span class="info-box-number" style="font-size:20px;color: #fa7832;">
         {{total_veh}}
         <small></small>
@@ -164,9 +159,6 @@
     <div class="info-box-content">
         <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">
             Total Véhicules hors parc 
-            <a href="{% url 'all_vehi_hors_parc' %}" class="product-title">
-                <span class="badge badge-danger float-right p-1"><i class="fa fa-arrow-circle-right"></i></span>
-            </a>
         </span>
         <span class="info-box-number" style="font-size:20px;color: #fa7832;">
         {{total_veh_hors_parc}}
@@ -180,7 +172,7 @@
     <div class="info-box mb-3" style="border-radius:25px;">
         <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-coins" style="color:rgba(6, 73, 124, 0.54);"></i></span>
         <div class="info-box-content">
-            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Coût total</span>
+            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Prix total véhicule</span>
             <span class="info-box-number" style="font-size:20px;color: #fa7832;">
             {{cout_total}}
             <small>cfa</small>
@@ -243,8 +235,6 @@
     <div class="row">
         <div class="col-md-12">
             <div class="card" style="box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);backdrop-filter: blur(5.2px);-webkit-backdrop-filter: blur(5.2px); border-radius:25px;">
-                <form method="POST" action="{% url 'delete_multiple_vehicules' %}" id="deleteForm">
-                    {% csrf_token %}
                 <div class="card-header">
                     <div class="card-tools">
                         <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
@@ -262,6 +252,7 @@
                                 <th>DUREE</th>
                                 <th>AGE</th>
                                 <th>STATUT</th>
+                                <th>MOTIF</th>
                                 <th>ACTION</th>
                             </tr>
                         </thead>
@@ -277,11 +268,13 @@
                                         <td><a class="mr-3">{{u.category}}</a></td>
                                         <td><a class="mr-3">{{u.cout_acquisition}}</a></td>
                                         <td><a class="mr-3">{{u.duree}}</a></td>
-                                        <td><a class="mr-3">
-                                            <span class="badge bg-{{ u.color_age }}" style="font-size: 14px;">
-                                                {{ u.age }} ans
-                                            </span>
-                                        </a></td>
+                                        <td>
+                                            <a class="mr-3">
+                                                <span class="badge bg-{{ u.color_age }}" style="font-size: 14px;">
+                                                    {{ u.age }} ans
+                                                </span>
+                                            </a>
+                                        </td>
                                         <td>
                                             <div class="custom-control custom-switch custom-switch-off-danger custom-switch-on-success">
                                                 <input type="checkbox"
@@ -292,6 +285,11 @@
                                                        {% if u.car_statut %} checked {% endif %}>
                                                 <label class="custom-control-label" for="switch-car-{{ u.id }}"></label>
                                             </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-info" style="font-size: 14px;">
+                                                {{u.motif_sorti}}
+                                            </span>
                                         </td>
                                         <td>
                                             {% for categorie, perms in grouped_permissions.items %}
@@ -333,10 +331,10 @@
                                 <th>---</th>
                                 <th>---</th>
                                 <th>---</th>
+                                <th>---</th>
                             </tr>
                         </tfoot>
                     </table>
-                    </form>
                 </div>
             </div>      
         </div>
@@ -424,6 +422,7 @@
             }
         });
     });
+
     // Gestion du toggle car_statut
     let currentCheckbox = null;
     $(document).on("change", ".toggle-car-statut", function() {
@@ -431,6 +430,7 @@
         let url = checkbox.data("url");
         let vehiculeId = checkbox.data("vehicule-id");
         let isChecked = checkbox.is(":checked");
+        
         // Si on désactive (on décoche), on demande le motif
         if (!isChecked) {
             currentCheckbox = checkbox;
@@ -469,12 +469,14 @@
             });
         }
     });
+
     // Gestion du formulaire de motif
     $(document).on("submit", "#motifSortiForm", function(e) {
         e.preventDefault();
         let form = $(this);
         let motif = $("#motif_sorti_input").val().trim();
         let vehiculeId = $("#vehicule_id_hidden").val();
+        
         if (!motif) {
             alert("⚠️ Veuillez saisir un motif de sortie.");
             return;

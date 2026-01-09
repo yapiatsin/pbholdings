@@ -1017,7 +1017,7 @@ class PermissionListView(LoginRequiredMixin, ListView):
         if categorie_filter:
             queryset = queryset.filter(categorie__id=categorie_filter)
         
-        return queryset.order_by('categorie__categorie', 'name')
+        return queryset.order_by('id','categorie__categorie', 'name')
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1112,27 +1112,22 @@ class ImportPermissionExcelView(LoginRequiredMixin, View):
             file = request.FILES['excel_file']
             wb = openpyxl.load_workbook(file)
             ws = wb.active
-            
             created_count = 0
             updated_count = 0
             errors = []
-            
             # Ignorer la première ligne (en-têtes)
             for row in ws.iter_rows(min_row=2, values_only=True):
                 if not row[0]:  # Ignorer les lignes vides
                     continue
-                
                 try:
                     perm_id = row[0]
                     name = row[1]
                     categorie_name = row[2]
                     url = row[3]
-                    
                     # Récupérer ou créer la catégorie
                     categorie, _ = TypeCustomPermission.objects.get_or_create(
                         categorie=categorie_name
                     )
-                    
                     # Créer ou mettre à jour la permission
                     permission, created = CustomPermission.objects.update_or_create(
                         id=perm_id,
@@ -1142,7 +1137,6 @@ class ImportPermissionExcelView(LoginRequiredMixin, View):
                             'url': url
                         }
                     )
-                    
                     if created:
                         created_count += 1
                     else:

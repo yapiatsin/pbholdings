@@ -97,40 +97,6 @@
                                             {% endfor %}
                                         {% endif %}
                                     {% endfor %}
-
-                                    <li class="nav-item dropdown">
-                                        <a id="dropdownSubMenu1" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="nav-link dropdown-toggle">Menu</a>
-                                        <ul aria-labelledby="dropdownSubMenu1" class="dropdown-menu border-0 shadow">
-                                            {% if user.user_type == '3' %} 
-                                            {% else %} 
-                                                <li><a href="{% url 'saisi_garag' %}" class="dropdown-item">Saisie Garage </a></li>
-                                                <li><a href="{% url 'temps_arrets' %}" class="dropdown-item">Saisie temp arrêt</a></li>
-                                            {% endif %}
-                                            <li class="dropdown-divider"></li>
-                                            <!-- Level two dropdown-->
-                                            <li class="dropdown-submenu dropdown-hover">
-                                                <a id="dropdownSubMenu2" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="dropdown-item dropdown-toggle">Autres</a>
-                                                <ul aria-labelledby="dropdownSubMenu2" class="dropdown-menu border-0 shadow">
-                                                    {% if user.user_type == '3' %}
-                                                        
-                                                    {% else %} 
-                                                        <li>
-                                                            <a tabindex="-1" href="{% url 'alerte' %}" class="dropdown-item">Alertes</a>
-                                                        </li>
-                                                        <li class="dropdown-submenu">
-                                                            <a id="dropdownSubMenu3" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="dropdown-item dropdown-toggle">Arrêts</a>
-                                                            <ul aria-labelledby="dropdownSubMenu3" class="dropdown-menu border-0 shadow">
-                                                                <li><a href="{% url 'temps' %}" class="dropdown-item">Tableau des temps d'arrêts</a></li>
-                                                                <li><a href="#" class="dropdown-item">--------</a></li>
-                                                            </ul>
-                                                        </li>
-                                                        <li><a href="#" class="dropdown-item">--------</a></li>
-                                                        <li><a href="#" class="dropdown-item">--------</a></li>
-                                                    {% endif %}
-                                                </ul>
-                                            </li>
-                                        </ul>
-                                    </li>
                                 {% endblock liste %}
                             </ul>
 

@@ -131,8 +131,9 @@
                                     <table id="example1" class="table table-bordered table-striped">
                                         <thead>
                                             <tr class="text-center text-danger">
-                                                <th>IMMATRICULATION</th>
+                                                <th>IMMAT</th>
                                                 <th>MARQUE</th>
+                                                <th>CATEGORIE</th>
                                                 <th>VISITE</th>
                                                 <th>ENTRETIEN</th>
                                                 <th>ASSURANCE</th>
@@ -147,53 +148,54 @@
                                                 <tr class="text-center">
                                                     <td><span style="font-weight:700;"><a class="text-danger" href="" title="{{v.vehicule.category}}" >{{v.vehicule.immatriculation}}</a></span></td>
                                                     <td><span>{{v.vehicule.marque}}</span></td>
+                                                    <td><span>{{v.vehicule.category}}</span></td>
                                                     <td>
                                                         {% if v.jours_restant == 0 %}
                                                             <span class="badge badge-secondary">-</span>
                                                         {% else %}
-                                                            <span class="badge p-2" style="color:white;font-weight:700;border-radius:50px; background-color: {{ v.alert_color }};">{{v.jours_restant}} jour{{ v.jours_restant|pluralize }}</span>
+                                                            <span class="badge badge-{{ v.alert_color }} p-2" style="color:white;font-weight:700;border-radius:50px;">{{v.jours_restant}} jour{{ v.jours_restant|pluralize }}</span>
                                                         {% endif %}
                                                     </td>
                                                     <td>
                                                         {% if v.jours_ent_restant == 0 %}
                                                             <span class="badge badge-secondary">-</span>
                                                         {% else %}
-                                                            <span class="badge p-2" style="color:white;font-weight:700;border-radius:50px; background-color: {{ v.alert_ent_color }};">{{v.jours_ent_restant}} jour{{ v.jours_ent_restant|pluralize }}</span>
+                                                            <span class="badge badge-{{ v.alert_ent_color }} p-2" style="color:white;font-weight:700;border-radius:50px;">{{v.jours_ent_restant}} jour{{ v.jours_ent_restant|pluralize }}</span>
                                                         {% endif %}
                                                     </td>
                                                     <td>
                                                         {% if v.jours_assu_restant == 0 %}
                                                             <span class="badge badge-secondary">-</span>
                                                         {% else %}
-                                                            <span class="badge p-2" style="color:white;font-weight:700;border-radius:50px; background-color: {{ v.alert_assu_color }};">{{v.jours_assu_restant}} jour{{ v.jours_assu_restant|pluralize }}</span>
+                                                            <span class="badge badge-{{ v.alert_assu_color }} p-2" style="color:white;font-weight:700;border-radius:50px;">{{v.jours_assu_restant}} jour{{ v.jours_assu_restant|pluralize }}</span>
                                                         {% endif %}
                                                     </td>
                                                     <td>
                                                         {% if v.jours_vign_restant == 0 %}
                                                             <span class="badge badge-secondary">-</span>
                                                         {% else %}
-                                                            <span class="badge p-2" style="color:white;font-weight:700;border-radius:50px; background-color: {{ v.alert_vign_color }};">{{v.jours_vign_restant}} jour{{ v.jours_vign_restant|pluralize }}</span>
+                                                            <span class="badge badge-{{ v.alert_vign_color }} p-2" style="color:white;font-weight:700;border-radius:50px;">{{v.jours_vign_restant}} jour{{ v.jours_vign_restant|pluralize }}</span>
                                                         {% endif %}
                                                     </td>
                                                     <td>
                                                         {% if v.jours_pate_restant == 0 %}
                                                             <span class="badge badge-secondary">-</span>
                                                         {% else %}
-                                                            <span class="badge p-2" style="color:white;font-weight:700;border-radius:50px; background-color: {{ v.alert_pate_color }};">{{v.jours_pate_restant}} jour{{ v.jours_pate_restant|pluralize }}</span>
+                                                            <span class="badge badge-{{ v.alert_pate_color }} p-2" style="color:white;font-weight:700;border-radius:50px;">{{v.jours_pate_restant}} jour{{ v.jours_pate_restant|pluralize }}</span>
                                                         {% endif %}
                                                     </td>
                                                     <td>
                                                         {% if v.jours_cartsta_restant == 0 %}
                                                             <span class="badge badge-secondary">-</span>
                                                         {% else %}
-                                                            <span class="badge p-2" style="color:white;font-weight:700;border-radius:50px; background-color: {{ v.alert_cartsta_color }};">{{v.jours_cartsta_restant}} jour{{ v.jours_cartsta_restant|pluralize }}</span>
+                                                            <span class="badge badge-{{ v.alert_cartsta_color }} p-2" style="color:white;font-weight:700;border-radius:50px;">{{v.jours_cartsta_restant}} jour{{ v.jours_cartsta_restant|pluralize }}</span>
                                                         {% endif %}
                                                     </td>
                                                 </tr>
                                             {% endfor %}
                                         {% else %}
                                             <tr>
-                                                <td colspan="8" class="text-center text-muted">
+                                                <td colspan="12" class="text-center text-muted">
                                                     <i class="fa fa-info-circle"></i> Aucun véhicule trouvé
                                                 </td>
                                             </tr>
@@ -201,7 +203,6 @@
                                         </tbody>
                                     </table>
                                 </div>
-                                <!-- /.card-body -->
                             </div>
                         </div>
                     </div>

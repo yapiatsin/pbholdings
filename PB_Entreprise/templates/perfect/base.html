@@ -104,20 +104,17 @@
 </head>
 
 <body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed" style="background-image: url('{% static "birdcu.png" %}');
-background-size: cover; background-position: center; background-repeat: no-repeat; opacity: .95">
+    background-size: cover; background-position: center; background-repeat: no-repeat; opacity: .95">
     <div class="wrapper">
         <nav class="main-header navbar navbar-expand navbar-white navbar-light">
-            <!-- Left navbar links -->
             <ul class="navbar-nav">
                 <li class="nav-item">
                     <a class="nav-link" data-widget="pushmenu" href="#"><i class="fas fa-bars"></i></a>
                 </li>
             </ul>
-
             <ul class="navbar-nav">
                 {% block navbar_nav %} {% endblock navbar_nav %}
             </ul>
-
             <!-- Right navbar links -->
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item dropdown">

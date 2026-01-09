@@ -32,16 +32,16 @@ def alertes_count(request):
     # Filtrer les véhicules selon le type d'utilisateur
     if user.user_type == "4":
         try:
-            gerant = user.gerants.get()
-            if gerant.gerant_voiture:
-                vehicules = Vehicule.objects.filter(category=gerant.gerant_voiture)
+            gerant = Gerant.objects.get(user=user)
+            categories_gerant = gerant.gerant_voiture.all()
+            if categories_gerant.exists():
+                vehicules = Vehicule.objects.filter(category__in=categories_gerant, car_statut=True)
             else:
                 vehicules = Vehicule.objects.none()
         except:
             vehicules = Vehicule.objects.none()
     else:
         vehicules = Vehicule.objects.all()
-    
     # Parcourir tous les véhicules et compter les alertes critiques
     for vehicule in vehicules:
         # Visite technique

@@ -22,6 +22,11 @@ class DateFormMJR(forms.Form):
     date_fin = forms.DateField(widget=forms.DateInput(attrs={'type': 'date','class': 'form-control'}), required=False)
     categorie = forms.ModelChoiceField(queryset=CategoVehi.objects.all(), required=False, widget=forms.Select(attrs={'class': 'form-control'}))
     immatriculation = forms.CharField(required=False, max_length=30, widget=forms.DateInput(attrs={'class': 'form-control', 'placeholder':"Saisissez l'immatriculation"}),label="Immatriculation")
+    motif = forms.ChoiceField(
+        choices=[('', '--- Tous les motifs ---')] + list(MOTIF_REPARATION),
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
 
 class DatebilanForm(forms.Form):
     date_bilan = forms.DateField(widget=forms.DateInput(attrs={'type':'date','class':'form-control'}))

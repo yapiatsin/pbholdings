@@ -50,7 +50,7 @@ class ContraventionAdmin(admin.ModelAdmin):
     list_filter = ['vehicule', 'montant',]
        
 class VehiculeAdmin(admin.ModelAdmin):
-    list_display = ['immatriculation', 'marque', "category",'photo_carte_grise' ,'date_saisie',"duree","age","car_statut",'motif_sorti',"color_age",'auteur']
+    list_display = ['immatriculation', 'marque', "category",'photo_carte_grise' ,'date_saisie',"duree","age","car_statut",'motif_sorti',"color_age",'auteur','history']
     list_filter = ['immatriculation','marque', 'category','duree','car_statut','motif_sorti']
        
 class AutrarretAdmin(admin.ModelAdmin):
