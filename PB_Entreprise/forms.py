@@ -1,6 +1,7 @@
 from django import forms
 from django.forms import DateInput
 from .models import *
+from userauths.models import CustomUser
 from django.forms import inlineformset_factory, modelformset_factory, BaseModelFormSet
 LIEU_PIECE = (
     ('INTERNE', 'INTERNE'),
@@ -408,6 +409,92 @@ class UpdateRecetteForm(forms.ModelForm):
         date = self.cleaned_data['date_saisie']
         formatted_date = date.strftime('%Y-%m-%d',)
         return formatted_date
+
+class HistoriqueRecetteFilterForm(forms.Form):
+    """Formulaire de filtre pour l'historique des recettes avec tous les champs"""
+    date_debut = forms.DateField(
+        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}), 
+        required=False,
+        label="Date début"
+    )
+    date_fin = forms.DateField(
+        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}), 
+        required=False,
+        label="Date fin"
+    )
+    date_saisie_debut = forms.DateField(
+        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}), 
+        required=False,
+        label="Date saisie début"
+    )
+    date_saisie_fin = forms.DateField(
+        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}), 
+        required=False,
+        label="Date saisie fin"
+    )
+    categorie = forms.ModelChoiceField(
+        queryset=CategoVehi.objects.all(), 
+        required=False, 
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        label="Catégorie"
+    )
+    immatriculation = forms.CharField(
+        required=False, 
+        max_length=30, 
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': "Saisissez l'immatriculation"}),
+        label="Immatriculation"
+    )
+    chauffeur = forms.CharField(
+        required=False, 
+        max_length=50, 
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': "Saisissez le chauffeur"}),
+        label="Chauffeur"
+    )
+    cpte_comptable = forms.CharField(
+        required=False, 
+        max_length=100, 
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': "Saisissez le compte comptable"}),
+        label="Compte comptable"
+    )
+    numero_fact = forms.CharField(
+        required=False, 
+        max_length=20, 
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': "Saisissez le numéro de facture"}),
+        label="Numéro facture"
+    )
+    Num_piece = forms.CharField(
+        required=False, 
+        max_length=100, 
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': "Saisissez le numéro de pièce"}),
+        label="Numéro pièce"
+    )
+    montant_min = forms.IntegerField(
+        required=False, 
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'min': '0', 'placeholder': "Montant minimum"}),
+        label="Montant minimum"
+    )
+    montant_max = forms.IntegerField(
+        required=False, 
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'min': '0', 'placeholder': "Montant maximum"}),
+        label="Montant maximum"
+    )
+    auteur = forms.ModelChoiceField(
+        queryset=CustomUser.objects.all(), 
+        required=False, 
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        label="Auteur"
+    )
+    history_type = forms.ChoiceField(
+        choices=[
+            ('', '--- Tous les types ---'),
+            ('+', 'Créé'),
+            ('~', 'Modifié'),
+            ('-', 'Supprimé')
+        ],
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        label="Type d'historique"
+    )
                 
 class ChargeFixForm(forms.ModelForm):
     date_saisie = forms.DateTimeField(widget= forms.DateInput(format=('%m/%d/%Y'), attrs={'class':'form-control', 'format':'yyyy-mm-dd', 'type':'date'}))
@@ -440,6 +527,236 @@ class UpdatChargeFixForm(forms.ModelForm):
         date = self.cleaned_data['date_saisie']
         formatted_date = date.strftime('%Y-%m-%d',)
         return formatted_date
+
+class HistoriqueChargeFixeFilterForm(forms.Form):
+    """Formulaire de filtre pour l'historique des charges fixes avec tous les champs"""
+    date_debut = forms.DateField(
+        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}), 
+        required=False,
+        label="Date historique début"
+    )
+    date_fin = forms.DateField(
+        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}), 
+        required=False,
+        label="Date historique fin"
+    )
+    date_saisie_debut = forms.DateField(
+        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}), 
+        required=False,
+        label="Date saisie début"
+    )
+    date_saisie_fin = forms.DateField(
+        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}), 
+        required=False,
+        label="Date saisie fin"
+    )
+    categorie = forms.ModelChoiceField(
+        queryset=CategoVehi.objects.all(), 
+        required=False, 
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        label="Catégorie"
+    )
+    immatriculation = forms.CharField(
+        required=False, 
+        max_length=30, 
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': "Saisissez l'immatriculation"}),
+        label="Immatriculation"
+    )
+    libelle = forms.CharField(
+        required=False, 
+        max_length=100, 
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': "Saisissez le libellé"}),
+        label="Libellé"
+    )
+    cpte_comptable = forms.CharField(
+        required=False, 
+        max_length=100, 
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': "Saisissez le compte comptable"}),
+        label="Compte comptable"
+    )
+    Num_piece = forms.CharField(
+        required=False, 
+        max_length=100, 
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': "Saisissez le numéro de pièce"}),
+        label="Numéro pièce"
+    )
+    Num_fact = forms.CharField(
+        required=False, 
+        max_length=100, 
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': "Saisissez le numéro de facture"}),
+        label="Numéro facture"
+    )
+    montant_min = forms.IntegerField(
+        required=False, 
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'min': '0', 'placeholder': "Montant minimum"}),
+        label="Montant minimum"
+    )
+    montant_max = forms.IntegerField(
+        required=False, 
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'min': '0', 'placeholder': "Montant maximum"}),
+        label="Montant maximum"
+    )
+    auteur = forms.ModelChoiceField(
+        queryset=CustomUser.objects.all(), 
+        required=False, 
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        label="Auteur"
+    )
+    history_type = forms.ChoiceField(
+        choices=[
+            ('', '--- Tous les types ---'),
+            ('+', 'Créé'),
+            ('~', 'Modifié'),
+            ('-', 'Supprimé')
+        ],
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        label="Type d'historique"
+    )
+
+class HistoriqueChargeVariableFilterForm(forms.Form):
+    """Formulaire de filtre pour l'historique des charges variables avec tous les champs"""
+    date_debut = forms.DateField(
+        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}), 
+        required=False,
+        label="Date historique début"
+    )
+    date_fin = forms.DateField(
+        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}), 
+        required=False,
+        label="Date historique fin"
+    )
+    date_saisie_debut = forms.DateField(
+        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}), 
+        required=False,
+        label="Date saisie début"
+    )
+    date_saisie_fin = forms.DateField(
+        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}), 
+        required=False,
+        label="Date saisie fin"
+    )
+    categorie = forms.ModelChoiceField(
+        queryset=CategoVehi.objects.all(), 
+        required=False, 
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        label="Catégorie"
+    )
+    immatriculation = forms.CharField(
+        required=False, 
+        max_length=30, 
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': "Saisissez l'immatriculation"}),
+        label="Immatriculation"
+    )
+    libelle = forms.CharField(
+        required=False, 
+        max_length=100, 
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': "Saisissez le libellé"}),
+        label="Libellé"
+    )
+    cpte_comptable = forms.CharField(
+        required=False, 
+        max_length=100, 
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': "Saisissez le compte comptable"}),
+        label="Compte comptable"
+    )
+    Num_piece = forms.CharField(
+        required=False, 
+        max_length=100, 
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': "Saisissez le numéro de pièce"}),
+        label="Numéro pièce"
+    )
+    Num_fact = forms.CharField(
+        required=False, 
+        max_length=100, 
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': "Saisissez le numéro de facture"}),
+        label="Numéro facture"
+    )
+    montant_min = forms.IntegerField(
+        required=False, 
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'min': '0', 'placeholder': "Montant minimum"}),
+        label="Montant minimum"
+    )
+    montant_max = forms.IntegerField(
+        required=False, 
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'min': '0', 'placeholder': "Montant maximum"}),
+        label="Montant maximum"
+    )
+    auteur = forms.ModelChoiceField(
+        queryset=CustomUser.objects.all(), 
+        required=False, 
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        label="Auteur"
+    )
+    history_type = forms.ChoiceField(
+        choices=[
+            ('', '--- Tous les types ---'),
+            ('+', 'Créé'),
+            ('~', 'Modifié'),
+            ('-', 'Supprimé')
+        ],
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        label="Type d'historique"
+    )
+
+class HistoriqueVehiculeFilterForm(forms.Form):
+    """Formulaire de filtre pour l'historique des véhicules"""
+    date_debut = forms.DateField(
+        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}), 
+        required=False,
+        label="Date historique début"
+    )
+    date_fin = forms.DateField(
+        widget=forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}), 
+        required=False,
+        label="Date historique fin"
+    )
+    immatriculation = forms.CharField(
+        required=False, 
+        max_length=30, 
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': "Saisissez l'immatriculation"}),
+        label="Immatriculation"
+    )
+    categorie = forms.ModelChoiceField(
+        queryset=CategoVehi.objects.all(), 
+        required=False, 
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        label="Catégorie"
+    )
+    marque = forms.CharField(
+        required=False, 
+        max_length=20, 
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': "Saisissez la marque"}),
+        label="Marque"
+    )
+    motif_sorti = forms.CharField(
+        required=False, 
+        max_length=100, 
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': "Saisissez le motif de sortie"}),
+        label="Motif de sortie"
+    )
+    annee_sortie = forms.IntegerField(
+        required=False,
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': "Année de sortie (ex: 2026)", 'min': 2000, 'max': 2100}),
+        label="Année de sortie"
+    )
+    annee_enregistrement = forms.IntegerField(
+        required=False,
+        widget=forms.NumberInput(attrs={'class': 'form-control', 'placeholder': "Année d'enregistrement (ex: 2026)", 'min': 2000, 'max': 2100}),
+        label="Année d'enregistrement"
+    )
+    history_type = forms.ChoiceField(
+        choices=[
+            ('', '--- Tous les types ---'),
+            ('+', 'Créé'),
+            ('~', 'Modifié'),
+            ('-', 'Supprimé')
+        ],
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        label="Type d'historique"
+    )
         
 class ChargeVarForm(forms.ModelForm):
     date_saisie = forms.DateTimeField(widget= forms.DateInput(format=('%m/%d/%Y'), attrs={'class':'form-control','placeholder':'Selection une date...', 'format':'yyyy-mm-dd', 'type':'date'}))
