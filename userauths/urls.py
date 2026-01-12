@@ -51,4 +51,5 @@ urlpatterns = [
     path('categories/creer/', CategorieCreateView.as_view(), name='create_categorie'),
     path('categories/<int:pk>/modifier/', CategorieUpdateView.as_view(), name='update_categorie'),
     path('categories/<int:pk>/supprimer/', delete_categorie, name='delete_categorie'),
+    path('categories/export-excel/', ExportCategoriesExcelView.as_view(), name='export_categories_excel'),
 ]

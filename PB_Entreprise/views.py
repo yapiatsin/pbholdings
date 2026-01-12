@@ -3043,6 +3043,322 @@ class ExportVehiculeHorsParcExcelView(LoginRequiredMixin, View):
         wb.save(response)
         return response
 
+class HistoriqueVehiculeView(LoginRequiredMixin, CustomPermissionRequiredMixin, ListView):
+    """Vue pour afficher l'historique des véhicules avec filtres dynamiques"""
+    login_url = 'login'
+    permission_url = 'historique_vehicule'
+    template_name = 'perfect/historiq_vehicule.html'
+    context_object_name = 'liste_vehicules'
+    form_class = HistoriqueVehiculeFilterForm
+    timeout_minutes = 500
+    
+    def dispatch(self, request, *args, **kwargs):
+        last_activity = request.session.get('last_activity')
+        if last_activity:
+            last_activity = datetime.strptime(last_activity, '%Y-%m-%d %H:%M:%S')
+            if datetime.now() - last_activity > timedelta(minutes=self.timeout_minutes):
+                logout(request)
+                messages.warning(request, "Vous avez été déconnecté ")
+                return redirect("login")
+        return super().dispatch(request, *args, **kwargs)
+    
+    def get_queryset(self):
+        # Accéder au modèle historique via Vehicule.history.model
+        HistoricalVehicule = Vehicule.history.model
+        queryset = HistoricalVehicule.objects.all().order_by('-history_date').select_related('category', 'auteur', 'history_user')
+        
+        form = self.form_class(self.request.GET)
+        if form.is_valid():
+            # Filtres sur les dates d'historique
+            date_debut = form.cleaned_data.get('date_debut')
+            date_fin = form.cleaned_data.get('date_fin')
+            if date_debut and date_fin:
+                queryset = queryset.filter(history_date__range=[date_debut, date_fin])
+            elif date_debut:
+                queryset = queryset.filter(history_date__gte=date_debut)
+            elif date_fin:
+                queryset = queryset.filter(history_date__lte=date_fin)
+            
+            # Filtre sur l'immatriculation
+            immatriculation = form.cleaned_data.get('immatriculation')
+            if immatriculation:
+                queryset = queryset.filter(immatriculation__icontains=immatriculation)
+            
+            # Filtre sur la catégorie
+            categorie = form.cleaned_data.get('categorie')
+            if categorie:
+                queryset = queryset.filter(category__id=categorie.id)
+            
+            # Filtre sur la marque
+            marque = form.cleaned_data.get('marque')
+            if marque:
+                queryset = queryset.filter(marque__icontains=marque)
+            
+            # Filtre sur le motif de sortie
+            motif_sorti = form.cleaned_data.get('motif_sorti')
+            if motif_sorti:
+                queryset = queryset.filter(motif_sorti__icontains=motif_sorti)
+            
+            # Filtre sur l'année de sortie (année où motif_sorti a été défini)
+            annee_sortie = form.cleaned_data.get('annee_sortie')
+            if annee_sortie is not None:
+                # Filtrer les entrées historiques où motif_sorti n'est pas None et où l'année du history_date correspond
+                queryset = queryset.filter(
+                    motif_sorti__isnull=False,
+                    history_date__year=annee_sortie
+                )
+            
+            # Filtre sur l'année d'enregistrement (date_saisie)
+            annee_enregistrement = form.cleaned_data.get('annee_enregistrement')
+            if annee_enregistrement is not None:
+                queryset = queryset.filter(date_saisie__year=annee_enregistrement)
+            
+            # Filtre sur le type d'historique (Créé, Modifié, Supprimé)
+            history_type = form.cleaned_data.get('history_type')
+            if history_type:
+                queryset = queryset.filter(history_type=history_type)
+        
+        return queryset
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        dates = date.today()
+        annee = date.today().year
+        
+        # Formulaire de filtre
+        form = self.form_class(self.request.GET)
+        context['form'] = form
+        
+        # Calculer l'âge pour chaque véhicule historique
+        liste_vehicules = context.get('liste_vehicules', [])
+        # S'assurer que c'est une liste pour pouvoir ajouter des attributs
+        if hasattr(liste_vehicules, '__iter__') and not isinstance(liste_vehicules, (list, tuple)):
+            liste_vehicules = list(liste_vehicules)
+        
+        today = date.today()
+        for vehicule_hist in liste_vehicules:
+            if vehicule_hist.date_mis_service:
+                age = (today.year - vehicule_hist.date_mis_service.year) - int(
+                    (vehicule_hist.date_mis_service.month, today.day) < (vehicule_hist.date_mis_service.month, today.day)
+                )
+                vehicule_hist.calculated_age = age
+                # Calculer aussi la couleur selon l'âge
+                if vehicule_hist.duree and vehicule_hist.duree > 0:
+                    if age <= vehicule_hist.duree / 2:
+                        vehicule_hist.calculated_color_age = "success"
+                    elif age < vehicule_hist.duree:
+                        vehicule_hist.calculated_color_age = "warning"
+                    else:
+                        vehicule_hist.calculated_color_age = "danger"
+                else:
+                    vehicule_hist.calculated_color_age = "info"
+            else:
+                vehicule_hist.calculated_age = None
+                vehicule_hist.calculated_color_age = "info"
+        
+        # Mettre à jour le contexte avec la liste modifiée
+        context['liste_vehicules'] = liste_vehicules
+        
+        # Calculer les statistiques sur les véhicules actuels filtrés
+        vehicule_queryset = Vehicule.objects.all()
+        
+        # Appliquer les mêmes filtres sur les véhicules actuels pour les statistiques
+        if form.is_valid():
+            immatriculation = form.cleaned_data.get('immatriculation')
+            if immatriculation:
+                vehicule_queryset = vehicule_queryset.filter(immatriculation__icontains=immatriculation)
+            
+            categorie = form.cleaned_data.get('categorie')
+            if categorie:
+                vehicule_queryset = vehicule_queryset.filter(category__id=categorie.id)
+            
+            marque = form.cleaned_data.get('marque')
+            if marque:
+                vehicule_queryset = vehicule_queryset.filter(marque__icontains=marque)
+            
+            motif_sorti = form.cleaned_data.get('motif_sorti')
+            if motif_sorti:
+                vehicule_queryset = vehicule_queryset.filter(motif_sorti__icontains=motif_sorti)
+            
+            annee_enregistrement = form.cleaned_data.get('annee_enregistrement')
+            if annee_enregistrement is not None:
+                vehicule_queryset = vehicule_queryset.filter(date_saisie__year=annee_enregistrement)
+        
+        # Statistiques
+        categories = CategoVehi.objects.annotate(nb_vehicules=Count('catego_vehicule', filter=Q(catego_vehicule__car_statut=True))).order_by('id')
+        cout_totals = vehicule_queryset.filter(car_statut=True).aggregate(total=Sum('cout_acquisition'))['total'] or 0
+        cout_total = '{:,}'.format(cout_totals).replace(',', ' ')
+        total_veh = vehicule_queryset.filter(car_statut=True).count()
+        total_veh_hors_parc = vehicule_queryset.filter(car_statut=False).count()
+        
+        context.update({
+            'categories': categories,
+            'cout_total': cout_total,
+            'total_veh': total_veh,
+            'total_veh_hors_parc': total_veh_hors_parc,
+            'dates': dates,
+            'annees': annee,
+        })
+        
+        # Ajouter les permissions groupées si nécessaire
+        user = self.request.user
+        if hasattr(user, 'custom_permissions'):
+            permissions = user.custom_permissions.all().select_related('categorie')
+            grouped_permissions = {}
+            for perm in permissions:
+                if perm.categorie not in grouped_permissions:
+                    grouped_permissions[perm.categorie] = []
+                grouped_permissions[perm.categorie].append(perm)
+            context['grouped_permissions'] = grouped_permissions
+        
+        return context
+
+class ExportHistoriqueVehiculeExcelView(LoginRequiredMixin, View):
+    """Vue pour exporter l'historique des véhicules au format Excel"""
+    login_url = 'login'
+    
+    def get(self, request, *args, **kwargs):
+        # Accéder au modèle historique via Vehicule.history.model
+        HistoricalVehicule = Vehicule.history.model
+        queryset = HistoricalVehicule.objects.all().order_by('-history_date').select_related('category', 'auteur', 'history_user')
+        
+        # Récupérer les paramètres de filtre depuis la requête GET
+        form = HistoriqueVehiculeFilterForm(request.GET)
+        
+        if form.is_valid():
+            # Filtres sur les dates d'historique
+            date_debut = form.cleaned_data.get('date_debut')
+            date_fin = form.cleaned_data.get('date_fin')
+            if date_debut and date_fin:
+                queryset = queryset.filter(history_date__range=[date_debut, date_fin])
+            elif date_debut:
+                queryset = queryset.filter(history_date__gte=date_debut)
+            elif date_fin:
+                queryset = queryset.filter(history_date__lte=date_fin)
+            
+            # Filtre sur l'immatriculation
+            immatriculation = form.cleaned_data.get('immatriculation')
+            if immatriculation:
+                queryset = queryset.filter(immatriculation__icontains=immatriculation)
+            
+            # Filtre sur la catégorie
+            categorie = form.cleaned_data.get('categorie')
+            if categorie:
+                queryset = queryset.filter(category__id=categorie.id)
+            
+            # Filtre sur la marque
+            marque = form.cleaned_data.get('marque')
+            if marque:
+                queryset = queryset.filter(marque__icontains=marque)
+            
+            # Filtre sur le motif de sortie
+            motif_sorti = form.cleaned_data.get('motif_sorti')
+            if motif_sorti:
+                queryset = queryset.filter(motif_sorti__icontains=motif_sorti)
+            
+            # Filtre sur l'année de sortie
+            annee_sortie = form.cleaned_data.get('annee_sortie')
+            if annee_sortie is not None:
+                queryset = queryset.filter(
+                    motif_sorti__isnull=False,
+                    history_date__year=annee_sortie
+                )
+            
+            # Filtre sur l'année d'enregistrement
+            annee_enregistrement = form.cleaned_data.get('annee_enregistrement')
+            if annee_enregistrement is not None:
+                queryset = queryset.filter(date_saisie__year=annee_enregistrement)
+            
+            # Filtre sur le type d'historique
+            history_type = form.cleaned_data.get('history_type')
+            if history_type:
+                queryset = queryset.filter(history_type=history_type)
+        
+        # Création du fichier Excel
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "Historique Véhicules"
+        
+        # En-têtes de colonnes
+        headers = [
+            'Type',
+            'Immatriculation',
+            'Marque',
+            'Catégorie',
+            'Durée',
+            'Numéro Carte Grise',
+            'Numéro Châssis',
+            'Date Acquisition',
+            'Coût Acquisition',
+            'Date Édition Carte Grise',
+            'Date Mise en Service',
+            'Statut',
+            'Motif de sortie',
+            'Date Saisie',
+            'Auteur',
+            'Date Historique',
+            'Utilisateur Historique'
+        ]
+        ws.append(headers)
+        
+        # Style des en-têtes
+        header_fill = PatternFill(start_color="366092", end_color="366092", fill_type="solid")
+        header_font = Font(bold=True, color="FFFFFF")
+        header_alignment = Alignment(horizontal="center", vertical="center")
+        
+        for col_num, column_title in enumerate(headers, 1):
+            col_letter = get_column_letter(col_num)
+            cell = ws.cell(row=1, column=col_num)
+            cell.fill = header_fill
+            cell.font = header_font
+            cell.alignment = header_alignment
+            ws.column_dimensions[col_letter].width = 20
+ 
+        # Données
+        for h in queryset:
+            history_type_label = ''
+            if h.history_type == '+':
+                history_type_label = 'Créé'
+            elif h.history_type == '~':
+                history_type_label = 'Modifié'
+            elif h.history_type == '-':
+                history_type_label = 'Supprimé'
+            
+            # Calculer l'âge du véhicule à partir de date_mis_service
+            age = 0
+            if h.date_mis_service:
+                from datetime import date as date_module
+                today = date_module.today()
+                age = (today.year - h.date_mis_service.year) - int((h.date_mis_service.month, today.day) < (h.date_mis_service.month, today.day))
+            
+            ws.append([
+                history_type_label,
+                h.immatriculation or 'N/A',
+                h.marque or 'N/A',
+                h.category.category if h.category else 'N/A',
+                h.duree,
+                h.num_cart_grise or 'N/A',
+                h.num_Chassis or 'N/A',
+                h.date_acquisition.strftime("%d-%m-%Y") if h.date_acquisition else 'N/A',
+                h.cout_acquisition,
+                h.dat_edit_carte_grise.strftime("%d-%m-%Y") if h.dat_edit_carte_grise else 'N/A',
+                h.date_mis_service.strftime("%d-%m-%Y") if h.date_mis_service else 'N/A',
+                'En parc' if h.car_statut else 'Hors parc',
+                h.motif_sorti or 'N/A',
+                h.date_saisie.strftime("%d-%m-%Y") if h.date_saisie else 'N/A',
+                h.auteur.username if h.auteur else 'N/A',
+                h.history_date.strftime("%d-%m-%Y %H:%M") if h.history_date else 'N/A',
+                h.history_user.username if h.history_user else 'N/A'
+            ])
+        
+        # Réponse HTTP (fichier Excel téléchargeable)
+        response = HttpResponse(
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+        response['Content-Disposition'] = 'attachment; filename=Historique-Vehicules.xlsx'
+        wb.save(response)
+        return response
+
 @login_required(login_url='/login/')
 @require_POST
 def toggle_car_statut(request, pk):
@@ -3794,6 +4110,327 @@ class UpdateRecetView(LoginRequiredMixin, CustomPermissionRequiredMixin, UpdateV
             return JsonResponse({"success": False, "errors": form.errors})
         return super().form_invalid(form)
 
+class HistoriqueRecetteView(LoginRequiredMixin, CustomPermissionRequiredMixin, ListView):
+    login_url = 'login'
+    permission_url = 'historique_recette'
+    template_name = 'perfect/historiq_recette.html'
+    context_object_name = 'liste_rec'
+    form_class = HistoriqueRecetteFilterForm
+    timeout_minutes = 500
+    
+    def dispatch(self, request, *args, **kwargs):
+        last_activity = request.session.get('last_activity')
+        if last_activity:
+            last_activity = datetime.strptime(last_activity, '%Y-%m-%d %H:%M:%S')
+            if datetime.now() - last_activity > timedelta(minutes=self.timeout_minutes):
+                logout(request)
+                messages.warning(request, "Vous avez été déconnecté ")
+                return redirect("login")
+        return super().dispatch(request, *args, **kwargs)
+    
+    def get_queryset(self):
+        # Accéder au modèle historique via Recette.history.model
+        HistoricalRecette = Recette.history.model
+        queryset = HistoricalRecette.objects.all().order_by('-history_date').select_related('vehicule', 'auteur', 'history_user')
+        
+        form = self.form_class(self.request.GET)
+        if form.is_valid():
+            # Filtres sur les dates d'historique
+            date_debut = form.cleaned_data.get('date_debut')
+            date_fin = form.cleaned_data.get('date_fin')
+            if date_debut and date_fin:
+                queryset = queryset.filter(history_date__range=[date_debut, date_fin])
+            elif date_debut:
+                queryset = queryset.filter(history_date__gte=date_debut)
+            elif date_fin:
+                queryset = queryset.filter(history_date__lte=date_fin)
+            
+            # Filtre sur la date de saisie
+            date_saisie_debut = form.cleaned_data.get('date_saisie_debut')
+            date_saisie_fin = form.cleaned_data.get('date_saisie_fin')
+            if date_saisie_debut and date_saisie_fin:
+                queryset = queryset.filter(date_saisie__range=[date_saisie_debut, date_saisie_fin])
+            elif date_saisie_debut:
+                queryset = queryset.filter(date_saisie__gte=date_saisie_debut)
+            elif date_saisie_fin:
+                queryset = queryset.filter(date_saisie__lte=date_saisie_fin)
+            
+            # Filtre sur la catégorie
+            categorie = form.cleaned_data.get('categorie')
+            if categorie:
+                queryset = queryset.filter(vehicule__category__id=categorie.id)
+            
+            # Filtre sur l'immatriculation
+            immatriculation = form.cleaned_data.get('immatriculation')
+            if immatriculation:
+                queryset = queryset.filter(vehicule__immatriculation__icontains=immatriculation)
+            
+            # Filtre sur le chauffeur
+            chauffeur = form.cleaned_data.get('chauffeur')
+            if chauffeur:
+                queryset = queryset.filter(chauffeur__icontains=chauffeur)
+            
+            # Filtre sur le compte comptable
+            cpte_comptable = form.cleaned_data.get('cpte_comptable')
+            if cpte_comptable:
+                queryset = queryset.filter(cpte_comptable__icontains=cpte_comptable)
+            
+            # Filtre sur le numéro de facture
+            numero_fact = form.cleaned_data.get('numero_fact')
+            if numero_fact:
+                queryset = queryset.filter(numero_fact__icontains=numero_fact)
+            
+            # Filtre sur le numéro de pièce
+            Num_piece = form.cleaned_data.get('Num_piece')
+            if Num_piece:
+                queryset = queryset.filter(Num_piece__icontains=Num_piece)
+            
+            # Filtre sur le montant
+            montant_min = form.cleaned_data.get('montant_min')
+            montant_max = form.cleaned_data.get('montant_max')
+            if montant_min is not None:
+                queryset = queryset.filter(montant__gte=montant_min)
+            if montant_max is not None:
+                queryset = queryset.filter(montant__lte=montant_max)
+            
+            # Filtre sur l'auteur
+            auteur = form.cleaned_data.get('auteur')
+            if auteur:
+                queryset = queryset.filter(auteur=auteur)
+            
+            # Filtre sur le type d'historique (Créé, Modifié, Supprimé)
+            history_type = form.cleaned_data.get('history_type')
+            if history_type:
+                queryset = queryset.filter(history_type=history_type)
+        
+        return queryset
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        dates = date.today()
+        annee = date.today().year
+        
+        # Formulaire de filtre
+        form = self.form_class(self.request.GET)
+        context['form'] = form
+        
+        # Calculer les statistiques sur les recettes historiques filtrées
+        liste_rec = self.get_queryset()
+        
+        # Calculer les totaux (utiliser les recettes actuelles pour les stats, pas l'historique)
+        recette_queryset = Recette.objects.all()
+        
+        # Appliquer les mêmes filtres sur les recettes actuelles pour les statistiques
+        if form.is_valid():
+            date_saisie_debut = form.cleaned_data.get('date_saisie_debut')
+            date_saisie_fin = form.cleaned_data.get('date_saisie_fin')
+            if date_saisie_debut and date_saisie_fin:
+                recette_queryset = recette_queryset.filter(date_saisie__range=[date_saisie_debut, date_saisie_fin])
+            elif date_saisie_debut:
+                recette_queryset = recette_queryset.filter(date_saisie__gte=date_saisie_debut)
+            elif date_saisie_fin:
+                recette_queryset = recette_queryset.filter(date_saisie__lte=date_saisie_fin)
+            
+            categorie = form.cleaned_data.get('categorie')
+            if categorie:
+                recette_queryset = recette_queryset.filter(vehicule__category__id=categorie.id)
+            
+            immatriculation = form.cleaned_data.get('immatriculation')
+            if immatriculation:
+                recette_queryset = recette_queryset.filter(vehicule__immatriculation__icontains=immatriculation)
+        
+        # Si aucun filtre sur date_saisie, utiliser le mois en cours par défaut
+        if not (form.is_valid() and (form.cleaned_data.get('date_saisie_debut') or form.cleaned_data.get('date_saisie_fin'))):
+            recette_queryset = recette_queryset.filter(date_saisie__month=date.today().month)
+        
+        # Statistiques
+        recettes_jours = recette_queryset.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
+        recettes_jours_format = '{:,}'.format(recettes_jours).replace(',', ' ')
+        
+        recettes_mois = recette_queryset.aggregate(somme=Sum('montant'))['somme'] or 0
+        recettes_mois_format = '{:,}'.format(recettes_mois).replace(',', ' ')
+        
+        recettes_an = Recette.objects.filter(date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
+        recettes_an_format = '{:,}'.format(recettes_an).replace(',', ' ')
+        
+        context.update({
+            'recettes_jours_format': recettes_jours_format,
+            'recettes_mois_format': recettes_mois_format,
+            'recettes_an_format': recettes_an_format,
+            'dates': dates,
+            'annees': annee,
+        })
+        
+        # Ajouter les permissions groupées si nécessaire (comme dans ListRecetView)
+        user = self.request.user
+        if hasattr(user, 'custom_permissions'):
+            permissions = user.custom_permissions.all().select_related('categorie')
+            grouped_permissions = {}
+            for perm in permissions:
+                if perm.categorie not in grouped_permissions:
+                    grouped_permissions[perm.categorie] = []
+                grouped_permissions[perm.categorie].append(perm)
+            context['grouped_permissions'] = grouped_permissions
+        
+        return context
+
+class ExportHistoriqueRecetteExcelView(LoginRequiredMixin, View):
+    """Vue pour exporter l'historique des recettes au format Excel"""
+    login_url = 'login'
+    
+    def get(self, request, *args, **kwargs):
+        # Accéder au modèle historique via Recette.history.model
+        HistoricalRecette = Recette.history.model
+        queryset = HistoricalRecette.objects.all().order_by('-history_date').select_related('vehicule', 'auteur', 'history_user')
+        
+        # Récupérer les paramètres de filtre depuis la requête GET
+        form = HistoriqueRecetteFilterForm(request.GET)
+        
+        if form.is_valid():
+            # Filtres sur les dates d'historique
+            date_debut = form.cleaned_data.get('date_debut')
+            date_fin = form.cleaned_data.get('date_fin')
+            if date_debut and date_fin:
+                queryset = queryset.filter(history_date__range=[date_debut, date_fin])
+            elif date_debut:
+                queryset = queryset.filter(history_date__gte=date_debut)
+            elif date_fin:
+                queryset = queryset.filter(history_date__lte=date_fin)
+            
+            # Filtre sur la date de saisie
+            date_saisie_debut = form.cleaned_data.get('date_saisie_debut')
+            date_saisie_fin = form.cleaned_data.get('date_saisie_fin')
+            if date_saisie_debut and date_saisie_fin:
+                queryset = queryset.filter(date_saisie__range=[date_saisie_debut, date_saisie_fin])
+            elif date_saisie_debut:
+                queryset = queryset.filter(date_saisie__gte=date_saisie_debut)
+            elif date_saisie_fin:
+                queryset = queryset.filter(date_saisie__lte=date_saisie_fin)
+            
+            # Filtre sur la catégorie
+            categorie = form.cleaned_data.get('categorie')
+            if categorie:
+                queryset = queryset.filter(vehicule__category__id=categorie.id)
+            
+            # Filtre sur l'immatriculation
+            immatriculation = form.cleaned_data.get('immatriculation')
+            if immatriculation:
+                queryset = queryset.filter(vehicule__immatriculation__icontains=immatriculation)
+            
+            # Filtre sur le chauffeur
+            chauffeur = form.cleaned_data.get('chauffeur')
+            if chauffeur:
+                queryset = queryset.filter(chauffeur__icontains=chauffeur)
+            
+            # Filtre sur le compte comptable
+            cpte_comptable = form.cleaned_data.get('cpte_comptable')
+            if cpte_comptable:
+                queryset = queryset.filter(cpte_comptable__icontains=cpte_comptable)
+            
+            # Filtre sur le numéro de facture
+            numero_fact = form.cleaned_data.get('numero_fact')
+            if numero_fact:
+                queryset = queryset.filter(numero_fact__icontains=numero_fact)
+            
+            # Filtre sur le numéro de pièce
+            Num_piece = form.cleaned_data.get('Num_piece')
+            if Num_piece:
+                queryset = queryset.filter(Num_piece__icontains=Num_piece)
+            
+            # Filtre sur le montant
+            montant_min = form.cleaned_data.get('montant_min')
+            montant_max = form.cleaned_data.get('montant_max')
+            if montant_min is not None:
+                queryset = queryset.filter(montant__gte=montant_min)
+            if montant_max is not None:
+                queryset = queryset.filter(montant__lte=montant_max)
+            
+            # Filtre sur l'auteur
+            auteur = form.cleaned_data.get('auteur')
+            if auteur:
+                queryset = queryset.filter(auteur=auteur)
+            
+            # Filtre sur le type d'historique (Créé, Modifié, Supprimé)
+            history_type = form.cleaned_data.get('history_type')
+            if history_type:
+                queryset = queryset.filter(history_type=history_type)
+        
+        # Création du fichier Excel
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "Historique Recettes"
+        
+        # En-têtes
+        headers = [
+            "Type",
+            "Immatriculation",
+            "Marque",
+            "Catégorie",
+            "Chauffeur",
+            "Compte Comptable",
+            "Numéro Facture",
+            "Numéro Pièce",
+            "Montant",
+            "Date Saisie",
+            "Auteur",
+            "Date Historique",
+            "Utilisateur Historique"
+        ]
+        ws.append(headers)
+        
+        # Style pour les en-têtes
+        header_fill = PatternFill(start_color="06497C", end_color="06497C", fill_type="solid")
+        header_font = Font(bold=True, color="FFFFFF", size=12)
+        header_alignment = Alignment(horizontal="center", vertical="center")
+        
+        for col_num, column_title in enumerate(headers, 1):
+            col_letter = get_column_letter(col_num)
+            cell = ws[f"{col_letter}1"]
+            cell.fill = header_fill
+            cell.font = header_font
+            cell.alignment = header_alignment
+            ws.column_dimensions[col_letter].width = 20
+        # Données
+        for h in queryset:
+            # Déterminer le type d'historique
+            history_type_label = ""
+            if h.history_type == '+':
+                history_type_label = "Créé"
+            elif h.history_type == '~':
+                history_type_label = "Modifié"
+            elif h.history_type == '-':
+                history_type_label = "Supprimé"
+            
+            ws.append([
+                history_type_label,
+                h.vehicule.immatriculation if h.vehicule else "N/A",
+                h.vehicule.marque if h.vehicule else "N/A",
+                h.vehicule.category.category if h.vehicule and h.vehicule.category else "N/A",
+                h.chauffeur,
+                h.cpte_comptable,
+                h.numero_fact,
+                h.Num_piece,
+                h.montant,
+                h.date_saisie.strftime("%d-%m-%Y") if h.date_saisie else "",
+                h.auteur.username if h.auteur else "N/A",
+                h.history_date.strftime("%d-%m-%Y %H:%M:%S") if h.history_date else "",
+                h.history_user.username if h.history_user else "N/A"
+            ])
+        
+        # Alignement des cellules de données
+        for row in ws.iter_rows(min_row=2, max_row=ws.max_row, min_col=1, max_col=len(headers)):
+            for cell in row:
+                cell.alignment = Alignment(horizontal="center", vertical="center")
+        
+        # Réponse HTTP
+        filename = f"Historique-Recettes-{timezone.now().strftime('%Y%m%d_%H%M%S')}.xlsx"
+        response = HttpResponse(
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+        response['Content-Disposition'] = f'attachment; filename={filename}'
+        wb.save(response)
+        return response
+
 class AddAutrarretView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateView):
     login_url = 'login'
     permission_url = 'add_autarrets'
@@ -4474,6 +5111,171 @@ class ExportChargeFixeExcelView(LoginRequiredMixin, View):
         wb.save(response)
         return response
 
+class HistoriqueChargeFixeView(LoginRequiredMixin, CustomPermissionRequiredMixin, ListView):
+    """Vue pour afficher l'historique des charges fixes avec filtres dynamiques"""
+    login_url = 'login'
+    permission_url = 'historique_charge_fixe'
+    template_name = 'perfect/historiq_chargfix.html'
+    context_object_name = 'liste_chargefix'
+    form_class = HistoriqueChargeFixeFilterForm
+    timeout_minutes = 500
+    
+    def dispatch(self, request, *args, **kwargs):
+        last_activity = request.session.get('last_activity')
+        if last_activity:
+            last_activity = datetime.strptime(last_activity, '%Y-%m-%d %H:%M:%S')
+            if datetime.now() - last_activity > timedelta(minutes=self.timeout_minutes):
+                logout(request)
+                messages.warning(request, "Vous avez été déconnecté ")
+                return redirect("login")
+        return super().dispatch(request, *args, **kwargs)
+    
+    def get_queryset(self):
+        # Accéder au modèle historique via ChargeFixe.history.model
+        HistoricalChargeFixe = ChargeFixe.history.model
+        queryset = HistoricalChargeFixe.objects.all().order_by('-history_date').select_related('vehicule', 'auteur', 'history_user')
+        
+        form = self.form_class(self.request.GET)
+        if form.is_valid():
+            # Filtres sur les dates d'historique
+            date_debut = form.cleaned_data.get('date_debut')
+            date_fin = form.cleaned_data.get('date_fin')
+            if date_debut and date_fin:
+                queryset = queryset.filter(history_date__range=[date_debut, date_fin])
+            elif date_debut:
+                queryset = queryset.filter(history_date__gte=date_debut)
+            elif date_fin:
+                queryset = queryset.filter(history_date__lte=date_fin)
+            
+            # Filtre sur la date de saisie
+            date_saisie_debut = form.cleaned_data.get('date_saisie_debut')
+            date_saisie_fin = form.cleaned_data.get('date_saisie_fin')
+            if date_saisie_debut and date_saisie_fin:
+                queryset = queryset.filter(date_saisie__range=[date_saisie_debut, date_saisie_fin])
+            elif date_saisie_debut:
+                queryset = queryset.filter(date_saisie__gte=date_saisie_debut)
+            elif date_saisie_fin:
+                queryset = queryset.filter(date_saisie__lte=date_saisie_fin)
+            
+            # Filtre sur la catégorie
+            categorie = form.cleaned_data.get('categorie')
+            if categorie:
+                queryset = queryset.filter(vehicule__category__id=categorie.id)
+            
+            # Filtre sur l'immatriculation
+            immatriculation = form.cleaned_data.get('immatriculation')
+            if immatriculation:
+                queryset = queryset.filter(vehicule__immatriculation__icontains=immatriculation)
+            
+            # Filtre sur le libellé
+            libelle = form.cleaned_data.get('libelle')
+            if libelle:
+                queryset = queryset.filter(libelle__icontains=libelle)
+            
+            # Filtre sur le compte comptable
+            cpte_comptable = form.cleaned_data.get('cpte_comptable')
+            if cpte_comptable:
+                queryset = queryset.filter(cpte_comptable__icontains=cpte_comptable)
+            
+            # Filtre sur le numéro de pièce
+            Num_piece = form.cleaned_data.get('Num_piece')
+            if Num_piece:
+                queryset = queryset.filter(Num_piece__icontains=Num_piece)
+            
+            # Filtre sur le numéro de facture
+            Num_fact = form.cleaned_data.get('Num_fact')
+            if Num_fact:
+                queryset = queryset.filter(Num_fact__icontains=Num_fact)
+            
+            # Filtre sur le montant
+            montant_min = form.cleaned_data.get('montant_min')
+            montant_max = form.cleaned_data.get('montant_max')
+            if montant_min is not None:
+                queryset = queryset.filter(montant__gte=montant_min)
+            if montant_max is not None:
+                queryset = queryset.filter(montant__lte=montant_max)
+            
+            # Filtre sur l'auteur
+            auteur = form.cleaned_data.get('auteur')
+            if auteur:
+                queryset = queryset.filter(auteur=auteur)
+            
+            # Filtre sur le type d'historique (Créé, Modifié, Supprimé)
+            history_type = form.cleaned_data.get('history_type')
+            if history_type:
+                queryset = queryset.filter(history_type=history_type)
+        
+        return queryset
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        dates = date.today()
+        annee = date.today().year
+        
+        # Formulaire de filtre
+        form = self.form_class(self.request.GET)
+        context['form'] = form
+        
+        # Calculer les statistiques sur les charges fixes historiques filtrées
+        liste_chargefix = self.get_queryset()
+        
+        # Calculer les totaux (utiliser les charges fixes actuelles pour les stats, pas l'historique)
+        chargefix_queryset = ChargeFixe.objects.all()
+        
+        # Appliquer les mêmes filtres sur les charges fixes actuelles pour les statistiques
+        if form.is_valid():
+            date_saisie_debut = form.cleaned_data.get('date_saisie_debut')
+            date_saisie_fin = form.cleaned_data.get('date_saisie_fin')
+            if date_saisie_debut and date_saisie_fin:
+                chargefix_queryset = chargefix_queryset.filter(date_saisie__range=[date_saisie_debut, date_saisie_fin])
+            elif date_saisie_debut:
+                chargefix_queryset = chargefix_queryset.filter(date_saisie__gte=date_saisie_debut)
+            elif date_saisie_fin:
+                chargefix_queryset = chargefix_queryset.filter(date_saisie__lte=date_saisie_fin)
+            
+            categorie = form.cleaned_data.get('categorie')
+            if categorie:
+                chargefix_queryset = chargefix_queryset.filter(vehicule__category__id=categorie.id)
+            
+            immatriculation = form.cleaned_data.get('immatriculation')
+            if immatriculation:
+                chargefix_queryset = chargefix_queryset.filter(vehicule__immatriculation__icontains=immatriculation)
+        
+        # Si aucun filtre sur date_saisie, utiliser le mois en cours par défaut
+        if not (form.is_valid() and (form.cleaned_data.get('date_saisie_debut') or form.cleaned_data.get('date_saisie_fin'))):
+            chargefix_queryset = chargefix_queryset.filter(date_saisie__month=date.today().month)
+        
+        # Statistiques
+        chargefix_jours = chargefix_queryset.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
+        chargefix_jours_format = '{:,}'.format(chargefix_jours).replace(',', ' ')
+        
+        chargefix_mois = chargefix_queryset.aggregate(somme=Sum('montant'))['somme'] or 0
+        chargefix_mois_format = '{:,}'.format(chargefix_mois).replace(',', ' ')
+        
+        chargefix_an = ChargeFixe.objects.filter(date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
+        chargefix_an_format = '{:,}'.format(chargefix_an).replace(',', ' ')
+        
+        context.update({
+            'chargefix_jours_format': chargefix_jours_format,
+            'chargefix_mois_format': chargefix_mois_format,
+            'chargefix_an_format': chargefix_an_format,
+            'dates': dates,
+            'annees': annee,
+        })
+        
+        # Ajouter les permissions groupées si nécessaire (comme dans ListChargeFixView)
+        user = self.request.user
+        if hasattr(user, 'custom_permissions'):
+            permissions = user.custom_permissions.all().select_related('categorie')
+            grouped_permissions = {}
+            for perm in permissions:
+                if perm.categorie not in grouped_permissions:
+                    grouped_permissions[perm.categorie] = []
+                grouped_permissions[perm.categorie].append(perm)
+            context['grouped_permissions'] = grouped_permissions
+        
+        return context
+
 class AddChargeVarView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateView):
     login_url = 'login'
     permission_url = 'addcharg_var'
@@ -4716,6 +5518,322 @@ class ExportChargeVariableExcelView(LoginRequiredMixin, View):
             content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
         response['Content-Disposition'] = 'attachment; filename=Charges-Variables.xlsx'
+        wb.save(response)
+        return response
+
+class HistoriqueChargeVariableView(LoginRequiredMixin, CustomPermissionRequiredMixin, ListView):
+    """Vue pour afficher l'historique des charges variables avec filtres dynamiques"""
+    login_url = 'login'
+    permission_url = 'historique_charge_variable'
+    template_name = 'perfect/historiq_chargvar.html'
+    context_object_name = 'liste_chargevar'
+    form_class = HistoriqueChargeVariableFilterForm
+    timeout_minutes = 500
+    
+    def dispatch(self, request, *args, **kwargs):
+        last_activity = request.session.get('last_activity')
+        if last_activity:
+            last_activity = datetime.strptime(last_activity, '%Y-%m-%d %H:%M:%S')
+            if datetime.now() - last_activity > timedelta(minutes=self.timeout_minutes):
+                logout(request)
+                messages.warning(request, "Vous avez été déconnecté ")
+                return redirect("login")
+        return super().dispatch(request, *args, **kwargs)
+    
+    def get_queryset(self):
+        # Accéder au modèle historique via ChargeVariable.history.model
+        HistoricalChargeVariable = ChargeVariable.history.model
+        queryset = HistoricalChargeVariable.objects.all().order_by('-history_date').select_related('vehicule', 'auteur', 'history_user')
+        
+        form = self.form_class(self.request.GET)
+        if form.is_valid():
+            # Filtres sur les dates d'historique
+            date_debut = form.cleaned_data.get('date_debut')
+            date_fin = form.cleaned_data.get('date_fin')
+            if date_debut and date_fin:
+                queryset = queryset.filter(history_date__range=[date_debut, date_fin])
+            elif date_debut:
+                queryset = queryset.filter(history_date__gte=date_debut)
+            elif date_fin:
+                queryset = queryset.filter(history_date__lte=date_fin)
+            
+            # Filtre sur la date de saisie
+            date_saisie_debut = form.cleaned_data.get('date_saisie_debut')
+            date_saisie_fin = form.cleaned_data.get('date_saisie_fin')
+            if date_saisie_debut and date_saisie_fin:
+                queryset = queryset.filter(date_saisie__range=[date_saisie_debut, date_saisie_fin])
+            elif date_saisie_debut:
+                queryset = queryset.filter(date_saisie__gte=date_saisie_debut)
+            elif date_saisie_fin:
+                queryset = queryset.filter(date_saisie__lte=date_saisie_fin)
+            
+            # Filtre sur la catégorie
+            categorie = form.cleaned_data.get('categorie')
+            if categorie:
+                queryset = queryset.filter(vehicule__category__id=categorie.id)
+            
+            # Filtre sur l'immatriculation
+            immatriculation = form.cleaned_data.get('immatriculation')
+            if immatriculation:
+                queryset = queryset.filter(vehicule__immatriculation__icontains=immatriculation)
+            
+            # Filtre sur le libellé
+            libelle = form.cleaned_data.get('libelle')
+            if libelle:
+                queryset = queryset.filter(libelle__icontains=libelle)
+            
+            # Filtre sur le compte comptable
+            cpte_comptable = form.cleaned_data.get('cpte_comptable')
+            if cpte_comptable:
+                queryset = queryset.filter(cpte_comptable__icontains=cpte_comptable)
+            
+            # Filtre sur le numéro de pièce
+            Num_piece = form.cleaned_data.get('Num_piece')
+            if Num_piece:
+                queryset = queryset.filter(Num_piece__icontains=Num_piece)
+            
+            # Filtre sur le numéro de facture
+            Num_fact = form.cleaned_data.get('Num_fact')
+            if Num_fact:
+                queryset = queryset.filter(Num_fact__icontains=Num_fact)
+            
+            # Filtre sur le montant
+            montant_min = form.cleaned_data.get('montant_min')
+            montant_max = form.cleaned_data.get('montant_max')
+            if montant_min is not None:
+                queryset = queryset.filter(montant__gte=montant_min)
+            if montant_max is not None:
+                queryset = queryset.filter(montant__lte=montant_max)
+            
+            # Filtre sur l'auteur
+            auteur = form.cleaned_data.get('auteur')
+            if auteur:
+                queryset = queryset.filter(auteur=auteur)
+            
+            # Filtre sur le type d'historique (Créé, Modifié, Supprimé)
+            history_type = form.cleaned_data.get('history_type')
+            if history_type:
+                queryset = queryset.filter(history_type=history_type)
+        
+        return queryset
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        dates = date.today()
+        annee = date.today().year
+        
+        # Formulaire de filtre
+        form = self.form_class(self.request.GET)
+        context['form'] = form
+        
+        # Calculer les statistiques sur les charges variables historiques filtrées
+        liste_chargevar = self.get_queryset()
+        
+        # Calculer les totaux (utiliser les charges variables actuelles pour les stats, pas l'historique)
+        chargevar_queryset = ChargeVariable.objects.all()
+        
+        # Appliquer les mêmes filtres sur les charges variables actuelles pour les statistiques
+        if form.is_valid():
+            date_saisie_debut = form.cleaned_data.get('date_saisie_debut')
+            date_saisie_fin = form.cleaned_data.get('date_saisie_fin')
+            if date_saisie_debut and date_saisie_fin:
+                chargevar_queryset = chargevar_queryset.filter(date_saisie__range=[date_saisie_debut, date_saisie_fin])
+            elif date_saisie_debut:
+                chargevar_queryset = chargevar_queryset.filter(date_saisie__gte=date_saisie_debut)
+            elif date_saisie_fin:
+                chargevar_queryset = chargevar_queryset.filter(date_saisie__lte=date_saisie_fin)
+            
+            categorie = form.cleaned_data.get('categorie')
+            if categorie:
+                chargevar_queryset = chargevar_queryset.filter(vehicule__category__id=categorie.id)
+            
+            immatriculation = form.cleaned_data.get('immatriculation')
+            if immatriculation:
+                chargevar_queryset = chargevar_queryset.filter(vehicule__immatriculation__icontains=immatriculation)
+        
+        # Si aucun filtre sur date_saisie, utiliser le mois en cours par défaut
+        if not (form.is_valid() and (form.cleaned_data.get('date_saisie_debut') or form.cleaned_data.get('date_saisie_fin'))):
+            chargevar_queryset = chargevar_queryset.filter(date_saisie__month=date.today().month)
+        
+        # Statistiques
+        chargevar_jours = chargevar_queryset.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
+        chargevar_jours_format = '{:,}'.format(chargevar_jours).replace(',', ' ')
+        
+        chargevar_mois = chargevar_queryset.aggregate(somme=Sum('montant'))['somme'] or 0
+        chargevar_mois_format = '{:,}'.format(chargevar_mois).replace(',', ' ')
+        
+        chargevar_an = ChargeVariable.objects.filter(date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
+        chargevar_an_format = '{:,}'.format(chargevar_an).replace(',', ' ')
+        
+        context.update({
+            'chargevar_jours_format': chargevar_jours_format,
+            'chargevar_mois_format': chargevar_mois_format,
+            'chargevar_an_format': chargevar_an_format,
+            'dates': dates,
+            'annees': annee,
+        })
+        
+        # Ajouter les permissions groupées si nécessaire (comme dans ListChargeVarView)
+        user = self.request.user
+        if hasattr(user, 'custom_permissions'):
+            permissions = user.custom_permissions.all().select_related('categorie')
+            grouped_permissions = {}
+            for perm in permissions:
+                if perm.categorie not in grouped_permissions:
+                    grouped_permissions[perm.categorie] = []
+                grouped_permissions[perm.categorie].append(perm)
+            context['grouped_permissions'] = grouped_permissions
+        
+        return context
+
+class ExportHistoriqueChargeVariableExcelView(LoginRequiredMixin, View):
+    """Vue pour exporter l'historique des charges variables au format Excel"""
+    login_url = 'login'
+    
+    def get(self, request, *args, **kwargs):
+        # Accéder au modèle historique via ChargeVariable.history.model
+        HistoricalChargeVariable = ChargeVariable.history.model
+        queryset = HistoricalChargeVariable.objects.all().order_by('-history_date').select_related('vehicule', 'auteur', 'history_user')
+        
+        # Récupérer les paramètres de filtre depuis la requête GET
+        form = HistoriqueChargeVariableFilterForm(request.GET)
+        
+        if form.is_valid():
+            # Filtres sur les dates d'historique
+            date_debut = form.cleaned_data.get('date_debut')
+            date_fin = form.cleaned_data.get('date_fin')
+            if date_debut and date_fin:
+                queryset = queryset.filter(history_date__range=[date_debut, date_fin])
+            elif date_debut:
+                queryset = queryset.filter(history_date__gte=date_debut)
+            elif date_fin:
+                queryset = queryset.filter(history_date__lte=date_fin)
+            
+            # Filtre sur la date de saisie
+            date_saisie_debut = form.cleaned_data.get('date_saisie_debut')
+            date_saisie_fin = form.cleaned_data.get('date_saisie_fin')
+            if date_saisie_debut and date_saisie_fin:
+                queryset = queryset.filter(date_saisie__range=[date_saisie_debut, date_saisie_fin])
+            elif date_saisie_debut:
+                queryset = queryset.filter(date_saisie__gte=date_saisie_debut)
+            elif date_saisie_fin:
+                queryset = queryset.filter(date_saisie__lte=date_saisie_fin)
+            
+            # Filtre sur la catégorie
+            categorie = form.cleaned_data.get('categorie')
+            if categorie:
+                queryset = queryset.filter(vehicule__category__id=categorie.id)
+            
+            # Filtre sur l'immatriculation
+            immatriculation = form.cleaned_data.get('immatriculation')
+            if immatriculation:
+                queryset = queryset.filter(vehicule__immatriculation__icontains=immatriculation)
+            
+            # Filtre sur le libellé
+            libelle = form.cleaned_data.get('libelle')
+            if libelle:
+                queryset = queryset.filter(libelle__icontains=libelle)
+            
+            # Filtre sur le compte comptable
+            cpte_comptable = form.cleaned_data.get('cpte_comptable')
+            if cpte_comptable:
+                queryset = queryset.filter(cpte_comptable__icontains=cpte_comptable)
+            
+            # Filtre sur le numéro de pièce
+            Num_piece = form.cleaned_data.get('Num_piece')
+            if Num_piece:
+                queryset = queryset.filter(Num_piece__icontains=Num_piece)
+            
+            # Filtre sur le numéro de facture
+            Num_fact = form.cleaned_data.get('Num_fact')
+            if Num_fact:
+                queryset = queryset.filter(Num_fact__icontains=Num_fact)
+            
+            # Filtre sur le montant
+            montant_min = form.cleaned_data.get('montant_min')
+            montant_max = form.cleaned_data.get('montant_max')
+            if montant_min is not None:
+                queryset = queryset.filter(montant__gte=montant_min)
+            if montant_max is not None:
+                queryset = queryset.filter(montant__lte=montant_max)
+            
+            # Filtre sur l'auteur
+            auteur = form.cleaned_data.get('auteur')
+            if auteur:
+                queryset = queryset.filter(auteur=auteur)
+            
+            # Filtre sur le type d'historique (Créé, Modifié, Supprimé)
+            history_type = form.cleaned_data.get('history_type')
+            if history_type:
+                queryset = queryset.filter(history_type=history_type)
+        
+        # Création du fichier Excel
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "Historique Charges Variables"
+        
+        # En-têtes de colonnes
+        headers = [
+            'Type',
+            'Immatriculation',
+            'Marque',
+            'Catégorie',
+            'Libellé',
+            'Compte Comptable',
+            'N° Pièce',
+            'N° Facture',
+            'Montant',
+            'Date Saisie',
+            'Auteur',
+            'Date Historique',
+            'Utilisateur Historique'
+        ]
+        ws.append(headers)
+        
+        # Style des en-têtes
+        header_fill = PatternFill(start_color="366092", end_color="366092", fill_type="solid")
+        header_font = Font(bold=True, color="FFFFFF")
+        header_alignment = Alignment(horizontal="center", vertical="center")
+        
+        for col_num, column_title in enumerate(headers, 1):
+            col_letter = get_column_letter(col_num)
+            cell = ws.cell(row=1, column=col_num)
+            cell.fill = header_fill
+            cell.font = header_font
+            cell.alignment = header_alignment
+            ws.column_dimensions[col_letter].width = 20
+ 
+        # Données
+        for h in queryset:
+            history_type_label = ''
+            if h.history_type == '+':
+                history_type_label = 'Créé'
+            elif h.history_type == '~':
+                history_type_label = 'Modifié'
+            elif h.history_type == '-':
+                history_type_label = 'Supprimé'
+            
+            ws.append([
+                history_type_label,
+                h.vehicule.immatriculation if h.vehicule else 'N/A',
+                h.vehicule.marque if h.vehicule else 'N/A',
+                h.vehicule.category.category if h.vehicule and h.vehicule.category else 'N/A',
+                h.libelle or 'N/A',
+                h.cpte_comptable or 'N/A',
+                h.Num_piece or 'N/A',
+                h.Num_fact or 'N/A',
+                h.montant,
+                h.date_saisie.strftime("%d-%m-%Y") if h.date_saisie else 'N/A',
+                h.auteur.username if h.auteur else 'N/A',
+                h.history_date.strftime("%d-%m-%Y %H:%M") if h.history_date else 'N/A',
+                h.history_user.username if h.history_user else 'N/A'
+            ])
+        
+        # Réponse HTTP (fichier Excel téléchargeable)
+        response = HttpResponse(
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+        response['Content-Disposition'] = 'attachment; filename=Historique-Charges-Variables.xlsx'
         wb.save(response)
         return response
 

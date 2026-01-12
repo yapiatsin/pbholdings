@@ -1,0 +1,278 @@
+{% extends 'perfect/base.html' %} 
+{% load static %} 
+{% block title %} Historique des charges variables {% endblock title %}  
+{% block navbar_nav %}
+    <form class="search-form" method="get">
+        <div class="input-group">
+            {{ form.immatriculation }}
+            <div class="input-group-append">
+            <button type="submit" name="submit" class="btn btn-danger"><i class="fas fa-search"></i></button>
+            <a href="{% url 'historique_charge_variable' %}" name="submit" class="btn btn-danger" style="border-radius: 0 50px 50px 0;"><i class="fas fa-refresh text-light"></i></a>
+            </div>
+        </div>
+    </form>
+{% endblock navbar_nav %} 
+{% block page_title %}
+    <img class="profile-user-img" style="border:none; height:55px;width:55px" src="{% static 'chargvar.png' %}" alt="picture">Historique des charges variables
+{% endblock page_title %} 
+
+{% block page_action %}
+    <form id="quickForm">
+        {% for categorie, perms in grouped_permissions.items %}
+            {% if categorie.categorie == 'Exporter' %}
+                {% for perm in perms %}
+                    {% if perm.name == "Exporter charge variable" %}
+                        <button type="button" class="btn btn-default text-danger" id="printButton">PDF <i class='fa fa-file-pdf-o'></i></button>
+                        <a href="{% url 'export_historique_charge_variable_excel' %}?date_debut={{ request.GET.date_debut }}&date_fin={{ request.GET.date_fin }}&date_saisie_debut={{ request.GET.date_saisie_debut }}&date_saisie_fin={{ request.GET.date_saisie_fin }}&categorie={{ request.GET.categorie }}&immatriculation={{ request.GET.immatriculation }}&libelle={{ request.GET.libelle }}&cpte_comptable={{ request.GET.cpte_comptable }}&Num_piece={{ request.GET.Num_piece }}&Num_fact={{ request.GET.Num_fact }}&montant_min={{ request.GET.montant_min }}&montant_max={{ request.GET.montant_max }}&auteur={{ request.GET.auteur }}&history_type={{ request.GET.history_type }}" class="btn btn-default text-success">
+                            Excel <i class="fa fa-file-excel-o"></i>
+                        </a>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        {% endfor %}
+        <a class="btn btn-default text-info" data-toggle="modal" data-target="#modal-sm" href="#" style="font-size: 16px;"><i style="font-size: 20px;" class="fa fa-calendar"></i></a>
+        <a class="btn btn-default text-info" href="{% url 'historique_charge_variable' %}" style="font-size: 16px;"><i style="font-size: 20px;" class="fa fa-refresh"></i></a>
+    </form>
+{% endblock page_action %}
+{% block main_content %}
+
+<div class="modal fade" id="modal-sm">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="border-radius:25px;">
+            <div class="modal-header">
+                <h4 class="modal-title" style="font-weight:700;color: #06497C; font-size:15px;">FILTRE</h4>
+                <button type="button" style="border-radius:25px;" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="card-body">
+                    <form id="basic-form" method="get" novalidate>
+                        <div class="row clearfix">
+                            <div class="col-12 col-md-6">
+                                <label style="font-weight:700;color:rgba(152, 152, 152, 0.85); font-size:15px;">Date historique début</label>
+                                <div class="form-group">                                    
+                                    {{ form.date_debut }}
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label style="font-weight:700;color: rgba(152, 152, 152, 0.85); font-size:15px;">Date historique fin</label>
+                                <div class="form-group">                                    
+                                    {{ form.date_fin }}
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label style="font-weight:700;color:rgba(152, 152, 152, 0.85); font-size:15px;">Date saisie début</label>
+                                <div class="form-group">                                    
+                                    {{ form.date_saisie_debut }}
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label style="font-weight:700;color: rgba(152, 152, 152, 0.85); font-size:15px;">Date saisie fin</label>
+                                <div class="form-group">                                    
+                                    {{ form.date_saisie_fin }}
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label style="font-weight:700;color: rgba(152, 152, 152, 0.85); font-size:15px;">Catégorie</label>
+                                <div class="form-group">                                    
+                                    {{ form.categorie }}
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label style="font-weight:700;color: rgba(152, 152, 152, 0.85); font-size:15px;">Matricule</label>
+                                <div class="form-group">                                    
+                                    {{ form.immatriculation }}
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label style="font-weight:700;color: rgba(152, 152, 152, 0.85); font-size:15px;">Libellé</label>
+                                <div class="form-group">                                    
+                                    {{ form.libelle }}
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label style="font-weight:700;color: rgba(152, 152, 152, 0.85); font-size:15px;">Compte comptable</label>
+                                <div class="form-group">                                    
+                                    {{ form.cpte_comptable }}
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label style="font-weight:700;color: rgba(152, 152, 152, 0.85); font-size:15px;">N° Pièce</label>
+                                <div class="form-group">                                    
+                                    {{ form.Num_piece }}
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label style="font-weight:700;color: rgba(152, 152, 152, 0.85); font-size:15px;">N° Facture</label>
+                                <div class="form-group">                                    
+                                    {{ form.Num_fact }}
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label style="font-weight:700;color: rgba(152, 152, 152, 0.85); font-size:15px;">Montant minimum</label>
+                                <div class="form-group">                                    
+                                    {{ form.montant_min }}
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label style="font-weight:700;color: rgba(152, 152, 152, 0.85); font-size:15px;">Montant maximum</label>
+                                <div class="form-group">                                    
+                                    {{ form.montant_max }}
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label style="font-weight:700;color: rgba(152, 152, 152, 0.85); font-size:15px;">Auteur</label>
+                                <div class="form-group">                                    
+                                    {{ form.auteur }}
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-6">
+                                <label style="font-weight:700;color: rgba(152, 152, 152, 0.85); font-size:15px;">Type d'historique</label>
+                                <div class="form-group">                                    
+                                    {{ form.history_type }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer justify-content-between">
+                            <button type="button" class="btn btn-outline-secondary" style="border-radius:25px;" data-dismiss="modal">Annuler</button>
+                            <button type="submit" class="btn btn-outline-success" style="border-radius:25px;">Afficher</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-12 col-sm-6 col-md-4">
+    <div class="info-box" style="border-radius:25px;">
+        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-clock" style="color:rgba(6, 73, 124, 0.54);"></i></span>
+        <div class="info-box-content">
+            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Aujourd'hui</span>
+            <span class="info-box-number" style="font-size:20px; color: #fa7832;">
+            {{chargevar_jours_format}}
+            <small>frs cfa</small>
+            </span>
+        </div>
+    </div>
+</div>
+
+<div class="col-12 col-sm-6 col-md-4">
+    <div class="info-box mb-3" style="border-radius:25px;">
+    <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fa fa-calendar" style="color:rgba(6, 73, 124, 0.54);"></i></span>
+    <div class="info-box-content">
+        <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Mensuelle</span>
+        <span class="info-box-number" style="font-size:20px; color: #fa7832;">
+        {{chargevar_mois_format}}
+        <small>frs cfa</small>
+        </span>
+    </div>
+    </div>
+</div>
+
+<div class="clearfix hidden-md-up"></div>
+<div class="col-12 col-sm-6 col-md-4" >
+    <div class="info-box mb-3" style="border-radius:25px;">
+        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-calendar" style="color:rgba(6, 73, 124, 0.54);"></i></span>
+        <div class="info-box-content">
+            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Annuelle</span>
+            <span class="info-box-number" style="font-size:20px; color: #fa7832;">
+            {{chargevar_an_format}}
+            <small>frs cfa</small>
+            </span>
+        </div>
+    </div>
+</div>
+
+<div class="col-md-12">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="" style="border-radius:20px">
+                <div id="" class="">
+                    <div class="row p-0 m-0">
+                        <div class="col-md-12 p-0">
+                            <div class="card" style="box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);backdrop-filter: blur(5.2px);-webkit-backdrop-filter: blur(5.2px); border-radius:20px; " >
+                                <div>
+                                    <div class="card-header">
+                                        <h3 class="card-title">
+                                        </h3>
+                                        <div class="card-tools">
+                                            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="example1_wrapper" class="dataTables_wrapper dt-bootstrap4">
+                                            <table id="example1" class="table table-bordered table-striped dataTable" role="grid" aria-describedby="example1_info">
+                                                <thead>
+                                                    <tr class="text-center text-danger">
+                                                        {% if request.user.is_superuser %}<th>TYPE</th>{% endif %}
+                                                        <th>IMMAT</th>
+                                                        <th>MARQUE</th>
+                                                        <th>CATEGORIE</th>
+                                                        <th>LIBELLE</th>
+                                                        <th>MONTANT</th>
+                                                        <th>DATE SAISIE</th>
+                                                        <th>SAISIR PAR</th>
+                                                        <th>DATE HISTORIQUE</th>
+                                                        <th>UTILISATEUR HISTORIQUE</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% if liste_chargevar %} 
+                                                        {% for u in liste_chargevar %}
+                                                            <tr class="text-center">
+                                                                {% if request.user.is_superuser %}<td>
+                                                                    {% if u.history_type == '+' %}
+                                                                        <span class="badge badge-success">Créé</span>
+                                                                    {% elif u.history_type == '~' %}
+                                                                        <span class="badge badge-warning">Modifié</span>
+                                                                    {% elif u.history_type == '-' %}
+                                                                        <span class="badge badge-danger">Supprimé</span>
+                                                                    {% endif %}
+                                                                </td>{% endif %}
+                                                                <td>
+                                                                    <a href="#" class="mr-3 text-primary">
+                                                                        {% if u.vehicule %}{{u.vehicule.immatriculation}}{% else %}N/A{% endif %}
+                                                                    </a>
+                                                                </td>
+                                                                <td>{% if u.vehicule %}{{u.vehicule.marque}}{% else %}N/A{% endif %}</td>
+                                                                <td>{% if u.vehicule %}{{u.vehicule.category}}{% else %}N/A{% endif %}</td>
+                                                                <td>{{u.libelle|default:"N/A"}}</td>
+                                                                <td>{{u.montant}}</td>
+                                                                <td>{{u.date_saisie|date:"d-m-y"}}</td>
+                                                                <td>{% if u.auteur %}{{u.auteur.username}}{% else %}N/A{% endif %}</td>
+                                                                <td>{{u.history_date|date:"d-m-y H:i"}}</td>
+                                                                <td>{% if u.history_user %}{{u.history_user.username}}{% else %}N/A{% endif %}</td>
+                                                            </tr>
+                                                        {% endfor %} 
+                                                    {% endif %}
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr class="text-center">
+                                                        {% if request.user.is_superuser %}<th>---</th>{% endif %}
+                                                        <th>---</th>
+                                                        <th>---</th>
+                                                        <th>---</th>
+                                                        <th>---</th>
+                                                        <th>---</th>
+                                                        <th>---</th>
+                                                        <th>---</th>
+                                                        <th>---</th>
+                                                        <th>---</th>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock main_content %}

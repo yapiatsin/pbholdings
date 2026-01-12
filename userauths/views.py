@@ -44,6 +44,7 @@ import openpyxl
 from openpyxl.utils import get_column_letter
 from openpyxl.styles import Font, PatternFill, Alignment
 from django.http import HttpResponse
+import pandas as pd
 CustomUser = get_user_model()
 
 
@@ -1170,19 +1171,80 @@ class CategorieListView(LoginRequiredMixin, ListView):
         context['form'] = TypeCustomPermissionForm()
         return context
 
-class CategorieCreateView(LoginRequiredMixin, CreateView):
-    model = TypeCustomPermission
-    form_class = TypeCustomPermissionForm
-    template_name = 'perfect/categorie.html'
+class CategorieCreateView(LoginRequiredMixin, View):
+    """Vue combinée pour créer des catégories via formulaire ou import Excel"""
+    login_url = 'login'
     success_url = reverse_lazy('list_categories')
     
-    def form_valid(self, form):
-        messages.success(self.request, 'Catégorie créée avec succès ✓✓')
-        return super().form_valid(form)
+    def post(self, request, *args, **kwargs):
+        # Vérifier si c'est un import Excel
+        if request.FILES.get('excel_file'):
+            return self.handle_excel_import(request)
+        else:
+            # Sinon, traiter comme un formulaire normal
+            return self.handle_form_submit(request)
     
-    def form_invalid(self, form):
-        messages.error(self.request, 'Erreur lors de la création de la catégorie ✘✘')
-        return super().form_invalid(form)
+    def handle_form_submit(self, request):
+        """Gère la soumission du formulaire classique"""
+        form = TypeCustomPermissionForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Catégorie créée avec succès ✓✓')
+            return redirect(self.success_url)
+        else:
+            messages.error(request, 'Erreur lors de la création de la catégorie ✘✘')
+            return redirect('list_categories')
+    
+    def handle_excel_import(self, request):
+        """Gère l'import depuis Excel"""
+        excel_file = request.FILES['excel_file']
+        try:
+            df = pd.read_excel(excel_file)
+            df = df.fillna('')
+            
+            # Vérifier les colonnes requises
+            # Accepter soit 'categorie' soit une seule colonne sans en-tête
+            if 'categorie' not in df.columns:
+                # Si pas de colonne nommée 'categorie', prendre la première colonne
+                if len(df.columns) == 1:
+                    df.columns = ['categorie']
+                else:
+                    messages.error(request, "Format attendu : une seule colonne nommée 'categorie' ou une colonne unique")
+                    return redirect('list_categories')
+            
+            created_count = 0
+            skipped_count = 0
+            errors = []
+            
+            for index, row in df.iterrows():
+                categorie_name = str(row.get('categorie', '')).strip()
+                if not categorie_name:
+                    continue
+                
+                try:
+                    # Vérifier si la catégorie existe déjà
+                    categorie, created = TypeCustomPermission.objects.get_or_create(
+                        categorie=categorie_name
+                    )
+                    if created:
+                        created_count += 1
+                    else:
+                        skipped_count += 1
+                except Exception as e:
+                    errors.append(f"Ligne {index + 2}: {str(e)}")
+            
+            if created_count > 0:
+                messages.success(request, f"✅ {created_count} catégorie(s) créée(s) avec succès")
+            if skipped_count > 0:
+                messages.info(request, f"ℹ️ {skipped_count} catégorie(s) déjà existante(s)")
+            if errors:
+                messages.warning(request, f"⚠️ {len(errors)} erreur(s) rencontrée(s)")
+            
+            return redirect('list_categories')
+        
+        except Exception as e:
+            messages.error(request, f"Erreur lors de l'importation : {str(e)} ✘✘")
+            return redirect('list_categories')
 
 class CategorieUpdateView(LoginRequiredMixin, UpdateView):
     model = TypeCustomPermission
@@ -1190,14 +1252,52 @@ class CategorieUpdateView(LoginRequiredMixin, UpdateView):
     template_name = 'perfect/partials/categorie_perm_form.html'
     success_url = reverse_lazy('list_categories')
     success_message = 'Catégorie modifiée avec succès ✓✓'
+
+class ExportCategoriesExcelView(LoginRequiredMixin, View):
+    """Vue pour exporter les catégories de permissions au format Excel (une seule colonne)"""
+    login_url = 'login'
     
-    def form_valid(self, form):
-        messages.success(self.request, self.success_message)
-        return super().form_valid(form)
-    
-    def form_invalid(self, form):
-        messages.error(self.request, 'Erreur lors de la modification ✘✘')
-        return super().form_invalid(form)
+    def get(self, request, *args, **kwargs):
+        categories = TypeCustomPermission.objects.all().order_by('categorie')
+        
+        # Création du fichier Excel
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "Catégories de Permissions"
+        
+        # En-tête (une seule colonne)
+        headers = ["categorie"]
+        ws.append(headers)
+        
+        # Style pour l'en-tête
+        header_fill = PatternFill(start_color="06497C", end_color="06497C", fill_type="solid")
+        header_font = Font(bold=True, color="FFFFFF", size=12)
+        header_alignment = Alignment(horizontal="center", vertical="center")
+        
+        cell = ws["A1"]
+        cell.fill = header_fill
+        cell.font = header_font
+        cell.alignment = header_alignment
+        ws.column_dimensions["A"].width = 30
+        
+        # Données (une seule colonne avec les noms des catégories)
+        for cat in categories:
+            ws.append([cat.categorie])
+        
+        # Alignement des cellules de données
+        for row in ws.iter_rows(min_row=2, max_row=ws.max_row, min_col=1, max_col=1):
+            for cell in row:
+                cell.alignment = Alignment(horizontal="center", vertical="center")
+        
+        # Réponse HTTP
+        filename = f"Categories-Permissions-{timezone.now().strftime('%Y%m%d_%H%M')}.xlsx"
+        response = HttpResponse(
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+        response['Content-Disposition'] = f'attachment; filename={filename}'
+        wb.save(response)
+        return response
+
 
 @login_required
 def delete_categorie(request, pk):

@@ -48,6 +48,8 @@ urlpatterns = [
     #-------------------------------------------Categorie Véhicule & Véhicule--------------------------------- 
     path('Véhicule', AllVehiculeView.as_view(), name='all_vehi'),
     path('Véhicule hors parc', AllVehiculeHorsParrcView.as_view(), name='all_vehi_hors_parc'),
+    path('historique véhicule',HistoriqueVehiculeView.as_view(), name="historique_vehicule"),
+    path('historique-vehicule/export-excel/', ExportHistoriqueVehiculeExcelView.as_view(), name='export_historique_vehicule_excel'),
     path('Nouveau #<int:pk> véhicule', AddVehiculeExcelView.as_view(), name='add_vehi'),
     path('vehicule /detail_financier', CarFinanceView.as_view(), name='detail_car_financier'),
     path('vehicule /<int:pk>/ modifier', UpdatVehiculeView.as_view(), name='updat_car'),
@@ -61,6 +63,8 @@ urlpatterns = [
     path('Meilleure recette',BestRecetView.as_view(), name="best_recets"),
     path('meilleures-recettes/export-excel/', ExportBestRecetteExcelView.as_view(), name='export_best_recette_excel'),
     path('liste recette',ListRecetView.as_view(), name="list_recet"),
+    path('historique recette',HistoriqueRecetteView.as_view(), name="historique_recette"),
+    path('historique-recettes/export-excel/', ExportHistoriqueRecetteExcelView.as_view(), name='export_historique_recettes_excel'),
     path('recette /<int:pk>/ modifier', UpdateRecetView.as_view(), name="updat_recet"),
     path('recettes /delete-selected/', views.delete_selected_recettes, name='delete_selected_recettes'),
     path('recettes /export-excel/', ExportRecetteExcelView.as_view(), name='export_recettes_excel'),
@@ -69,12 +73,15 @@ urlpatterns = [
     path('acharge fixe /<int:pk>/ modifier',UpdateChargFixView.as_view(), name="upd_charg_fix"),
     path('charge fixe /delete-selected/', views.delete_selected_chargfix, name='delete_selected_chargfix'),
     path('liste charge fixe',ListChargeFixView.as_view(), name="list_charg_fix"),
+    path('historique charge fixe',HistoriqueChargeFixeView.as_view(), name="historique_charge_fixe"),
     path('charge fixe /export-excel/', ExportChargeFixeExcelView.as_view(), name='export_charge_fixe_excel'),
 
     path('vehicule /<int:pk>/ charg_var',AddChargeVarView.as_view(), name="addcharg_var"),
     path('charge variable /<int:pk>/ modifier',UpdateChargeVarView.as_view(), name="updat_charg_var"),
     path('charge variable /delete-selected/', views.delete_selected_chargvar, name='delete_selected_chargvar'),
     path('liste charge variable',ListChargeVarView.as_view(), name="list_charg_var"),
+    path('historique charge variable',HistoriqueChargeVariableView.as_view(), name="historique_charge_variable"),
+    path('historique-charge-variable/export-excel/', ExportHistoriqueChargeVariableExcelView.as_view(), name='export_historique_charge_variable_excel'),
     path('charges variables/export-excel/', ExportChargeVariableExcelView.as_view(), name='export_charges_variables_excel'),
 
     #---------ENTRETIEN-------VISITE------REPARATION-------ASSURANCE-------PIECE-----VIGNETTE-----PATENTE--------PERTE-------ACCIDENT--------#
