@@ -46,7 +46,7 @@ def permission_denied_view(request, exception):
     return render(request, 'no_acces.html',status=403)
 
 def custom_404_view(request, exception):
-    return render(request, 'error.html',status=404)
+    return render(request, 'no_acces.html',status=404)
 
 def temp_arr(request):
     # return render(request, 'perfect/dashboard.html')
@@ -3221,10 +3221,7 @@ class ExportHistoriqueVehiculeExcelView(LoginRequiredMixin, View):
         # Accéder au modèle historique via Vehicule.history.model
         HistoricalVehicule = Vehicule.history.model
         queryset = HistoricalVehicule.objects.all().order_by('-history_date').select_related('category', 'auteur', 'history_user')
-        
-        # Récupérer les paramètres de filtre depuis la requête GET
         form = HistoriqueVehiculeFilterForm(request.GET)
-        
         if form.is_valid():
             # Filtres sur les dates d'historique
             date_debut = form.cleaned_data.get('date_debut')

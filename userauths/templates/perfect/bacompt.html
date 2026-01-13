@@ -1,6 +1,4 @@
 {% load static %} 
-{% if user.is_authenticated %}
-{% else %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -231,6 +229,7 @@ opacity:1">
         </ul>  
     </div>
     {% block content %}
+
     {% endblock content %}
 
     {% block custom_js %}
@@ -340,4 +339,3 @@ opacity:1">
     </script>
 </body>
 </html>
-{% endif %}
