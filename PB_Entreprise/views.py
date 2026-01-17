@@ -3043,10 +3043,10 @@ class ExportVehiculeHorsParcExcelView(LoginRequiredMixin, View):
         wb.save(response)
         return response
 
-class HistoriqueVehiculeView(LoginRequiredMixin, CustomPermissionRequiredMixin, ListView):
+class HistoriqueVehiculeView(LoginRequiredMixin, ListView):
     """Vue pour afficher l'historique des véhicules avec filtres dynamiques"""
     login_url = 'login'
-    permission_url = 'historique_vehicule'
+    # permission_url = 'historique_vehicule'
     template_name = 'perfect/historiq_vehicule.html'
     context_object_name = 'liste_vehicules'
     form_class = HistoriqueVehiculeFilterForm
@@ -3061,7 +3061,6 @@ class HistoriqueVehiculeView(LoginRequiredMixin, CustomPermissionRequiredMixin, 
                 messages.warning(request, "Vous avez été déconnecté ")
                 return redirect("login")
         return super().dispatch(request, *args, **kwargs)
-    
     def get_queryset(self):
         # Accéder au modèle historique via Vehicule.history.model
         HistoricalVehicule = Vehicule.history.model

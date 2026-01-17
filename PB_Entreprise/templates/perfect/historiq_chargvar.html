@@ -22,7 +22,6 @@
             {% if categorie.categorie == 'Exporter' %}
                 {% for perm in perms %}
                     {% if perm.name == "Exporter charge variable" %}
-                        <button type="button" class="btn btn-default text-danger" id="printButton">PDF <i class='fa fa-file-pdf-o'></i></button>
                         <a href="{% url 'export_historique_charge_variable_excel' %}?date_debut={{ request.GET.date_debut }}&date_fin={{ request.GET.date_fin }}&date_saisie_debut={{ request.GET.date_saisie_debut }}&date_saisie_fin={{ request.GET.date_saisie_fin }}&categorie={{ request.GET.categorie }}&immatriculation={{ request.GET.immatriculation }}&libelle={{ request.GET.libelle }}&cpte_comptable={{ request.GET.cpte_comptable }}&Num_piece={{ request.GET.Num_piece }}&Num_fact={{ request.GET.Num_fact }}&montant_min={{ request.GET.montant_min }}&montant_max={{ request.GET.montant_max }}&auteur={{ request.GET.auteur }}&history_type={{ request.GET.history_type }}" class="btn btn-default text-success">
                             Excel <i class="fa fa-file-excel-o"></i>
                         </a>
