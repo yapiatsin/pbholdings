@@ -10,7 +10,6 @@
     <button type="button" class="btn btn-default text-info" data-toggle="modal" data-target="#modal-sm"><i style="font-size: 20px;" class="fa fa-calendar"></i></button>
     <a href="{% url 'addcharg_var' vehicule.pk %}" class="btn btn-default text-info"><i class="fa fa-refresh"></i></a>
 {% endblock page_action %}
-
 {% block main_content %}
 
 <div class="modal fade" id="modal-sm">
@@ -55,7 +54,7 @@
         <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-clock" style="color:rgba(6, 73, 124, 0.54);"></i></span>
         <div class="info-box-content">
             <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Aujourd'hui</span>
-            <span class="info-box-number" style="font-size:20px; color: #fa7832;">
+            <span class="info-box-number" style="font-size:20px; color: #fa7832">
             {{chargvar_jours_format}}
             <small>frs cfa</small>
             </span>
@@ -68,7 +67,7 @@
     <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fa fa-calendar" style="color:rgba(6, 73, 124, 0.54);"></i></span>
     <div class="info-box-content">
         <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Mensuelle</span>
-        <span class="info-box-number" style="font-size:20px; color: #fa7832;">
+        <span class="info-box-number" style="font-size:20px; color: #fa7832">
         {{chargvar_mois_format}}
         <small>frs cfa</small>
         </span>
@@ -81,7 +80,7 @@
         <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-calendar" style="color:rgba(6, 73, 124, 0.54);"></i></span>
         <div class="info-box-content">
             <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Annuelle</span>
-            <span class="info-box-number" style="font-size:20px; color: #fa7832;">
+            <span class="info-box-number" style="font-size:20px; color: #fa7832">
             {{chargvar_an_format}}
             <small>frs cfa</small>
             </span>

@@ -19,15 +19,15 @@
 {% block page_action %}
     <form id="quickForm">
         {% for categorie, perms in grouped_permissions.items %}
-        {% if categorie.categorie == 'Exporter' %}
-            {% for perm in perms %}
-                {% if perm.name == "Exporter charge fixe" %}
-                    <a href="{% url 'export_charge_fixe_excel' %}?date_debut={{ request.GET.date_debut }}&date_fin={{ request.GET.date_fin }}&immatriculation={{ request.GET.immatriculation }}&categorie={{ request.GET.categorie }}" 
-                    class="btn btn-default text-success"> Excel <i class="fa fa-file-excel-o"></i>
-                    </a>
-                {% endif %}
-            {% endfor %}
-        {% endif %}
+            {% if categorie.categorie == 'Exporter' %}
+                {% for perm in perms %}
+                    {% if perm.name == "Exporter charge fixe" %}
+                        <a href="{% url 'export_charge_fixe_excel' %}?date_debut={{ request.GET.date_debut }}&date_fin={{ request.GET.date_fin }}&immatriculation={{ request.GET.immatriculation }}&categorie={{ request.GET.categorie }}" 
+                        class="btn btn-default text-success"> Excel <i class="fa fa-file-excel-o"></i>
+                        </a>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
         {% endfor %}
         <a class="btn btn-default text-info" data-toggle="modal" data-target="#modal-sm" href="#" style="font-size: 16px;"><i style="font-size: 20px;" class="fa fa-calendar"></i></a>
         <a class="btn btn-default text-info" href="{% url 'historique_charge_fixe' %}" style="font-size: 16px;"><i style="font-size: 20px;" class="fa fa-refresh"></i></a>

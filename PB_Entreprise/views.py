@@ -975,7 +975,6 @@ class ExportRecetteMensuelleExcelView(LoginRequiredMixin, View):
         header_cell.value = f"RECETTES MENSUELLES - {month_name.upper()} {year}"
         header_cell.font = Font(bold=True, size=14)
         header_cell.alignment = Alignment(horizontal='center')
-        
         # Première ligne d'en-têtes (avec fusion pour le mois)
         ws.append([])  # Ligne vide
         
@@ -1097,6 +1096,12 @@ class DashboardView(CustomPermissionRequiredMixin,LoginRequiredMixin,TemplateVie
         end_of_week = start_of_week + timedelta(days=5)
 
         all_vehicule = vehicules
+        # Initialiser les variables de filtre par défaut (mois en cours)
+        date_debut = None
+        date_fin = None
+        categorie_filter = None
+        immatriculation = None
+        
         form = self.form_class(self.request.GET)
         if form.is_valid():
             categorie_filter = form.cleaned_data.get('categorie')
@@ -1128,21 +1133,25 @@ class DashboardView(CustomPermissionRequiredMixin,LoginRequiredMixin,TemplateVie
                 piechan_queryset = piechan_queryset.filter(vehicule__immatriculation__icontains=immatriculation)
                 piece_queryset = piece_queryset.filter(reparation__vehicule__immatriculation__icontains=immatriculation)
 
+        # Appliquer le filtre par date : si dates fournies, les utiliser, sinon filtrer par mois en cours
         if date_debut and date_fin:
-            filtre_recette = recette_queryset
-            filtre_piece = piece_queryset
-            filtre_piec_echange = piechan_queryset
-            filtre_chargfix = chargfix_queryset
-            filtre_chargvar = chargvar_queryset
-            filtre_reparation = reparation_queryset
+            filtre_recette = recette_queryset.filter(date_saisie__range=[date_debut, date_fin])
+            filtre_piece = piece_queryset.filter(date_saisie__range=[date_debut, date_fin])
+            filtre_piec_echange = piechan_queryset.filter(date_saisie__range=[date_debut, date_fin])
+            filtre_chargfix = chargfix_queryset.filter(date_saisie__range=[date_debut, date_fin])
+            filtre_chargvar = chargvar_queryset.filter(date_saisie__range=[date_debut, date_fin])
+            filtre_reparation = reparation_queryset.filter(date_saisie__range=[date_debut, date_fin])
             start_of_week, end_of_week = date_debut, date_fin
         else:
-            filtre_recette = recette_queryset.filter(date_saisie__month=date.today().month)
-            filtre_piece = piece_queryset.filter(date_saisie__month=date.today().month)
-            filtre_piec_echange = piechan_queryset.filter(date_saisie__month=date.today().month)
-            filtre_chargfix = chargfix_queryset.filter(date_saisie__month=date.today().month)
-            filtre_chargvar = chargvar_queryset.filter(date_saisie__month=date.today().month)
-            filtre_reparation = reparation_queryset.filter(date_saisie__month=date.today().month)
+            # Par défaut : filtrer par mois en cours et année en cours
+            mois_en_cours = date.today().month
+            annee_en_cours = date.today().year
+            filtre_recette = recette_queryset.filter(date_saisie__month=mois_en_cours, date_saisie__year=annee_en_cours)
+            filtre_piece = piece_queryset.filter(date_saisie__month=mois_en_cours, date_saisie__year=annee_en_cours)
+            filtre_piec_echange = piechan_queryset.filter(date_saisie__month=mois_en_cours, date_saisie__year=annee_en_cours)
+            filtre_chargfix = chargfix_queryset.filter(date_saisie__month=mois_en_cours, date_saisie__year=annee_en_cours)
+            filtre_chargvar = chargvar_queryset.filter(date_saisie__month=mois_en_cours, date_saisie__year=annee_en_cours)
+            filtre_reparation = reparation_queryset.filter(date_saisie__month=mois_en_cours, date_saisie__year=annee_en_cours)
 
         # ################################----Recettes----#############################
         total_recettes = filtre_recette.aggregate(somme=Sum('montant'))['somme'] or 1
@@ -1345,7 +1354,12 @@ class DashboardGaragView(CustomPermissionRequiredMixin, TemplateView):
         label = [calendar.month_name[month][:1] for month in range(1, 13)]
         user = self.request.user
         labelscat, datacat = [], []
-        date_debut = date_fin = None
+        # Initialiser les variables de filtre par défaut (pour le filtrage du mois en cours)
+        date_debut = None
+        date_fin = None
+        categorie_filter = None
+        immatriculation = None
+        # Gestion des véhicules selon le type d'utilisateur
         if user.user_type == "4":
             try:
                 gerant = user.gerants.get()
@@ -1359,21 +1373,23 @@ class DashboardGaragView(CustomPermissionRequiredMixin, TemplateView):
         else:
             vehicules = Vehicule.objects.all()
 
-        vehicules = Vehicule.objects.all()
+        all_vehicule = vehicules
+        # Initialiser les querysets
         visitech_queryset = VisiteTechnique.objects.all()
         reparation_queryset = Reparation.objects.all()
         piechan_queryset = PiecEchange.objects.all()
         ligne_piechan_queryset = LignePiecEchange.objects.all()
         piece_queryset = Piece.objects.all()
         entretien_queryset = Entretien.objects.all()
-
         stationnement_queryset = Stationnement.objects.all()
         assurance_queryset = Assurance.objects.all()
         patente_queryset = Patente.objects.all()
         vignette_queryset = Vignette.objects.all()
-        start_of_week, end_of_week = date_debut, date_fin
-
-        all_vehicule = vehicules
+        # Calculer la semaine en cours par défaut
+        today = date.today()
+        start_of_week = today - timedelta(days=today.weekday())
+        end_of_week = start_of_week + timedelta(days=5)
+        
         form = self.form_class(self.request.GET)
         if form.is_valid():
             categorie_filter = form.cleaned_data.get('categorie')
@@ -1417,28 +1433,31 @@ class DashboardGaragView(CustomPermissionRequiredMixin, TemplateView):
                 patente_queryset = patente_queryset.filter(vehicule__immatriculation__icontains=immatriculation)
                 vignette_queryset = vignette_queryset.filter(vehicule__immatriculation__icontains=immatriculation)
 
+        # Appliquer le filtre par date : si dates fournies, les utiliser, sinon filtrer par mois en cours
         if date_debut and date_fin:
-            filtre_visitech = visitech_queryset
-            filtre_reparation = reparation_queryset
-            filtre_piechan = piechan_queryset
-            filtre_piece = piece_queryset
-            filtre_entretien = entretien_queryset
-            filtre_stationnement = stationnement_queryset
-            filtre_patente = patente_queryset
-            filtre_vignette = vignette_queryset
-            filtre_assurance = assurance_queryset
+            filtre_visitech = visitech_queryset.filter(date_saisie__range=[date_debut, date_fin])
+            filtre_reparation = reparation_queryset.filter(date_saisie__range=[date_debut, date_fin])
+            filtre_piechan = piechan_queryset.filter(date_saisie__range=[date_debut, date_fin])
+            filtre_piece = piece_queryset.filter(date_saisie__range=[date_debut, date_fin])
+            filtre_entretien = entretien_queryset.filter(date_saisie__range=[date_debut, date_fin])
+            filtre_stationnement = stationnement_queryset.filter(date_saisie__range=[date_debut, date_fin])
+            filtre_patente = patente_queryset.filter(date_saisie__range=[date_debut, date_fin])
+            filtre_vignette = vignette_queryset.filter(date_saisie__range=[date_debut, date_fin])
+            filtre_assurance = assurance_queryset.filter(date_saisie__range=[date_debut, date_fin])
             start_of_week, end_of_week = date_debut, date_fin
         else:
-            filtre_visitech = visitech_queryset.filter(date_saisie__month=date.today().month)
-            filtre_reparation = reparation_queryset.filter(date_saisie__month=date.today().month)
-            filtre_piechan = piechan_queryset.filter(date_saisie__month=date.today().month)
-            filtre_piece = piece_queryset.filter(date_saisie__month=date.today().month)
-            filtre_entretien = entretien_queryset.filter(date_saisie__month=date.today().month)
-
-            filtre_stationnement = stationnement_queryset.filter(date_saisie__month=date.today().month)
-            filtre_patente = patente_queryset.filter(date_saisie__month=date.today().month)
-            filtre_vignette = vignette_queryset.filter(date_saisie__month=date.today().month)
-            filtre_assurance = assurance_queryset.filter(date_saisie__month=date.today().month)
+            # Par défaut : filtrer par mois en cours et année en cours
+            mois_en_cours = date.today().month
+            annee_en_cours = date.today().year
+            filtre_visitech = visitech_queryset.filter(date_saisie__month=mois_en_cours, date_saisie__year=annee_en_cours)
+            filtre_reparation = reparation_queryset.filter(date_saisie__month=mois_en_cours, date_saisie__year=annee_en_cours)
+            filtre_piechan = piechan_queryset.filter(date_saisie__month=mois_en_cours, date_saisie__year=annee_en_cours)
+            filtre_piece = piece_queryset.filter(date_saisie__month=mois_en_cours, date_saisie__year=annee_en_cours)
+            filtre_entretien = entretien_queryset.filter(date_saisie__month=mois_en_cours, date_saisie__year=annee_en_cours)
+            filtre_stationnement = stationnement_queryset.filter(date_saisie__month=mois_en_cours, date_saisie__year=annee_en_cours)
+            filtre_patente = patente_queryset.filter(date_saisie__month=mois_en_cours, date_saisie__year=annee_en_cours)
+            filtre_vignette = vignette_queryset.filter(date_saisie__month=mois_en_cours, date_saisie__year=annee_en_cours)
+            filtre_assurance = assurance_queryset.filter(date_saisie__month=mois_en_cours, date_saisie__year=annee_en_cours)
 
         nb_reparat = filtre_reparation.count()
         total_reparat = filtre_reparation.aggregate(somme=Sum('montant'))['somme'] or 0
@@ -3043,10 +3062,10 @@ class ExportVehiculeHorsParcExcelView(LoginRequiredMixin, View):
         wb.save(response)
         return response
 
-class HistoriqueVehiculeView(LoginRequiredMixin, ListView):
+class HistoriqueVehiculeView(LoginRequiredMixin, CustomPermissionRequiredMixin, ListView):
     """Vue pour afficher l'historique des véhicules avec filtres dynamiques"""
     login_url = 'login'
-    # permission_url = 'historique_vehicule'
+    permission_url = 'historique_vehicule'
     template_name = 'perfect/historiq_vehicule.html'
     context_object_name = 'liste_vehicules'
     form_class = HistoriqueVehiculeFilterForm
@@ -3061,6 +3080,7 @@ class HistoriqueVehiculeView(LoginRequiredMixin, ListView):
                 messages.warning(request, "Vous avez été déconnecté ")
                 return redirect("login")
         return super().dispatch(request, *args, **kwargs)
+    
     def get_queryset(self):
         # Accéder au modèle historique via Vehicule.history.model
         HistoricalVehicule = Vehicule.history.model
@@ -3635,13 +3655,17 @@ class SaisieGaragView(LoginRequiredMixin, CustomPermissionRequiredMixin, Templat
                 vehicules = Vehicule.objects.none()
         else:
             vehicules = Vehicule.objects.all()
-
         search_query = self.request.GET.get("search", "").strip()
         if search_query:  
             vehicules = search_vehicules(vehicules, search_query)
         else:
             vehicules = Vehicule.objects.none()
-
+        
+        # Initialiser les variables de filtre par défaut (pour le filtrage du mois en cours)
+        date_debut = None
+        date_fin = None
+        categorie_filter = None
+        
         assure_queryset = Assurance.objects.all()
         vigne_queryset = Vignette.objects.all()
         patent_queryset = Patente.objects.all()
@@ -3649,7 +3673,6 @@ class SaisieGaragView(LoginRequiredMixin, CustomPermissionRequiredMixin, Templat
         piechang_queryset = PiecEchange.objects.all()
 
         form = self.form_class(self.request.GET)
-
         if form.is_valid():
             categorie_filter = form.cleaned_data.get('categorie')
             date_debut = form.cleaned_data.get('date_debut')
@@ -3662,26 +3685,36 @@ class SaisieGaragView(LoginRequiredMixin, CustomPermissionRequiredMixin, Templat
             station_queryset = station_queryset.filter(vehicule__category__category=categorie_filter)
             piechang_queryset = piechang_queryset.filter(vehicule__category__category=categorie_filter)
 
+        # Appliquer le filtre par date : si dates fournies, les utiliser, sinon filtrer par mois en cours
         if date_debut and date_fin:
-            assure_queryset = assure_queryset.filter(date_saisie__range=[date_debut, date_fin])
-            vigne_queryset = vigne_queryset.filter(date_saisie__range=[date_debut, date_fin])
-            patent_queryset = patent_queryset.filter(date_saisie__range=[date_debut, date_fin])
-            station_queryset = station_queryset.filter(date_saisie__range=[date_debut, date_fin])
-            piechang_queryset = piechang_queryset.filter(date_saisie__range=[date_debut, date_fin])
+            filtre_assure = assure_queryset.filter(date_saisie__range=[date_debut, date_fin])
+            filtre_vigne = vigne_queryset.filter(date_saisie__range=[date_debut, date_fin])
+            filtre_patent = patent_queryset.filter(date_saisie__range=[date_debut, date_fin])
+            filtre_station = station_queryset.filter(date_saisie__range=[date_debut, date_fin])
+            filtre_piechang = piechang_queryset.filter(date_saisie__range=[date_debut, date_fin])
+        else:
+            # Par défaut : filtrer par mois en cours et année en cours
+            mois_en_cours = date.today().month
+            annee_en_cours = date.today().year
+            filtre_assure = assure_queryset.filter(date_saisie__month=mois_en_cours, date_saisie__year=annee_en_cours)
+            filtre_vigne = vigne_queryset.filter(date_saisie__month=mois_en_cours, date_saisie__year=annee_en_cours)
+            filtre_patent = patent_queryset.filter(date_saisie__month=mois_en_cours, date_saisie__year=annee_en_cours)
+            filtre_station = station_queryset.filter(date_saisie__month=mois_en_cours, date_saisie__year=annee_en_cours)
+            filtre_piechang = piechang_queryset.filter(date_saisie__month=mois_en_cours, date_saisie__year=annee_en_cours)
 
-        assure_mois = assure_queryset.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 1
+        assure_mois = filtre_assure.aggregate(somme=Sum('montant'))['somme'] or 0
         assure_mois_format ='{:,}'.format(assure_mois).replace(',', ' ')
 
-        vigne_mois = vigne_queryset.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 1
+        vigne_mois = filtre_vigne.aggregate(somme=Sum('montant'))['somme'] or 0
         vigne_mois_format ='{:,}'.format(vigne_mois).replace(',', ' ')
 
-        patent_mois = patent_queryset.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 1
+        patent_mois = filtre_patent.aggregate(somme=Sum('montant'))['somme'] or 0
         patent_mois_format ='{:,}'.format(patent_mois).replace(',', ' ')
 
-        station_mois = station_queryset.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 1
+        station_mois = filtre_station.aggregate(somme=Sum('montant'))['somme'] or 0
         station_mois_format ='{:,}'.format(station_mois).replace(',', ' ')
 
-        piechang_mois = piechang_queryset.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 1
+        piechang_mois = filtre_piechang.aggregate(somme=Sum('montant'))['somme'] or 0
         piechang_mois_format ='{:,}'.format(piechang_mois).replace(',', ' ')
         
         context={
@@ -3696,7 +3729,6 @@ class SaisieGaragView(LoginRequiredMixin, CustomPermissionRequiredMixin, Templat
             'form':form,
         }
         return context
-
 
 class TempsArretsView(LoginRequiredMixin, CustomPermissionRequiredMixin, TemplateView):
     login_url = 'login'
@@ -3831,6 +3863,11 @@ class SaisiComptaView(LoginRequiredMixin, CustomPermissionRequiredMixin,Template
             vehicules = search_vehicules(vehicules, search_query)
         else:
             vehicules = Vehicule.objects.none()
+        # Initialiser les variables de filtre par défaut (pour le filtrage du mois en cours)
+        date_debut = None
+        date_fin = None
+        categorie_filter = None
+        
         recette_queryset = Recette.objects.all()
         chargvariale_queryset = ChargeVariable.objects.all()
         chargefixe_queryset = ChargeFixe.objects.all()
@@ -3845,19 +3882,26 @@ class SaisiComptaView(LoginRequiredMixin, CustomPermissionRequiredMixin,Template
             recette_queryset = recette_queryset.filter(vehicule__category__category=categorie_filter)
             chargvariale_queryset = chargvariale_queryset.filter(vehicule__category__category=categorie_filter)
             chargefixe_queryset = chargefixe_queryset.filter(vehicule__category__category=categorie_filter)
-
+        # Appliquer le filtre par date : si dates fournies, les utiliser, sinon filtrer par mois en cours
         if date_debut and date_fin:
-            recette_queryset = recette_queryset.filter(date_saisie__range=[date_debut, date_fin])
-            chargvariale_queryset = chargvariale_queryset.filter(date_saisie__range=[date_debut, date_fin])
-            chargefixe_queryset = chargefixe_queryset.filter(date_saisie__range=[date_debut, date_fin])
+            filtre_recette = recette_queryset.filter(date_saisie__range=[date_debut, date_fin])
+            filtre_chargvariale = chargvariale_queryset.filter(date_saisie__range=[date_debut, date_fin])
+            filtre_chargefixe = chargefixe_queryset.filter(date_saisie__range=[date_debut, date_fin])
+        else:
+            # Par défaut : filtrer par mois en cours et année en cours
+            mois_en_cours = date.today().month
+            annee_en_cours = date.today().year
+            filtre_recette = recette_queryset.filter(date_saisie__month=mois_en_cours, date_saisie__year=annee_en_cours)
+            filtre_chargvariale = chargvariale_queryset.filter(date_saisie__month=mois_en_cours, date_saisie__year=annee_en_cours)
+            filtre_chargefixe = chargefixe_queryset.filter(date_saisie__month=mois_en_cours, date_saisie__year=annee_en_cours)
         
-        recette_mois = recette_queryset.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
+        recette_mois = filtre_recette.aggregate(somme=Sum('montant'))['somme'] or 0
         recette_mois_format ='{:,}'.format(recette_mois).replace(',', ' ')
 
-        chargvariale_mois = chargvariale_queryset.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
+        chargvariale_mois = filtre_chargvariale.aggregate(somme=Sum('montant'))['somme'] or 0
         chargvariale_mois_format ='{:,}'.format(chargvariale_mois).replace(',', ' ')
 
-        chargefixe_mois = chargefixe_queryset.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
+        chargefixe_mois = filtre_chargefixe.aggregate(somme=Sum('montant'))['somme'] or 0
         chargefixe_mois_format ='{:,}'.format(chargefixe_mois).replace(',', ' ')
 
         chargtot_mois = chargefixe_mois + chargvariale_mois
@@ -3957,15 +4001,14 @@ class AddRecetteView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateVi
             recette_queryset_filtre = recette_queryset.filter(date_saisie__month=date.today().month)
             recette_mois = recette_queryset_filtre.aggregate(somme=Sum('montant'))['somme'] or 1
             recette_mois_format ='{:,}'.format(recette_mois).replace(',', ' ')
-
         # Calcul des statistiques avec le queryset filtré
         recette_jours = recette_queryset.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 1
         recette_jours_format ='{:,}'.format(recette_jours).replace(',', ' ')
 
         recette_an = recette_queryset.filter(date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 1
         recette_an_format ='{:,}'.format(recette_an).replace(',', ' ')
-        
-        liste_recette = recette_queryset_filtre
+        # Trier les recettes par date décroissante (plus récente en premier)
+        liste_recette = recette_queryset_filtre.order_by('-date_saisie')
 
         context = {
             "vehicules": vehicules,
@@ -4002,6 +4045,12 @@ class ListRecetView(LoginRequiredMixin, CustomPermissionRequiredMixin, ListView)
         context = super().get_context_data(**kwargs)
         dates = date.today()
         annee = date.today().year
+        # Initialiser les variables de filtre par défaut (pour le filtrage du mois en cours)
+        date_debut = None
+        date_fin = None
+        categorie_filter = None
+        immatriculation = None
+        
         recette_queryset = Recette.objects.all()
         form = self.form_class(self.request.GET)
         if form.is_valid():
@@ -4018,11 +4067,14 @@ class ListRecetView(LoginRequiredMixin, CustomPermissionRequiredMixin, ListView)
             
             if immatriculation:
                 recette_queryset = recette_queryset.filter(vehicule__immatriculation=immatriculation)
-            
+        # Appliquer le filtre par date : si dates fournies, les utiliser, sinon filtrer par mois en cours
         if date_debut and date_fin:
-            filtre_recette = recette_queryset
+            filtre_recette = recette_queryset.filter(date_saisie__range=[date_debut, date_fin])
         else:
-            filtre_recette = recette_queryset.filter(date_saisie__month=date.today().month)
+            # Par défaut : filtrer par mois en cours et année en cours
+            mois_en_cours = date.today().month
+            annee_en_cours = date.today().year
+            filtre_recette = recette_queryset.filter(date_saisie__month=mois_en_cours, date_saisie__year=annee_en_cours)
         # ################################----Recettes----#############################
         recettes_jours = filtre_recette.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
         recettes_jours_format ='{:,}'.format(recettes_jours).replace(',', ' ')
@@ -4542,7 +4594,12 @@ class ListarretView(LoginRequiredMixin, CustomPermissionRequiredMixin, ListView)
         context = super().get_context_data(**kwargs)
         dates = date.today()
         annee = date.today().year
-        mois = date.today().month
+        # Initialiser les variables de filtre par défaut (pour le filtrage du mois en cours)
+        date_debut = None
+        date_fin = None
+        categorie_filter = None
+        immatriculation = None
+        
         autarret_queryset = Autrarret.objects.all()
         form = self.form_class(self.request.GET)
         if form.is_valid():
@@ -4558,16 +4615,20 @@ class ListarretView(LoginRequiredMixin, CustomPermissionRequiredMixin, ListView)
             if immatriculation:
                 autarret_queryset = autarret_queryset.filter(vehicule__immatriculation__icontains=immatriculation)
 
+        # Appliquer le filtre par date : si dates fournies, les utiliser, sinon filtrer par mois en cours
         if date_debut and date_fin:
-            filtre_autarret = autarret_queryset
+            filtre_autarret = autarret_queryset.filter(date_saisie__range=[date_debut, date_fin])
         else:
-            filtre_autarret = autarret_queryset.filter(date_saisie__month=date.today().month)
+            # Par défaut : filtrer par mois en cours et année en cours
+            mois_en_cours = date.today().month
+            annee_en_cours = date.today().year
+            filtre_autarret = autarret_queryset.filter(date_saisie__month=mois_en_cours, date_saisie__year=annee_en_cours)
 
         autarret_total = filtre_autarret.count()
         
         autarret_jours = autarret_queryset.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 1
         autarret_jours_format ='{:,}'.format(autarret_jours).replace(',', ' ')
-        autarret_mois = filtre_autarret.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 1
+        autarret_mois = filtre_autarret.aggregate(somme=Sum('montant'))['somme'] or 1
         autarret_mois_format ='{:,}'.format(autarret_mois).replace(',', ' ')
         autarret_an = autarret_queryset.filter(date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 1
         autarret_an_format ='{:,}'.format(autarret_an).replace(',', ' ')
@@ -4945,8 +5006,8 @@ class AddChargeFixView(LoginRequiredMixin, CustomPermissionRequiredMixin, Create
         chargfixe_mois_format ='{:,}'.format(chargfixe_mois).replace(',', ' ')
         chargfixe_an = chargfixe_queryset.filter(date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 1
         chargfixe_an_format ='{:,}'.format(chargfixe_an).replace(',', ' ')
-        liste_chargfixe = chargfixe_queryset.filter(date_saisie__month=date.today().month)
-
+        # Trier les charges fixes par date décroissante (plus récente en premier) pour le mois en cours
+        liste_chargfixe = chargfixe_queryset.filter(date_saisie__month=date.today().month).order_by('-date_saisie')
         context = {
             "vehicules": vehicules,
             "vehicule": vehicule,
@@ -4987,7 +5048,11 @@ class ListChargeFixView(LoginRequiredMixin, CustomPermissionRequiredMixin, ListV
         context = super().get_context_data(**kwargs)
         dates = date.today()
         annee = date.today().year
-        mois = date.today().month
+        # Initialiser les variables de filtre par défaut (pour le filtrage du mois en cours)
+        date_debut = None
+        date_fin = None
+        categorie_filter = None
+        immatriculation = None
 
         chargefix_queryset = ChargeFixe.objects.all()
         form = self.form_class(self.request.GET)
@@ -5006,10 +5071,14 @@ class ListChargeFixView(LoginRequiredMixin, CustomPermissionRequiredMixin, ListV
             if immatriculation:
                 chargefix_queryset = chargefix_queryset.filter(vehicule__immatriculation__icontains=immatriculation)
 
+        # Appliquer le filtre par date : si dates fournies, les utiliser, sinon filtrer par mois en cours
         if date_debut and date_fin:
-            filtre_chargfix = chargefix_queryset
+            filtre_chargfix = chargefix_queryset.filter(date_saisie__range=[date_debut, date_fin])
         else:
-            filtre_chargfix = chargefix_queryset.filter(date_saisie__month=date.today().month)
+            # Par défaut : filtrer par mois en cours et année en cours
+            mois_en_cours = date.today().month
+            annee_en_cours = date.today().year
+            filtre_chargfix = chargefix_queryset.filter(date_saisie__month=mois_en_cours, date_saisie__year=annee_en_cours)
             
         # ################################----Recettes----#############################
         chargefix_jours = chargefix_queryset.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 1
@@ -5387,7 +5456,11 @@ class ListChargeVarView(LoginRequiredMixin, CustomPermissionRequiredMixin, ListV
         context = super().get_context_data(**kwargs)
         dates = date.today()
         annee = date.today().year
-        mois = date.today().month
+        # Initialiser les variables de filtre par défaut (pour le filtrage du mois en cours)
+        date_debut = None
+        date_fin = None
+        categorie_filter = None
+        immatriculation = None
 
         chargevar_queryset = ChargeVariable.objects.all()
         form = self.form_class(self.request.GET)
@@ -5406,19 +5479,23 @@ class ListChargeVarView(LoginRequiredMixin, CustomPermissionRequiredMixin, ListV
             if immatriculation:
                 chargevar_queryset = chargevar_queryset.filter(vehicule__immatriculation__icontains=immatriculation)
 
+        # Appliquer le filtre par date : si dates fournies, les utiliser, sinon filtrer par mois en cours
         if date_debut and date_fin:
-            filtre_chargvar = chargevar_queryset
+            filtre_chargvar = chargevar_queryset.filter(date_saisie__range=[date_debut, date_fin])
         else:
-            filtre_chargvar = chargevar_queryset.filter(date_saisie__month=date.today().month)
+            # Par défaut : filtrer par mois en cours et année en cours
+            mois_en_cours = date.today().month
+            annee_en_cours = date.today().year
+            filtre_chargvar = chargevar_queryset.filter(date_saisie__month=mois_en_cours, date_saisie__year=annee_en_cours)
             
         # ################################----Recettes----#############################
         chargevar_jours = chargevar_queryset.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 1
         chargevar_jours_format ='{:,}'.format(chargevar_jours).replace(',', ' ')
-        chargevar_mois = filtre_chargvar.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 1
+        chargevar_mois = filtre_chargvar.aggregate(somme=Sum('montant'))['somme'] or 1
         chargevar_mois_format ='{:,}'.format(chargevar_mois).replace(',', ' ')
         chargevar_an = chargevar_queryset.filter(date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 1
         chargevar_an_format ='{:,}'.format(chargevar_an).replace(',', ' ')
-        liste_chargevar = chargevar_queryset
+        liste_chargevar = filtre_chargvar
         context={
             'liste_chargevar':liste_chargevar,
             'chargevar_an_format':chargevar_an_format,
@@ -6121,7 +6198,13 @@ class AddCartStationView(LoginRequiredMixin, CustomPermissionRequiredMixin, Crea
         station_mois_format ='{:,}'.format(station_mois).replace(',', ' ')
         station_an = station_queryset.filter(date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 1
         station_an_format ='{:,}'.format(station_an).replace(',', ' ')
-        liste_station = station_queryset.filter(date_saisie__month=date.today().month)
+        # Filtrer par défaut sur le mois en cours et trier par date décroissante (plus récente en premier)
+        if date_debut and date_fin:
+            # Si des dates sont spécifiées, utiliser le queryset filtré
+            liste_station = station_queryset.order_by('-date_saisie')
+        else:
+            # Sinon, afficher les cartes de stationnement du mois en cours triées par date décroissante
+            liste_station = station_queryset.filter(date_saisie__month=date.today().month).order_by('-date_saisie')
 
         context = {
             "vehicules": vehicules,
@@ -6157,6 +6240,11 @@ class ListCartStationView(LoginRequiredMixin, CustomPermissionRequiredMixin, Lis
         context = super().get_context_data(**kwargs)
         dates = date.today()
         annee = date.today().year
+        # Initialiser les variables de filtre par défaut (pour le filtrage du mois en cours)
+        date_debut = None
+        date_fin = None
+        categorie_filter = None
+        immatriculation = None
 
         station_queryset = Stationnement.objects.all()
         form = self.form_class(self.request.GET)
@@ -6175,14 +6263,18 @@ class ListCartStationView(LoginRequiredMixin, CustomPermissionRequiredMixin, Lis
             if immatriculation:
                 station_queryset = station_queryset.filter(vehicule__immatriculation__icontains=immatriculation)
         
+        # Appliquer le filtre par date : si dates fournies, les utiliser, sinon filtrer par mois en cours
         if date_debut and date_fin:
-            filtre_station = station_queryset
+            filtre_station = station_queryset.filter(date_saisie__range=[date_debut, date_fin])
         else:
-            filtre_station = station_queryset.filter(date_saisie__month=date.today().month)
+            # Par défaut : filtrer par mois en cours et année en cours
+            mois_en_cours = date.today().month
+            annee_en_cours = date.today().year
+            filtre_station = station_queryset.filter(date_saisie__month=mois_en_cours, date_saisie__year=annee_en_cours)
     
         station_jours = station_queryset.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 1
         station_jours_format ='{:,}'.format(station_jours).replace(',', ' ')
-        station_mois = filtre_station.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 1
+        station_mois = filtre_station.aggregate(somme=Sum('montant'))['somme'] or 1
         station_mois_format ='{:,}'.format(station_mois).replace(',', ' ')
         station_an = station_queryset.filter(date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 1
         station_an_format ='{:,}'.format(station_an).replace(',', ' ')
@@ -6361,7 +6453,13 @@ class AddPatenteView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateVi
         patente_mois_format ='{:,}'.format(patente_mois).replace(',', ' ')
         patente_an = patent_queryset.filter(date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 1
         patente_an_format ='{:,}'.format(patente_an).replace(',', ' ')
-        liste_patente = patent_queryset.filter(date_saisie__month=date.today().month)
+        # Filtrer par défaut sur le mois en cours et trier par date décroissante (plus récente en premier)
+        if date_debut and date_fin:
+            # Si des dates sont spécifiées, utiliser le queryset filtré
+            liste_patente = patent_queryset.order_by('-date_saisie')
+        else:
+            # Sinon, afficher les patentes du mois en cours triées par date décroissante
+            liste_patente = patent_queryset.filter(date_saisie__month=date.today().month).order_by('-date_saisie')
 
         context = {
             "vehicules": vehicules,
@@ -6411,7 +6509,12 @@ class ListPatenteView(LoginRequiredMixin, CustomPermissionRequiredMixin, ListVie
         context = super().get_context_data(**kwargs)
         dates = date.today()
         annee = date.today().year
-        mois = date.today().month
+        # Initialiser les variables de filtre par défaut (pour le filtrage du mois en cours)
+        date_debut = None
+        date_fin = None
+        categorie_filter = None
+        immatriculation = None
+        
         patente_queryset = Patente.objects.all()
         form = self.form_class(self.request.GET)
         if form.is_valid():
@@ -6426,15 +6529,18 @@ class ListPatenteView(LoginRequiredMixin, CustomPermissionRequiredMixin, ListVie
                 patente_queryset = patente_queryset.filter(date_saisie__range=[date_debut, date_fin])
             if immatriculation:
                 patente_queryset = patente_queryset.filter(vehicule__immatriculation__icontains=immatriculation)
-        
+        # Appliquer le filtre par date : si dates fournies, les utiliser, sinon filtrer par mois en cours
         if date_debut and date_fin:
-            filtre_patente = patente_queryset
+            filtre_patente = patente_queryset.filter(date_saisie__range=[date_debut, date_fin])
         else:
-            filtre_patente = patente_queryset.filter(date_saisie__month=date.today().month)
+            # Par défaut : filtrer par mois en cours et année en cours
+            mois_en_cours = date.today().month
+            annee_en_cours = date.today().year
+            filtre_patente = patente_queryset.filter(date_saisie__month=mois_en_cours, date_saisie__year=annee_en_cours)
 
         patente_jours = patente_queryset.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 1
         patente_jours_format ='{:,}'.format(patente_jours).replace(',', ' ')
-        patente_mois = filtre_patente.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 1
+        patente_mois = filtre_patente.aggregate(somme=Sum('montant'))['somme'] or 1
         patente_mois_format ='{:,}'.format(patente_mois).replace(',', ' ')
         patente_an = patente_queryset.filter(date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 1
         patente_an_format ='{:,}'.format(patente_an).replace(',', ' ')
@@ -6594,7 +6700,13 @@ class AddVignetteView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateV
         vignette_mois_format ='{:,}'.format(vignette_mois).replace(',', ' ')
         vignette_an = vignette_queryset.filter(date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 1
         vignette_an_format ='{:,}'.format(vignette_an).replace(',', ' ')
-        liste_vignette = vignette_queryset.filter(date_saisie__month=date.today().month)
+        # Filtrer par défaut sur le mois en cours et trier par date décroissante (plus récente en premier)
+        if date_debut and date_fin:
+            # Si des dates sont spécifiées, utiliser le queryset filtré
+            liste_vignette = vignette_queryset.order_by('-date_saisie')
+        else:
+            # Sinon, afficher les vignettes du mois en cours triées par date décroissante
+            liste_vignette = vignette_queryset.filter(date_saisie__month=date.today().month).order_by('-date_saisie')
 
         context = {
             "vehicules": vehicules,
@@ -6634,7 +6746,11 @@ class ListVignetteView(LoginRequiredMixin, CustomPermissionRequiredMixin,ListVie
         context = super().get_context_data(**kwargs)
         dates = date.today()
         annee = date.today().year
-        mois = date.today().month
+        # Initialiser les variables de filtre par défaut (pour le filtrage du mois en cours)
+        date_debut = None
+        date_fin = None
+        categorie_filter = None
+        immatriculation = None
 
         vignet_queryset = Vignette.objects.all()
         form = self.form_class(self.request.GET)
@@ -6652,15 +6768,18 @@ class ListVignetteView(LoginRequiredMixin, CustomPermissionRequiredMixin,ListVie
             
             if immatriculation:
                 vignet_queryset = vignet_queryset.filter(vehicule__immatriculation__icontains=immatriculation)
-        
+        # Appliquer le filtre par date : si dates fournies, les utiliser, sinon filtrer par mois en cours
         if date_debut and date_fin:
-            filtre_vignet = vignet_queryset
+            filtre_vignet = vignet_queryset.filter(date_saisie__range=[date_debut, date_fin])
         else:
-            filtre_vignet = vignet_queryset.filter(date_saisie__month=date.today().month)
+            # Par défaut : filtrer par mois en cours et année en cours
+            mois_en_cours = date.today().month
+            annee_en_cours = date.today().year
+            filtre_vignet = vignet_queryset.filter(date_saisie__month=mois_en_cours, date_saisie__year=annee_en_cours)
         # ################################----Recettes----#############################
         vignet_jours = vignet_queryset.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 1
         vignet_jours_format ='{:,}'.format(vignet_jours).replace(',', ' ')
-        vignet_mois = filtre_vignet.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 1
+        vignet_mois = filtre_vignet.aggregate(somme=Sum('montant'))['somme'] or 1
         vignet_mois_format ='{:,}'.format(vignet_mois).replace(',', ' ')
         vignet_an = vignet_queryset.filter(date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 1
         vignet_an_format ='{:,}'.format(vignet_an).replace(',', ' ')
@@ -6895,7 +7014,11 @@ class ListVisitView(LoginRequiredMixin, CustomPermissionRequiredMixin, ListView)
         context = super().get_context_data(**kwargs)
         dates = date.today()
         annee = date.today().year
-        mois = date.today().month
+        # Initialiser les variables de filtre par défaut (pour le filtrage du mois en cours)
+        date_debut = None
+        date_fin = None
+        categorie_filter = None
+        immatriculation = None
 
         visitech_queryset = VisiteTechnique.objects.all()
         form = self.form_class(self.request.GET)
@@ -6914,14 +7037,19 @@ class ListVisitView(LoginRequiredMixin, CustomPermissionRequiredMixin, ListView)
             if immatriculation:
                 visitech_queryset = visitech_queryset.filter(vehicule__immatriculation__icontains=immatriculation)
 
+        # Appliquer le filtre par date : si dates fournies, les utiliser, sinon filtrer par mois en cours
         if date_debut and date_fin:
-            filtre_visitech = visitech_queryset   
+            filtre_visitech = visitech_queryset.filter(date_saisie__range=[date_debut, date_fin])
         else:
-            filtre_visitech = visitech_queryset.filter(date_saisie__month=date.today().month)         
+            # Par défaut : filtrer par mois en cours et année en cours
+            mois_en_cours = date.today().month
+            annee_en_cours = date.today().year
+            filtre_visitech = visitech_queryset.filter(date_saisie__month=mois_en_cours, date_saisie__year=annee_en_cours)
+         
         # ################################----Recettes----#############################
         visitech_jours = visitech_queryset.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 1
         visitech_jours_format ='{:,}'.format(visitech_jours).replace(',', ' ')
-        visitech_mois = filtre_visitech.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 1
+        visitech_mois = filtre_visitech.aggregate(somme=Sum('montant'))['somme'] or 1
         visitech_mois_format ='{:,}'.format(visitech_mois).replace(',', ' ')
         visitech_an = visitech_queryset.filter(date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 1
         visitech_an_format ='{:,}'.format(visitech_an).replace(',', ' ')
@@ -7131,7 +7259,11 @@ class ListAssuranceView(LoginRequiredMixin, CustomPermissionRequiredMixin, ListV
         context = super().get_context_data(**kwargs)
         dates = date.today()
         annee = date.today().year
-        mois = date.today().month
+        # Initialiser les variables de filtre par défaut (pour le filtrage du mois en cours)
+        date_debut = None
+        date_fin = None
+        categorie_filter = None
+        immatriculation = None
 
         assur_queryset = Assurance.objects.all()
         form = self.form_class(self.request.GET)
@@ -7150,14 +7282,19 @@ class ListAssuranceView(LoginRequiredMixin, CustomPermissionRequiredMixin, ListV
             if immatriculation:
                 assur_queryset = assur_queryset.filter(vehicule__immatriculation__icontains=immatriculation)
 
+        # Appliquer le filtre par date : si dates fournies, les utiliser, sinon filtrer par mois en cours
         if date_debut and date_fin:
-            filtre_assur = assur_queryset
+            filtre_assur = assur_queryset.filter(date_saisie__range=[date_debut, date_fin])
         else:
-            filtre_assur = assur_queryset.filter(date_saisie__month=date.today().month)
+            # Par défaut : filtrer par mois en cours et année en cours
+            mois_en_cours = date.today().month
+            annee_en_cours = date.today().year
+            filtre_assur = assur_queryset.filter(date_saisie__month=mois_en_cours, date_saisie__year=annee_en_cours)
+        
         # ################################----Recettes----#############################
         assur_jours = assur_queryset.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 1
         assur_jours_format ='{:,}'.format(assur_jours).replace(',', ' ')
-        assur_mois = filtre_assur.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 1
+        assur_mois = filtre_assur.aggregate(somme=Sum('montant'))['somme'] or 1
         assur_mois_format ='{:,}'.format(assur_mois).replace(',', ' ')
         assur_an = assur_queryset.filter(date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 1
         assur_an_format ='{:,}'.format(assur_an).replace(',', ' ')
@@ -7321,6 +7458,7 @@ class AddReparationView(LoginRequiredMixin, CustomPermissionRequiredMixin, Creat
             vehicules = Vehicule.objects.none()
 
         reparat_queryset = Reparation.objects.filter(vehicule=vehicule)
+        date_debut = date_fin = None
         if form.is_valid():
             date_debut = form.cleaned_data.get('date_debut')
             date_fin = form.cleaned_data.get('date_fin')
@@ -7342,7 +7480,13 @@ class AddReparationView(LoginRequiredMixin, CustomPermissionRequiredMixin, Creat
         reparat_an = reparat_queryset.filter(date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 1
         reparat_an_format ='{:,}'.format(reparat_an).replace(',', ' ')
         
-        liste_reparat = reparat_queryset.order_by('-id')
+        # Filtrer par défaut sur le mois en cours et trier par date décroissante (plus récente en premier)
+        if date_debut and date_fin:
+            # Si des dates sont spécifiées, utiliser le queryset filtré
+            liste_reparat = reparat_queryset.order_by('-date_saisie')
+        else:
+            # Sinon, afficher les réparations du mois en cours triées par date décroissante
+            liste_reparat = reparat_queryset.filter(date_saisie__month=date.today().month).order_by('-date_saisie')
         context = {
             "vehicules": vehicules,
             "vehicule": vehicule,
@@ -7526,7 +7670,13 @@ class AddPiecEchangeView(LoginRequiredMixin, CustomPermissionRequiredMixin, Crea
         piechange_an = piechange_queryset.filter(date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 1
         piechange_an_format = '{:,}'.format(piechange_an).replace(',', ' ')
 
-        liste_piechange = piechange_queryset.order_by('-id')
+        # Filtrer par défaut sur le mois en cours et trier par date décroissante (plus récente en premier)
+        if date_debut and date_fin:
+            # Si des dates sont spécifiées, utiliser le queryset filtré
+            liste_piechange = piechange_queryset.order_by('-date_saisie')
+        else:
+            # Sinon, afficher les pièces d'échange du mois en cours triées par date décroissante
+            liste_piechange = piechange_queryset.filter(date_saisie__month=date.today().month).order_by('-date_saisie')
 
         context.update({
             "vehicules": vehicules,
@@ -7767,7 +7917,12 @@ class ListPiechangeView(LoginRequiredMixin, CustomPermissionRequiredMixin, ListV
         context = super().get_context_data(**kwargs)
         dates = date.today()
         annee = date.today().year
-        mois = date.today().month
+        # Initialiser les variables de filtre par défaut (pour le filtrage du mois en cours)
+        date_debut = None
+        date_fin = None
+        categorie_filter = None
+        immatriculation = None
+        
         piechange_queryset = PiecEchange.objects.all()
         form = self.form_class(self.request.GET)
         if form.is_valid():
@@ -7781,14 +7936,19 @@ class ListPiechangeView(LoginRequiredMixin, CustomPermissionRequiredMixin, ListV
                 piechange_queryset = piechange_queryset.filter(date_saisie__range=[date_debut, date_fin])
             if immatriculation:
                 piechange_queryset = piechange_queryset.filter(vehicule__immatriculation__icontains=immatriculation)
+        
+        # Appliquer le filtre par date : si dates fournies, les utiliser, sinon filtrer par mois en cours
         if date_debut and date_fin:
-            filtre_piechange = piechange_queryset
+            filtre_piechange = piechange_queryset.filter(date_saisie__range=[date_debut, date_fin])
         else:
-            filtre_piechange = piechange_queryset.filter(date_saisie__month=date.today().month)
+            # Par défaut : filtrer par mois en cours et année en cours
+            mois_en_cours = date.today().month
+            annee_en_cours = date.today().year
+            filtre_piechange = piechange_queryset.filter(date_saisie__month=mois_en_cours, date_saisie__year=annee_en_cours)
 
         piechange_jours = piechange_queryset.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 1
         piechange_jours_format ='{:,}'.format(piechange_jours).replace(',', ' ')
-        piechange_mois = filtre_piechange.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 1
+        piechange_mois = filtre_piechange.aggregate(somme=Sum('montant'))['somme'] or 1
         piechange_mois_format ='{:,}'.format(piechange_mois).replace(',', ' ')
         piechange_an = piechange_queryset.filter(date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 1
         piechange_an_format ='{:,}'.format(piechange_an).replace(',', ' ')
@@ -7824,6 +7984,13 @@ class ListPieceView(LoginRequiredMixin, CustomPermissionRequiredMixin, ListView)
         return super().dispatch(request, *args, **kwargs)
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        # Initialiser les variables de filtre par défaut (pour le filtrage du mois en cours)
+        date_debut = None
+        date_fin = None
+        lieu_filter = None
+        immatriculation = None
+        categorie = None
+        
         piece_queryset = Piece.objects.all()
         form = self.form_class(self.request.GET)
         if form.is_valid():
@@ -7841,13 +8008,19 @@ class ListPieceView(LoginRequiredMixin, CustomPermissionRequiredMixin, ListView)
                 piece_queryset = piece_queryset.filter(reparation__vehicule__immatriculation__icontains=immatriculation)
             if categorie:
                 piece_queryset = piece_queryset.filter(reparation__vehicule__category__category=categorie)
+        
+        # Appliquer le filtre par date : si dates fournies, les utiliser, sinon filtrer par mois en cours
         if date_debut and date_fin:
-            filtre_piece = piece_queryset
+            filtre_piece = piece_queryset.filter(date_saisie__range=[date_debut, date_fin])
         else:
-            filtre_piece = piece_queryset.filter(date_saisie__month=date.today().month)
+            # Par défaut : filtrer par mois en cours et année en cours
+            mois_en_cours = date.today().month
+            annee_en_cours = date.today().year
+            filtre_piece = piece_queryset.filter(date_saisie__month=mois_en_cours, date_saisie__year=annee_en_cours)
+        
         piece_jours = piece_queryset.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 1
         piece_jours_format ='{:,}'.format(piece_jours).replace(',', ' ')
-        piece_mois = filtre_piece.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 1
+        piece_mois = filtre_piece.aggregate(somme=Sum('montant'))['somme'] or 1
         piece_mois_format ='{:,}'.format(piece_mois).replace(',', ' ')
         piece_an = piece_queryset.filter(date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 1
         piece_an_format ='{:,}'.format(piece_an).replace(',', ' ')
@@ -8017,7 +8190,13 @@ class ListReparationView(LoginRequiredMixin, CustomPermissionRequiredMixin, List
         context = super().get_context_data(**kwargs)
         dates = date.today()
         annee = date.today().year
-        mois = date.today().month
+        # Initialiser les variables de filtre par défaut (pour le filtrage du mois en cours)
+        date_debut = None
+        date_fin = None
+        categorie_filter = None
+        motif_filter = None
+        immatriculation = None
+        
         reparat_queryset = Reparation.objects.all()
         form = self.form_class(self.request.GET)
         if form.is_valid():
@@ -8039,15 +8218,19 @@ class ListReparationView(LoginRequiredMixin, CustomPermissionRequiredMixin, List
             if immatriculation:
                 reparat_queryset = reparat_queryset.filter(vehicule__immatriculation__icontains=immatriculation)
         
+        # Appliquer le filtre par date : si dates fournies, les utiliser, sinon filtrer par mois en cours
         if date_debut and date_fin:
-            filtre_reparat = reparat_queryset
+            filtre_reparat = reparat_queryset.filter(date_saisie__range=[date_debut, date_fin])
         else:
-            filtre_reparat = reparat_queryset.filter(date_saisie__month=date.today().month)
+            # Par défaut : filtrer par mois en cours et année en cours
+            mois_en_cours = date.today().month
+            annee_en_cours = date.today().year
+            filtre_reparat = reparat_queryset.filter(date_saisie__month=mois_en_cours, date_saisie__year=annee_en_cours)
 
         reparat_total = filtre_reparat.count()
         reparat_jours = reparat_queryset.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
         reparat_jours_format ='{:,}'.format(reparat_jours).replace(',', ' ')
-        reparat_mois = filtre_reparat.filter(date_saisie__month=date.today().month).aggregate(somme=Sum('montant'))['somme'] or 0
+        reparat_mois = filtre_reparat.aggregate(somme=Sum('montant'))['somme'] or 0
         reparat_mois_format ='{:,}'.format(reparat_mois).replace(',', ' ')
         reparat_an = reparat_queryset.filter(date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
         reparat_an_format ='{:,}'.format(reparat_an).replace(',', ' ')
@@ -8413,7 +8596,8 @@ class AddEntretienView(LoginRequiredMixin, CustomPermissionRequiredMixin, Create
         entret_mois_format ='{:,}'.format(entret_mois).replace(',', ' ')
         entret_an = entret_queryset.filter(date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 1
         entret_an_format ='{:,}'.format(entret_an).replace(',', ' ')
-        liste_entret = entret_queryset.filter(date_saisie__month=date.today().month)
+        # Trier les entretiens par date décroissante (plus récente en premier) pour le mois en cours
+        liste_entret = entret_queryset.filter(date_saisie__month=date.today().month).order_by('-date_saisie')
         
         context = {
             "vehicules": vehicules,
@@ -8453,8 +8637,6 @@ class ListEntretienView(LoginRequiredMixin, CustomPermissionRequiredMixin, ListV
         context = super().get_context_data(**kwargs)
         dates = date.today()
         annee = date.today().year
-        mois = date.today().month
-
         entret_queryset = Entretien.objects.all()
         form = self.form_class(self.request.GET)
         if form.is_valid():
@@ -8462,7 +8644,6 @@ class ListEntretienView(LoginRequiredMixin, CustomPermissionRequiredMixin, ListV
             date_debut = form.cleaned_data.get('date_debut')
             date_fin = form.cleaned_data.get('date_fin')
             immatriculation = form.cleaned_data.get('immatriculation')
-
             if categorie_filter:
                 entret_queryset = entret_queryset.filter(vehicule__category__category=categorie_filter)
 

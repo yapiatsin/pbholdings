@@ -22,7 +22,6 @@
             {% if categorie.categorie == 'Exporter' %}
                 {% for perm in perms %}
                     {% if perm.name == "Exporter réparation" %}
-                        <button type="button" class="btn btn-default text-danger" id="printButton">PDF <i class='fa fa-file-pdf-o'></i></button>
                         <a href="{% url 'export_reparation_excel' %}?date_debut={{ request.GET.date_debut }}&date_fin={{ request.GET.date_fin }}&immatriculation={{ request.GET.immatriculation }}&categorie={{ request.GET.categorie }}" class="btn btn-default text-success">
                             Excel <i class="fa fa-file-excel-o"></i>
                         </a>

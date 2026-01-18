@@ -106,5 +106,5 @@ def alertes_count(request):
     
     return {
         'total_alertes': total_alertes,
-        'alertes_list': alertes_list[:15]  # Limiter à 15 pour la navbar
+        'alertes_list': alertes_list[:15]
     }

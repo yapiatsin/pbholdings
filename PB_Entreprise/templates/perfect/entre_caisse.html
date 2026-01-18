@@ -9,7 +9,6 @@
 {% block page_action %}
     <form id="quickForm">
         <button type="button" class="btn btn-default text-primary" data-toggle="modal" data-target="#modal-lg">Saisie <i class="fa fa-plus-circle"></i></button>
-        <button type="button" class="btn btn-default text-danger" id="printButton">PDF <i class='fa fa-file-pdf-o'></i></button>
         <a href="{% url 'export_encaissements' %}?date_debut={{ form.date_debut.value }}&date_fin={{ form.date_fin.value }}&immatriculation={{ form.immatriculation.value }}&categorie={{ form.categorie.value }}" class="btn btn-default text-success">
             Excel <i class="fa fa-file-excel-o"></i> 
         </a>
@@ -120,7 +119,7 @@
         <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-plus" style="color:rgba(6, 73, 124, 0.54);"></i></span>
         <div class="info-box-content">
             <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Aujourd'hui</span>
-            <span class="info-box-number" style="font-size:20px;">
+            <span class="info-box-number" style="font-size:20px; color: #fa7832;">
             {{tot_entre_jours}}
             <small></small>
             </span>
@@ -133,7 +132,7 @@
         <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-clock" style="color:rgba(6, 73, 124, 0.54);"></i></span>
         <div class="info-box-content">
             <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Entrées mensuelle</span>
-            <span class="info-box-number" style="font-size:20px;">
+            <span class="info-box-number" style="font-size:20px; color: #fa7832;">
             {{tot_entre_mois}}
             <small>frs cfa</small>
             </span>
@@ -146,7 +145,7 @@
     <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fa fa-calendar" style="color:rgba(6, 73, 124, 0.54);"></i></span>
     <div class="info-box-content">
         <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Entrées annuelle</span>
-        <span class="info-box-number" style="font-size:20px;">
+        <span class="info-box-number" style="font-size:20px; color: #fa7832;">
         {{tot_entre_annuel}}
         <small>frs cfa</small>
         </span>
@@ -159,7 +158,7 @@
     <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fa fa-calendar" style="color:rgba(6, 73, 124, 0.54);"></i></span>
     <div class="info-box-content">
         <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Résultat du filtre</span>
-        <span class="info-box-number" style="font-size:20px;">
+        <span class="info-box-number" style="font-size:20px; color: #fa7832;">
         {{result_filtre}}
         <small>frs cfa</small>
         </span>

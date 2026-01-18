@@ -9,7 +9,7 @@ import os
 
 name = 'PBFinance'
 urlpatterns = [
-    path('myadmin/', admin.site.urls),
+    path('pb/myadmin/', admin.site.urls),
     path('',include('PBFinance.urls')),
     path('auth/',include('userauths.urls')),
     path('pbentreprise/',include('PB_Entreprise.urls')),

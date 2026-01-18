@@ -3,7 +3,6 @@ from pathlib import Path
 import os
 from decouple import config 
 # type: ignore
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
@@ -11,7 +10,6 @@ TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
 # # # ✅ correct
 SECRET_KEY = config('SECRET_KEY')
 # DEBUG = True--  django-insecure-of03a0_f)5yamk9g&p9p2f^a*l8!6t#+r_c4oq42+sb&#y5znt
-
 # ALLOWED_HOSTS = ['*']
 # ALLOWED_HOSTS = ['localhost','127.0.0.1','192.168.100.157']
 
