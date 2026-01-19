@@ -1,3 +1,11 @@
 .env
 __pycache__/
 *.pyc
+# Python
+
+# Django
+db.sqlite3
+
+# Virtual env
+env/
+venv/
