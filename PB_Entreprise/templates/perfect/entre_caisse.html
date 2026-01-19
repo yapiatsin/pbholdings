@@ -2,14 +2,13 @@
 {% load static %} 
 {% block title %} Entrée de caisse {% endblock title %} 
 {% block page_title %}
-    <a href="{% url 'billetage' %}"><img class="profile-user-img" style="border:none; height:35px;width:35px" src="{% static 'retour.png' %}" alt="Retour"></a>
+    <a href="{% url 'billetage' %}"><img class="profile-user-img" style="border:none; height:25px;width:25px" src="{% static 'retour.png' %}" alt="Retour"></a>
     <img class="profile-user-img" style="border:none; height:55px;width:55px" src="{% static 'dp.png' %}" alt="User profile picture">Saisie une entrée de caisse 
 {% endblock page_title %} 
 
 {% block page_action %}
     <form id="quickForm">
         <button type="button" class="btn btn-default text-primary" data-toggle="modal" data-target="#modal-lg">Saisie <i class="fa fa-plus-circle"></i></button>
-        <button type="button" class="btn btn-default text-danger" id="printButton">PDF <i class='fa fa-file-pdf-o'></i></button>
         <a href="{% url 'export_encaissements' %}?date_debut={{ form.date_debut.value }}&date_fin={{ form.date_fin.value }}&immatriculation={{ form.immatriculation.value }}&categorie={{ form.categorie.value }}" class="btn btn-default text-success">
             Excel <i class="fa fa-file-excel-o"></i> 
         </a>
@@ -115,52 +114,39 @@
     </div>
 </div>
 
-<div class="col-12 col-sm-6 col-md-3">
+<div class="col-12 col-sm-6 col-md-4">
     <div class="info-box" style="border-radius:25px;">
         <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-plus" style="color:rgba(6, 73, 124, 0.54);"></i></span>
         <div class="info-box-content">
             <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Aujourd'hui</span>
-            <span class="info-box-number" style="font-size:20px;">
-            {{tot_entre_jours}}
-            <small></small>
-            </span>
-        </div>
-    </div>
-</div>
-<div class="clearfix hidden-md-up"></div>
-<div class="col-12 col-sm-6 col-md-3">
-    <div class="info-box" style="border-radius:25px;">
-        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-clock" style="color:rgba(6, 73, 124, 0.54);"></i></span>
-        <div class="info-box-content">
-            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Entrées mensuelle</span>
-            <span class="info-box-number" style="font-size:20px;">
-            {{tot_entre_mois}}
+            <span class="info-box-number" style="font-size:20px; color: #fa7832;">
+            {{entret_jours_format}}
             <small>frs cfa</small>
             </span>
         </div>
     </div>
 </div>
 <div class="clearfix hidden-md-up"></div>
-<div class="col-12 col-sm-6 col-md-3">
+<div class="col-12 col-sm-6 col-md-4">
+    <div class="info-box" style="border-radius:25px;">
+        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-clock" style="color:rgba(6, 73, 124, 0.54);"></i></span>
+        <div class="info-box-content">
+            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Entrées mensuelle</span>
+            <span class="info-box-number" style="font-size:20px; color: #fa7832;">
+            {{entret_mois_format}}
+            <small>frs cfa</small>
+            </span>
+        </div>
+    </div>
+</div>
+<div class="clearfix hidden-md-up"></div>
+<div class="col-12 col-sm-6 col-md-4">
     <div class="info-box mb-3" style="border-radius:25px;">
     <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fa fa-calendar" style="color:rgba(6, 73, 124, 0.54);"></i></span>
     <div class="info-box-content">
         <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Entrées annuelle</span>
-        <span class="info-box-number" style="font-size:20px;">
-        {{tot_entre_annuel}}
-        <small>frs cfa</small>
-        </span>
-    </div>
-    </div>
-</div>
-<div class="clearfix hidden-md-up"></div>
-<div class="col-12 col-sm-6 col-md-3">
-    <div class="info-box mb-3" style="border-radius:25px;">
-    <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fa fa-calendar" style="color:rgba(6, 73, 124, 0.54);"></i></span>
-    <div class="info-box-content">
-        <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Résultat du filtre</span>
-        <span class="info-box-number" style="font-size:20px;">
-        {{result_filtre}}
+        <span class="info-box-number" style="font-size:20px; color: #fa7832;">
+        {{entret_an_format}}
         <small>frs cfa</small>
         </span>
     </div>
@@ -187,6 +173,7 @@
                                     <table id="example1" class="table table-bordered table-striped">
                                         <thead>
                                             <tr class=" text-center text-danger">
+                                                <th>N°#</th>
                                                 <th>N°PIECE</th>
                                                 <th>LIBELLE</th>
                                                 <th>MONTANT</th>
@@ -198,10 +185,11 @@
                                         <tbody>
                                             {% for e in entres_liste %}
                                                 <tr class="text-center">
+                                                    <td>{{forloop.counter}}</td>
                                                     <td>{{e.Num_piece}}</td>
                                                     <td><a class="text-primary" type="button" data-toggle="tooltip" data-placement="top" title="{{e.libelle}}">{{e.libelle|slice:":50"}}{% if e.libelle|length > 100 %}...{% endif %}</a></td>
                                                     <td>{{e.montant}}</td>
-                                                    <td>{{e.date_saisie}}</td>
+                                                    <td>{{e.date_saisie|date:"d-m-y"}} à {{e.date|date:"H:m:s"}}</td>
                                                     <td>
                                                         <a class="mr-3 text-primary">{{e.auteur.username}}</a>
                                                     </td>

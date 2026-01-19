@@ -2,7 +2,7 @@
 {% load static %} 
 {% block title %}Saisie & Etat des visites techniques  {% endblock title %} 
 {% block page_title %}
-<a href="{% url 'temps_arrets' %}"><img class="profile-user-img" style="border:none; height:35px;width:35px" src="{% static 'retour.png' %}" alt="Retour"></a>
+<a href="{% url 'temps_arrets' %}"><img class="profile-user-img" style="border:none; height:25px;width:25px" src="{% static 'retour.png' %}" alt="Retour"></a>
 <img class="profile-user-img" style="border:none; height:45px;width:45px" src="{% static 'visit.png' %}" alt="User profile picture">Saisie & Etat des visites techniques du <b class="text-danger"> {{vehicule}}</b> 
 {% endblock page_title %}
 {% block page_action %}
@@ -92,7 +92,7 @@
         <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-clock" style="color:rgba(6, 73, 124, 0.54);"></i></span>
         <div class="info-box-content">
             <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Aujourd'hui</span>
-            <span class="info-box-number" style="font-size:20px;">
+            <span class="info-box-number" style="font-size:20px; color: #fa7832">
             {{visitech_jours_format}}
             <small>frs cfa</small>
             </span>
@@ -105,7 +105,7 @@
     <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fa fa-calendar" style="color:rgba(6, 73, 124, 0.54);"></i></span>
     <div class="info-box-content">
         <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Mensuelle</span>
-        <span class="info-box-number" style="font-size:20px;">
+        <span class="info-box-number" style="font-size:20px; color: #fa7832">
         {{visitech_mois_format}}
         <small>frs cfa</small>
         </span>
@@ -118,7 +118,7 @@
         <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-calendar" style="color:rgba(6, 73, 124, 0.54);"></i></span>
         <div class="info-box-content">
             <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Annuelle</span>
-            <span class="info-box-number" style="font-size:20px;">
+            <span class="info-box-number" style="font-size:20px; color: #fa7832">
             {{visitech_an_format}}
             <small>frs cfa</small>
             </span>

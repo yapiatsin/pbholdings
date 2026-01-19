@@ -24,87 +24,128 @@ def alertes_count(request):
     if not request.user.is_authenticated:
         return {'total_alertes': 0, 'alertes_list': []}
     
-    user = request.user
-    now = timezone.now()
-    total_alertes = 0
-    alertes_list = []
-    
-    # Filtrer les véhicules selon le type d'utilisateur
-    if user.user_type == "4":
-        try:
-            gerant = Gerant.objects.get(user=user)
-            categories_gerant = gerant.gerant_voiture.all()
-            if categories_gerant.exists():
-                vehicules = Vehicule.objects.filter(category__in=categories_gerant, car_statut=True)
-            else:
+    try:
+        user = request.user
+        total_alertes = 0
+        alertes_list = []
+        
+        # Filtrer les véhicules selon le type d'utilisateur - TOUJOURS filtrer par car_statut=True
+        if user.user_type == "4":
+            try:
+                gerant = Gerant.objects.get(user=user)
+                categories_gerant = gerant.gerant_voiture.all()
+                if categories_gerant.exists():
+                    vehicules = Vehicule.objects.filter(category__in=categories_gerant, car_statut=True)
+                else:
+                    vehicules = Vehicule.objects.none()
+            except (Gerant.DoesNotExist, Exception):
                 vehicules = Vehicule.objects.none()
-        except:
-            vehicules = Vehicule.objects.none()
-    else:
-        vehicules = Vehicule.objects.all()
-    # Parcourir tous les véhicules et compter les alertes critiques
-    for vehicule in vehicules:
-        # Visite technique
-        visite = VisiteTechnique.objects.filter(vehicule=vehicule).order_by('-date_saisie').first()
-        if visite and isinstance(visite.jour_restant, int) and 1 <= visite.jour_restant <= 32:
-            total_alertes += 1
-            alertes_list.append({
-                'type': 'Visite technique',
-                'vehicule': vehicule.immatriculation,
-                'jours': visite.jour_restant
-            })
+        else:
+            # Filtrer aussi par car_statut=True pour tous les utilisateurs
+            vehicules = Vehicule.objects.filter(car_statut=True)
         
-        # Entretien
-        entretien = Entretien.objects.filter(vehicule=vehicule).order_by('-date_saisie').first()
-        if entretien and isinstance(entretien.jours_ent_restant, int) and 1 <= entretien.jours_ent_restant <= 3:
-            total_alertes += 1
-            alertes_list.append({
-                'type': 'Entretien',
-                'vehicule': vehicule.immatriculation,
-                'jours': entretien.jours_ent_restant
-            })
+        # Parcourir tous les véhicules et compter les alertes critiques
+        for vehicule in vehicules:
+            try:
+                # Visite technique - utiliser order_by().first() pour compatibilité maximale
+                visite = VisiteTechnique.objects.filter(vehicule=vehicule).order_by('-date_saisie').first()
+                if visite:
+                    try:
+                        jours_restant = getattr(visite, 'jour_restant', None)
+                        if jours_restant is not None and isinstance(jours_restant, int) and jours_restant <= 32:
+                            total_alertes += 1
+                            alertes_list.append({
+                                'type': 'Visite technique',
+                                'vehicule': vehicule.immatriculation,
+                                'jours': jours_restant
+                            })
+                    except (AttributeError, TypeError):
+                        pass
+                
+                # Entretien
+                entretien = Entretien.objects.filter(vehicule=vehicule).order_by('-date_saisie').first()
+                if entretien:
+                    try:
+                        jours_ent_restant = getattr(entretien, 'jours_ent_restant', None)
+                        if jours_ent_restant is not None and isinstance(jours_ent_restant, int) and jours_ent_restant <= 3:
+                            total_alertes += 1
+                            alertes_list.append({
+                                'type': 'Entretien',
+                                'vehicule': vehicule.immatriculation,
+                                'jours': jours_ent_restant
+                            })
+                    except (AttributeError, TypeError):
+                        pass
+                
+                # Assurance
+                assurance = Assurance.objects.filter(vehicule=vehicule).order_by('-date_saisie').first()
+                if assurance:
+                    try:
+                        jours_assu_restant = getattr(assurance, 'jours_assu_restant', None)
+                        if jours_assu_restant is not None and isinstance(jours_assu_restant, int) and jours_assu_restant <= 7:
+                            total_alertes += 1
+                            alertes_list.append({
+                                'type': 'Assurance',
+                                'vehicule': vehicule.immatriculation,
+                                'jours': jours_assu_restant
+                            })
+                    except (AttributeError, TypeError):
+                        pass
+                
+                # Vignette
+                vignette = Vignette.objects.filter(vehicule=vehicule).order_by('-date_saisie').first()
+                if vignette:
+                    try:
+                        jours_vign_restant = getattr(vignette, 'jours_vign_restant', None)
+                        if jours_vign_restant is not None and isinstance(jours_vign_restant, int) and jours_vign_restant <= 10:
+                            total_alertes += 1
+                            alertes_list.append({
+                                'type': 'Vignette',
+                                'vehicule': vehicule.immatriculation,
+                                'jours': jours_vign_restant
+                            })
+                    except (AttributeError, TypeError):
+                        pass
+                
+                # Patente
+                patente = Patente.objects.filter(vehicule=vehicule).order_by('-date_saisie').first()
+                if patente:
+                    try:
+                        jours_pate_restant = getattr(patente, 'jours_pate_restant', None)
+                        if jours_pate_restant is not None and isinstance(jours_pate_restant, int) and jours_pate_restant <= 10:
+                            total_alertes += 1
+                            alertes_list.append({
+                                'type': 'Patente',
+                                'vehicule': vehicule.immatriculation,
+                                'jours': jours_pate_restant
+                            })
+                    except (AttributeError, TypeError):
+                        pass
+                
+                # Stationnement
+                stationnement = Stationnement.objects.filter(vehicule=vehicule).order_by('-date_saisie').first()
+                if stationnement:
+                    try:
+                        jours_cartsta_restant = getattr(stationnement, 'jours_cartsta_restant', None)
+                        if jours_cartsta_restant is not None and isinstance(jours_cartsta_restant, int) and jours_cartsta_restant <= 10:
+                            total_alertes += 1
+                            alertes_list.append({
+                                'type': 'Stationnement',
+                                'vehicule': vehicule.immatriculation,
+                                'jours': jours_cartsta_restant
+                            })
+                    except (AttributeError, TypeError):
+                        pass
+                    
+            except Exception:
+                # En cas d'erreur sur un véhicule, continuer avec les autres
+                continue
         
-        # Assurance
-        assurance = Assurance.objects.filter(vehicule=vehicule).order_by('-date_saisie').first()
-        if assurance and isinstance(assurance.jours_assu_restant, int) and 1 <= assurance.jours_assu_restant <= 7:
-            total_alertes += 1
-            alertes_list.append({
-                'type': 'Assurance',
-                'vehicule': vehicule.immatriculation,
-                'jours': assurance.jours_assu_restant
-            })
-        
-        # Vignette
-        vignette = Vignette.objects.filter(vehicule=vehicule).order_by('-date_saisie').first()
-        if vignette and isinstance(vignette.jours_vign_restant, int) and 1 <= vignette.jours_vign_restant <= 10:
-            total_alertes += 1
-            alertes_list.append({
-                'type': 'Vignette',
-                'vehicule': vehicule.immatriculation,
-                'jours': vignette.jours_vign_restant
-            })
-        
-        # Patente
-        patente = Patente.objects.filter(vehicule=vehicule).order_by('-date_saisie').first()
-        if patente and isinstance(patente.jours_pate_restant, int) and 1 <= patente.jours_pate_restant <= 10:
-            total_alertes += 1
-            alertes_list.append({
-                'type': 'Patente',
-                'vehicule': vehicule.immatriculation,
-                'jours': patente.jours_pate_restant
-            })
-        
-        # Stationnement
-        stationnement = Stationnement.objects.filter(vehicule=vehicule).order_by('-date_saisie').first()
-        if stationnement and isinstance(stationnement.jours_cartsta_restant, int) and 1 <= stationnement.jours_cartsta_restant <= 10:
-            total_alertes += 1
-            alertes_list.append({
-                'type': 'Stationnement',
-                'vehicule': vehicule.immatriculation,
-                'jours': stationnement.jours_cartsta_restant
-            })
+        return {
+            'total_alertes': total_alertes,
+            'alertes_list': alertes_list[:15]
+        }
     
-    return {
-        'total_alertes': total_alertes,
-        'alertes_list': alertes_list[:15]  # Limiter à 15 pour la navbar
-    }
+    except Exception:
+        # En cas d'erreur générale, retourner des valeurs par défaut
+        return {'total_alertes': 0, 'alertes_list': []}

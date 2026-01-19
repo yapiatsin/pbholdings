@@ -359,7 +359,7 @@
                                             const labels = {{ jours_semaine|safe }};
 
                                             const ventesChart = new Chart(ctx, {
-                                                type: 'radar', // radar ou line ou bar selon préférence
+                                                type: 'radar',
                                                 data: {
                                                     labels: labels,
                                                     datasets: datasets
@@ -628,7 +628,7 @@
                                         <div class="card-body p-0">
                                             <ul class="products-list product-list-in-card pl-2 pr-2">
                                                 {% for c in best_recettes %}
-                                                    <li class="item">
+                                                    <li class="item" style="font-size:15px;">
                                                         <div class="product-img">
                                                             <a href="javascript:void(0)" class="product-title text-secondary">{{c.vehicule.immatriculation}}</a>
                                                         </div>
@@ -660,7 +660,7 @@
                                     <!-- BAR -->
                                     <div class="card">
                                         <div class="card-header">
-                                            <h3 class="card-title">{{ bests_taux|length }} Meilleur{% if bests_taux|length > 1  %}s{% endif %} Marge{% if bests_taux|length > 1  %}s{% endif %} de contribution</h3>
+                                            <h3 class="card-title" style="font-size:16px;">{{ bests_taux|length }} Meilleur{% if bests_taux|length > 1  %}s{% endif %} Marge{% if bests_taux|length > 1  %}s{% endif %} de contribution</h3>
                                             <div class="card-tools">
                                                 <button type="button" class="btn btn-tool" data-card-widget="collapse">
                                                     <i class="fas fa-minus"></i>
@@ -671,7 +671,7 @@
                                         <div class="card-body p-0">
                                             <ul class="products-list product-list-in-card pl-2 pr-2">
                                                 {% for c in bests_taux %}
-                                                    <li class="item">
+                                                    <li class="item" style="font-size:15px;">
                                                         <div class="product-img">
                                                             <a href="javascript:void(0)" class="product-title text-secondary">{{c.vehicule.immatriculation}}</a>
                                                         </div>
@@ -703,7 +703,7 @@
                                 <div class="col-md-12">
                                     <div class="card">
                                         <div class="card-header">
-                                            <h3 class="card-title">{{ top_reparations|length }} Véhicule{% if top_reparations|length > 1  %}s{% endif %} faisant le plus de réparation</h3>
+                                            <h3 class="card-title" style="font-size:16px;">{{ top_reparations|length }} Véhicule{% if top_reparations|length > 1  %}s{% endif %} faisant le plus de réparation</h3>
                                             <div class="card-tools">
                                                 <a href="{% url 'top_repa' %}" class="btn btn-tool text-primary" title="Voir la liste des meilleures recettes">
                                                     Voir <i class="fas fa-plus"></i>
@@ -717,7 +717,7 @@
                                         <div class="card-body p-0">
                                             <ul class="products-list product-list-in-card pl-2 pr-2">
                                                 {% for c in top_reparations %}
-                                                    <li class="item">
+                                                    <li class="item" style="font-size:15px;">
                                                         <div class="product-img">
                                                             <a href="javascript:void(0)" class="product-title text-secondary">{{c.vehicule__immatriculation}}</a>
                                                         </div>
