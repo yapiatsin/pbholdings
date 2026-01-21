@@ -2,33 +2,35 @@
 {% load static %} 
 {% block title %}Access close{% endblock title %} 
 {% block content %}
-{% if user.is_authenticated %}
-<div class="login-box">
-    <div class="card" style="background-color:rgba(255, 255, 255, 0.1); border-radius:10px" style="background-image: linear-gradient(135deg,rgb(255, 113, 113) 10%,rgb(134, 172, 255) 100%)">
-        <div class="card-body login-card-body" style="background-color:rgba(255, 255, 255, 0.1);border-radius: 20px">
-            {% for categorie, perms in grouped_permissions.items %}
-                {% if categorie.categorie == "bord" %}
-                    {% for perm in perms %}
-                        <a href="{% url perm.url %}" class="nav-link btn btn-info p-4 text-danger">
-                            {{ perm.name }}
-                        </a>
+    <h1 class="text-danger">Accès non autorisé</h1>
+    <p>Vous n'avez pas la permission d'accéder à cette page.</p>
+    <p><a href="#" class="#">Cliquez su le bouton ci-dessous</a></p>
+    {% if user.is_authenticated %}
+        <div class="login-box">
+            <div class="card" style="background-color:rgba(255, 255, 255, 0.1); border-radius:10px" style="background-image: linear-gradient(135deg,rgb(255, 113, 113) 10%,rgb(134, 172, 255) 100%)">
+                <div class="card-body login-card-body" style="background-color:rgba(255, 255, 255, 0.1);border-radius: 20px">
+                    {% for categorie, perms in grouped_permissions.items %}
+                        {% if categorie.categorie == "bord" %}
+                            {% for perm in perms %}
+                                <a href="{% url perm.url %}" class="nav-link btn btn-info p-4 text-danger">
+                                    {{ perm.name }}
+                                </a>
+                            {% endfor %}
+                        {% endif %}
                     {% endfor %}
-                {% endif %}
-            {% endfor %}
-        </div>
-    </div>
-</div>
-{% else %}
-    <div class="login-box">
-        <div class="card" style="background-color:rgba(255, 255, 255, 0.1); border-radius:10px" style="background-image: linear-gradient(135deg,rgb(255, 113, 113) 10%,rgb(134, 172, 255) 100%)">
-            <div class="card-body login-card-body" style="background-color:rgba(255, 255, 255, 0.1);border-radius: 10px">
-                <p class="mt-2 mb-1 text-center">
-                    😵😵Accès non autorisé😵😵 <br>
-                    <a href="{% url 'login' %}" class="text-secondary" style="font-size: 18px;">Se connecter</a>
-                </p>
+                </div>
             </div>
         </div>
-    </div>
-{% endif %}
+    {% else %}
+        <div class="login-box">
+            <div class="card" style="background-color:rgba(255, 255, 255, 0.1); border-radius:10px" style="background-image: linear-gradient(135deg,rgb(255, 113, 113) 10%,rgb(134, 172, 255) 100%)">
+                <div class="card-body login-card-body" style="background-color:rgba(255, 255, 255, 0.1);border-radius: 10px">
+                    <p class="mt-2 mb-1 text-center">
+                        😵😵Accès non autorisé😵😵 <br>
+                        <a href="{% url 'login' %}" class="text-secondary" style="font-size: 18px;">Se connecter</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    {% endif %}
 {% endblock content %}
-
