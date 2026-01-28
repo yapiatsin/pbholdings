@@ -206,7 +206,7 @@
                                             {% for e in ent %}
                                                 <tr>
                                                     <td>{{e.date}}</td>
-                                                    <td><a class="text-primary" type="button" data-toggle="tooltip" data-placement="top" title="{{e.libelle}}">{{e.libelle|slice:":30"}}{% if e.libelle|length > 20 %}...{% endif %}</a></td>
+                                                    <td><a class="text-primary" type="button" data-toggle="tooltip" data-placement="top" title="{{e.libelle}}">{{e.libelle|slice:":100"}}{% if e.libelle|length > 70 %}...{% endif %}</a></td>
                                                     <td>{{e.Num_piece}}</td>
                                                     <td>{{e.montant}}</td>
                                                     <td></td>
@@ -218,7 +218,7 @@
                                             {% for s in sort %}
                                                 <tr>
                                                     <td>{{s.date}}</td>
-                                                    <td><a class="text-primary" type="button" data-toggle="tooltip" data-placement="top" title="{{s.libelle}}">{{s.libelle|slice:":30"}}{% if s.libelle|length > 6 %}...{% endif %}</a></td>
+                                                    <td><a class="text-primary" type="button" data-toggle="tooltip" data-placement="top" title="{{s.libelle}}">{{s.libelle|slice:":100"}}{% if s.libelle|length > 70 %}...{% endif %}</a></td>
                                                     <td>{{s.Num_piece}}</td>
                                                     <td></td>
                                                     <td>{{s.montant}}</td>

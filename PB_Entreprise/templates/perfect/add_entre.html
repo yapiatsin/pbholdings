@@ -9,8 +9,8 @@
 
 {% block page_action %}
     <form id="quickForm">
-        <button type="button" class="btn btn-default text-success" data-toggle="modal" data-target="#modal-lg">Saisie <i class="fa fa-plus-circle"></i></button>
-        <a class="btn btn-default text-info" data-toggle="modal" data-target="#modal-sm" href="#" style="font-size: 16px;"><i style="font-size: 20px;" class="fa fa-calendar"></i></a>
+        <button type="button" class="btn btn-default text-success" data-toggle="modal" data-target="#modal-sm">Saisie <i class="fa fa-plus-circle"></i></button>
+        <a class="btn btn-default text-info" data-toggle="modal" data-target="#modal-lg" href="#" style="font-size: 16px;"><i style="font-size: 20px;" class="fa fa-calendar"></i></a>
         <a class="btn btn-default text-info" href="{% url 'add_entretien' vehicule.pk %}" style="font-size: 16px;"><i style="font-size: 20px;" class="fa fa-refresh"></i></a>
     </form>
 {% endblock page_action %}

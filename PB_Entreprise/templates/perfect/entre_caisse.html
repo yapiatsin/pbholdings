@@ -187,7 +187,7 @@
                                                 <tr class="text-center">
                                                     <td>{{forloop.counter}}</td>
                                                     <td>{{e.Num_piece}}</td>
-                                                    <td><a class="text-primary" type="button" data-toggle="tooltip" data-placement="top" title="{{e.libelle}}">{{e.libelle|slice:":50"}}{% if e.libelle|length > 100 %}...{% endif %}</a></td>
+                                                    <td><a class="text-primary" type="button" data-toggle="tooltip" data-placement="top" title="{{e.libelle}}">{{e.libelle|slice:":100"}}{% if e.libelle|length > 70 %}...{% endif %}</a></td>
                                                     <td>{{e.montant}}</td>
                                                     <td>{{e.date_saisie|date:"d-m-y"}} à {{e.date|date:"H:m:s"}}</td>
                                                     <td>

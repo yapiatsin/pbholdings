@@ -4729,7 +4729,6 @@ class BestRecetView(LoginRequiredMixin, CustomPermissionRequiredMixin, TemplateV
     context_object = 'listrecet'
     timeout_minutes = 500
     form_class = DateFormMJR
-
     def dispatch(self, request, *args, **kwargs):
         last_activity = request.session.get('last_activity')
         if last_activity:
@@ -4745,14 +4744,16 @@ class BestRecetView(LoginRequiredMixin, CustomPermissionRequiredMixin, TemplateV
         dates = date.today()
         annee = date.today().year
         mois = date.today().month
-
         recette_queryset = Recette.objects.all()
         form = self.form_class(self.request.GET)
+        date_debut = None
+        date_fin = None
         # ------------------ FILTRES -------------------
         if form.is_valid():
             categorie_filter = form.cleaned_data.get('categorie')
             date_debut = form.cleaned_data.get('date_debut')
             date_fin = form.cleaned_data.get('date_fin')
+
             if categorie_filter:
                 recette_queryset = recette_queryset.filter(
                     vehicule__category__category=categorie_filter
@@ -4762,28 +4763,33 @@ class BestRecetView(LoginRequiredMixin, CustomPermissionRequiredMixin, TemplateV
                 recette_queryset = recette_queryset.filter(
                     date_saisie__range=[date_debut, date_fin]
                 )
+        if date_debut and date_fin:
+            filtre_recette = recette_queryset.filter(date_saisie__range=[date_debut, date_fin])
 
+        else:
+            # Par défaut : filtrer par mois en cours et année en cours
+            mois_en_cours = date.today().month
+            annee_en_cours = date.today().year
+            filtre_recette = recette_queryset.filter(date_saisie__month=mois_en_cours, date_saisie__year=annee_en_cours)
+                
         best_recettes = (
-            recette_queryset.values('vehicule__immatriculation', 'vehicule__category__category')
+            filtre_recette.values('vehicule__immatriculation', 'vehicule__category__category')
             .annotate(total_recette=Sum('montant'))
             .order_by('-total_recette')
         )
-
+        
         recettes_jours = recette_queryset.filter(
             date_saisie=date.today()
         ).aggregate(somme=Sum('montant'))['somme'] or 0
         recettes_jours_format ='{:,}'.format(recettes_jours).replace(',', ' ')
 
-        recettes_mois = recette_queryset.filter(
-            date_saisie__month=mois
-        ).aggregate(somme=Sum('montant'))['somme'] or 0
+        recettes_mois = filtre_recette.aggregate(somme=Sum('montant'))['somme'] or 0
         recettes_mois_format ='{:,}'.format(recettes_mois).replace(',', ' ')
-
+        
         recettes_an = recette_queryset.filter(
             date_saisie__year=annee
         ).aggregate(somme=Sum('montant'))['somme'] or 0
         recettes_an_format ='{:,}'.format(recettes_an).replace(',', ' ')
-
         context.update({
             'form': form,
             'dates': dates,
@@ -5077,11 +5083,11 @@ class ListChargeFixView(LoginRequiredMixin, CustomPermissionRequiredMixin, ListV
             filtre_chargfix = chargefix_queryset.filter(date_saisie__month=mois_en_cours, date_saisie__year=annee_en_cours)
             
         # ################################----Recettes----#############################
-        chargefix_jours = chargefix_queryset.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 1
+        chargefix_jours = chargefix_queryset.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
         chargefix_jours_format ='{:,}'.format(chargefix_jours).replace(',', ' ')
-        chargefix_mois = filtre_chargfix.aggregate(somme=Sum('montant'))['somme'] or 1
+        chargefix_mois = filtre_chargfix.aggregate(somme=Sum('montant'))['somme'] or 0
         chargefix_mois_format ='{:,}'.format(chargefix_mois).replace(',', ' ')
-        chargefix_an = chargefix_queryset.filter(date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 1
+        chargefix_an = chargefix_queryset.filter(date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
         chargefix_an_format ='{:,}'.format(chargefix_an).replace(',', ' ')
         liste_chargefix = filtre_chargfix
 
@@ -5485,11 +5491,11 @@ class ListChargeVarView(LoginRequiredMixin, CustomPermissionRequiredMixin, ListV
             filtre_chargvar = chargevar_queryset.filter(date_saisie__month=mois_en_cours, date_saisie__year=annee_en_cours)
             
         # ################################----Recettes----#############################
-        chargevar_jours = chargevar_queryset.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 1
+        chargevar_jours = chargevar_queryset.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
         chargevar_jours_format ='{:,}'.format(chargevar_jours).replace(',', ' ')
-        chargevar_mois = filtre_chargvar.aggregate(somme=Sum('montant'))['somme'] or 1
+        chargevar_mois = filtre_chargvar.aggregate(somme=Sum('montant'))['somme'] or 0
         chargevar_mois_format ='{:,}'.format(chargevar_mois).replace(',', ' ')
-        chargevar_an = chargevar_queryset.filter(date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 1
+        chargevar_an = chargevar_queryset.filter(date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
         chargevar_an_format ='{:,}'.format(chargevar_an).replace(',', ' ')
         liste_chargevar = filtre_chargvar
         context={

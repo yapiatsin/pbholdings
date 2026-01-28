@@ -43,7 +43,6 @@ def alertes_count(request):
         else:
             # Filtrer aussi par car_statut=True pour tous les utilisateurs
             vehicules = Vehicule.objects.filter(car_statut=True)
-        
         # Parcourir tous les véhicules et compter les alertes critiques
         for vehicule in vehicules:
             try:
