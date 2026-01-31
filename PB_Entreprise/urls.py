@@ -96,9 +96,9 @@ urlpatterns = [
     path('visite /delete-selected/', views.delete_selected_visite, name='delete_selected_visite'),
     path('visites-techniques/export-excel/', ExportVisiteTechniqueExcelView.as_view(), name='export_visite_excel'),
 
-    path('vehicule /<int:pk>/ entretien',AddEntretienView.as_view(), name="add_entretien"),
-    path('entretien /<int:pk>/ modifier',UpdatEntretienView.as_view(), name="updat_entretien"),
-    path('liste/entretiens',ListEntretienView.as_view(), name="list_entretien"),
+    path('vehicule/<int:pk>/add_entretien',AddEntretienView.as_view(), name="add_entretien"),
+    path('entretien /<int:pk>/ update',UpdatEntretienView.as_view(), name="updat_entretien"),
+    path('liste/entretien',ListEntretienView.as_view(), name="list_entretien"),
     path('entretien /delete-selected/', views.delete_selected_entretien, name='delete_selected_entretien'),
     path('entretien/export-excel/', ExportEntretienExcelView.as_view(), name='export_entretien_excel'),
     
