@@ -36,7 +36,7 @@ class Vehicule(models.Model):
     def __str__(self):
         return self.immatriculation
     @property
-    def age(self):  # sourcery skip: inline-immediately-returned-variable
+    def age(self):
         import datetime
         date_nai = self.date_mis_service
         tday = datetime.date.today() 

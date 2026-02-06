@@ -212,11 +212,11 @@ BilletageFormSet = modelformset_factory(
 )
 
 class CartStationForm(forms.ModelForm):
-    date_saisie = forms.DateTimeField(widget= forms.DateInput(format=('%m/%d/%Y'), attrs={'class':'form-control','placeholder':'Selection une date...', 'format':'yyyy-mm-dd', 'type':'date'}))
-    date_proch = forms.DateTimeField(widget= forms.DateInput(format=('%m/%d/%Y'), attrs={'class':'form-control','placeholder':'Selection une date...', 'format':'yyyy-mm-dd', 'type':'date'}))
+    date_saisie = forms.DateField(widget= forms.DateInput(format=('%m/%d/%Y'), attrs={'class':'form-control','placeholder':'Selection une date...', 'format':'yyyy-mm-dd', 'type':'date'}))
+    date_proch = forms.DateField(widget= forms.DateInput(format=('%m/%d/%Y'), attrs={'class':'form-control','placeholder':'Selection une date...', 'format':'yyyy-mm-dd', 'type':'date'}))
     class Meta:
         model = Stationnement
-        fields = ('montant','date_proch','montant','date_saisie','image',)
+        fields = ('montant','date_proch','date_saisie','image',)
         widgets = {
             'montant': forms.NumberInput(attrs={'class':'form-control','min':'0'}),
             'image': forms.ClearableFileInput(attrs={

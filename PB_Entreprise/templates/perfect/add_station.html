@@ -6,7 +6,7 @@
 {% endblock navbar_nav %} 
 {% block page_title %}
     <a href="{% url 'saisi_garag' %}"><img class="profile-user-img" style="border:none; height:25px;width:25px" src="{% static 'retour.png' %}" alt="Retour"></a>
-    <img class="profile-user-img" style="border:none; height:35px;width:35px" src="{% static 'park.png' %}" alt="User profile picture">Saisie & Etat des stationnements du <b class="text-danger"> {{vehicule}}</b> 
+    <img class="profile-user-img" style="border:none; height:45px;width:45px" src="{% static 'park.png' %}" alt="User profile picture">Saisie & Etat des stationnements du <b class="text-danger"> {{vehicule}}</b> 
 {% endblock page_title %} 
 {% block page_action %}
     <form id="quickForm">
@@ -139,11 +139,12 @@
                         <div class="col-md-12 p-0">
                             <div class="card" style="box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);backdrop-filter: blur(5.2px);--webkit-backdrop-filter: blur(5.2px); border-radius:25px;">
                                 <div class="card-header col-12 col-sm-12 col-md-12" style="font-size:18px; font-weight: 700; color: #06497C;">
-                                    <form class="search-form">
+                                    <form class="search-form" method="get">
                                         <div class="input-group">
                                             <input type="text" name="search" value="{{ search_query }}" class="form-control" placeholder="Saisissez l'immatriculation du véhicule..." style="border-radius: 50px 0 0 50px;">
                                             <div class="input-group-append">
-                                            <button type="submit" name="submit" class="btn btn-danger" style="border-radius: 0 50px 50px 0;"><i class="fas fa-search"></i></button>
+                                            <button type="submit" name="submit" class="btn btn-danger" style="border-radius: 0;"><i class="fas fa-search"></i></button>
+                                            <a href="{% url 'add_station' vehicule.pk %}" class="btn btn-danger" style="border-radius: 0 50px 50px 0;"><i class="fas fa-refresh text-light"></i></a>
                                             </div>
                                         </div>
                                     </form>
@@ -298,61 +299,4 @@
     </div>
 </div>
 
-<script>
-$(document).ready(function() {
-    let searchTimeout;
-    const searchInput = $('input[name="search"]');
-    const vehiculesContainer = $('#vehicules-container');
-    const searchUrl = "{% url 'search_vehicules_ajax' %}";
-    
-    // Fonction pour effectuer la recherche
-    function performSearch(searchQuery) {
-        // Afficher un indicateur de chargement
-        vehiculesContainer.html('<div class="text-center"><div class="spinner-border" role="status"><span class="sr-only">Recherche...</span></div></div>');
-        
-        $.ajax({
-            url: searchUrl,
-            type: "GET",
-            data: {
-                'search': searchQuery
-            },
-            success: function(response) {
-                if (response.html) {
-                    vehiculesContainer.html(response.html);
-                } else {
-                    vehiculesContainer.html('<p>Aucun véhicule trouvé.</p>');
-                }
-            },
-            error: function() {
-                vehiculesContainer.html('<p class="text-danger">Erreur lors de la recherche.</p>');
-            }
-        });
-    }
-    
-    // Écouter les changements dans le champ de recherche
-    searchInput.on('input', function() {
-        const searchQuery = $(this).val().trim();
-        
-        // Annuler la recherche précédente si elle existe
-        clearTimeout(searchTimeout);
-        
-        // Attendre 300ms après que l'utilisateur ait arrêté de taper
-        searchTimeout = setTimeout(function() {
-            if (searchQuery.length >= 2 || searchQuery.length === 0) {
-                performSearch(searchQuery);
-            } else if (searchQuery.length === 1) {
-                // Si un seul caractère, ne rien faire ou afficher un message
-                vehiculesContainer.html('<p class="text-muted">Veuillez saisir au moins 2 caractères...</p>');
-            }
-        }, 300);
-    });
-    
-    // Gérer la soumission du formulaire (bouton de recherche)
-    $('.search-form').on('submit', function(e) {
-        e.preventDefault();
-        const searchQuery = searchInput.val().trim();
-        performSearch(searchQuery);
-    });
-});
-</script>
 {% endblock main_content %}

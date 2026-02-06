@@ -130,11 +130,11 @@ urlpatterns = [
     path('vignette /delete-selected/', views.delete_selected_vignette, name='delete_selected_vignette'),
     path('vignette/export-excel/', ExportVignetteExcelView.as_view(), name='export_vignette_excel'),
 
-    path('vehicule /<int:pk>/ stationnement',AddCartStationView.as_view(), name="add_station"),
-    path('carte stationnement /<int:pk>/ modifier',UpdatCartStationView.as_view(), name="updat_station"),
-    path('liste Carte Stationnement',ListCartStationView.as_view(), name="liste_station"),
-    path('carte stationnement /delete-selected/', views.delete_selected_stat, name='delete_selected_stat'),
-    path('carte stationnement /export-excel/', ExportStationnementExcelView.as_view(), name='export_stationnement_excel'),
+    path('vehicule/<int:pk>/stationnement',AddCartStationnementView.as_view(), name="add_station"),
+    path('carte stationnement/<int:pk>/modifier',UpdatCartStationView.as_view(), name="updat_station"),
+    path('liste-carte-stationnement',ListCartStationView.as_view(), name="liste_station"),
+    path('carte-stationnement/delete-selected/', views.delete_selected_stat, name='delete_selected_stat'),
+    path('carte-stationnement/export-excel/', ExportStationnementExcelView.as_view(), name='export_stationnement_excel'),
     
     path('vehicule /<int:pk>/ patente',AddPatenteView.as_view(), name="add_patente"),
     path('patente /<int:pk>/ modifier', UpdatPatenteView.as_view(), name="updat_patente"),

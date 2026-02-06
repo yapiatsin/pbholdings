@@ -3719,17 +3719,26 @@ class SaisieGaragView(LoginRequiredMixin, CustomPermissionRequiredMixin, Templat
 
         piechang_mois = filtre_piechang.aggregate(somme=Sum('montant'))['somme'] or 0
         piechang_mois_format ='{:,}'.format(piechang_mois).replace(',', ' ')
-        
-        context={
 
-            'vehicules':vehicules,
-            'assure_mois_format':assure_mois_format,
-            'vigne_mois_format':vigne_mois_format,
-            'patent_mois_format':patent_mois_format,
-            'station_mois_format':station_mois_format,
-            'piechang_mois_format':piechang_mois_format,
-            
-            'form':form,
+        # Permissions groupées pour le template (liens Assurance, Vignette, etc.)
+        grouped_permissions = {}
+        if hasattr(user, 'custom_permissions'):
+            permissions = user.custom_permissions.all().select_related('categorie')
+            for perm in permissions:
+                if perm.categorie not in grouped_permissions:
+                    grouped_permissions[perm.categorie] = []
+                grouped_permissions[perm.categorie].append(perm)
+
+        context={
+            'vehicules': vehicules,
+            'assure_mois_format': assure_mois_format,
+            'vigne_mois_format': vigne_mois_format,
+            'patent_mois_format': patent_mois_format,
+            'station_mois_format': station_mois_format,
+            'piechang_mois_format': piechang_mois_format,
+            'form': form,
+            'search_query': search_query,
+            'grouped_permissions': grouped_permissions,
         }
         return context
 
@@ -6133,7 +6142,7 @@ class ExportChargeAdminisExcelView(LoginRequiredMixin, View):
 
 #--------------/-/---------------@-----------------/-/--------------Garage---------------/-/--------------@----------------/-/------------#
 
-class AddCartStationView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateView):
+class AddCartStationnementView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateView):
     login_url = 'login'
     permission_url = 'add_station'
     model = Stationnement
@@ -6167,7 +6176,7 @@ class AddCartStationView(LoginRequiredMixin, CustomPermissionRequiredMixin, Crea
         libelle_mois = calendar.month_name[mois_en_cours]
         vehicule = get_object_or_404(Vehicule, pk=self.kwargs['pk'])
         station_queryset = Stationnement.objects.filter(vehicule=vehicule)
-        
+
         form = DateForm(self.request.GET)
         forms = self.get_form()
         user = self.request.user
@@ -6177,21 +6186,21 @@ class AddCartStationView(LoginRequiredMixin, CustomPermissionRequiredMixin, Crea
             try:
                 gerant = user.gerants.get()
                 categories_gerant = gerant.gerant_voiture.all()
-                if categories_gerant.exists():  
+                if categories_gerant.exists():
                     vehicules = Vehicule.objects.filter(category__in=categories_gerant)
                 else:
-                    vehicules = Vehicule.objects.none() 
+                    vehicules = Vehicule.objects.none()
             except Gerant.DoesNotExist:
                 vehicules = Vehicule.objects.none()
         else:
             vehicules = Vehicule.objects.all()
 
         search_query = self.request.GET.get("search", "").strip()
-        if search_query:  
+        if search_query:
             vehicules = search_vehicules(vehicules, search_query)
         else:
             vehicules = Vehicule.objects.none()
-        
+
         if form.is_valid():
             date_debut = form.cleaned_data.get('date_debut')
             date_fin = form.cleaned_data.get('date_fin')
@@ -6204,6 +6213,7 @@ class AddCartStationView(LoginRequiredMixin, CustomPermissionRequiredMixin, Crea
                 date_saisie__month=today.month,
                 date_saisie__year=today.year
             )
+
         station_jours = station_queryset.filter(date_saisie=today).aggregate(somme=Sum('montant'))['somme'] or 0
         station_jours_format = '{:,}'.format(station_jours).replace(',', ' ')
         station_mois = station_queryset.aggregate(somme=Sum('montant'))['somme'] or 0
@@ -6212,6 +6222,15 @@ class AddCartStationView(LoginRequiredMixin, CustomPermissionRequiredMixin, Crea
         station_an_format = '{:,}'.format(station_an).replace(',', ' ')
         liste_station = station_queryset.order_by('-date_saisie')
 
+        # Permissions groupées pour le template (liens Assurance, Vignette, etc.)
+        grouped_permissions = {}
+        if hasattr(user, 'custom_permissions'):
+            permissions = user.custom_permissions.all().select_related('categorie')
+            for perm in permissions:
+                if perm.categorie not in grouped_permissions:
+                    grouped_permissions[perm.categorie] = []
+                grouped_permissions[perm.categorie].append(perm)
+
         context = {
             "vehicules": vehicules,
             "vehicule": vehicule,
@@ -6219,9 +6238,14 @@ class AddCartStationView(LoginRequiredMixin, CustomPermissionRequiredMixin, Crea
             'station_mois_format': station_mois_format,
             'station_an_format': station_an_format,
             'liste_station': liste_station,
+            'dates': dates,
+            'mois': libelle_mois,
+            'annee': annee,
             'form': form,
             'forms': forms,
-        }   
+            'search_query': search_query,
+            'grouped_permissions': grouped_permissions,
+        }
         return context  
     def get_success_url(self):
         return reverse('add_station', kwargs={'pk': self.kwargs['pk']})
