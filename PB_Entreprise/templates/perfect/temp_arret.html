@@ -11,11 +11,21 @@ Temps d'arrêt
 {% block page_title %} TEMPS D'ARRET {% endblock page_title %} 
 {% block search_form %}
     <div class="col-sm-12 text-right mb-2">
-        <a href="{% url 'export_temps_arret_excel' %}?month={{ month }}&year={{ year }}" class="btn btn-default text-success" style="font-size: 16px;">
+        <a href="{% url 'export_temps_arret_excel' %}?month={{ month }}&year={{ year }}{% if selected_categorie_id %}&categorie={{ selected_categorie_id }}{% endif %}" class="btn btn-default text-success" style="font-size: 16px;">
             <i class="fa fa-file-excel-o"></i> Exporter Excel
         </a>
     </div>
-    <div class="col-sm-6">
+    <div class="col-sm-4">
+        <li class="breadcrumb-item">
+            <select id="categorie" class="form-control" onchange="selectMonthYear()">
+                <option value="">Toutes les catégories</option>
+                {% for cat in categories_list %}
+                    <option value="{{ cat.id }}" {% if selected_categorie_id == cat.id %}selected{% endif %}>{{ cat.category }}</option>
+                {% endfor %}
+            </select>
+        </li>
+    </div>
+    <div class="col-sm-4">
         <li class="breadcrumb-item">
             <select id="month" class="form-control month-select" onchange="selectMonthYear()">
                 {% for i in month_range %}
@@ -24,7 +34,7 @@ Temps d'arrêt
             </select>
         </li>
     </div>
-    <div class="col-sm-6">
+    <div class="col-sm-4">
         <li class="breadcrumb-item ">
             <select id="year" class="form-control year-select" onchange="selectMonthYear()">
                 {% for y in years %}
@@ -106,3 +116,39 @@ Temps d'arrêt
 </div>
 
 {% endblock main_content %}
+
+{% block custom_js %}
+<script>
+    function updateTable(month, year) {
+        const categorie = document.getElementById('categorie') ? document.getElementById('categorie').value : '';
+        let url = '?month=' + month + '&year=' + year;
+        if (categorie) url += '&categorie=' + categorie;
+        fetch(url)
+            .then(response => response.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const newDoc = parser.parseFromString(html, 'text/html');
+                const newTable = newDoc.querySelector('table');
+                const oldTable = document.querySelector('table');
+                if (newTable && oldTable) {
+                    oldTable.innerHTML = newTable.innerHTML;
+                }
+            })
+            .catch(err => console.error('Error updating table:', err));
+    }
+    function changeMonth(offset) {
+        let month = parseInt(document.getElementById('month').value);
+        let year = parseInt(document.getElementById('year').value);
+        month += offset;
+        if (month > 12) { month = 1; year++; } else if (month < 1) { month = 12; year--; }
+        document.getElementById('month').value = month;
+        document.getElementById('year').value = year;
+        updateTable(month, year);
+    }
+    function selectMonthYear() {
+        const month = document.getElementById('month').value;
+        const year = document.getElementById('year').value;
+        updateTable(month, year);
+    }
+</script>
+{% endblock custom_js %}

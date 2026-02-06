@@ -282,15 +282,27 @@ class TableaustopView(CustomPermissionRequiredMixin,TemplateView):
         else:
             vehicules = Vehicule.objects.all()
 
+        # Filtre par catégorie si sélectionnée
+        selected_categorie_id = self.request.GET.get('categorie', '').strip()
+        if selected_categorie_id:
+            try:
+                selected_categorie_id = int(selected_categorie_id)
+                vehicules = vehicules.filter(category_id=selected_categorie_id)
+            except (ValueError, TypeError):
+                selected_categorie_id = None
+        else:
+            selected_categorie_id = None
+        categories_list = CategoVehi.objects.all().order_by('category')
+
         context['current_date'] = date.today()
-        total_actions_sum =total_cost_parts_sum = total_income_sum = total_piece_sum = total_visit_sum = total_panne_sum = total_accident_sum = total_autrarret_sum = total_visitechique_sum = total_entretien_sum = total_repairs_by_motifs = total_motif_arrets = total_visitechique_sum = total_entretien_sum = total_repairs_by_motifs = total_motif_arrets = 0 
-        # Calculer les totaux par jour pour tous les véhicules
+        total_actions_sum = total_cost_parts_sum = total_income_sum = total_piece_sum = total_visit_sum = total_panne_sum = total_accident_sum = total_autrarret_sum = total_visitechique_sum = total_entretien_sum = total_repairs_by_motifs = total_motif_arrets = 0
+        # Calculer les totaux par jour
         daily_totals = [0] * days_in_month
         for day in range(1, days_in_month + 1):
             for model in [Reparation, VisiteTechnique, Entretien, Autrarret]:
                 count = model.objects.filter(
-                    date_saisie__day=day, 
-                    date_saisie__month=month, 
+                    date_saisie__day=day,
+                    date_saisie__month=month,
                     date_saisie__year=year
                 )
                 if user.user_type == "4":
@@ -303,6 +315,8 @@ class TableaustopView(CustomPermissionRequiredMixin,TemplateView):
                             count = count.none()
                     except Gerant.DoesNotExist:
                         count = count.none()
+                if selected_categorie_id:
+                    count = count.filter(vehicule__category_id=selected_categorie_id)
                 daily_totals[day - 1] += count.count()
         
         vehicule_data = []
@@ -374,6 +388,7 @@ class TableaustopView(CustomPermissionRequiredMixin,TemplateView):
             vehicule_data.append({
                 'immatriculation': vehicule.immatriculation,
                 'marque': vehicule.marque,
+                'category': vehicule.category.category,
                 'total_actions': total_actions,
                 'total_cost_parts': total_cost_parts,
                 'total_income': total_income,
@@ -386,16 +401,16 @@ class TableaustopView(CustomPermissionRequiredMixin,TemplateView):
             total_cost_parts_sum += total_cost_parts
             total_income_sum += total_income
             total_piece_sum += all_piece
-    
             total_visitechique_sum += all_visitechnique
             total_entretien_sum += all_entretien
-    
             total_visit_sum += all_rep_visit
             total_panne_sum += all_rep_panne
             total_accident_sum += all_rep_accident
             total_autrarret_sum += all_autre_arret
-    
+
         context['vehicule_data'] = vehicule_data
+        context['categories_list'] = categories_list
+        context['selected_categorie_id'] = selected_categorie_id
         
         context['total_repairs_by_motifs'] = total_repairs_by_motifs
         context['total_motif_arrets'] = total_motif_arrets
@@ -446,13 +461,23 @@ class ExportTempsArretExcelView(LoginRequiredMixin, View):
         else:
             vehicules = Vehicule.objects.all()
 
+        selected_categorie_id = request.GET.get('categorie', '').strip()
+        if selected_categorie_id:
+            try:
+                selected_categorie_id = int(selected_categorie_id)
+                vehicules = vehicules.filter(category_id=selected_categorie_id)
+            except (ValueError, TypeError):
+                selected_categorie_id = None
+        else:
+            selected_categorie_id = None
+
         total_actions_sum = total_cost_parts_sum = total_income_sum = total_piece_sum = 0
         total_visit_sum = total_panne_sum = total_accident_sum = total_autrarret_sum = 0
         total_visitechique_sum = total_entretien_sum = total_repairs_by_motifs = total_motif_arrets = 0
-        
+
         vehicule_data = []
         daily_totals = [0] * days_in_month
-        
+
         for vehicule in vehicules:
             total_actions = (
                 Entretien.objects.filter(vehicule=vehicule, date_saisie__month=month, date_saisie__year=year).count() +
@@ -753,6 +778,17 @@ class MyRecetteView(CustomPermissionRequiredMixin, LoginRequiredMixin, TemplateV
         ]
         jours_ouvrables = days_in_month - len(dimanches)
         vehicules = Vehicule.objects.select_related('category').all()
+        # Filtre par catégorie si sélectionnée
+        selected_categorie_id = self.request.GET.get('categorie', '').strip()
+        if selected_categorie_id:
+            try:
+                selected_categorie_id = int(selected_categorie_id)
+                vehicules = vehicules.filter(category_id=selected_categorie_id)
+            except (ValueError, TypeError):
+                selected_categorie_id = None
+        else:
+            selected_categorie_id = None
+        categories_list = CategoVehi.objects.all().order_by('category')
         recette_details = []
         total_recette_mensuelle = 0
         total_recette_annuelle = 0
@@ -812,6 +848,7 @@ class MyRecetteView(CustomPermissionRequiredMixin, LoginRequiredMixin, TemplateV
             recette_details.append({
                 'vehicule': vehicule.immatriculation,
                 'marque': vehicule.marque,
+                'category': vehicule.category.category,
                 'recette_versee': recettes_vehicule_jour,
                 'recette_attendue': recette_defaut,
                 'daily_actions': daily_actions,
@@ -831,6 +868,8 @@ class MyRecetteView(CustomPermissionRequiredMixin, LoginRequiredMixin, TemplateV
 
         verse_dict = {item['vehicule__category__id']: item['total_verse'] for item in recette_par_categorie}
         categories = CategoVehi.objects.annotate(nb_vehicules=Count('catego_vehicule'))
+        if selected_categorie_id:
+            categories = categories.filter(id=selected_categorie_id)
         recap_categorie = []
 
         for cat in categories:
@@ -852,33 +891,38 @@ class MyRecetteView(CustomPermissionRequiredMixin, LoginRequiredMixin, TemplateV
         total_cost_parts_sum = sum(vehicule.category.recette_defaut for vehicule in vehicules)
         totals_by_day = []
         for day in range(1, days_in_month + 1):
-            total_day = Recette.objects.filter(
-                date_saisie__day=day, 
-                date_saisie__month=month, 
+            qs = Recette.objects.filter(
+                date_saisie__day=day,
+                date_saisie__month=month,
                 date_saisie__year=year
-            ).aggregate(somme=Sum('montant'))['somme'] or 0
+            )
+            if selected_categorie_id:
+                qs = qs.filter(vehicule__category_id=selected_categorie_id)
+            total_day = qs.aggregate(somme=Sum('montant'))['somme'] or 0
             totals_by_day.append(total_day)
         
         context={
             'recap_categorie': recap_categorie,
-            'sum_motif_arrets':sum_motif_arrets,
-            'sum_difference':sum_difference,
-            'sum_recettes_vehicule_mois':sum_recettes_vehicule_mois,
-            'sum_difference_mensuelle':sum_difference_mensuelle,
-            'sum_recets_jours':sum_recets_jours,
-            'recette_details':recette_details,
-            'total_recette_mensuelle':total_recette_mensuelle,
-            'total_recette_annuelle':total_recette_annuelle,
-            'current_date':today,
-            'days_in_month':range(1, days_in_month + 1),
-            'month_name':month_name,
-            'month':month,
-            'year':year,
-            'years':range(today.year - 4, today.year + 1),
-            'month_range':range(1, 13),
-            'days_in_month_plus_two':days_in_month + 2,
+            'sum_motif_arrets': sum_motif_arrets,
+            'sum_difference': sum_difference,
+            'sum_recettes_vehicule_mois': sum_recettes_vehicule_mois,
+            'sum_difference_mensuelle': sum_difference_mensuelle,
+            'sum_recets_jours': sum_recets_jours,
+            'recette_details': recette_details,
+            'total_recette_mensuelle': total_recette_mensuelle,
+            'total_recette_annuelle': total_recette_annuelle,
+            'current_date': today,
+            'days_in_month': range(1, days_in_month + 1),
+            'month_name': month_name,
+            'month': month,
+            'year': year,
+            'years': range(today.year - 4, today.year + 1),
+            'month_range': range(1, 13),
+            'days_in_month_plus_two': days_in_month + 2,
             'totals_by_day': totals_by_day,
             'total_cost_parts_sum': total_cost_parts_sum,
+            'categories_list': categories_list,
+            'selected_categorie_id': selected_categorie_id,
         }
         return context
 
@@ -898,20 +942,32 @@ class ExportRecetteMensuelleExcelView(LoginRequiredMixin, View):
             if datetime(year, month, day).weekday() == SUNDAY
         ]
         jours_ouvrables = days_in_month - len(dimanches)
-        
+
         vehicules = Vehicule.objects.select_related('category').all()
+        selected_categorie_id = request.GET.get('categorie', '').strip()
+        if selected_categorie_id:
+            try:
+                selected_categorie_id = int(selected_categorie_id)
+                vehicules = vehicules.filter(category_id=selected_categorie_id)
+            except (ValueError, TypeError):
+                selected_categorie_id = None
+        else:
+            selected_categorie_id = None
         recette_details = []
-        
+
         # Calculer les totaux par date
         totals_by_day = []
         for day in range(1, days_in_month + 1):
-            total_day = Recette.objects.filter(
-                date_saisie__day=day, 
-                date_saisie__month=month, 
+            qs = Recette.objects.filter(
+                date_saisie__day=day,
+                date_saisie__month=month,
                 date_saisie__year=year
-            ).aggregate(somme=Sum('montant'))['somme'] or 0
+            )
+            if selected_categorie_id:
+                qs = qs.filter(vehicule__category_id=selected_categorie_id)
+            total_day = qs.aggregate(somme=Sum('montant'))['somme'] or 0
             totals_by_day.append(total_day)
-        
+
         for vehicule in vehicules:
             recettes_vehicule_jour = Recette.objects.filter(
                 vehicule=vehicule,
