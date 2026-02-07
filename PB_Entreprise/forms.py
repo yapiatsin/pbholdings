@@ -212,8 +212,8 @@ BilletageFormSet = modelformset_factory(
 )
 
 class CartStationForm(forms.ModelForm):
-    date_saisie = forms.DateField(widget= forms.DateInput(format=('%m/%d/%Y'), attrs={'class':'form-control','placeholder':'Selection une date...', 'format':'yyyy-mm-dd', 'type':'date'}))
-    date_proch = forms.DateField(widget= forms.DateInput(format=('%m/%d/%Y'), attrs={'class':'form-control','placeholder':'Selection une date...', 'format':'yyyy-mm-dd', 'type':'date'}))
+    date_saisie = forms.DateField(widget=forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control', 'placeholder': 'Sélectionner une date...', 'type': 'date'}))
+    date_proch = forms.DateField(widget=forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control', 'placeholder': 'Sélectionner une date...', 'type': 'date'}))
     class Meta:
         model = Stationnement
         fields = ('montant','date_proch','date_saisie','image',)
@@ -226,8 +226,9 @@ class CartStationForm(forms.ModelForm):
         }
     def __init__(self, *args, **kwargs):
         super(CartStationForm, self).__init__(*args, **kwargs)
-        self.fields["date_saisie"].input_formats =("%m/%d/%Y",)
-        self.fields["date_proch"].input_formats = ("%m/%d/%Y",)
+        # Format ISO (YYYY-MM-DD) pour type="date" du navigateur, puis format US
+        self.fields["date_saisie"].input_formats = ("%Y-%m-%d", "%m/%d/%Y")
+        self.fields["date_proch"].input_formats = ("%Y-%m-%d", "%m/%d/%Y")
       
 class UpdatCartStationForm(forms.ModelForm):
     class Meta:

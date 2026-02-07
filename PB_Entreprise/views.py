@@ -6262,21 +6262,27 @@ class AddCartStationnementView(LoginRequiredMixin, CustomPermissionRequiredMixin
             date_fin = form.cleaned_data.get('date_fin')
 
         today = date.today()
-        if date_debut and date_fin:
-            station_queryset = station_queryset.filter(date_saisie__range=[date_debut, date_fin])
-        else:
-            station_queryset = station_queryset.filter(
-                date_saisie__month=today.month,
-                date_saisie__year=today.year
-            )
 
+        # Indicateurs toujours : jour en cours, mois en cours, année en cours (indépendants du filtre tableau)
         station_jours = station_queryset.filter(date_saisie=today).aggregate(somme=Sum('montant'))['somme'] or 0
         station_jours_format = '{:,}'.format(station_jours).replace(',', ' ')
-        station_mois = station_queryset.aggregate(somme=Sum('montant'))['somme'] or 0
+        station_mois = station_queryset.filter(
+            date_saisie__month=today.month,
+            date_saisie__year=today.year
+        ).aggregate(somme=Sum('montant'))['somme'] or 0
         station_mois_format = '{:,}'.format(station_mois).replace(',', ' ')
         station_an = station_queryset.filter(date_saisie__year=today.year).aggregate(somme=Sum('montant'))['somme'] or 0
         station_an_format = '{:,}'.format(station_an).replace(',', ' ')
-        liste_station = station_queryset.order_by('-date_saisie')
+
+        # Tableau : par défaut mois en cours, ou plage choisie dans le filtre
+        if date_debut and date_fin:
+            table_queryset = station_queryset.filter(date_saisie__range=[date_debut, date_fin])
+        else:
+            table_queryset = station_queryset.filter(
+                date_saisie__month=today.month,
+                date_saisie__year=today.year
+            )
+        liste_station = table_queryset.order_by('-date_saisie')
 
         # Permissions groupées pour le template (liens Assurance, Vignette, etc.)
         grouped_permissions = {}
