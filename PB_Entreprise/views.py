@@ -425,6 +425,18 @@ class TableaustopView(CustomPermissionRequiredMixin,TemplateView):
             selected_categorie_id = None
         categories_list = CategoVehi.objects.all().order_by('category')
 
+        # Filtre par catégorie si sélectionnée
+        selected_categorie_id = self.request.GET.get('categorie', '').strip()
+        if selected_categorie_id:
+            try:
+                selected_categorie_id = int(selected_categorie_id)
+                vehicules = vehicules.filter(category_id=selected_categorie_id)
+            except (ValueError, TypeError):
+                selected_categorie_id = None
+        else:
+            selected_categorie_id = None
+        categories_list = CategoVehi.objects.all().order_by('category')
+
         context['current_date'] = date.today()
         total_actions_sum = total_cost_parts_sum = total_income_sum = total_piece_sum = total_visit_sum = total_panne_sum = total_accident_sum = total_autrarret_sum = total_visitechique_sum = total_entretien_sum = total_repairs_by_motifs = total_motif_arrets = 0
         # Calculer les totaux par jour
@@ -7865,21 +7877,27 @@ class AddCartStationnementView(LoginRequiredMixin, CustomPermissionRequiredMixin
             date_fin = form.cleaned_data.get('date_fin')
 
         today = date.today()
-        station_base = Stationnement.objects.filter(vehicule=vehicule)
+
+        # Indicateurs toujours : jour en cours, mois en cours, année en cours (indépendants du filtre tableau)
+        station_jours = station_queryset.filter(date_saisie=today).aggregate(somme=Sum('montant'))['somme'] or 0
+        station_jours_format = '{:,}'.format(station_jours).replace(',', ' ')
+        station_mois = station_queryset.filter(
+            date_saisie__month=today.month,
+            date_saisie__year=today.year
+        ).aggregate(somme=Sum('montant'))['somme'] or 0
+        station_mois_format = '{:,}'.format(station_mois).replace(',', ' ')
+        station_an = station_queryset.filter(date_saisie__year=today.year).aggregate(somme=Sum('montant'))['somme'] or 0
+        station_an_format = '{:,}'.format(station_an).replace(',', ' ')
+
+        # Tableau : par défaut mois en cours, ou plage choisie dans le filtre
         if date_debut and date_fin:
-            filtre_station = station_base.filter(date_saisie__range=[date_debut, date_fin])
+            table_queryset = station_queryset.filter(date_saisie__range=[date_debut, date_fin])
         else:
-            filtre_station = station_base.filter(
+            table_queryset = station_queryset.filter(
                 date_saisie__month=today.month,
                 date_saisie__year=today.year
             )
-        station_jours = filtre_station.filter(date_saisie=today).aggregate(somme=Sum('montant'))['somme'] or 0
-        station_jours_format = '{:,}'.format(station_jours).replace(',', ' ')
-        station_mois = filtre_station.aggregate(somme=Sum('montant'))['somme'] or 0
-        station_mois_format = '{:,}'.format(station_mois).replace(',', ' ')
-        station_an = station_base.filter(date_saisie__year=today.year).aggregate(somme=Sum('montant'))['somme'] or 0
-        station_an_format = '{:,}'.format(station_an).replace(',', ' ')
-        liste_station = filtre_station.order_by('-date_saisie')
+        liste_station = table_queryset.order_by('-date_saisie')
 
         # Permissions groupées pour le template (liens Assurance, Vignette, etc.)
         grouped_permissions = {}
