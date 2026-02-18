@@ -231,7 +231,7 @@
                                                             {% for categorie, perms in grouped_permissions.items %}
                                                                 {% if categorie.categorie == 'permreparation' %}
                                                                     {% for perm in perms %}
-                                                                        {% if perm.name == "sup réparation" %}
+                                                                        {% if perm.name == "sup reparation" %}
                                                                             <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Confirmez-vous la suppression des reparations sélectionnées ?')">
                                                                                 <i class="fa fa-trash"></i>
                                                                             </button>
