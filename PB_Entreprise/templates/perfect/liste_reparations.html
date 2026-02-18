@@ -192,7 +192,7 @@
                                                                     {% for categorie, perms in grouped_permissions.items %}
                                                                         {% if categorie.categorie == 'permreparation' %}
                                                                             {% for perm in perms %}
-                                                                                {% if perm.name == "sup réparation" %}
+                                                                                {% if perm.name == "sup reparation" %}
                                                                                     <input type="checkbox" name="reparation_ids" value="{{ u.id }}">
                                                                                 {% endif %}
                                                                             {% endfor %}
