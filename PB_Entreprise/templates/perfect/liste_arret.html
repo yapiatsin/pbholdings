@@ -1,6 +1,6 @@
 {% extends 'perfect/base.html' %} 
 {% load static %} 
-{% block title %} Liste des arrêts {% endblock title %}  
+{% block title %} Liste des autres arrêts {% endblock title %}  
 {% block navbar_nav %}
     <form class="search-form" method="get">
         <div class="input-group">
@@ -13,7 +13,7 @@
     </form>
 {% endblock navbar_nav %}
 {% block page_title %}
-    <img class="profile-user-img" style="border:none; height:50px;width:55px" src="{% static 'arret.png' %}" alt="User profile picture">Liste des arrêts
+    <img class="profile-user-img" style="border:none; height:50px;width:55px" src="{% static 'arret.png' %}" alt="User profile picture">Liste des autres arrêts
 {% endblock page_title %} 
 
 {% block page_action %}
@@ -179,7 +179,7 @@
                                                             <tr class="text-center">
                                                                 <td><input type="checkbox" name="autarret_ids" value="{{ u.id }}"></td>
                                                                 <td>
-                                                                    <a href="#" class="mr-3 text-primary">{{u.vehicule.immatriculation}}</a>
+                                                                    <a class="mr-3 text-primary">{{u.vehicule.immatriculation}}</a>
                                                                 </td>
                                                                 <td>{{u.vehicule.marque}}</td>
                                                                 <td>{{u.vehicule.category}}</td>
@@ -188,16 +188,12 @@
                                                                 <td>{{u.auteur.username}}</td>
                                                                 <td class="text-center">
                                                                     {% for categorie, perms in grouped_permissions.items %}
-                                                                        {% if categorie.categorie == 'permchargvar' %}
+                                                                        {% if categorie.categorie == 'permarret' %}
                                                                             {% for perm in perms %}
-                                                                                {% if perm.name == "modifier Charge variable" %}
-                                                                                    <a href="{% url perm.url u.pk %}" class="text-primary">
+                                                                                {% if perm.name == "modifier autre arrêt" %}
+                                                                                    <a href="#" class="edit-autarret-btn" data-url="{% url 'updat_autarret' u.pk %}">
                                                                                         <i style="font-size: 20px;" class="fa fa-edit text-warning"></i>
                                                                                     </a>
-                                                                                {% comment %} {% elif perm.name == "sup recette" %}
-                                                                                    <a href="{% url perm.url u.pk %}" class="text-primary" onclick="return confirm('Etes-vous sûre de vouloir supprimer la recette de {{ u.montant }} du {{ u.vehicule.immatriculation }} saisie le {{ u.date_saisie|date:"d-m-y" }}? Toutes les informations liées seront supprimées.')">
-                                                                                        <i style="font-size: 20px;" class="fa fa-trash text-danger"></i>
-                                                                                    </a> {% endcomment %}
                                                                                 {% endif %}
                                                                             {% endfor %}
                                                                         {% endif %}
@@ -211,19 +207,16 @@
                                                     <tr class="text-center ">
                                                         <th>
                                                             {% for categorie, perms in grouped_permissions.items %}
-                                                                {% if categorie.categorie == 'permchargvar' %}
+                                                                {% if categorie.categorie == 'permarret' %}
                                                                     {% for perm in perms %}
-                                                                        {% if perm.name == "sup Charge variable" %}
-                                                                            {% comment %} <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Confirmez-vous la suppression des véhicules sélectionnés ?')">
+                                                                        {% if perm.name == "sup autre arrêt" %}
+                                                                            <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Confirmez-vous la suppression des autres arrêts sélectionnés ?')">
                                                                                 <i class="fa fa-trash"></i>
-                                                                            </button> {% endcomment %}
+                                                                            </button>
                                                                         {% endif %}
                                                                     {% endfor %}
                                                                 {% endif %}
                                                             {% endfor %}
-                                                            <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Confirmez-vous la suppression des véhicules sélectionnés ?')">
-                                                                <i class="fa fa-trash"></i>
-                                                            </button>
                                                         </th>
                                                         <th>---</th>
                                                         <th>---</th>
@@ -246,6 +239,60 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="editAutrarretModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="border-radius:20px;">
+            <div class="modal-body" id="modalBodyContentAutarret">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).on("click", ".edit-autarret-btn", function(e) {
+        e.preventDefault();
+        var url = $(this).data("url");
+        $.get(url, function(data) {
+            $("#modalBodyContentAutarret").html(data);
+            $("#editAutrarretModal").modal("show");
+        });
+    });
+
+    $(document).on("submit", "#autarretUpdateForm", function(e) {
+        e.preventDefault();
+        var form = $(this);
+        var url = form.attr("action");
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: form.serialize(),
+            headers: { "X-Requested-With": "XMLHttpRequest" },
+            success: function(data) {
+                if (data.success) {
+                    $("#editAutrarretModal").modal("hide");
+                    if (typeof Swal !== "undefined") {
+                        const Toast = Swal.mixin({
+                            toast: true,
+                            position: 'top',
+                            showConfirmButton: false,
+                            timer: 4000,
+                            timerProgressBar: true
+                        });
+                        Toast.fire({ type: 'success', title: data.message });
+                    }
+                    setTimeout(function() { location.reload(); }, 2000);
+                }
+            },
+            error: function(xhr) {
+                if (xhr.status === 422) {
+                    $("#modalBodyContentAutarret").html(xhr.responseText);
+                }
+            }
+        });
+    });
+</script>
 
 <script>
     document.getElementById('select-all').onclick = function() {

@@ -84,26 +84,26 @@
     </div>
 </div>
 
-<div class="col-12 col-sm-6 col-md-4">
+<div class="col-12 col-sm-6 col-md-3">
     <div class="info-box" style="border-radius:25px;">
         <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-clock" style="color:rgba(6, 73, 124, 0.54);"></i></span>
         <div class="info-box-content">
             <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Aujourd'hui</span>
             <span class="info-box-number" style="font-size:20px; color: #fa7832;">
-            {{piechange_jours_format}}
+            {{ piechange_jours_nb }} - {{ piechange_jours_format }}
             <small>frs cfa</small>
             </span>
         </div>
     </div>
 </div>
 <div class="clearfix hidden-md-up"></div>
-<div class="col-12 col-sm-6 col-md-4">
+<div class="col-12 col-sm-6 col-md-3">
     <div class="info-box mb-3" style="border-radius:25px;">
     <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fa fa-calendar" style="color:rgba(6, 73, 124, 0.54);"></i></span>
     <div class="info-box-content">
-        <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Mensuelle</span>
+        <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Nombre - coût (Mensuelle)</span>
         <span class="info-box-number" style="font-size:20px; color: #fa7832;">
-        {{piechange_mois_format}}
+        {{ piechange_mois_nb }} - {{ piechange_mois_format }}
         <small>frs cfa</small>
         </span>
     </div>
@@ -111,13 +111,27 @@
 </div>
 
 <div class="clearfix hidden-md-up"></div>
-<div class="col-12 col-sm-6 col-md-4" >
+<div class="col-12 col-sm-6 col-md-3" >
     <div class="info-box mb-3" style="border-radius:25px;">
-        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-calendar" style="color:rgba(6, 73, 124, 0.54);"></i></span>
+        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-coins" style="color:rgba(6, 73, 124, 0.54);"></i></span>
         <div class="info-box-content">
-            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Annuelle</span>
+            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Nombre Annuelle</span>
             <span class="info-box-number" style="font-size:20px; color: #fa7832;">
-            {{piechange_an_format}}
+            {{ piechange_an_nb }}
+            <small>pièces</small>
+            </span>
+        </div>
+    </div>
+</div>
+
+<div class="clearfix hidden-md-up"></div>
+<div class="col-12 col-sm-6 col-md-3" >
+    <div class="info-box mb-3" style="border-radius:25px;">
+        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-coins text-danger" style="color:rgba(6, 73, 124, 0.54);"></i></span>
+        <div class="info-box-content">
+            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Coût Annuelle</span>
+            <span class="info-box-number" style="font-size:20px; color: #fa7832;">
+            {{ piechange_an_format }}
             <small>frs cfa</small>
             </span>
         </div>
@@ -152,6 +166,7 @@
                                                         <th>IMMAT</th>
                                                         <th>MARQUE</th>
                                                         <th>CATEGORIE</th>
+                                                        <th>QTÉ PIÈCES</th>
                                                         <th>MONTANT</th>
                                                         <th>DATE SAISIE</th>
                                                         <th>SAISIR PAR </th>
@@ -168,6 +183,7 @@
                                                                 </td>
                                                                 <td>{{u.vehicule.marque}}</td>
                                                                 <td>{{u.vehicule.category}}</td>
+                                                                <td>{{ u.total_quantite }}</td>
                                                                 <td>{{u.montant}}</td>
                                                                 <td>{{u.date_saisie|date:"d-m-y"}}</td>
                                                                 <td>{{u.auteur.username}}</td>
@@ -192,21 +208,18 @@
                                                     <tr class="text-center ">
                                                         <th>
                                                             {% for categorie, perms in grouped_permissions.items %}
-                                                                {% if categorie.categorie == 'permchargvar' %}
+                                                                {% if categorie.categorie == 'permpiechang' %}
                                                                     {% for perm in perms %}
-                                                                        {% if perm.name == "sup Charge variable" %}
-                                                                            {% comment %} <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Confirmez-vous la suppression des véhicules sélectionnés ?')">
+                                                                        {% if perm.name == "sup piece changée" %}
+                                                                            <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Confirmez-vous la suppression des pièces changées sélectionnées ?')">
                                                                                 <i class="fa fa-trash"></i>
-                                                                            </button> {% endcomment %}
+                                                                            </button>
                                                                         {% endif %}
                                                                     {% endfor %}
                                                                 {% endif %}
                                                             {% endfor %}
-
-                                                            <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Confirmez-vous la suppression des pièces changées sélectionnées ?')">
-                                                                <i class="fa fa-trash"></i>
-                                                            </button>
                                                         </th>
+                                                        <th>---</th>
                                                         <th>---</th>
                                                         <th>---</th>
                                                         <th>---</th>

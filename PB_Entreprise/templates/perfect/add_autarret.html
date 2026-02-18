@@ -273,6 +273,7 @@
                                                 <th>MONTANT</th>
                                                 <th>DATE ARRET</th>
                                                 <th>DATE REPRISE</th>
+                                                <th>ACTION</th>
                                             </tr>
                                         </thead>
                                         <tbody> 
@@ -284,6 +285,19 @@
                                                         <td>{{u.montant}}</td>
                                                         <td>{{u.date_arret|date:'d-m-Y à H:m:s'}}</td>
                                                         <td>{{u.date_sortie|date:'d-m-Y à H:m:s'}}</td>
+                                                        <td>
+                                                            {% for categorie, perms in grouped_permissions.items %}
+                                                                {% if categorie.categorie == 'permarret' %}
+                                                                    {% for perm in perms %}
+                                                                        {% if perm.name == "modifier autre arrêt" %}
+                                                                            <a href="#" class="edit-autarret-btn" data-url="{% url 'updat_autarret' u.pk %}?next={% url 'add_autarrets' vehicule.pk %}">
+                                                                                <i class="fa fa-edit text-warning"></i>
+                                                                            </a>
+                                                                        {% endif %}
+                                                                    {% endfor %}
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </td>
                                                     </tr>
                                                 {% endfor %} 
                                             {% endif %}
@@ -298,5 +312,58 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="editAutrarretModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="border-radius:20px;">
+            <div class="modal-body" id="modalBodyContentAutarret">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).on("click", ".edit-autarret-btn", function(e) {
+        e.preventDefault();
+        var url = $(this).data("url");
+        $.get(url, function(data) {
+            $("#modalBodyContentAutarret").html(data);
+            $("#editAutrarretModal").modal("show");
+        });
+    });
+
+    $(document).on("submit", "#autarretUpdateForm", function(e) {
+        e.preventDefault();
+        var form = $(this);
+        $.ajax({
+            url: form.attr("action"),
+            type: "POST",
+            data: form.serialize(),
+            headers: { "X-Requested-With": "XMLHttpRequest" },
+            success: function(data) {
+                if (data.success) {
+                    $("#editAutrarretModal").modal("hide");
+                    if (typeof Swal !== "undefined") {
+                        const Toast = Swal.mixin({
+                            toast: true,
+                            position: 'top',
+                            showConfirmButton: false,
+                            timer: 4000,
+                            timerProgressBar: true
+                        });
+                        Toast.fire({ type: 'success', title: data.message });
+                    }
+                    setTimeout(function() { location.reload(); }, 2000);
+                }
+            },
+            error: function(xhr) {
+                if (xhr.status === 422) {
+                    $("#modalBodyContentAutarret").html(xhr.responseText);
+                }
+            }
+        });
+    });
+</script>
 {% endblock main_content %}
 

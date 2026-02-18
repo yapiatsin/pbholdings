@@ -11,7 +11,7 @@ Temps d'arrêt
 {% block page_title %} TEMPS D'ARRET {% endblock page_title %} 
 {% block search_form %}
     <div class="col-sm-12 text-right mb-2">
-        <a href="{% url 'export_temps_arret_excel' %}?month={{ month }}&year={{ year }}{% if selected_categorie_id %}&categorie={{ selected_categorie_id }}{% endif %}" class="btn btn-default text-success" style="font-size: 16px;">
+        <a href="#" id="export-excel-btn" class="btn btn-default text-success" style="font-size: 16px;" data-export-url="{% url 'export_temps_arret_excel' %}">
             <i class="fa fa-file-excel-o"></i> Exporter Excel
         </a>
     </div>
@@ -28,8 +28,8 @@ Temps d'arrêt
     <div class="col-sm-4">
         <li class="breadcrumb-item">
             <select id="month" class="form-control month-select" onchange="selectMonthYear()">
-                {% for i in month_range %}
-                    <option value="{{ i }}" {% if i == month %}selected{% endif %}>{{ i }}</option>
+                {% for val, label in month_choices %}
+                    <option value="{{ val }}" {% if val == month %}selected{% endif %}>{{ label }}</option>
                 {% endfor %}
             </select>
         </li>
@@ -119,6 +119,21 @@ Temps d'arrêt
 
 {% block custom_js %}
 <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const exportBtn = document.getElementById('export-excel-btn');
+        if (exportBtn) {
+            exportBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const baseUrl = exportBtn.getAttribute('data-export-url');
+                const month = document.getElementById('month') ? document.getElementById('month').value : '{{ month }}';
+                const year = document.getElementById('year') ? document.getElementById('year').value : '{{ year }}';
+                const categorie = document.getElementById('categorie') ? document.getElementById('categorie').value : '';
+                let url = baseUrl + '?month=' + month + '&year=' + year;
+                if (categorie) url += '&categorie=' + categorie;
+                window.location.href = url;
+            });
+        }
+    });
     function updateTable(month, year) {
         const categorie = document.getElementById('categorie') ? document.getElementById('categorie').value : '';
         let url = '?month=' + month + '&year=' + year;

@@ -20,7 +20,6 @@
 {% endblock page_title %} 
 
 {% block main_content%}
-
     <div class="modal fade" id="modal-sm">
         <div class="modal-dialog modal-sm">
             <div class="modal-content" style="border-radius:25px;">
@@ -34,13 +33,29 @@
                     <div class="card-body">
                         <form id="basic-form" method="get" novalidate>
                             <div class="row clearfix">
-                                <div class="col-md-12 form-group"><input type="text" value="Année" class="form-control text-center" disabled></div>
                                 <div class="col-12">
-                                    <select class="form-control" name="annee" onchange="this.form.submit()" style="color: #06497C;">
+                                    <label style="font-weight:700; color: #06497C;">Année</label>
+                                    <select class="form-control" name="annee" style="color: #06497C;">
                                         {% for an in last_10_years %}
                                             <option value="{{ an }}" {% if an == selected_year %}selected{% endif %}>{{ an }}</option>
                                         {% endfor %}
                                     </select>
+                                </div>
+                                <div class="col-12 mt-2">
+                                    <label style="font-weight:700; color: #06497C;">Catégorie</label>
+                                    <select class="form-control" name="categorie" style="color: #06497C;">
+                                        <option value="">Toutes les catégories</option>
+                                        {% for cat in categories_list %}
+                                            <option value="{{ cat.id }}" {% if selected_categorie_id == cat.id %}selected{% endif %}>{{ cat.category }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-12 mt-2">
+                                    <label style="font-weight:700; color: #06497C;">Immatriculation</label>
+                                    <input type="text" class="form-control" name="immatriculation" value="{{ immatriculation_filter|default:'' }}" placeholder="Saisissez l'immatriculation">
+                                </div>
+                                <div class="col-12 mt-3 text-center">
+                                    <button type="submit" class="btn btn-primary">Afficher</button>
                                 </div>
                             </div>
                         </form>
@@ -57,7 +72,7 @@
             </span>
             <div class="info-box-content">
                 <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Recette</span>
-                <span class="info-box-number" style="font-size:20px;">
+                <span class="info-box-number" style="font-size:20px; color: #fa7832;">
                 {{total_recette }}
                 <small>frs cfa</small>
                 </span>
@@ -72,7 +87,7 @@
             </span>
             <div class="info-box-content">
                 <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Charge fixe</span>
-                <span class="info-box-number" style="font-size:20px;">
+                <span class="info-box-number" style="font-size:20px; color: #fa7832;">
                 {{total_chargefixe}}
                 <small>frs cfa</small>
                 </span>
@@ -87,7 +102,7 @@
         </span>
         <div class="info-box-content">
             <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Charge variable</span>
-            <span class="info-box-number" style="font-size:20px;">
+            <span class="info-box-number" style="font-size:20px; color: #fa7832;">
             {{total_chargevariable}}
             <small>frs cfa</small>
             </span>
@@ -102,7 +117,7 @@
             </span>
             <div class="info-box-content">
                 <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Charge administrative</span>
-                <span class="info-box-number" style="font-size:20px;">
+                <span class="info-box-number" style="font-size:20px; color: #fa7832;">
                 {{total_chargeadminis}}
                 <small>frs cfa</small>
                 </span>
@@ -117,7 +132,7 @@
             </span>
             <div class="info-box-content">
                 <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Encaissement</span>
-                <span class="info-box-number" style="font-size:20px;">
+                <span class="info-box-number" style="font-size:20px; color: #fa7832;">
                 {{total_encaissement}}
                 <small>frs cfa</small>
                 </span>
@@ -132,7 +147,7 @@
             </span>
             <div class="info-box-content">
                 <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Decaissement</span>
-                <span class="info-box-number" style="font-size:20px;">
+                <span class="info-box-number" style="font-size:20px; color: #fa7832;">
                 {{total_decaissement}}
                 <small>frs cfa</small>
                 </span>
@@ -147,7 +162,7 @@
         </span>
         <div class="info-box-content">
             <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Réparation</span>
-            <span class="info-box-number" style="font-size:20px;">
+            <span class="info-box-number" style="font-size:20px; color: #fa7832;">
             {{total_reparation}}
             <small>frs cfa</small>
             </span>
@@ -162,7 +177,7 @@
             </span>
             <div class="info-box-content">
                 <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Pièces</span>
-                <span class="info-box-number" style="font-size:20px;">
+                <span class="info-box-number" style="font-size:20px; color: #fa7832;">
                 {{total_piece}}
                 <small>frs cfa</small>
                 </span>
@@ -177,7 +192,7 @@
             </span>
             <div class="info-box-content">
                 <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Pièce changée</span>
-                <span class="info-box-number" style="font-size:20px;">
+                <span class="info-box-number" style="font-size:20px; color: #fa7832;">
                 {{total_piecechange}}
                 <small>frs cfa</small>
                 </span>
@@ -192,7 +207,7 @@
             </span>
             <div class="info-box-content">
                 <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Entretiens</span>
-                <span class="info-box-number" style="font-size:20px;">
+                <span class="info-box-number" style="font-size:20px; color: #fa7832;">
                 {{total_entretien}}
                 <small>frs cfa</small>
                 </span>
@@ -207,7 +222,7 @@
         </span>
         <div class="info-box-content">
             <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Autres arrêts</span>
-            <span class="info-box-number" style="font-size:20px;">
+            <span class="info-box-number" style="font-size:20px; color: #fa7832;">
             {{total_autrarret}}
             <small>frs cfa</small>
             </span>
@@ -222,7 +237,7 @@
             </span>
             <div class="info-box-content">
                 <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Visite technique</span>
-                <span class="info-box-number" style="font-size:20px;">
+                <span class="info-box-number" style="font-size:20px; color: #fa7832;">
                 {{total_visitetechnique}}
                 <small>frs cfa</small>
                 </span>
@@ -237,7 +252,7 @@
             </span>
             <div class="info-box-content">
                 <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Patente</span>
-                <span class="info-box-number" style="font-size:20px;">
+                <span class="info-box-number" style="font-size:20px; color: #fa7832;">
                 {{total_patente}}
                 <small>frs cfa</small>
                 </span>
@@ -252,7 +267,7 @@
             </span>
             <div class="info-box-content">
                 <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Stationnements</span>
-                <span class="info-box-number" style="font-size:20px;">
+                <span class="info-box-number" style="font-size:20px; color: #fa7832;">
                 {{total_stationnement}}
                 <small>frs cfa</small>
                 </span>
@@ -267,7 +282,7 @@
         </span>
         <div class="info-box-content">
             <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Assurance</span>
-            <span class="info-box-number" style="font-size:20px;">
+            <span class="info-box-number" style="font-size:20px; color: #fa7832;">
             {{total_assurance}}
             <small>frs cfa</small>
             </span>
@@ -282,7 +297,7 @@
             </span>
             <div class="info-box-content">
                 <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Solde caisse</span>
-                <span class="info-box-number" style="font-size:20px;">
+                <span class="info-box-number" style="font-size:20px; color: #fa7832;">
                 {{total_soldejour}}
                 <small>frs cfa</small>
                 </span>
@@ -297,7 +312,7 @@
             </span>
             <div class="info-box-content">
                 <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Vignette</span>
-                <span class="info-box-number" style="font-size:20px;">
+                <span class="info-box-number" style="font-size:20px; color: #fa7832;">
                 {{total_vignette}}
                 <small>frs cfa</small>
                 </span>

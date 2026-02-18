@@ -121,8 +121,8 @@
                             </div>
                         </div>
                         <div class="modal-footer justify-content-between">
-                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Annuler</button>
-                            <button type="submit" class="btn btn-outline-success" >Afficher</button>
+                            <button type="button" class="btn btn-outline-secondary" style="border-radius:25px;" data-dismiss="modal">Annuler</button>
+                            <button type="submit" class="btn btn-outline-success" style="border-radius:25px;">Afficher</button>
                         </div>
                     </form>
                 </div>
@@ -268,22 +268,24 @@
                                                 {% for u in liste_entret %}
                                                     <tr class="text-center">
                                                         <td>
-                                                            <a href="" class="mr-3 text-primary">{{u.vehicule.immatriculation}}</a>
+                                                            <a class="mr-3 text-primary">{{u.vehicule.immatriculation}}</a>
                                                         </td>
                                                         <td>{{u.date_Entret}}</td>
                                                         <td>{{u.montant}}</td>
                                                         <td>{{u.date_saisie}}</td>
                                                         <td>{{u.auteur.username}}</td>
                                                         <td class="text-center">
-                                                            {% if user.user_type == '1' %}
-                                                                <a href="{% url 'delvehi' u.pk %}" class="text-danger" onclick="return confirm('Etes-vous sûre de vouloir supprimer le véhicule {{u.immatriculation}} - {{u.marque}} - {{u.category|upper}}? car si vous supprimer toutes les informations liées seront supprimées')">
-                                                                    <i style="font-size: 20px; " class="fa fa-trash "></i>
-                                                                </a>
-                                                            {% else %}
-                                                                <a class="text-danger">
-                                                                    <i style="font-size: 20px; " class="fa fa-trash "></i>
-                                                                </a>
-                                                            {% endif %}
+                                                            {% for categorie, perms in grouped_permissions.items %}
+                                                                {% if categorie.categorie == 'permentretien' %}
+                                                                    {% for perm in perms %}
+                                                                        {% if perm.name == "modifier entretien" %}
+                                                                            <a href="#" class="edit-entretien-btn" data-url="{% url 'updat_entretien' u.id %}?next={% url 'add_entretien' vehicule.pk %}">
+                                                                                <i class="fa fa-edit text-warning"></i>
+                                                                            </a>
+                                                                        {% endif %}
+                                                                    {% endfor %}
+                                                                {% endif %}
+                                                            {% endfor %}
                                                         </td>
                                                     </tr>
                                                 {% endfor %} 
@@ -299,5 +301,60 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="editEntretienModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="border-radius:20px;">
+            <div class="modal-body" id="modalBodyContentEntretien">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).on("click", ".edit-entretien-btn", function(e) {
+        e.preventDefault();
+        var url = $(this).data("url");
+        $.get(url, function(data) {
+            $("#modalBodyContentEntretien").html(data);
+            $("#editEntretienModal").modal("show");
+        });
+    });
+    $(document).on("submit", "#entretienUpdateForm", function(e) {
+        e.preventDefault();
+        var form = $(this);
+        var formData = new FormData(form[0]);
+        $.ajax({
+            url: form.attr("action"),
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            headers: { "X-Requested-With": "XMLHttpRequest" },
+            success: function(data) {
+                if (data.success) {
+                    $("#editEntretienModal").modal("hide");
+                    if (typeof Swal !== "undefined") {
+                        const Toast = Swal.mixin({
+                            toast: true,
+                            position: 'top',
+                            showConfirmButton: false,
+                            timer: 4000,
+                            timerProgressBar: true
+                        });
+                        Toast.fire({ type: 'success', title: data.message });
+                    }
+                    setTimeout(function() { location.reload(); }, 2000);
+                }
+            },
+            error: function(xhr) {
+                if (xhr.status === 422) {
+                    $("#modalBodyContentEntretien").html(xhr.responseText);
+                }
+            }
+        });
+    });
+</script>
 {% endblock main_content %}
 

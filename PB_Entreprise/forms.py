@@ -52,6 +52,13 @@ class DateFormRepar(forms.Form):
         widget=forms.Select(attrs={'class': 'form-control'})
     )
 
+class DateFormAnalytique(forms.Form):
+    """Formulaire de filtre pour la fiche analytique exploitation"""
+    date_debut = forms.DateField(widget=forms.DateInput(attrs={'type': 'date','class': 'form-control'}), required=False, label="Date début")
+    date_fin = forms.DateField(widget=forms.DateInput(attrs={'type': 'date','class': 'form-control'}), required=False, label="Date fin")
+    categorie = forms.ModelChoiceField(queryset=CategoVehi.objects.all(), required=False, widget=forms.Select(attrs={'class': 'form-control'}), label="Catégorie")
+    immatriculation = forms.CharField(required=False, max_length=30, widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': "Saisissez l'immatriculation"}), label="Immatriculation")
+
 class DateFormListRepar(forms.Form):
     date_debut = forms.DateField(widget=forms.DateInput(attrs={'type': 'date','class': 'form-control'}), required=False)
     date_fin = forms.DateField(widget=forms.DateInput(attrs={'type': 'date','class': 'form-control'}), required=False)

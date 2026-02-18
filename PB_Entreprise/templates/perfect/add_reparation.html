@@ -10,7 +10,7 @@
         <form id="quickForm">
             <button type="button" class="btn btn-default text-success" data-toggle="modal" data-target="#modal-lg">Saisie <i class="fa fa-plus-circle"></i></button>
             <a class="btn btn-default text-info" data-toggle="modal" data-target="#modal-sm" href="#" style="font-size: 16px;"><i style="font-size: 20px;" class="fa fa-calendar"></i></a>
-            <a class="btn btn-default text-info" href="{% url 'list_repa' %}" style="font-size: 16px;"><i style="font-size: 20px;" class="fa fa-refresh"></i></a>
+            <a class="btn btn-default text-info" href="{% url 'add_reparation' vehicule.pk %}" style="font-size: 16px;"><i style="font-size: 20px;" class="fa fa-refresh"></i></a>
         </form>
 {% endblock page_action %}
 
@@ -48,9 +48,9 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Annuler</button>
-                            <button type="submit" class="btn btn-outline-success" >Afficher</button>
+                        <div class="modal-footer justify-content-between">
+                            <button type="button" class="btn btn-outline-secondary" style="border-radius:25px;" data-dismiss="modal">Annuler</button>
+                            <button type="submit" class="btn btn-outline-success" style="border-radius:25px;">Afficher</button>
                         </div>
                     </form>
                 </div>
@@ -204,8 +204,8 @@
               </div>
             </div>
             <div class="modal-footer justify-content-between">
-                <button type="button" class=" btn btn-outline-secondary" data-dismiss="modal" aria-label="Close">Annuler</button>
-                <button type="submit" class="btn btn-outline-primary">Enregistrer</button>
+                <button type="button" class=" btn btn-outline-secondary" style="border-radius:25px;" data-dismiss="modal" aria-label="Close">Annuler</button>
+                <button type="submit" class="btn btn-outline-primary" style="border-radius:25px;">Enregistrer</button>
             </div>
           </form>
         </div>

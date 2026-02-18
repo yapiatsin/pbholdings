@@ -14,7 +14,10 @@ urlpatterns = [
     path('dashboard Garage /', DashboardGaragView.as_view(), name='dashgarage'),
      
     path('alertes', GestionalerteView.as_view(), name='alerte'),
-    # path('suivi financier', SuiviFinancierView.as_view(), name='suivi_finance'),
+
+    path('fiche-analytique-exploitation', AnalytiqueFicheView.as_view(), name='analytique_fiche'),
+    path('fiche-analytique-exploitation/export-excel/', ExportAnalytiqueFicheExcelView.as_view(), name='export_analytique_fiche_excel'),
+
     path('saisie garage', SaisieGaragView.as_view(), name='saisi_garag'),
     path('saisie temps arret', TempsArretsView.as_view(), name='temps_arrets'),
 
@@ -72,7 +75,7 @@ urlpatterns = [
     path('vehicule /<int:pk>/ acharge fixe',AddChargeFixView.as_view(), name="addcharg_fix"),
     path('acharge fixe /<int:pk>/ modifier',UpdateChargFixView.as_view(), name="upd_charg_fix"),
     path('charge fixe /delete-selected/', views.delete_selected_chargfix, name='delete_selected_chargfix'),
-    path('liste charge fixe',ListChargeFixView.as_view(), name="list_charg_fix"),
+    path('liste-charge-fixe',ListChargeFixView.as_view(), name="list_charg_fix"),
     path('historique charge fixe',HistoriqueChargeFixeView.as_view(), name="historique_charge_fixe"),
     path('charge fixe /export-excel/', ExportChargeFixeExcelView.as_view(), name='export_charge_fixe_excel'),
 
@@ -85,14 +88,15 @@ urlpatterns = [
     path('charges variables/export-excel/', ExportChargeVariableExcelView.as_view(), name='export_charges_variables_excel'),
 
     #---------ENTRETIEN-------VISITE------REPARATION-------ASSURANCE-------PIECE-----VIGNETTE-----PATENTE--------PERTE-------ACCIDENT--------#
-    path('vehicule /<int:pk>/ addautarret',AddAutrarretView.as_view(), name="add_autarrets"), 
-    path('Liste autres arrets', ListarretView.as_view(), name='liste_aut_arrets'),
-    path('autres arrets /delete-selected/', views.delete_selected_autarret, name='delete_selected_autarret'),
+    path('vehicule /<int:pk>/ addautarret',AddAutrarretView.as_view(), name="add_autarrets"),
+    path('autre-arret/<int:pk>/modifier', views.UpdateAutrarretView.as_view(), name='updat_autarret'),
+    path('Liste-autres-arrets', ListarretView.as_view(), name='liste_aut_arrets'),
+    path('autres-arrets/delete-selected/', views.delete_selected_autarret, name='delete_selected_autarret'),
     path('autre-arret/export-excel/', ExportAutrarretExcelView.as_view(), name='export_autrarrets'),
 
     path('vehicule /<int:pk>/ addvisite', AddVisitView.as_view(), name="add_visit"), 
     path('visite/<int:pk>/ modifier', UpdateVisiteView.as_view(), name="updat_visit"), 
-    path('vehicule/liste/visites', ListVisitView.as_view(), name="list_visit"), 
+    path('liste/visites-techniques', ListVisitTechniqueView.as_view(), name="list_visit"), 
     path('visite /delete-selected/', views.delete_selected_visite, name='delete_selected_visite'),
     path('visites-techniques/export-excel/', ExportVisiteTechniqueExcelView.as_view(), name='export_visite_excel'),
 

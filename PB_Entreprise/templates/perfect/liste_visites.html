@@ -155,14 +155,6 @@
                                                                     {% for perm in perms %}
                                                                         {% if perm.name == "sup visite" %}
                                                                             <input type="checkbox" id="select-all">
-                                                                        {% if perm.name == "modifier visite" %}
-                                                                            <a href="{% url perm.url u.pk %}" class="text-primary">
-                                                                                <i style="font-size: 20px;" class="fa fa-edit text-warning"></i>
-                                                                            </a> 
-                                                                        {% elif perm.name == "sup visite" %}
-                                                                            <a href="{% url perm.url u.pk %}" class="text-primary" onclick="return confirm('Etes-vous sûre de vouloir supprimer la sortie de caisse de {{ u.montant }} saisie le {{ u.date|date:"d-m-y" }}? Toutes les informations liées seront supprimées.')">
-                                                                                <i style="font-size: 20px;" class="fa fa-trash text-danger"></i>
-                                                                            </a>
                                                                         {% endif %}
                                                                     {% endfor %}
                                                                 {% endif %}
@@ -265,12 +257,17 @@
 </div>
 
 <script>
-    document.getElementById('select-all').onclick = function() {
-        let checkboxes = document.querySelectorAll('input[name="visite_ids"]');
-        for (let checkbox of checkboxes) {
-            checkbox.checked = this.checked;
+    (function() {
+        var selectAll = document.getElementById('select-all');
+        if (selectAll) {
+            selectAll.onclick = function() {
+                var checkboxes = document.querySelectorAll('input[name="visite_ids"]');
+                for (var i = 0; i < checkboxes.length; i++) {
+                    checkboxes[i].checked = this.checked;
+                }
+            };
         }
-    };
+    })();
 </script>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

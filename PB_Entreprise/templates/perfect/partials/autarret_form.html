@@ -1,40 +1,37 @@
-<form method="post" id="entretienUpdateForm" action="{% url 'updat_entretien' object.id %}" enctype="multipart/form-data">
+<form method="post" id="autarretUpdateForm" action="{% url 'updat_autarret' object.id %}">
     {% csrf_token %}
     <input type="hidden" name="next" value="{{ request.GET.next }}">
     <div class="modal-header">
         <h5 class="modal-title">
-            Modifier l'entretien de {{ object.vehicule.immatriculation }}
+            Modifier l'autre arrêt - {{ object.vehicule.immatriculation }}
         </h5>
         <button type="button" class="close" data-dismiss="modal">&times;</button>
     </div>
 
     <div class="modal-body row">
+        <div class="form-group col-md-12">
+            <label>Libellé</label>
+            {{ form.libelle }}
+        </div>
         <div class="form-group col-md-6">
-            <label>Date entretien</label>
-            {{ form.date_Entret }}
+            <label>Date arrêt</label>
+            {{ form.date_arret }}
         </div>
         <div class="form-group col-md-6">
             <label>Date sortie</label>
             {{ form.date_sortie }}
         </div>
         <div class="form-group col-md-6">
-            <label>Date prochaine entretien</label>
-            {{ form.date_proch }}
+            <label>N° fiche</label>
+            {{ form.numfich }}
         </div>
         <div class="form-group col-md-6">
             <label>Montant</label>
             {{ form.montant }}
         </div>
-        <div class="form-group col-md-12">
-            <label>Reçu (si disponible)</label>
-            {{ form.image }}
-            {% if object.image %}
-                <p class="mt-2">
-                    <img src="{{ object.image.url }}" alt="Image actuelle" class="img-fluid" style="max-height:100%; width: 100%;">
-                </p>
-            {% endif %}
-        </div>
+        {{ form.auteur }}
     </div>
+
     <div class="modal-footer justify-content-between">
         <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Annuler</button>
         <button type="submit" class="btn btn-outline-success">Enregistrer</button>

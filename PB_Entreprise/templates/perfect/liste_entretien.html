@@ -143,7 +143,7 @@
                                         </div>
                                     </div>
                                     <!-- /.card-header -->
-                                    <div class="card-body">
+                                    <div class="card-body table-responsive p-2">
                                         <div id="example1_wrapper" class="dataTables_wrapper dt-bootstrap4">
                                             <table id="example1" class="table table-bordered table-striped dataTable" role="grid" aria-describedby="example1_info">
                                                 <thead>
@@ -276,26 +276,34 @@
     $(document).on("submit", "#entretienUpdateForm", function(e) {
         e.preventDefault();
         let form = $(this);
-        let url = form.attr("action") || window.location.href;
-        $.post(url, form.serialize(), function(data) {
-            if (data.success) {
-                $("#editEntretienModal").modal("hide");
-                const Toast = Swal.mixin({
-                    toast: true,
-                    position: 'top',
-                    showConfirmButton: false,
-                    timer: 4000,
-                    timerProgressBar: true
-                });
-                Toast.fire({
-                    type: 'success',
-                    title: data.message
-                });
-                setTimeout(function() {
-                    location.reload();
-                }, 2000);
-            } else {
-                $("#modalBodyContent").html(data); 
+        let formData = new FormData(form[0]);
+        $.ajax({
+            url: form.attr("action"),
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            headers: { "X-Requested-With": "XMLHttpRequest" },
+            success: function(data) {
+                if (data.success) {
+                    $("#editEntretienModal").modal("hide");
+                    if (typeof Swal !== "undefined") {
+                        const Toast = Swal.mixin({
+                            toast: true,
+                            position: 'top',
+                            showConfirmButton: false,
+                            timer: 4000,
+                            timerProgressBar: true
+                        });
+                        Toast.fire({ type: 'success', title: data.message });
+                    }
+                    setTimeout(function() { location.reload(); }, 2000);
+                }
+            },
+            error: function(xhr) {
+                if (xhr.status === 422) {
+                    $("#modalBodyContent").html(xhr.responseText);
+                }
             }
         });
     });
