@@ -799,8 +799,12 @@ class AnalytiqueFicheView(LoginRequiredMixin, CustomPermissionRequiredMixin,Temp
             total_marge_contrib += marge_contribution
 
         total_marge_cout_direct = total_recettes - total_charges
-        # TOTAL GENERALE = TOTAL MARGE SUR COÛT DIRECT - TOTAL CHARGE VARIABLE
-        total_generale = total_marge_cout_direct - total_charg_var
+        # Charges administratives sur la période (mois en cours par défaut)
+        total_charge_admin = ChargeAdminis.objects.filter(
+            date_saisie__range=[start_date, end_date]
+        ).aggregate(s=Sum('montant'))['s'] or 0
+        # TOTAL GENERALE = TOTAL MARGE SUR COÛT DIRECT - CHARGES ADMINISTRATIVES
+        total_generale = total_marge_cout_direct - total_charge_admin
         if total_recettes > 0:
             taux_marge_global = round((total_marge_contrib * 100) / total_recettes, 2)
         else:
@@ -824,6 +828,7 @@ class AnalytiqueFicheView(LoginRequiredMixin, CustomPermissionRequiredMixin,Temp
             'total_charg_fix': total_charg_fix,
             'total_charg_var': total_charg_var,
             'total_charges': total_charges,
+            'total_charge_admin': total_charge_admin,
             'total_marge_contrib': total_marge_contrib,
             'total_marge_cout_direct': total_marge_cout_direct,
             'total_generale': total_generale,
@@ -908,8 +913,12 @@ def _get_analytique_fiche_data(request):
         total_marge_contrib += marge_contribution
 
     total_marge_cout_direct = total_recettes - total_charges
-    # TOTAL GENERALE = TOTAL MARGE SUR COÛT DIRECT - TOTAL CHARGE VARIABLE
-    total_generale = total_marge_cout_direct - total_charg_var
+    # Charges administratives sur la période (mois en cours par défaut)
+    total_charge_admin = ChargeAdminis.objects.filter(
+        date_saisie__range=[start_date, end_date]
+    ).aggregate(s=Sum('montant'))['s'] or 0
+    # TOTAL GENERALE = TOTAL MARGE SUR COÛT DIRECT - CHARGES ADMINISTRATIVES
+    total_generale = total_marge_cout_direct - total_charge_admin
     taux_marge_global = round((total_marge_contrib * 100) / total_recettes, 2) if total_recettes > 0 else 0
 
     return {
@@ -919,6 +928,7 @@ def _get_analytique_fiche_data(request):
         'total_charg_fix': total_charg_fix,
         'total_charg_var': total_charg_var,
         'total_charges': total_charges,
+        'total_charge_admin': total_charge_admin,
         'total_marge_contrib': total_marge_contrib,
         'total_marge_cout_direct': total_marge_cout_direct,
         'total_generale': total_generale,

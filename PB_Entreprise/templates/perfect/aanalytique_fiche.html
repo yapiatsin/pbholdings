@@ -135,11 +135,11 @@
                         <td class="text-right">{{ row.total_charge|default:"-" }}</td>
                         <td class="text-right">{{ row.marge_contribution|default:"-" }}</td>
                         <td class="text-right" {% if row.taux_marge >= 90 %}style="background-color: rgba(213, 247, 121, 0.85);"{% endif %}>{{ row.taux_marge_str }}</td>
-                        <td class="text-right">{{ row.marge_cout_direct|default:"-" }}</td>
+                        <td class="text-right">{{row.marge_cout_direct|default:"-"}}</td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="11" class="text-center text-muted">Aucun véhicule trouvé pour la période sélectionnée.</td>
+                        <td colspan="12" class="text-center text-muted">Aucun véhicule trouvé pour la période sélectionnée.</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -154,15 +154,15 @@
                         <td class="text-right">{{ taux_marge_global }}%</td>
                         <td class="text-right">{{ total_marge_cout_direct|default:0 }}</td>
                     </tr>
-                    <tr style="font-weight: bold; background-color:rgb(241, 181, 181); font-size:15px;">
-                        <td colspan="12" rowspan="1" class="text-center"></td>
+                    <tr style="font-weight: bold; background-color:rgb(255, 219, 219); font-size:15px;">
+                        <td colspan="11" class="text-center"></td>
                     </tr>
                     <tr style="font-weight: bold; background-color:rgb(250, 242, 242); font-size:15px;">
-                        <td colspan="10" class="text-center">TOTAL GENERALE</td>
-                        <td class="text-center" style="font-weight: bold; background-color:rgb(241, 181, 181); font-size:15px;color:rgb(1, 60, 78); border-bottom: 2px solid rgb(241, 181, 181);">{{ total_generale|default:0 }}</td>
+                        <td colspan="10" class="text-center">Resultat</td>
+                        <td class="text-center" style="font-weight: bold; background-color:rgb(255, 219, 219); font-size:15px;color:rgb(1, 60, 78); border-bottom: 2px solid rgb(255, 219, 219);">{{ total_generale|default:0 }}</td>
                     </tr>
-                    <tr style="font-weight: bold; background-color:rgb(241, 181, 181); font-size:15px;">
-                        <td colspan="12" rowspan="1" class="text-center"></td>
+                    <tr style="font-weight: bold; background-color:rgb(255, 219, 219); font-size:15px;">
+                        <td colspan="12" class="text-center"></td>
                     </tr>
                 </tfoot>
             </table>
