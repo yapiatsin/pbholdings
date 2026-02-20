@@ -727,7 +727,7 @@ class RequestEmailView(View):
                 <title>Réinitialisation du mot de passe</title>
             </head>
             <body style="font-family: Arial, sans-serif; line-height: 1.6;">
-                <div style="max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
+                <div style="max-width: 100%; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
                     <h2 style="text-align: center; color: #333;">REINITIALISATION DE MOT DE PASSE</h2>
                     <p>Bonjour cher {user.username},</p>
                     <p>Vous avez demandé à réinitialiser votre mot de passe. Veuillez utiliser le code OTP ci-dessous pour compléter cette action :</p>
@@ -743,7 +743,7 @@ class RequestEmailView(View):
                     <p>Cordialement,<br>L'équipe support</p>
             
                     <footer style="margin-top: 20px; text-align: center; font-size: 12px; color: #999;">
-                        &copy; 2024-2025 Bradi One. Tous droits réservés.
+                        &copy; 2024-2025 P&BEntreprise - Thrive One. Tous droits réservés.
                     </footer>
                 </div>
             </body>
@@ -831,7 +831,6 @@ class PasswordChangeView(PasswordChangeView):
         chefexploit_profil = None
         comptable_profil = None
         gerant_profil = None
-        
         if user.user_type == "1":
             try:
                 admin_profil = Administ.objects.get(user=user)
@@ -856,7 +855,6 @@ class PasswordChangeView(PasswordChangeView):
                 gerant_profil = None
         else: 
             print()
-
         # Récupérer les permissions personnalisées de l'utilisateur
         from userauths.models import TypeCustomPermission
         grouped_permissions = {}
@@ -864,14 +862,9 @@ class PasswordChangeView(PasswordChangeView):
             perms = category.cat_permis.filter(users=user)
             if perms.exists():
                 grouped_permissions[category] = perms
-        
         # Récupérer toutes les permissions personnalisées (sans groupement)
         custom_permissions = user.custom_permissions.all()
-        
-        # Récupérer les permissions système (Django permissions)
         system_permissions = user.user_permissions.all()
-
-        # Passer les informations récupérées au contexte
         context = {
             'form': form,
             'user': user,

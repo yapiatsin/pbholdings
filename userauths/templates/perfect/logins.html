@@ -27,10 +27,10 @@
                         </div>
                     </div>
                     <div class="input-group mb-3">
-                        <input type="password" class="form-control" placeholder="Mot de passe..." name="password" style="background-color:rgba(255, 255, 255, 0.1);border-radius: 50px 0 0 50px;color: rgba(2, 26, 78, 0.63)" required>
+                        <input type="password" id="passwordInput" class="form-control" placeholder="Mot de passe..." name="password" style="background-color:rgba(255, 255, 255, 0.1);border-radius: 50px 0 0 50px;color: rgba(2, 26, 78, 0.63)" required>
                         <div class="input-group-append">
-                            <div class="input-group-text" style="border-radius: 0 50px 50px 0">
-                               <span class="fas fa-key" style="color: rgba(2, 26, 78, 0.63)"></span>
+                            <div class="input-group-text toggle-password" role="button" tabindex="0" title="Afficher / Masquer le mot de passe" style="border-radius: 0 50px 50px 0; cursor: pointer;">
+                               <span id="passwordIcon" class="fas fa-eye" style="color: rgba(2, 26, 78, 0.63)"></span>
                             </div>
                         </div>
                     </div>
@@ -48,8 +48,36 @@
                 <p class="mt-2 mb-1 text-center">
                     <a href="{% url 'login' %}" class="text-secondary"></a>
                 </p>
+                <p class="mt-2 mb-1 text-center" style="font-size: 14px; font-weight: 500; color: rgba(2, 26, 78, 0.7); font-style: italic; letter-spacing: 0.3px;">A tes résolutions repondra le succès</p>
             </div>
         </div>
     </div>
+    <script>
+        (function() {
+            var toggle = document.querySelector('.toggle-password');
+            var passwordInput = document.getElementById('passwordInput');
+            var icon = document.getElementById('passwordIcon');
+            if (toggle && passwordInput && icon) {
+                function togglePassword() {
+                    if (passwordInput.type === 'password') {
+                        passwordInput.type = 'text';
+                        icon.classList.remove('fa-eye');
+                        icon.classList.add('fa-eye-slash');
+                    } else {
+                        passwordInput.type = 'password';
+                        icon.classList.remove('fa-eye-slash');
+                        icon.classList.add('fa-eye');
+                    }
+                }
+                toggle.addEventListener('click', togglePassword);
+                toggle.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        togglePassword();
+                    }
+                });
+            }
+        })();
+    </script>
 {% endblock content %}
 
