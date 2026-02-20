@@ -13,7 +13,7 @@
     </form>
 {% endblock navbar_nav %}
 {% block page_title %}
-    <img class="profile-user-img" style="border:none; height:45px;width:45px" src="{% static 'visit.png' %}" alt="User profile picture">Liste des réparations
+    <img class="profile-user-img" style="border:none; height:45px;width:45px" src="{% static 'visit.png' %}" alt="User profile picture">Etats des réparations
 {% endblock page_title %} 
 
 {% block page_action %}
@@ -22,7 +22,7 @@
             {% if categorie.categorie == 'Exporter' %}
                 {% for perm in perms %}
                     {% if perm.name == "Exporter réparation" %}
-                        <a href="{% url 'export_reparation_excel' %}?date_debut={{ request.GET.date_debut }}&date_fin={{ request.GET.date_fin }}&immatriculation={{ request.GET.immatriculation }}&categorie={{ request.GET.categorie }}" class="btn btn-default text-success">
+                        <a href="{% url 'export_reparation_excel' %}?date_debut={{ request.GET.date_debut }}&date_fin={{ request.GET.date_fin }}&immatriculation={{ request.GET.immatriculation }}&categorie={{ request.GET.categorie }}&motif={{ request.GET.motif }}" class="btn btn-default text-success">
                             Excel <i class="fa fa-file-excel-o"></i>
                         </a>
                     {% endif %}
@@ -32,7 +32,7 @@
         <a class="btn btn-default text-info" data-toggle="modal" data-target="#modal-sm" href="#" style="font-size: 16px;"><i style="font-size: 20px;" class="fa fa-calendar"></i></a>
         <a class="btn btn-default text-info" href="{% url 'list_repa' %}" style="font-size: 16px;"><i style="font-size: 20px;" class="fa fa-refresh"></i></a>
     </form>
-{% endblock page_action %}*
+{% endblock page_action %}
 
 {% block main_content %}
 <div class="modal fade" id="modal-sm">
@@ -160,7 +160,7 @@
                                     </div>
                                     <div class="card-body">
                                         <div id="example1_wrapper" class="dataTables_wrapper dt-bootstrap4">
-                                            <table id="example1" class="table table-bordered table-striped dataTable" role="grid" aria-describedby="example1_info">
+                                            <table id="example1" class="table table-bordered table-hover table-striped dataTable" role="grid" aria-describedby="example1_info">
                                                 <thead>
                                                     <tr class="text-center text-danger">
                                                         <th>
@@ -179,6 +179,7 @@
                                                         <th>CATEGORIE</th>
                                                         <th>MOTIF</th>
                                                         <th>MONTANT</th>
+                                                        <th>PRESTATION</th>
                                                         <th>DATE SAISIE</th>
                                                         <th>SAISIR PAR </th>
                                                         <th>ACTION</th>
@@ -206,6 +207,7 @@
                                                                 <td>{{u.vehicule.category}}</td>
                                                                 <td>{{u.motif}}</td>
                                                                 <td>{{u.montant}}</td>
+                                                                <td>{{u.prestation}}</td>
                                                                 <td>{{u.date_saisie|date:"d-m-y"}}</td>
                                                                 <td>{{u.auteur.username}}</td>
                                                                 <td class="text-center">
@@ -240,6 +242,7 @@
                                                                 {% endif %}
                                                             {% endfor %}
                                                         </th>
+                                                        <th>---</th>
                                                         <th>---</th>
                                                         <th>---</th>
                                                         <th>---</th>

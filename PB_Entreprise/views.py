@@ -5003,18 +5003,29 @@ class UpdateAutrarretView(LoginRequiredMixin, CustomPermissionRequiredMixin, Upd
 class ExportAutrarretExcelView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         autrarrets = Autrarret.objects.all()
-
         date_debut = request.GET.get('date_debut')
         date_fin = request.GET.get('date_fin')
         immatriculation = request.GET.get('immatriculation')
         categorie = request.GET.get('categorie')
+        today = date.today()
+
+        # Filtre par date : plage fournie par l'utilisateur, sinon mois en cours par défaut
         if date_debut and date_fin:
             try:
                 date_debut_obj = datetime.strptime(date_debut, "%Y-%m-%d").date()
                 date_fin_obj = datetime.strptime(date_fin, "%Y-%m-%d").date()
                 autrarrets = autrarrets.filter(date_saisie__range=[date_debut_obj, date_fin_obj])
             except ValueError:
-                pass
+                autrarrets = autrarrets.filter(
+                    date_saisie__month=today.month,
+                    date_saisie__year=today.year
+                )
+        else:
+            autrarrets = autrarrets.filter(
+                date_saisie__month=today.month,
+                date_saisie__year=today.year
+            )
+
         if immatriculation:
             autrarrets = autrarrets.filter(vehicule__immatriculation__icontains=immatriculation)
         if categorie:
@@ -5042,7 +5053,6 @@ class ExportAutrarretExcelView(LoginRequiredMixin, View):
             duree = ""
             if a.date_arret and a.date_sortie:
                 duree = (a.date_sortie.date() - a.date_arret.date()).days
-
             ws.append([
                 a.vehicule.immatriculation if a.vehicule else "",
                 a.vehicule.marque if a.vehicule else "",
@@ -6700,19 +6710,29 @@ class UpdatCartStationView(LoginRequiredMixin, CustomPermissionRequiredMixin, Up
 class ExportStationnementExcelView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         stationnements = Stationnement.objects.all().select_related('vehicule', 'auteur')
-
         date_debut = request.GET.get('date_debut')
         date_fin = request.GET.get('date_fin')
         immatriculation = request.GET.get('immatriculation')
         categorie = request.GET.get('categorie')
+        today = date.today()
 
+        # Filtre par date : plage fournie par l'utilisateur, sinon mois en cours par défaut
         if date_debut and date_fin:
             try:
                 date_debut_obj = datetime.strptime(date_debut, "%Y-%m-%d").date()
                 date_fin_obj = datetime.strptime(date_fin, "%Y-%m-%d").date()
                 stationnements = stationnements.filter(date_saisie__range=[date_debut_obj, date_fin_obj])
             except ValueError:
-                pass
+                stationnements = stationnements.filter(
+                    date_saisie__month=today.month,
+                    date_saisie__year=today.year
+                )
+        else:
+            stationnements = stationnements.filter(
+                date_saisie__month=today.month,
+                date_saisie__year=today.year
+            )
+
         if immatriculation:
             stationnements = stationnements.filter(vehicule__immatriculation__icontains=immatriculation)
         if categorie:
@@ -7388,21 +7408,17 @@ class ListVisitTechniqueView(LoginRequiredMixin, CustomPermissionRequiredMixin, 
         today = date.today()
         visitech_queryset = VisiteTechnique.objects.all()
         form = self.form_class(self.request.GET)
-
         # ------------------ FILTRES -------------------
         if form.is_valid():
             categorie_filter = form.cleaned_data.get('categorie')
             date_debut = form.cleaned_data.get('date_debut')
             date_fin = form.cleaned_data.get('date_fin')
             immatriculation = form.cleaned_data.get('immatriculation')
-
             if categorie_filter:
                 visitech_queryset = visitech_queryset.filter(vehicule__category__category=categorie_filter)
 
             if immatriculation:
                 visitech_queryset = visitech_queryset.filter(vehicule__immatriculation__icontains=immatriculation)
-
-            # Filtre de date : si fourni, utiliser la plage ; sinon par défaut = mois en cours
             has_date_filter = bool(date_debut and date_fin)
             if has_date_filter:
                 visitech_queryset = visitech_queryset.filter(date_saisie__range=[date_debut, date_fin])
@@ -7416,7 +7432,6 @@ class ListVisitTechniqueView(LoginRequiredMixin, CustomPermissionRequiredMixin, 
                 date_saisie__month=today.month,
                 date_saisie__year=today.year
             )
-
         # ------------------ STATISTIQUES -------------------
         visitech_jours = visitech_queryset.filter(date_saisie=today).aggregate(somme=Sum('montant'))['somme'] or 0
         visitech_jours_format = '{:,}'.format(visitech_jours).replace(',', ' ')
@@ -7424,7 +7439,7 @@ class ListVisitTechniqueView(LoginRequiredMixin, CustomPermissionRequiredMixin, 
         visitech_mois_format = '{:,}'.format(visitech_mois).replace(',', ' ')
         visitech_an = visitech_queryset.filter(date_saisie__year=today.year).aggregate(somme=Sum('montant'))['somme'] or 0
         visitech_an_format = '{:,}'.format(visitech_an).replace(',', ' ')
-        # Permissions groupées pour le template (boutons Exporter, sup visite, modifier visite)
+        #------------------------Permissions groupées pour le template (boutons Exporter, sup visite, modifier visite)------------------------#
         grouped_permissions = {}
         user = self.request.user
         if hasattr(user, 'custom_permissions'):
@@ -7469,18 +7484,29 @@ class UpdateVisiteView(LoginRequiredMixin, CustomPermissionRequiredMixin, Update
 class ExportVisiteTechniqueExcelView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         visites = VisiteTechnique.objects.all()
-
         date_debut = request.GET.get('date_debut')
         date_fin = request.GET.get('date_fin')
         immatriculation = request.GET.get('immatriculation')
         categorie = request.GET.get('categorie')
+        today = date.today()
+
+        # Filtre par date : plage fournie par l'utilisateur, sinon mois en cours par défaut
         if date_debut and date_fin:
             try:
                 date_debut_obj = datetime.strptime(date_debut, "%Y-%m-%d").date()
                 date_fin_obj = datetime.strptime(date_fin, "%Y-%m-%d").date()
                 visites = visites.filter(date_saisie__range=[date_debut_obj, date_fin_obj])
             except ValueError:
-                pass
+                visites = visites.filter(
+                    date_saisie__month=today.month,
+                    date_saisie__year=today.year
+                )
+        else:
+            visites = visites.filter(
+                date_saisie__month=today.month,
+                date_saisie__year=today.year
+            )
+
         if immatriculation:
             visites = visites.filter(vehicule__immatriculation__icontains=immatriculation)
         if categorie:
@@ -8424,13 +8450,17 @@ class ListPieceView(LoginRequiredMixin, CustomPermissionRequiredMixin, ListView)
         piece_jours_format = '{:,}'.format(piece_jours).replace(',', ' ')
         piece_mois = filtre_piece.aggregate(somme=Sum('montant'))['somme'] or 0
         piece_mois_format = '{:,}'.format(piece_mois).replace(',', ' ')
+        piece_mois_count = filtre_piece.count()
         piece_an = piece_base.filter(date_saisie__year=today.year).aggregate(somme=Sum('montant'))['somme'] or 0
         piece_an_format = '{:,}'.format(piece_an).replace(',', ' ')
+        piece_an_count = piece_base.filter(date_saisie__year=today.year).count()
 
         context = {
             'liste_piece': filtre_piece,
             'piece_an_format': piece_an_format,
+            'piece_an_count': piece_an_count,
             'piece_mois_format': piece_mois_format,
+            'piece_mois_count': piece_mois_count,
             'piece_jours_format': piece_jours_format,
             'form': form,
         }
@@ -8444,14 +8474,25 @@ class ExportPieceExcelView(LoginRequiredMixin, View):
         date_fin = request.GET.get('date_fin')
         immatriculation = request.GET.get('immatriculation')
         categorie = request.GET.get('categorie')
+        today = date.today()
 
+        # Filtre par date : plage fournie par l'utilisateur, sinon mois en cours par défaut
         if date_debut and date_fin:
             try:
                 date_debut_obj = datetime.strptime(date_debut, "%Y-%m-%d").date()
                 date_fin_obj = datetime.strptime(date_fin, "%Y-%m-%d").date()
                 pieces = pieces.filter(date_saisie__range=[date_debut_obj, date_fin_obj])
             except ValueError:
-                pass
+                pieces = pieces.filter(
+                    date_saisie__month=today.month,
+                    date_saisie__year=today.year
+                )
+        else:
+            pieces = pieces.filter(
+                date_saisie__month=today.month,
+                date_saisie__year=today.year
+            )
+
         if immatriculation:
             pieces = pieces.filter(reparation__vehicule__immatriculation__icontains=immatriculation)
 
@@ -8644,20 +8685,28 @@ class ListReparationView(LoginRequiredMixin, CustomPermissionRequiredMixin, List
 class ExportReparationExcelView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         reparations = Reparation.objects.all().select_related('vehicule', 'auteur')
-
         date_debut = request.GET.get('date_debut')
         date_fin = request.GET.get('date_fin')
         immatriculation = request.GET.get('immatriculation')
         categorie = request.GET.get('categorie')
         motif = request.GET.get('motif')
-
+        today = date.today()
+        # Filtre par date : plage fournie par l'utilisateur, sinon mois en cours par défaut
         if date_debut and date_fin:
             try:
                 date_debut_obj = datetime.strptime(date_debut, "%Y-%m-%d").date()
                 date_fin_obj = datetime.strptime(date_fin, "%Y-%m-%d").date()
                 reparations = reparations.filter(date_saisie__range=[date_debut_obj, date_fin_obj])
             except ValueError:
-                pass
+                reparations = reparations.filter(
+                    date_saisie__month=today.month,
+                    date_saisie__year=today.year
+                )
+        else:
+            reparations = reparations.filter(
+                date_saisie__month=today.month,
+                date_saisie__year=today.year
+            )
 
         if immatriculation:
             reparations = reparations.filter(vehicule__immatriculation__icontains=immatriculation)
@@ -9111,24 +9160,30 @@ def delete_selected_entretien(request):
 class ExportEntretienExcelView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         entretiens = Entretien.objects.all().select_related('vehicule', 'auteur')
-
         date_debut = request.GET.get('date_debut')
         date_fin = request.GET.get('date_fin')
         immatriculation = request.GET.get('immatriculation')
         categorie = request.GET.get('categorie')
+        today = date.today()
         if date_debut and date_fin:
             try:
                 date_debut_obj = datetime.strptime(date_debut, "%Y-%m-%d").date()
                 date_fin_obj = datetime.strptime(date_fin, "%Y-%m-%d").date()
                 entretiens = entretiens.filter(date_saisie__range=[date_debut_obj, date_fin_obj])
             except ValueError:
-                pass
+                entretiens = entretiens.filter(
+                    date_saisie__month=today.month,
+                    date_saisie__year=today.year
+                )
+        else:
+            entretiens = entretiens.filter(
+                date_saisie__month=today.month,
+                date_saisie__year=today.year
+            )
         if immatriculation:
             entretiens = entretiens.filter(vehicule__immatriculation__icontains=immatriculation)
-
         if categorie:
             entretiens = entretiens.filter(vehicule__category__category__icontains=categorie)
-
         wb = openpyxl.Workbook()
         ws = wb.active
         ws.title = "Entretiens"

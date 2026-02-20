@@ -13,7 +13,7 @@
     </form>
 {% endblock navbar_nav %}
 {% block page_title %}
-    <img class="profile-user-img" style="border:none; height:45px;width:45px" src="{% static 'gear.png' %}" alt="User profile picture">Liste des pièces changées 
+    <img class="profile-user-img" style="border:none; height:45px;width:45px" src="{% static 'gear.png' %}" alt="User profile picture">Etats des pièces changées 
 {% endblock page_title %} 
 {% block page_action %}
     <form id="quickForm">
@@ -21,9 +21,7 @@
             {% if categorie.categorie == 'Exporter' %}
                 {% for perm in perms %}
                     {% if perm.name == "Exporter pieces echangees" %}
-                        <button type="button" class="btn btn-default text-danger" id="printButton">PDF <i class='fa fa-file-pdf-o'></i></button>
-                        <a href="{% url 'export_piec_echange_excel' %}?date_debut={{ request.GET.date_debut }}&date_fin={{ request.GET.date_fin }}&immatriculation={{ request.GET.immatriculation }}&categorie={{ request.GET.categorie }}" 
-                        class="btn btn-default text-success">
+                        <a href="{% url 'export_piec_echange_excel' %}?date_debut={{ request.GET.date_debut }}&date_fin={{ request.GET.date_fin }}&immatriculation={{ request.GET.immatriculation }}&categorie={{ request.GET.categorie }}" class="btn btn-default text-success">
                             Excel<i class="fa fa-file-excel-o"></i>
                         </a>
                     {% endif %}
@@ -83,7 +81,6 @@
         </div>
     </div>
 </div>
-
 <div class="col-12 col-sm-6 col-md-3">
     <div class="info-box" style="border-radius:25px;">
         <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-clock" style="color:rgba(6, 73, 124, 0.54);"></i></span>
@@ -109,7 +106,6 @@
     </div>
     </div>
 </div>
-
 <div class="clearfix hidden-md-up"></div>
 <div class="col-12 col-sm-6 col-md-3" >
     <div class="info-box mb-3" style="border-radius:25px;">
@@ -159,7 +155,7 @@
                                     </div>
                                     <div class="card-body">
                                         <div id="example1_wrapper" class="dataTables_wrapper dt-bootstrap4">
-                                            <table id="example1" class="table table-bordered table-striped dataTable" role="grid" aria-describedby="example1_info">
+                                            <table id="example1" class="table table-bordered table-hover table-striped dataTable" role="grid" aria-describedby="example1_info">
                                                 <thead>
                                                     <tr class="text-center text-danger">
                                                         <th><input type="checkbox" id="select-all"></th>

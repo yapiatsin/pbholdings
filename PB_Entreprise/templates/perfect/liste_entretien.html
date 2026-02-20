@@ -13,7 +13,7 @@
     </form>
 {% endblock navbar_nav %}  
 {% block page_title %}
-    <img class="profile-user-img" style="border:none; height:55px;width:55px" src="{% static 'entret.png' %}" alt="User profile picture">Etat des entretiens 
+    <img class="profile-user-img" style="border:none; height:55px;width:55px" src="{% static 'entret.png' %}" alt="User profile picture">Etats des entretiens 
 {% endblock page_title %} 
 
 {% block page_action %}
@@ -22,8 +22,7 @@
                 {% if categorie.categorie == 'Exporter' %}
                     {% for perm in perms %}
                         {% if perm.name == "Exporter entretien" %}
-                            <button type="button" class="btn btn-default text-danger" id="printButton">PDF <i class='fa fa-file-pdf-o'></i></button>
-                            <a href="{% url 'export_entretien_excel' %}?date_debut={{ form.date_debut.value }}&date_fin={{ form.date_fin.value }}&immatriculation={{ form.immatriculation.value }}&categorie={{ form.categorie.value }}" class="btn btn-default text-success">
+                            <a href="{% url 'export_entretien_excel' %}?date_debut={{ request.GET.date_debut }}&date_fin={{ request.GET.date_fin }}&immatriculation={{ request.GET.immatriculation }}&categorie={{ request.GET.categorie }}" class="btn btn-default text-success">
                                 Excel <i class="fa fa-file-excel-o"></i>
                             </a>
                         {% endif %}
@@ -145,7 +144,7 @@
                                     <!-- /.card-header -->
                                     <div class="card-body table-responsive p-2">
                                         <div id="example1_wrapper" class="dataTables_wrapper dt-bootstrap4">
-                                            <table id="example1" class="table table-bordered table-striped dataTable" role="grid" aria-describedby="example1_info">
+                                            <table id="example1" class="table table-bordered table-striped table-hover dataTable" role="grid" aria-describedby="example1_info">
                                                 <thead>
                                                     <tr class="text-center text-danger">
                                                         <th>

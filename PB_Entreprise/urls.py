@@ -92,7 +92,7 @@ urlpatterns = [
     path('autre-arret/<int:pk>/modifier', views.UpdateAutrarretView.as_view(), name='updat_autarret'),
     path('Liste-autres-arrets', ListarretView.as_view(), name='liste_aut_arrets'),
     path('autres-arrets/delete-selected/', views.delete_selected_autarret, name='delete_selected_autarret'),
-    path('autre-arret/export-excel/', ExportAutrarretExcelView.as_view(), name='export_autrarrets'),
+    path('autre-arret/export-excel/', ExportAutrarretExcelView.as_view(), name='export_autrarrets_excel'),
 
     path('vehicule /<int:pk>/ addvisite', AddVisitView.as_view(), name="add_visit"), 
     path('visite/<int:pk>/ modifier', UpdateVisiteView.as_view(), name="updat_visit"), 

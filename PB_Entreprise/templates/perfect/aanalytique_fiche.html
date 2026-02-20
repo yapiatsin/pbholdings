@@ -1,7 +1,7 @@
 {% extends 'perfect/bases.html' %} 
 {% load static %} 
-{% block title %}Fiche Analytique Exploitation{% endblock title %}
-{% block page_title %} FICHE ANALYTIQUE EXPLOITATION{% endblock page_title %} 
+{% block title %}Etat Analytique Exploitation{% endblock title %}
+{% block page_title %} ETAT ANALYTIQUE EXPLOITATION{% endblock page_title %} 
 {% block search_form %}
     <div class="col-sm-12 text-right mb-2">
         <a class="btn btn-default text-info" data-toggle="modal" data-target="#modal-filtre-analytique" href="#" style="font-size: 16px;">
@@ -103,10 +103,10 @@
 <div class="col-lg-12">
     <div class="card" style="border-radius:25px;">
         <div class="card-body table-responsive p-0" style="border-radius:25px;">
-            <h5 class="text-center mb-3" style="font-weight:700; color:#df2a33;">
+            <h5 class="text-center mb-3 mt-3" style="font-weight:700; color:#df2a33;">
                 ANALYTIQUE - {{ period_label|upper }}
             </h5>
-            <table class="table table-bordered table-sm" style="font-size:13px; border:none; border-bottom: 2px solid rgb(241, 181, 181);">
+            <table class="table table-bordered table-hover table-sm" style="font-size:13px; border:none; border-bottom: 2px solid rgb(250, 242, 242);">
                 <thead>
                     <tr style="font-weight: 700; background-color:rgb(17, 112, 236); font-size: 14px;">
                         <th class="text-left" style="background-color:rgb(17, 112, 236); color:white;">N°</th>
@@ -124,23 +124,23 @@
                 </thead>
                 <tbody>
                     {% for row in resultat_vehicule %}
-                    <tr style="font-size:15px;">
-                        <td class="text-left">{{ row.numero }}</td>
-                        <td class="text-left">{{ row.vehicule.immatriculation }}</td>
-                        <td class="text-left">{{ row.vehicule.marque }}</td>
-                        <td class="text-left">{{ row.vehicule.category.category }}</td>
-                        <td class="text-right">{% if row.recettes %}{{ row.recettes }}{% else %}-{% endif %}</td>
-                        <td class="text-right">{{ row.charge_fix|default:"-" }}</td>
-                        <td class="text-right">{{ row.charge_var|default:"-" }}</td>
-                        <td class="text-right">{{ row.total_charge|default:"-" }}</td>
-                        <td class="text-right">{{ row.marge_contribution|default:"-" }}</td>
-                        <td class="text-right" {% if row.taux_marge >= 90 %}style="background-color: rgba(213, 247, 121, 0.85);"{% endif %}>{{ row.taux_marge_str }}</td>
-                        <td class="text-right">{{row.marge_cout_direct|default:"-"}}</td>
-                    </tr>
+                        <tr style="font-size:15px;">
+                            <td class="text-left">{{ row.numero }}</td>
+                            <td class="text-left">{{ row.vehicule.immatriculation }}</td>
+                            <td class="text-left">{{ row.vehicule.marque }}</td>
+                            <td class="text-left">{{ row.vehicule.category.category }}</td>
+                            <td class="text-right">{% if row.recettes %}{{ row.recettes }}{% else %}-{% endif %}</td>
+                            <td class="text-right">{{ row.charge_fix|default:"-" }}</td>
+                            <td class="text-right">{{ row.charge_var|default:"-" }}</td>
+                            <td class="text-right">{{ row.total_charge|default:"-" }}</td>
+                            <td class="text-right">{{ row.marge_contribution|default:"-" }}</td>
+                            <td class="text-right" {% if row.taux_marge >= 90 %}style="background-color: rgba(213, 247, 121, 0.85);"{% endif %}>{{ row.taux_marge_str }}</td>
+                            <td class="text-right">{{row.marge_cout_direct|default:"-"}}</td>
+                        </tr>
                     {% empty %}
-                    <tr>
-                        <td colspan="12" class="text-center text-muted">Aucun véhicule trouvé pour la période sélectionnée.</td>
-                    </tr>
+                        <tr>
+                            <td colspan="12" class="text-center text-muted">Aucun véhicule trouvé pour la période sélectionnée.</td>
+                        </tr>
                     {% endfor %}
                 </tbody>
                 <tfoot>

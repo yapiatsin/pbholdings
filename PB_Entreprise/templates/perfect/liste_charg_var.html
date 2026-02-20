@@ -13,7 +13,7 @@
     </form>
 {% endblock navbar_nav %}
 {% block page_title %}
-    <img class="profile-user-img" style="border:none; height:55px;width:55px" src="{% static 'chargvar.png' %}" alt="picture">Etat des charges variables
+    <img class="profile-user-img" style="border:none; height:55px;width:55px" src="{% static 'chargvar.png' %}" alt="picture">Etats des charges variables
 {% endblock page_title %} 
 
 {% block page_action %}
@@ -139,17 +139,14 @@
                                 <form method="post" action="{% url 'delete_selected_chargvar' %}" id="deleteForm">
                                     {% csrf_token %}
                                     <div class="card-header">
-                                        <h3 class="card-title">
-                                            {% comment %} <button type="button" class="btn btn-default" id="printButton">PDF <i class='fa fa-file-pdf-o'></i></button> {% endcomment %}
-                                            {% comment %} <button type="button" class="btn btn-default">Excell <i class='fa fa-file-excel-o'></i></button> {% endcomment %}
-                                        </h3>
+                                        <h3 class="card-title"></h3>
                                         <div class="card-tools">
                                             <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
                                         </div>
                                     </div>
                                     <div class="card-body table-responsive p-2">
                                         <div id="example1_wrapper" class="dataTables_wrapper dt-bootstrap4">
-                                            <table id="example1" class="table table-bordered table-striped dataTable" role="grid" aria-describedby="example1_info">
+                                            <table id="example1" class="table table-bordered table-striped table-hover dataTable" role="grid" aria-describedby="example1_info">
                                                 <thead>
                                                     <tr class="text-center text-danger">
                                                         <th><input type="checkbox" id="select-all"></th>

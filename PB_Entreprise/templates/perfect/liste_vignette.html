@@ -14,7 +14,7 @@
 {% endblock navbar_nav %}
 
 {% block page_title %}
-    <img class="profile-user-img" style="border:none; height:45px;width:45px" src="{% static 'visit.png' %}" alt="User profile picture">Liste des vignettes
+    <img class="profile-user-img" style="border:none; height:45px;width:45px" src="{% static 'visit.png' %}" alt="User profile picture">Etats des vignettes
 {% endblock page_title %} 
 
 {% block page_action %}
@@ -136,15 +136,14 @@
                                 <form method="post" action="{% url 'delete_selected_vignette' %}" id="deleteForm">
                                     {% csrf_token %}
                                     <div class="card-header">
-                                        <h3 class="card-title">
-                                        </h3>
+                                        <h3 class="card-title"></h3>
                                         <div class="card-tools">
                                             <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
                                         </div>
                                     </div>
                                     <div class="card-body">
                                         <div id="example1_wrapper" class="dataTables_wrapper dt-bootstrap4">
-                                            <table id="example1" class="table table-bordered table-striped dataTable" role="grid" aria-describedby="example1_info">
+                                            <table id="example1" class="table table-bordered table-hover table-striped dataTable" role="grid" aria-describedby="example1_info">
                                                 <thead>
                                                     <tr class="text-center text-danger">
                                                         <th>
