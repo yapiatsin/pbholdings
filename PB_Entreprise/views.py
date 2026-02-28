@@ -64,197 +64,321 @@ class Bilanday(TemplateView):
     template_name = 'perfect/bilan_day.html'
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        dates = date.today()
-        annee = date.today().year
-        mois = date.today().month
-        mois_en_cours =date.today().month
-        libelle_mois_en_cours = calendar.month_name[mois_en_cours]
+        today = date.today()
+        dates = today
         label = [calendar.month_name[month][:1] for month in range(1, 13)]
-#-----------------------------------Pour Faire les filtre selon les dates entrées---------------------------------
+        mois_fr = ('', 'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre')
+        month_choices = [(i, mois_fr[i]) for i in range(1, 13)]
         form = self.form_class(self.request.GET)
-        if form.is_valid():
-            date_debut = form.cleaned_data['date_debut'] 
-            date_fin = form.cleaned_data['date_fin'] 
-            catego_vehi = CategoVehi.objects.all().annotate(vehicule_count=Count("category"))
-            ################################----Recettes----#############################
-            total_recettes_vtc = Recette.objects.filter(vehicule__category__category='VTC',date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 1
-            list_recettes_vtc = Recette.objects.filter(vehicule__category__category='VTC',date_saisie__range=[date_debut, date_fin])
-            
-            total_recettes_taxi = Recette.objects.filter(vehicule__category__category='TAXI',date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 1
-            list_recettes_taxi = Recette.objects.filter(vehicule__category__category='TAXI',date_saisie__range=[date_debut, date_fin])
-            total_recettes = total_recettes_vtc + total_recettes_taxi
-            ################################----Pieces----#############################
-            total_piece= Piece.objects.filter(date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
-            list_piece= Piece.objects.filter(date_saisie__range=[date_debut, date_fin])
-            ################################----Pieces echanges----#############################
-            total_piec_echange= PiecEchange.objects.filter(date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
-            list_piec_echange= PiecEchange.objects.filter(date_saisie__range=[date_debut, date_fin])
-            
-            ################################----Charges----#############################
-            total_charg_fix = ChargeFixe.objects.filter(date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
-            list_charg_fix = ChargeFixe.objects.filter(date_saisie__range=[date_debut, date_fin])
-            
-            total_charg_var = ChargeVariable.objects.filter(date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
-            list_charg_var = ChargeVariable.objects.filter(date_saisie__range=[date_debut, date_fin])
-            
-            total_charg_admin = ChargeVariable.objects.filter(date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
-            list_charg_admin = ChargeVariable.objects.filter(date_saisie__range=[date_debut, date_fin])
-            ################################----Charge Totale----#############################
-            total_charg = total_charg_fix + total_charg_var
-            
-            #-------------------------------------------------------------------------------------------------------------------------------
-            total_reparation = Reparation.objects.filter(date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
-            list_reparation =Reparation.objects.filter(date_saisie__range=[date_debut, date_fin])
-            
-            total_assurances = Assurance.objects.filter(date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
-            list_assurance = Assurance.objects.filter(date_saisie__range=[date_debut, date_fin])
-            
-            total_visite = VisiteTechnique.objects.filter(date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
-            list_visite = VisiteTechnique.objects.filter(date_saisie__range=[date_debut, date_fin])
-            
-            total_entretien = Entretien.objects.filter(date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
-            list_entretien = Entretien.objects.filter(date_saisie__range=[date_debut, date_fin])
-            
-            total_patente = Patente.objects.filter(date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
-            list_patente = Patente.objects.filter(date_saisie__range=[date_debut, date_fin])
-            
-            total_vignette = Vignette.objects.filter(date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
-            list_vignette = Vignette.objects.filter(date_saisie__range=[date_debut, date_fin])
-            
-            total_encaissement = Encaissement.objects.filter(date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
-            list_encaissement = Encaissement.objects.filter(date_saisie__range=[date_debut, date_fin])
-            
-            total_decaissement = Decaissement.objects.filter(date_saisie__range=[date_debut, date_fin]).aggregate(somme=Sum('montant'))['somme'] or 0
-            list_decaissement = Decaissement.objects.filter(date_saisie__range=[date_debut, date_fin])
-            
-            ################################----Marge de contribution----#############################
-            # marge_contribution = total_recettes - total_charg
-            marge_contribution = total_recettes - total_charg_var
-            ################################----Taux----#############################
-            if total_recettes == 1:
-                taux_marge = 0
-            else:
-                taux_marge = (marge_contribution*100/(total_recettes))
-            taux_marge_format ='{:.2f}'.format(taux_marge)
-            ################################----Marge brute----#############################
-            marge_brute = total_recettes - total_charg
-            marge_brute_format ='{:,}'.format(marge_brute).replace(',', ' ')
-           
+        # Catégories dynamiques (comme AllVehiculeView) : nb véhicules avec car_statut=True
+        catego_vehi = CategoVehi.objects.all().annotate(
+            vehicule_count=Count('catego_vehicule', filter=Q(catego_vehicule__car_statut=True))
+        ).order_by('id')
+        date_debut = date_fin = today
+        if form.is_valid() and form.cleaned_data.get('date_debut') and form.cleaned_data.get('date_fin'):
+            date_debut = form.cleaned_data['date_debut']
+            date_fin = form.cleaned_data['date_fin']
+            date_filter = {'date_saisie__range': [date_debut, date_fin]}
         else:
-            catego_vehi = CategoVehi.objects.all().annotate(vehicule_count=Count("category"))
-            ################################----Recettes----#############################
-            total_recettes_vtc = Recette.objects.filter(vehicule__category__category='VTC', date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 1
-            list_recettes_vtc = Recette.objects.filter(vehicule__category__category='VTC', date_saisie=date.today())
-            
-            total_recettes_taxi = Recette.objects.filter(vehicule__category__category='TAXI', date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 1
-            list_recettes_taxi = Recette.objects.filter(vehicule__category__category='TAXI', date_saisie=date.today())
-            total_recettes = total_recettes_vtc + total_recettes_vtc
-            ################################----Pieces----#############################
-            total_piece= Piece.objects.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
-            list_piece= Piece.objects.filter(date_saisie=date.today())
-            ################################----Pieces echanges----#############################
-            total_piec_echange= PiecEchange.objects.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
-            list_piec_echange= PiecEchange.objects.filter(date_saisie=date.today())
-            ################################----Charges----#############################
-            total_charg_fix = ChargeFixe.objects.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
-            list_charg_fix = ChargeFixe.objects.filter(date_saisie=date.today())
-            #-------------------------------------------------------------------------------------------------------------------------------
-            total_charg_var = ChargeVariable.objects.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
-            list_charg_var = ChargeVariable.objects.filter(date_saisie=date.today())
-            #-------------------------------------------------------------------------------------------------------------------------------
-            total_charg_admin = ChargeVariable.objects.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
-            list_charg_admin = ChargeVariable.objects.filter(date_saisie=date.today())
-            
-            #-------------------------------------------------------------------------------------------------------------------------------
-            total_reparation = Reparation.objects.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
-            list_reparation =Reparation.objects.filter(date_saisie=date.today())
-            
-            total_assurances = Assurance.objects.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
-            list_assurance = Assurance.objects.filter(date_saisie=date.today())
-            
-            total_visite = VisiteTechnique.objects.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
-            list_visite = VisiteTechnique.objects.filter(date_saisie=date.today())
-            
-            total_entretien = Entretien.objects.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
-            list_entretien = Entretien.objects.filter(date_saisie=date.today())
-            
-            total_patente = Patente.objects.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
-            list_patente = Patente.objects.filter(date_saisie=date.today())
-            
-            total_vignette = Vignette.objects.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
-            list_vignette = Vignette.objects.filter(date_saisie=date.today())
-            
-            total_encaissement = Encaissement.objects.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
-            list_encaissement = Encaissement.objects.filter(date_saisie=date.today())
-            
-            total_decaissement = Decaissement.objects.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
-            list_decaissement = Decaissement.objects.filter(date_saisie=date.today())
-            
-            ################################----Charge Totale----#############################
-            total_charg = total_charg_fix + total_charg_var
-            ################################----Marge de contribution----#############################
-            # marge_contribution = total_recettes - total_charg
-            marge_contribution = total_recettes - total_charg_var
-            ################################----Taux----#############################
-            if total_recettes == 1:
-                taux_marge = 0
-            else:
-                taux_marge = (marge_contribution*100/(total_recettes))
-            taux_marge_format ='{:.2f}'.format(taux_marge)
-            ################################----Marge brute----#############################
-            marge_brute = total_recettes - total_charg
-            
-        context={
-            'total_recettes_taxi':total_recettes_taxi,
-            'list_recettes_taxi':list_recettes_taxi,
-            'total_recettes_vtc':total_recettes_vtc,
-            'list_recettes_vtc':list_recettes_vtc,
-            
-            'total_recettes':total_recettes,
-            'total_piece':total_piece,
-            'list_piece':list_piece,
-            
-            'total_piec_echange':total_piec_echange,
-            'list_piec_echange':list_piec_echange,
-            
-            'total_charg_fix':total_charg_fix,
-            'list_charg_fix':list_charg_fix,
-            
-            'total_charg_var':total_charg_var,
-            'list_charg_var':list_charg_var,
-            
-            'total_charg_admin':total_charg_admin,
-            'list_charg_admin':list_charg_admin,
-            
-            'total_reparation':total_reparation,
-            'list_reparation':list_reparation,
-            
-            'total_assurances':total_assurances,
-            'list_assurance':list_assurance,
-            
-            'total_visite':total_visite,
-            'list_visite':list_visite,
-            
-            'total_entretien':total_entretien,
-            'list_entretien':list_entretien,
-            
-            'total_patente':total_patente,
-            'list_patente':list_patente,
-            
-            'total_vignette':total_vignette,
-            'list_vignette':list_vignette,
-            
-            'total_encaissement':total_encaissement,
-            'list_encaissement':list_encaissement,
-            
-            'total_decaissement':total_decaissement,
-            'list_decaissement':list_decaissement,
-            
-            'labels':label,
-            'form':form,
-            'dates':dates
-        }
+            date_filter = {'date_saisie': today}
+        recettes_par_categorie = []
+        total_recettes = 0
+        for cat in catego_vehi:
+            qs = Recette.objects.filter(vehicule__category=cat, **date_filter)
+            total_cat = qs.aggregate(somme=Sum('montant'))['somme'] or 0
+            total_recettes += total_cat
+            recettes_par_categorie.append({
+                'categorie': cat,
+                'total': total_cat,
+                'list': qs,
+            })
+        list_recettes = Recette.objects.filter(**date_filter)
+
+        # Compatibilité template : 1ère et 2ème catégorie (si existantes)
+        total_recettes_vtc = recettes_par_categorie[0]['total'] if len(recettes_par_categorie) > 0 else 0
+        list_recettes_vtc = recettes_par_categorie[0]['list'] if len(recettes_par_categorie) > 0 else Recette.objects.none()
+        total_recettes_taxi = recettes_par_categorie[1]['total'] if len(recettes_par_categorie) > 1 else 0
+        list_recettes_taxi = recettes_par_categorie[1]['list'] if len(recettes_par_categorie) > 1 else Recette.objects.none()
+
+        # ---- Pièces ----
+        total_piece = Piece.objects.filter(**date_filter).aggregate(somme=Sum('montant'))['somme'] or 0
+        list_piece = Piece.objects.filter(**date_filter)
+        total_piec_echange = PiecEchange.objects.filter(**date_filter).aggregate(somme=Sum('montant'))['somme'] or 0
+        list_piec_echange = PiecEchange.objects.filter(**date_filter)
+
+        # ---- Charges ----
+        total_charg_fix = ChargeFixe.objects.filter(**date_filter).aggregate(somme=Sum('montant'))['somme'] or 0
+        list_charg_fix = ChargeFixe.objects.filter(**date_filter)
+        total_charg_var = ChargeVariable.objects.filter(**date_filter).aggregate(somme=Sum('montant'))['somme'] or 0
+        list_charg_var = ChargeVariable.objects.filter(**date_filter)
+        total_charg_admin = ChargeVariable.objects.filter(**date_filter).aggregate(somme=Sum('montant'))['somme'] or 0
+        list_charg_admin = ChargeVariable.objects.filter(**date_filter)
+        total_charg = total_charg_fix + total_charg_var
+
+        # ---- Réparations, assurances, visites, etc. ----
+        total_reparation = Reparation.objects.filter(**date_filter).aggregate(somme=Sum('montant'))['somme'] or 0
+        list_reparation = Reparation.objects.filter(**date_filter)
+        total_assurances = Assurance.objects.filter(**date_filter).aggregate(somme=Sum('montant'))['somme'] or 0
+        list_assurance = Assurance.objects.filter(**date_filter)
+        total_visite = VisiteTechnique.objects.filter(**date_filter).aggregate(somme=Sum('montant'))['somme'] or 0
+        list_visite = VisiteTechnique.objects.filter(**date_filter)
+        total_entretien = Entretien.objects.filter(**date_filter).aggregate(somme=Sum('montant'))['somme'] or 0
+        list_entretien = Entretien.objects.filter(**date_filter)
+        total_patente = Patente.objects.filter(**date_filter).aggregate(somme=Sum('montant'))['somme'] or 0
+        list_patente = Patente.objects.filter(**date_filter)
+        total_vignette = Vignette.objects.filter(**date_filter).aggregate(somme=Sum('montant'))['somme'] or 0
+        list_vignette = Vignette.objects.filter(**date_filter)
+        total_encaissement = Encaissement.objects.filter(**date_filter).aggregate(somme=Sum('montant'))['somme'] or 0
+        list_encaissement = Encaissement.objects.filter(**date_filter)
+        total_decaissement = Decaissement.objects.filter(**date_filter).aggregate(somme=Sum('montant'))['somme'] or 0
+        list_decaissement = Decaissement.objects.filter(**date_filter)
+
+        # ---- Marges et taux ----
+        marge_contribution = total_recettes - total_charg_var
+        taux_marge = (marge_contribution * 100 / total_recettes) if total_recettes else 0
+        taux_marge_format = '{:.2f}'.format(taux_marge)
+        marge_brute = total_recettes - total_charg
+        marge_brute_format = '{:,}'.format(marge_brute).replace(',', ' ')
+
+        # ---- Comptabilité : Débit / Crédit / Solde ----
+        # Produits (recettes) → Crédit ; Charges et mouvements sortants → Débit ; Encaissements → Débit ; Décaisseements → Crédit
+        total_debit = (
+            total_charg_fix + total_charg_var + total_reparation + total_assurances
+            + total_visite + total_entretien + total_patente + total_vignette
+            + total_piece + total_piec_echange + total_encaissement
+        )
+        total_credit = total_recettes + total_decaissement
+        solde_periode = total_credit - total_debit
+        period_label = (
+            f"Du {date_debut.strftime('%d/%m/%Y')} au {date_fin.strftime('%d/%m/%Y')}"
+            if date_debut != date_fin
+            else f"Jour du {date_debut.strftime('%d/%m/%Y')}"
+        )
+
+        def _fmt(n):
+            return '{:,}'.format(n).replace(',', ' ') if n else '0'
+
+        # Lignes du tableau bilan (Débit / Crédit / Solde par ligne)
+        lignes_bilan = [
+            {'section': '70', 'intitule': "Recettes d'exploitation", 'debit': 0, 'credit': total_recettes, 'solde': total_recettes},
+            {'section': '61', 'intitule': 'Charges fixes', 'debit': total_charg_fix, 'credit': 0, 'solde': -total_charg_fix},
+            {'section': '62', 'intitule': 'Charges variables', 'debit': total_charg_var, 'credit': 0, 'solde': -total_charg_var},
+            {'section': '63', 'intitule': 'Réparations', 'debit': total_reparation, 'credit': 0, 'solde': -total_reparation},
+            {'section': '64', 'intitule': 'Assurances', 'debit': total_assurances, 'credit': 0, 'solde': -total_assurances},
+            {'section': '65', 'intitule': 'Visites techniques', 'debit': total_visite, 'credit': 0, 'solde': -total_visite},
+            {'section': '66', 'intitule': 'Entretiens', 'debit': total_entretien, 'credit': 0, 'solde': -total_entretien},
+            {'section': '67', 'intitule': 'Patentes', 'debit': total_patente, 'credit': 0, 'solde': -total_patente},
+            {'section': '68', 'intitule': 'Vignettes', 'debit': total_vignette, 'credit': 0, 'solde': -total_vignette},
+            {'section': '69', 'intitule': 'Pièces (réparations)', 'debit': total_piece, 'credit': 0, 'solde': -total_piece},
+            {'section': '69', 'intitule': 'Pièces échangées', 'debit': total_piec_echange, 'credit': 0, 'solde': -total_piec_echange},
+            {'section': '53', 'intitule': 'Encaissements (caisse)', 'debit': total_encaissement, 'credit': 0, 'solde': total_encaissement},
+            {'section': '53', 'intitule': 'Décaisseements (caisse)', 'debit': 0, 'credit': total_decaissement, 'solde': -total_decaissement},
+        ]
+        for L in lignes_bilan:
+            L['debit_fmt'] = _fmt(L['debit']) if L['debit'] else ''
+            L['credit_fmt'] = _fmt(L['credit']) if L['credit'] else ''
+            L['solde_fmt'] = _fmt(abs(L['solde']))
+            L['solde_créditeur'] = L['solde'] > 0
+            L['solde_débiteur'] = L['solde'] < 0
+
+        context.update({
+            'date_debut': date_debut,
+            'date_fin': date_fin,
+            'period_label': period_label,
+            'lignes_bilan': lignes_bilan,
+            'total_debit': total_debit,
+            'total_credit': total_credit,
+            'solde_periode': solde_periode,
+            'total_debit_fmt': _fmt(total_debit),
+            'total_credit_fmt': _fmt(total_credit),
+            'solde_periode_fmt': _fmt(abs(solde_periode)),
+            'solde_periode_crediteur': solde_periode >= 0,
+            'catego_vehi': catego_vehi,
+            'recettes_par_categorie': recettes_par_categorie,
+            'total_recettes_taxi': total_recettes_taxi,
+            'list_recettes_taxi': list_recettes_taxi,
+            'total_recettes_vtc': total_recettes_vtc,
+            'list_recettes_vtc': list_recettes_vtc,
+            'total_recettes': total_recettes,
+            'list_recettes': list_recettes,
+            'total_piece': total_piece,
+            'list_piece': list_piece,
+            'total_piec_echange': total_piec_echange,
+            'list_piec_echange': list_piec_echange,
+            'total_charg_fix': total_charg_fix,
+            'list_charg_fix': list_charg_fix,
+            'total_charg_var': total_charg_var,
+            'list_charg_var': list_charg_var,
+            'total_charg_admin': total_charg_admin,
+            'list_charg_admin': list_charg_admin,
+            'total_reparation': total_reparation,
+            'list_reparation': list_reparation,
+            'total_assurances': total_assurances,
+            'list_assurance': list_assurance,
+            'total_visite': total_visite,
+            'list_visite': list_visite,
+            'total_entretien': total_entretien,
+            'list_entretien': list_entretien,
+            'total_patente': total_patente,
+            'list_patente': list_patente,
+            'total_vignette': total_vignette,
+            'list_vignette': list_vignette,
+            'total_encaissement': total_encaissement,
+            'list_encaissement': list_encaissement,
+            'total_decaissement': total_decaissement,
+            'list_decaissement': list_decaissement,
+            'marge_contribution': marge_contribution,
+            'taux_marge_format': taux_marge_format,
+            'marge_brute': marge_brute,
+            'marge_brute_format': marge_brute_format,
+            'labels': label,
+            'month_choices': month_choices,
+            'years': range(today.year - 2, today.year + 1),
+            'form': form,
+            'dates': dates,
+        })
         return context
+
+def _get_bilanday_data_for_period(date_debut, date_fin):
+    """Calcule les données du bilan pour une période (ou un jour). Utilisé par Bilanday et ExportBilandayExcelView."""
+    today = date.today()
+    if date_debut != date_fin:
+        date_filter = {'date_saisie__range': [date_debut, date_fin]}
+    else:
+        date_filter = {'date_saisie': date_debut}
+
+    total_recettes = Recette.objects.filter(**date_filter).aggregate(somme=Sum('montant'))['somme'] or 0
+    total_charg_fix = ChargeFixe.objects.filter(**date_filter).aggregate(somme=Sum('montant'))['somme'] or 0
+    total_charg_var = ChargeVariable.objects.filter(**date_filter).aggregate(somme=Sum('montant'))['somme'] or 0
+    total_reparation = Reparation.objects.filter(**date_filter).aggregate(somme=Sum('montant'))['somme'] or 0
+    total_assurances = Assurance.objects.filter(**date_filter).aggregate(somme=Sum('montant'))['somme'] or 0
+    total_visite = VisiteTechnique.objects.filter(**date_filter).aggregate(somme=Sum('montant'))['somme'] or 0
+    total_entretien = Entretien.objects.filter(**date_filter).aggregate(somme=Sum('montant'))['somme'] or 0
+    total_patente = Patente.objects.filter(**date_filter).aggregate(somme=Sum('montant'))['somme'] or 0
+    total_vignette = Vignette.objects.filter(**date_filter).aggregate(somme=Sum('montant'))['somme'] or 0
+    total_piece = Piece.objects.filter(**date_filter).aggregate(somme=Sum('montant'))['somme'] or 0
+    total_piec_echange = PiecEchange.objects.filter(**date_filter).aggregate(somme=Sum('montant'))['somme'] or 0
+    total_encaissement = Encaissement.objects.filter(**date_filter).aggregate(somme=Sum('montant'))['somme'] or 0
+    total_decaissement = Decaissement.objects.filter(**date_filter).aggregate(somme=Sum('montant'))['somme'] or 0
+
+    total_debit = (
+        total_charg_fix + total_charg_var + total_reparation + total_assurances
+        + total_visite + total_entretien + total_patente + total_vignette
+        + total_piece + total_piec_echange + total_encaissement
+    )
+    total_credit = total_recettes + total_decaissement
+    solde_periode = total_credit - total_debit
+    period_label = (
+        f"Du {date_debut.strftime('%d/%m/%Y')} au {date_fin.strftime('%d/%m/%Y')}"
+        if date_debut != date_fin
+        else f"Jour du {date_debut.strftime('%d/%m/%Y')}"
+    )
+
+    def _fmt(n):
+        return '{:,}'.format(n).replace(',', ' ') if n else '0'
+
+    lignes_bilan = [
+        {'section': '70', 'intitule': "Recettes d'exploitation", 'debit': 0, 'credit': total_recettes, 'solde': total_recettes},
+        {'section': '61', 'intitule': 'Charges fixes', 'debit': total_charg_fix, 'credit': 0, 'solde': -total_charg_fix},
+        {'section': '62', 'intitule': 'Charges variables', 'debit': total_charg_var, 'credit': 0, 'solde': -total_charg_var},
+        {'section': '63', 'intitule': 'Réparations', 'debit': total_reparation, 'credit': 0, 'solde': -total_reparation},
+        {'section': '64', 'intitule': 'Assurances', 'debit': total_assurances, 'credit': 0, 'solde': -total_assurances},
+        {'section': '65', 'intitule': 'Visites techniques', 'debit': total_visite, 'credit': 0, 'solde': -total_visite},
+        {'section': '66', 'intitule': 'Entretiens', 'debit': total_entretien, 'credit': 0, 'solde': -total_entretien},
+        {'section': '67', 'intitule': 'Patentes', 'debit': total_patente, 'credit': 0, 'solde': -total_patente},
+        {'section': '68', 'intitule': 'Vignettes', 'debit': total_vignette, 'credit': 0, 'solde': -total_vignette},
+        {'section': '69', 'intitule': 'Pièces (réparations)', 'debit': total_piece, 'credit': 0, 'solde': -total_piece},
+        {'section': '69', 'intitule': 'Pièces échangées', 'debit': total_piec_echange, 'credit': 0, 'solde': -total_piec_echange},
+        {'section': '53', 'intitule': 'Encaissements (caisse)', 'debit': total_encaissement, 'credit': 0, 'solde': total_encaissement},
+        {'section': '53', 'intitule': 'Décaisseements (caisse)', 'debit': 0, 'credit': total_decaissement, 'solde': -total_decaissement},
+    ]
+    for L in lignes_bilan:
+        L['debit_fmt'] = _fmt(L['debit']) if L['debit'] else ''
+        L['credit_fmt'] = _fmt(L['credit']) if L['credit'] else ''
+        L['solde_fmt'] = _fmt(abs(L['solde']))
+        L['solde_créditeur'] = L['solde'] > 0
+        L['solde_débiteur'] = L['solde'] < 0
+
+    return {
+        'period_label': period_label,
+        'lignes_bilan': lignes_bilan,
+        'total_debit_fmt': _fmt(total_debit),
+        'total_credit_fmt': _fmt(total_credit),
+        'solde_periode_fmt': _fmt(abs(solde_periode)),
+        'solde_periode_crediteur': solde_periode >= 0,
+    }
+
+class ExportBilandayExcelView(LoginRequiredMixin, View):
+    """Export du bilan journalier / période au format Excel. Par défaut : jour en cours ; si date_debut et date_fin en GET : période du filtre."""
+    login_url = 'login'
+
+    def get(self, request, *args, **kwargs):
+        today = date.today()
+        date_debut = date_fin = today
+        form = DateForm(request.GET)
+        if form.is_valid() and form.cleaned_data.get('date_debut') and form.cleaned_data.get('date_fin'):
+            date_debut = form.cleaned_data['date_debut']
+            date_fin = form.cleaned_data['date_fin']
+
+        data = _get_bilanday_data_for_period(date_debut, date_fin)
+        period_label = data['period_label']
+        lignes_bilan = data['lignes_bilan']
+        total_debit_fmt = data['total_debit_fmt']
+        total_credit_fmt = data['total_credit_fmt']
+        solde_periode_fmt = data['solde_periode_fmt']
+        solde_periode_crediteur = data['solde_periode_crediteur']
+
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "Bilan"
+
+        header_font = Font(bold=True, color="035C9F")
+        header_fill = PatternFill(start_color="F2F2F2", end_color="F2F2F2", fill_type="solid")
+
+        ws.append(["Bilan — " + period_label])
+        ws.merge_cells(start_row=1, start_column=1, end_row=1, end_column=6)
+        ws.cell(row=1, column=1).font = header_font
+        ws.append([])
+        ws.append(["Section", "Intitulé de section", "Débit", "Crédit", "Soldes", "Exercice précédent"])
+        for col in range(1, 7):
+            ws.cell(row=3, column=col).font = Font(bold=True)
+            ws.cell(row=3, column=col).fill = header_fill
+
+        row = 4
+        for L in lignes_bilan:
+            solde_str = ''
+            if L['solde_créditeur']:
+                solde_str = 'C-' + L['solde_fmt']
+            elif L['solde_débiteur']:
+                solde_str = 'D-' + L['solde_fmt']
+            ws.append([L['section'], L['intitule'], L['debit_fmt'], L['credit_fmt'], solde_str, ''])
+            row += 1
+
+        ws.append([])
+        row += 1
+        ws.append(["Total", "", total_debit_fmt, total_credit_fmt,
+                   ('C-' if solde_periode_crediteur else 'D-') + solde_periode_fmt, ''])
+        for col in range(1, 7):
+            ws.cell(row=row, column=col).font = Font(bold=True)
+        row += 1
+        ws.append(["A reporter (résultat période)", "", total_debit_fmt, total_credit_fmt,
+                   ('C-' if solde_periode_crediteur else 'D-') + solde_periode_fmt, ''])
+        for col in range(1, 7):
+            ws.cell(row=row, column=col).font = Font(bold=True)
+
+        for col, width in enumerate([12, 35, 18, 18, 18, 18], 1):
+            ws.column_dimensions[get_column_letter(col)].width = width
+
+        response = HttpResponse(
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+        filename = f"Bilan-{date_debut.strftime('%d-%m-%Y')}"
+        if date_debut != date_fin:
+            filename += f"_au_{date_fin.strftime('%d-%m-%Y')}"
+        filename += ".xlsx"
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        wb.save(response)
+        return response
 
 class TableaustopView(CustomPermissionRequiredMixin,TemplateView):
     model = Vehicule
@@ -276,13 +400,13 @@ class TableaustopView(CustomPermissionRequiredMixin,TemplateView):
                 gerant = user.gerants.get()
                 categories_gerant = gerant.gerant_voiture.all()
                 if categories_gerant.exists():  
-                    vehicules = Vehicule.objects.filter(category__in=categories_gerant)
+                    vehicules = Vehicule.objects.filter(category__in=categories_gerant, car_statut=True)
                 else:
                     vehicules = Vehicule.objects.none()
             except Gerant.DoesNotExist:
                 vehicules = Vehicule.objects.none()
         else:
-            vehicules = Vehicule.objects.all()
+            vehicules = Vehicule.objects.filter(car_statut=True)
 
         # Filtre par catégorie si sélectionnée
         selected_categorie_id = self.request.GET.get('categorie', '').strip()
@@ -1039,7 +1163,7 @@ class MyRecetteView(CustomPermissionRequiredMixin, LoginRequiredMixin, TemplateV
             if datetime(year, month, day).weekday() == SUNDAY
         ]
         jours_ouvrables = days_in_month - len(dimanches)
-        vehicules = Vehicule.objects.select_related('category').all()
+        vehicules = Vehicule.objects.select_related('category').filter(car_statut=True)
         # Filtre par catégorie si sélectionnée
         selected_categorie_id = self.request.GET.get('categorie', '').strip()
         if selected_categorie_id:
@@ -1401,7 +1525,7 @@ class DashboardView(CustomPermissionRequiredMixin,LoginRequiredMixin,TemplateVie
         
         jours_semaine = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"]
         categories = CategoVehi.objects.all()
-        vehicules = Vehicule.objects.all()
+        vehicules = Vehicule.objects.filter(car_statut=True)
 
         recette_queryset = Recette.objects.all()
         chargfix_queryset = ChargeFixe.objects.all()
@@ -1953,6 +2077,7 @@ class BilletageView(CustomPermissionRequiredMixin, CreateView):
         forms = DatebilanForm(self.request.GET)
         if forms.is_valid():
             date_bilan = forms.cleaned_data['date_bilan']
+            dates = date_bilan
             encaisser = Encaissement.objects.filter(date_saisie=date_bilan)
             decaisser = Decaissement.objects.filter(date_saisie=date_bilan)
             solde_jour = SoldeJour.objects.filter(date_saisie=date_bilan).aggregate(Sum('montant'))['montant__sum'] or 0
@@ -2994,9 +3119,10 @@ class AddCategoriVehi(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateV
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         catego_vehi = CategoVehi.objects.all()
-        categories = catego_vehi.annotate(nb_vehicules=Count('catego_vehicule')).order_by('id')
-        total_veh = Vehicule.objects.all().order_by('id').count()
-        # vehicules = Vehicule.objects.filter(category=catego_vehi).order_by('id')
+        categories = catego_vehi.annotate(
+            nb_vehicules=Count('catego_vehicule', filter=Q(catego_vehicule__car_statut=True))
+        ).order_by('id')
+        total_veh = Vehicule.objects.filter(car_statut=True).order_by('id').count()
         forms = self.get_form()
         context = {
             'form':forms,
@@ -3035,7 +3161,7 @@ def delete_catego(request, pk):
     
 def CategoVehiculeListView(request, cid):
     categorys= CategoVehi.objects.get(cid=cid)
-    cars = Vehicule.objects.filter(category=categorys)
+    cars = Vehicule.objects.filter(category=categorys, car_statut=True)
     user_group = request.user.groups.first()
     user_group = user_group.name if user_group else None
     context = {
@@ -3062,20 +3188,36 @@ class AllVehiculeView(LoginRequiredMixin, CustomPermissionRequiredMixin, View):
             except Gerant.DoesNotExist:
                 cars = Vehicule.objects.none()
         else:
-            cars = Vehicule.objects.all()
-        categories = CategoVehi.objects.annotate(nb_vehicules=Count('catego_vehicule')).order_by('id')
+            cars = Vehicule.objects.filter(car_statut=True)
+        categories = CategoVehi.objects.annotate(
+            nb_vehicules=Count('catego_vehicule', filter=Q(catego_vehicule__car_statut=True))
+        ).order_by('id')
         cout_totals = 0
         total_veh = 0
         categorie = None
         if pk:
             categorie = get_object_or_404(CategoVehi, pk=pk)
             cars = cars.filter(category=categorie)
-        cout_totals = cars.filter(car_statut=True).aggregate(total=Sum('cout_acquisition'))['total'] or 0
+        cout_totals = cars.aggregate(total=Sum('cout_acquisition'))['total'] or 0
         cout_total = '{:,}'.format(cout_totals).replace(',', ' ')
-        total_veh = cars.filter(car_statut=True).count()
-        total_veh_hors_parc = cars.filter(car_statut=False).count()
+        total_veh = cars.count()
+        # Véhicules hors parc (même filtres catégorie / gérant) pour l’affichage du compteur
+        cars_hors_parc = Vehicule.objects.filter(car_statut=False)
+        if user.user_type == "4":
+            try:
+                gerant = Gerant.objects.get(user=user)
+                categories_gerant = gerant.gerant_voiture.all()
+                if categories_gerant.exists():
+                    cars_hors_parc = cars_hors_parc.filter(category__in=categories_gerant)
+                else:
+                    cars_hors_parc = cars_hors_parc.none()
+            except Gerant.DoesNotExist:
+                cars_hors_parc = cars_hors_parc.none()
+        if pk and categorie:
+            cars_hors_parc = cars_hors_parc.filter(category=categorie)
+        total_veh_hors_parc = cars_hors_parc.count()
         return render(request, self.template_name, {
-            'vehicules': cars.filter(car_statut=True),
+            'vehicules': cars,
             'categorie': categorie,
             'categories': categories,
             'cout_total': cout_total,
@@ -3089,31 +3231,48 @@ class AllVehiculeHorsParrcView(LoginRequiredMixin, CustomPermissionRequiredMixin
     template_name = 'perfect/vehi_hors_parc.html'
     def get(self, request, pk=None):
         user = request.user
+        # Vue « hors parc » : n’afficher que les véhicules avec car_statut=False
         if user.user_type == "4":
             try:
                 gerant = Gerant.objects.get(user=user)
                 categories_gerant = gerant.gerant_voiture.all()
                 if categories_gerant.exists():
-                    cars = Vehicule.objects.filter(category__in=categories_gerant, car_statut=True)
+                    cars = Vehicule.objects.filter(category__in=categories_gerant, car_statut=False)
                 else:
                     cars = Vehicule.objects.none()
             except Gerant.DoesNotExist:
                 cars = Vehicule.objects.none()
         else:
-            cars = Vehicule.objects.all()
-        categories = CategoVehi.objects.annotate(nb_vehicules=Count('catego_vehicule')).order_by('id')
+            cars = Vehicule.objects.filter(car_statut=False)
+        categories = CategoVehi.objects.annotate(
+            nb_vehicules=Count('catego_vehicule', filter=Q(catego_vehicule__car_statut=True))
+        ).order_by('id')
         cout_totals = 0
         total_veh = 0
         categorie = None
         if pk:
             categorie = get_object_or_404(CategoVehi, pk=pk)
             cars = cars.filter(category=categorie)
-        cout_totals = cars.filter(car_statut=False).aggregate(total=Sum('cout_acquisition'))['total'] or 0
+        cout_totals = cars.aggregate(total=Sum('cout_acquisition'))['total'] or 0
         cout_total = '{:,}'.format(cout_totals).replace(',', ' ')
-        total_veh = cars.filter(car_statut=True).count()
-        total_veh_hors_parc = cars.filter(car_statut=False).count()
+        # Nombre de véhicules au parc (car_statut=True) avec le même périmètre que la liste hors parc
+        cars_in_parc = Vehicule.objects.filter(car_statut=True)
+        if user.user_type == "4":
+            try:
+                gerant = Gerant.objects.get(user=user)
+                categories_gerant = gerant.gerant_voiture.all()
+                if categories_gerant.exists():
+                    cars_in_parc = cars_in_parc.filter(category__in=categories_gerant)
+                else:
+                    cars_in_parc = cars_in_parc.none()
+            except Gerant.DoesNotExist:
+                cars_in_parc = cars_in_parc.none()
+        if pk and categorie:
+            cars_in_parc = cars_in_parc.filter(category=categorie)
+        total_veh = cars_in_parc.count()
+        total_veh_hors_parc = cars.count()
         return render(request, self.template_name, {
-            'vehicules': cars.filter(car_statut=False),
+            'vehicules': cars,
             'categorie': categorie,
             'categories': categories,
             'cout_total': cout_total,
@@ -3129,11 +3288,13 @@ class AddVehiculeExcelView(LoginRequiredMixin, View):
     def get(self, request, pk=None):
         cout_totals = 0
         total_veh = 0
-        categories = CategoVehi.objects.annotate(nb_vehicules=Count('catego_vehicule')).order_by('id')
+        categories = CategoVehi.objects.annotate(
+            nb_vehicules=Count('catego_vehicule', filter=Q(catego_vehicule__car_statut=True))
+        ).order_by('id')
         if pk:
             categorie = get_object_or_404(CategoVehi, pk=pk)
-            cars = Vehicule.objects.filter(category=categorie).order_by('id')
-            cout_totals = cars.filter(car_statut=True).aggregate(total=Sum('cout_acquisition'))['total'] or 0
+            cars = Vehicule.objects.filter(category=categorie, car_statut=True).order_by('id')
+            cout_totals = cars.aggregate(total=Sum('cout_acquisition'))['total'] or 0
             cout_total = '{:,}'.format(cout_totals).replace(',', ' ')
             total_veh = cars.filter(car_statut=True).count()
         else:
@@ -3213,12 +3374,12 @@ class AddVehiculeExcelView(LoginRequiredMixin, View):
             return redirect('all_vehi')
         else:
             messages.error(request, self.error_message)
-            cars = Vehicule.objects.filter(category=categorie).order_by('-id')
+            cars = Vehicule.objects.filter(category=categorie, car_statut=True).order_by('-id')
             cout_total = cars.aggregate(total=Sum('cout_acquisition'))['total'] or 0
-            total_veh = cars.filter(car_statut=True).count()
+            total_veh = cars.count()
             return render(request, self.template_name, {
                 'forms': form,
-                'vehicules': cars.filter(car_statut=True),
+                'vehicules': cars,
                 'categorie': categorie,
                 'categories': categories,
                 'cout_total': cout_total,
@@ -4572,57 +4733,45 @@ class HistoriqueRecetteView(LoginRequiredMixin, CustomPermissionRequiredMixin, L
             history_type = form.cleaned_data.get('history_type')
             if history_type:
                 queryset = queryset.filter(history_type=history_type)
-        
         return queryset
-    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         dates = date.today()
         annee = date.today().year
-        
         # Formulaire de filtre
         form = self.form_class(self.request.GET)
         context['form'] = form
-        
-        # Calculer les statistiques sur les recettes historiques filtrées
-        liste_rec = self.get_queryset()
-        
-        # Calculer les totaux (utiliser les recettes actuelles pour les stats, pas l'historique)
-        recette_queryset = Recette.objects.all()
-        
-        # Appliquer les mêmes filtres sur les recettes actuelles pour les statistiques
+        # Calculer les totaux (recettes actuelles pour les stats, pas l'historique)
+        # Base : catégorie + immat uniquement (comme ListReparationView)
+        recette_base = Recette.objects.all()
         if form.is_valid():
-            date_saisie_debut = form.cleaned_data.get('date_saisie_debut')
-            date_saisie_fin = form.cleaned_data.get('date_saisie_fin')
-            if date_saisie_debut and date_saisie_fin:
-                recette_queryset = recette_queryset.filter(date_saisie__range=[date_saisie_debut, date_saisie_fin])
-            elif date_saisie_debut:
-                recette_queryset = recette_queryset.filter(date_saisie__gte=date_saisie_debut)
-            elif date_saisie_fin:
-                recette_queryset = recette_queryset.filter(date_saisie__lte=date_saisie_fin)
-            
             categorie = form.cleaned_data.get('categorie')
             if categorie:
-                recette_queryset = recette_queryset.filter(vehicule__category__id=categorie.id)
-            
+                recette_base = recette_base.filter(vehicule__category__id=categorie.id)
             immatriculation = form.cleaned_data.get('immatriculation')
             if immatriculation:
-                recette_queryset = recette_queryset.filter(vehicule__immatriculation__icontains=immatriculation)
-        
-        # Si aucun filtre sur date_saisie, utiliser le mois en cours par défaut
-        if not (form.is_valid() and (form.cleaned_data.get('date_saisie_debut') or form.cleaned_data.get('date_saisie_fin'))):
-            recette_queryset = recette_queryset.filter(date_saisie__month=date.today().month)
-        
-        # Statistiques
-        recettes_jours = recette_queryset.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
+                recette_base = recette_base.filter(vehicule__immatriculation__icontains=immatriculation)
+        # Période affichée : base + filtre date (plage si fournie, sinon mois en cours)
+        date_saisie_debut = form.cleaned_data.get('date_saisie_debut') if form.is_valid() else None
+        date_saisie_fin = form.cleaned_data.get('date_saisie_fin') if form.is_valid() else None
+        if date_saisie_debut and date_saisie_fin:
+            filtre_recette = recette_base.filter(date_saisie__range=[date_saisie_debut, date_saisie_fin])
+        elif date_saisie_debut:
+            filtre_recette = recette_base.filter(date_saisie__gte=date_saisie_debut)
+        elif date_saisie_fin:
+            filtre_recette = recette_base.filter(date_saisie__lte=date_saisie_fin)
+        else:
+            filtre_recette = recette_base.filter(
+                date_saisie__month=date.today().month,
+                date_saisie__year=date.today().year
+            )
+        # Statistiques : Jours / Mois sur la période affichée, Année sur la base (toute l'année)
+        recettes_jours = filtre_recette.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
         recettes_jours_format = '{:,}'.format(recettes_jours).replace(',', ' ')
-        
-        recettes_mois = recette_queryset.aggregate(somme=Sum('montant'))['somme'] or 0
+        recettes_mois = filtre_recette.aggregate(somme=Sum('montant'))['somme'] or 0
         recettes_mois_format = '{:,}'.format(recettes_mois).replace(',', ' ')
-        
-        recettes_an = Recette.objects.filter(date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
+        recettes_an = recette_base.filter(date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
         recettes_an_format = '{:,}'.format(recettes_an).replace(',', ' ')
-        
         context.update({
             'recettes_jours_format': recettes_jours_format,
             'recettes_mois_format': recettes_mois_format,
@@ -4630,7 +4779,6 @@ class HistoriqueRecetteView(LoginRequiredMixin, CustomPermissionRequiredMixin, L
             'dates': dates,
             'annees': annee,
         })
-        
         # Ajouter les permissions groupées si nécessaire (comme dans ListRecetView)
         user = self.request.user
         if hasattr(user, 'custom_permissions'):
@@ -4641,7 +4789,6 @@ class HistoriqueRecetteView(LoginRequiredMixin, CustomPermissionRequiredMixin, L
                     grouped_permissions[perm.categorie] = []
                 grouped_permissions[perm.categorie].append(perm)
             context['grouped_permissions'] = grouped_permissions
-        
         return context
 
 class ExportHistoriqueRecetteExcelView(LoginRequiredMixin, View):
@@ -5425,7 +5572,6 @@ class ListChargeFixView(LoginRequiredMixin, CustomPermissionRequiredMixin, ListV
         today = date.today()
         chargefix_base = ChargeFixe.objects.all()
         form = self.form_class(self.request.GET)
-        # ------------------ FILTRES (base : catégorie + immat uniquement) -------------------
         if form.is_valid():
             categorie_filter = form.cleaned_data.get('categorie')
             date_debut = form.cleaned_data.get('date_debut')
@@ -5434,11 +5580,8 @@ class ListChargeFixView(LoginRequiredMixin, CustomPermissionRequiredMixin, ListV
 
             if categorie_filter:
                 chargefix_base = chargefix_base.filter(vehicule__category__category=categorie_filter)
-
             if immatriculation:
                 chargefix_base = chargefix_base.filter(vehicule__immatriculation__icontains=immatriculation)
-
-            # Filtre de date pour l'affichage : plage si fournie, sinon mois en cours (comme ListRecetView)
             if date_debut and date_fin:
                 filtre_chargefix = chargefix_base.filter(date_saisie__range=[date_debut, date_fin])
             else:
@@ -5447,22 +5590,17 @@ class ListChargeFixView(LoginRequiredMixin, CustomPermissionRequiredMixin, ListV
                     date_saisie__year=today.year
                 )
         else:
-            # Formulaire invalide ou vide : par défaut mois en cours
             filtre_chargefix = chargefix_base.filter(
                 date_saisie__month=today.month,
                 date_saisie__year=today.year
             )
-
         # ------------------ STATISTIQUES -------------------
-        # Jours / Mois : sur la période affichée (filtre_chargefix)
         chargefix_jours = filtre_chargefix.filter(date_saisie=today).aggregate(somme=Sum('montant'))['somme'] or 0
         chargefix_jours_format = '{:,}'.format(chargefix_jours).replace(',', ' ')
         chargefix_mois = filtre_chargefix.aggregate(somme=Sum('montant'))['somme'] or 0
         chargefix_mois_format = '{:,}'.format(chargefix_mois).replace(',', ' ')
-        # Année : sur la base (toute l'année en cours), comme ListRecetView
         chargefix_an = chargefix_base.filter(date_saisie__year=today.year).aggregate(somme=Sum('montant'))['somme'] or 0
         chargefix_an_format = '{:,}'.format(chargefix_an).replace(',', ' ')
-
         context = {
             'liste_chargefix': filtre_chargefix,
             'chargefix_an_format': chargefix_an_format,
@@ -5482,7 +5620,6 @@ class UpdateChargFixView(LoginRequiredMixin, CustomPermissionRequiredMixin, Upda
     template_name = "perfect/partials/chargfix_form.html"
     success_url = reverse_lazy('list_charg_fix')
     success_message = 'Charge fixe modifiée avec succès✓✓'
-
     def form_valid(self, form):
         form.instance.auteur = self.request.user
         response = super().form_valid(form)
@@ -5501,7 +5638,6 @@ class ExportChargeFixeExcelView(LoginRequiredMixin, View):
         date_fin = request.GET.get('date_fin')
         immatriculation = request.GET.get('immatriculation')
         categorie = request.GET.get('categorie')
-
         # Appliquer les filtres
         if date_debut and date_fin:
             charges = charges.filter(date_saisie__range=[date_debut, date_fin])
@@ -5509,7 +5645,6 @@ class ExportChargeFixeExcelView(LoginRequiredMixin, View):
             charges = charges.filter(vehicule__immatriculation=immatriculation)
         if categorie:
             charges = charges.filter(vehicule__category__category=categorie)
-
         wb = openpyxl.Workbook()
         ws = wb.active
         ws.title = "Charges Fixes"
@@ -5539,7 +5674,6 @@ class ExportChargeFixeExcelView(LoginRequiredMixin, View):
                 c.date_saisie.strftime("%d-%m-%Y") if c.date_saisie else "",
                 c.auteur.username if c.auteur else "N/A"
             ])
-
         for col_num, column_title in enumerate(headers, 1):
             col_letter = get_column_letter(col_num)
             ws.column_dimensions[col_letter].width = 20
@@ -5558,7 +5692,6 @@ class HistoriqueChargeFixeView(LoginRequiredMixin, CustomPermissionRequiredMixin
     context_object_name = 'liste_chargefix'
     form_class = HistoriqueChargeFixeFilterForm
     timeout_minutes = 500
-    
     def dispatch(self, request, *args, **kwargs):
         last_activity = request.session.get('last_activity')
         if last_activity:
@@ -5570,13 +5703,10 @@ class HistoriqueChargeFixeView(LoginRequiredMixin, CustomPermissionRequiredMixin
         return super().dispatch(request, *args, **kwargs)
     
     def get_queryset(self):
-        # Accéder au modèle historique via ChargeFixe.history.model
         HistoricalChargeFixe = ChargeFixe.history.model
         queryset = HistoricalChargeFixe.objects.all().order_by('-history_date').select_related('vehicule', 'auteur', 'history_user')
-        
         form = self.form_class(self.request.GET)
         if form.is_valid():
-            # Filtres sur les dates d'historique
             date_debut = form.cleaned_data.get('date_debut')
             date_fin = form.cleaned_data.get('date_fin')
             if date_debut and date_fin:
@@ -5586,7 +5716,6 @@ class HistoriqueChargeFixeView(LoginRequiredMixin, CustomPermissionRequiredMixin
             elif date_fin:
                 queryset = queryset.filter(history_date__lte=date_fin)
             
-            # Filtre sur la date de saisie
             date_saisie_debut = form.cleaned_data.get('date_saisie_debut')
             date_saisie_fin = form.cleaned_data.get('date_saisie_fin')
             if date_saisie_debut and date_saisie_fin:
@@ -5596,102 +5725,70 @@ class HistoriqueChargeFixeView(LoginRequiredMixin, CustomPermissionRequiredMixin
             elif date_saisie_fin:
                 queryset = queryset.filter(date_saisie__lte=date_saisie_fin)
             
-            # Filtre sur la catégorie
             categorie = form.cleaned_data.get('categorie')
             if categorie:
                 queryset = queryset.filter(vehicule__category__id=categorie.id)
-            
-            # Filtre sur l'immatriculation
             immatriculation = form.cleaned_data.get('immatriculation')
             if immatriculation:
                 queryset = queryset.filter(vehicule__immatriculation__icontains=immatriculation)
-            
-            # Filtre sur le libellé
             libelle = form.cleaned_data.get('libelle')
             if libelle:
                 queryset = queryset.filter(libelle__icontains=libelle)
-            
-            # Filtre sur le compte comptable
             cpte_comptable = form.cleaned_data.get('cpte_comptable')
             if cpte_comptable:
                 queryset = queryset.filter(cpte_comptable__icontains=cpte_comptable)
-            
-            # Filtre sur le numéro de pièce
             Num_piece = form.cleaned_data.get('Num_piece')
             if Num_piece:
                 queryset = queryset.filter(Num_piece__icontains=Num_piece)
-            
-            # Filtre sur le numéro de facture
             Num_fact = form.cleaned_data.get('Num_fact')
             if Num_fact:
                 queryset = queryset.filter(Num_fact__icontains=Num_fact)
-            
-            # Filtre sur le montant
             montant_min = form.cleaned_data.get('montant_min')
             montant_max = form.cleaned_data.get('montant_max')
             if montant_min is not None:
                 queryset = queryset.filter(montant__gte=montant_min)
             if montant_max is not None:
                 queryset = queryset.filter(montant__lte=montant_max)
-            
-            # Filtre sur l'auteur
             auteur = form.cleaned_data.get('auteur')
             if auteur:
                 queryset = queryset.filter(auteur=auteur)
-            
-            # Filtre sur le type d'historique (Créé, Modifié, Supprimé)
             history_type = form.cleaned_data.get('history_type')
             if history_type:
                 queryset = queryset.filter(history_type=history_type)
-        
         return queryset
-    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         dates = date.today()
         annee = date.today().year
-        
-        # Formulaire de filtre
         form = self.form_class(self.request.GET)
         context['form'] = form
-        
-        # Calculer les statistiques sur les charges fixes historiques filtrées
-        liste_chargefix = self.get_queryset()
-        
-        # Calculer les totaux (utiliser les charges fixes actuelles pour les stats, pas l'historique)
-        chargefix_queryset = ChargeFixe.objects.all()
-        
-        # Appliquer les mêmes filtres sur les charges fixes actuelles pour les statistiques
+        chargefix_base = ChargeFixe.objects.all()
         if form.is_valid():
-            date_saisie_debut = form.cleaned_data.get('date_saisie_debut')
-            date_saisie_fin = form.cleaned_data.get('date_saisie_fin')
-            if date_saisie_debut and date_saisie_fin:
-                chargefix_queryset = chargefix_queryset.filter(date_saisie__range=[date_saisie_debut, date_saisie_fin])
-            elif date_saisie_debut:
-                chargefix_queryset = chargefix_queryset.filter(date_saisie__gte=date_saisie_debut)
-            elif date_saisie_fin:
-                chargefix_queryset = chargefix_queryset.filter(date_saisie__lte=date_saisie_fin)
-            
             categorie = form.cleaned_data.get('categorie')
             if categorie:
-                chargefix_queryset = chargefix_queryset.filter(vehicule__category__id=categorie.id)
-            
+                chargefix_base = chargefix_base.filter(vehicule__category__id=categorie.id)
             immatriculation = form.cleaned_data.get('immatriculation')
             if immatriculation:
-                chargefix_queryset = chargefix_queryset.filter(vehicule__immatriculation__icontains=immatriculation)
-        
-        # Si aucun filtre sur date_saisie, utiliser le mois en cours par défaut
-        if not (form.is_valid() and (form.cleaned_data.get('date_saisie_debut') or form.cleaned_data.get('date_saisie_fin'))):
-            chargefix_queryset = chargefix_queryset.filter(date_saisie__month=date.today().month)
-        
-        # Statistiques
-        chargefix_jours = chargefix_queryset.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
+                chargefix_base = chargefix_base.filter(vehicule__immatriculation__icontains=immatriculation)
+        date_saisie_debut = form.cleaned_data.get('date_saisie_debut') if form.is_valid() else None
+        date_saisie_fin = form.cleaned_data.get('date_saisie_fin') if form.is_valid() else None
+        if date_saisie_debut and date_saisie_fin:
+            filtre_chargefix = chargefix_base.filter(date_saisie__range=[date_saisie_debut, date_saisie_fin])
+        elif date_saisie_debut:
+            filtre_chargefix = chargefix_base.filter(date_saisie__gte=date_saisie_debut)
+        elif date_saisie_fin:
+            filtre_chargefix = chargefix_base.filter(date_saisie__lte=date_saisie_fin)
+        else:
+            filtre_chargefix = chargefix_base.filter(
+                date_saisie__month=date.today().month,
+                date_saisie__year=date.today().year
+            )
+        # Statistiques : Jours / Mois sur la période affichée, Année sur la base (toute l'année)
+        chargefix_jours = filtre_chargefix.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
         chargefix_jours_format = '{:,}'.format(chargefix_jours).replace(',', ' ')
-        
-        chargefix_mois = chargefix_queryset.aggregate(somme=Sum('montant'))['somme'] or 0
+        chargefix_mois = filtre_chargefix.aggregate(somme=Sum('montant'))['somme'] or 0
         chargefix_mois_format = '{:,}'.format(chargefix_mois).replace(',', ' ')
-        
-        chargefix_an = ChargeFixe.objects.filter(date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
+        chargefix_an = chargefix_base.filter(date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
         chargefix_an_format = '{:,}'.format(chargefix_an).replace(',', ' ')
         
         context.update({
@@ -5701,7 +5798,6 @@ class HistoriqueChargeFixeView(LoginRequiredMixin, CustomPermissionRequiredMixin
             'dates': dates,
             'annees': annee,
         })
-        
         # Ajouter les permissions groupées si nécessaire (comme dans ListChargeFixView)
         user = self.request.user
         if hasattr(user, 'custom_permissions'):
@@ -5712,7 +5808,6 @@ class HistoriqueChargeFixeView(LoginRequiredMixin, CustomPermissionRequiredMixin
                     grouped_permissions[perm.categorie] = []
                 grouped_permissions[perm.categorie].append(perm)
             context['grouped_permissions'] = grouped_permissions
-        
         return context
 
 class AddChargeVarView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateView):
@@ -5772,14 +5867,12 @@ class AddChargeVarView(LoginRequiredMixin, CustomPermissionRequiredMixin, Create
             except:
                 vehicules = Vehicule.objects.none()
         else:
-            print("*****ALL*******")
-
+            print()
         search_query = self.request.GET.get("search", "").strip()
         if search_query:  
             vehicules = search_vehicules(vehicules, search_query)
         else:
             vehicules = Vehicule.objects.none()
-
         if form.is_valid():
             date_debut = form.cleaned_data.get('date_debut')
             date_fin = form.cleaned_data.get('date_fin')
@@ -6018,38 +6111,25 @@ class HistoriqueChargeVariableView(LoginRequiredMixin, CustomPermissionRequiredM
                 queryset = queryset.filter(date_saisie__gte=date_saisie_debut)
             elif date_saisie_fin:
                 queryset = queryset.filter(date_saisie__lte=date_saisie_fin)
-            
-            # Filtre sur la catégorie
             categorie = form.cleaned_data.get('categorie')
             if categorie:
                 queryset = queryset.filter(vehicule__category__id=categorie.id)
-            
-            # Filtre sur l'immatriculation
             immatriculation = form.cleaned_data.get('immatriculation')
             if immatriculation:
                 queryset = queryset.filter(vehicule__immatriculation__icontains=immatriculation)
-            
-            # Filtre sur le libellé
             libelle = form.cleaned_data.get('libelle')
             if libelle:
                 queryset = queryset.filter(libelle__icontains=libelle)
-            
-            # Filtre sur le compte comptable
             cpte_comptable = form.cleaned_data.get('cpte_comptable')
             if cpte_comptable:
                 queryset = queryset.filter(cpte_comptable__icontains=cpte_comptable)
-            
-            # Filtre sur le numéro de pièce
             Num_piece = form.cleaned_data.get('Num_piece')
             if Num_piece:
                 queryset = queryset.filter(Num_piece__icontains=Num_piece)
-            
-            # Filtre sur le numéro de facture
             Num_fact = form.cleaned_data.get('Num_fact')
             if Num_fact:
                 queryset = queryset.filter(Num_fact__icontains=Num_fact)
-            
-            # Filtre sur le montant
+
             montant_min = form.cleaned_data.get('montant_min')
             montant_max = form.cleaned_data.get('montant_max')
             if montant_min is not None:
@@ -6057,7 +6137,6 @@ class HistoriqueChargeVariableView(LoginRequiredMixin, CustomPermissionRequiredM
             if montant_max is not None:
                 queryset = queryset.filter(montant__lte=montant_max)
             
-            # Filtre sur l'auteur
             auteur = form.cleaned_data.get('auteur')
             if auteur:
                 queryset = queryset.filter(auteur=auteur)
@@ -6066,57 +6145,43 @@ class HistoriqueChargeVariableView(LoginRequiredMixin, CustomPermissionRequiredM
             history_type = form.cleaned_data.get('history_type')
             if history_type:
                 queryset = queryset.filter(history_type=history_type)
-        
         return queryset
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         dates = date.today()
         annee = date.today().year
-        
         # Formulaire de filtre
         form = self.form_class(self.request.GET)
         context['form'] = form
-        
-        # Calculer les statistiques sur les charges variables historiques filtrées
-        liste_chargevar = self.get_queryset()
-        
-        # Calculer les totaux (utiliser les charges variables actuelles pour les stats, pas l'historique)
-        chargevar_queryset = ChargeVariable.objects.all()
-        
-        # Appliquer les mêmes filtres sur les charges variables actuelles pour les statistiques
+        chargevar_base = ChargeVariable.objects.all()
         if form.is_valid():
-            date_saisie_debut = form.cleaned_data.get('date_saisie_debut')
-            date_saisie_fin = form.cleaned_data.get('date_saisie_fin')
-            if date_saisie_debut and date_saisie_fin:
-                chargevar_queryset = chargevar_queryset.filter(date_saisie__range=[date_saisie_debut, date_saisie_fin])
-            elif date_saisie_debut:
-                chargevar_queryset = chargevar_queryset.filter(date_saisie__gte=date_saisie_debut)
-            elif date_saisie_fin:
-                chargevar_queryset = chargevar_queryset.filter(date_saisie__lte=date_saisie_fin)
-            
             categorie = form.cleaned_data.get('categorie')
             if categorie:
-                chargevar_queryset = chargevar_queryset.filter(vehicule__category__id=categorie.id)
-            
+                chargevar_base = chargevar_base.filter(vehicule__category__id=categorie.id)
             immatriculation = form.cleaned_data.get('immatriculation')
             if immatriculation:
-                chargevar_queryset = chargevar_queryset.filter(vehicule__immatriculation__icontains=immatriculation)
-        
-        # Si aucun filtre sur date_saisie, utiliser le mois en cours par défaut
-        if not (form.is_valid() and (form.cleaned_data.get('date_saisie_debut') or form.cleaned_data.get('date_saisie_fin'))):
-            chargevar_queryset = chargevar_queryset.filter(date_saisie__month=date.today().month)
-        
-        # Statistiques
-        chargevar_jours = chargevar_queryset.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
+                chargevar_base = chargevar_base.filter(vehicule__immatriculation__icontains=immatriculation)
+        # Période affichée : base + filtre date (plage si fournie, sinon mois en cours)
+        date_saisie_debut = form.cleaned_data.get('date_saisie_debut') if form.is_valid() else None
+        date_saisie_fin = form.cleaned_data.get('date_saisie_fin') if form.is_valid() else None
+        if date_saisie_debut and date_saisie_fin:
+            filtre_chargevar = chargevar_base.filter(date_saisie__range=[date_saisie_debut, date_saisie_fin])
+        elif date_saisie_debut:
+            filtre_chargevar = chargevar_base.filter(date_saisie__gte=date_saisie_debut)
+        elif date_saisie_fin:
+            filtre_chargevar = chargevar_base.filter(date_saisie__lte=date_saisie_fin)
+        else:
+            filtre_chargevar = chargevar_base.filter(
+                date_saisie__month=date.today().month,
+                date_saisie__year=date.today().year
+            )
+        chargevar_jours = filtre_chargevar.filter(date_saisie=date.today()).aggregate(somme=Sum('montant'))['somme'] or 0
         chargevar_jours_format = '{:,}'.format(chargevar_jours).replace(',', ' ')
-        
-        chargevar_mois = chargevar_queryset.aggregate(somme=Sum('montant'))['somme'] or 0
+        chargevar_mois = filtre_chargevar.aggregate(somme=Sum('montant'))['somme'] or 0
         chargevar_mois_format = '{:,}'.format(chargevar_mois).replace(',', ' ')
-        
-        chargevar_an = ChargeVariable.objects.filter(date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
+        chargevar_an = chargevar_base.filter(date_saisie__year=date.today().year).aggregate(somme=Sum('montant'))['somme'] or 0
         chargevar_an_format = '{:,}'.format(chargevar_an).replace(',', ' ')
-        
         context.update({
             'chargevar_jours_format': chargevar_jours_format,
             'chargevar_mois_format': chargevar_mois_format,
@@ -6124,8 +6189,6 @@ class HistoriqueChargeVariableView(LoginRequiredMixin, CustomPermissionRequiredM
             'dates': dates,
             'annees': annee,
         })
-        
-        # Ajouter les permissions groupées si nécessaire (comme dans ListChargeVarView)
         user = self.request.user
         if hasattr(user, 'custom_permissions'):
             permissions = user.custom_permissions.all().select_related('categorie')
@@ -6135,7 +6198,6 @@ class HistoriqueChargeVariableView(LoginRequiredMixin, CustomPermissionRequiredM
                     grouped_permissions[perm.categorie] = []
                 grouped_permissions[perm.categorie].append(perm)
             context['grouped_permissions'] = grouped_permissions
-        
         return context
 
 class ExportHistoriqueChargeVariableExcelView(LoginRequiredMixin, View):
@@ -6146,10 +6208,8 @@ class ExportHistoriqueChargeVariableExcelView(LoginRequiredMixin, View):
         # Accéder au modèle historique via ChargeVariable.history.model
         HistoricalChargeVariable = ChargeVariable.history.model
         queryset = HistoricalChargeVariable.objects.all().order_by('-history_date').select_related('vehicule', 'auteur', 'history_user')
-        
         # Récupérer les paramètres de filtre depuis la requête GET
         form = HistoriqueChargeVariableFilterForm(request.GET)
-        
         if form.is_valid():
             # Filtres sur les dates d'historique
             date_debut = form.cleaned_data.get('date_debut')
@@ -6408,7 +6468,6 @@ class AddChargeAdminisView(LoginRequiredMixin, CustomPermissionRequiredMixin, Cr
             chargadmin_mois_data[commande.date_saisie.month] += commande.montant
         chargadmin_mois_data = [chargadmin_mois_data[month] for month in range(1, 13)]
         label = [calendar.month_name[month][:1] for month in range(1, 13)]
-
         context={
             'total_recette_format': total_recette_mois_format,
             'total_recette_annuel_format': total_recette_annuel_format,
@@ -7341,7 +7400,7 @@ class AddVisitView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateView
             except:
                 vehicules = Vehicule.objects.none() 
         else:
-            print("*****ALL*******")
+            print()
 
         search_query = self.request.GET.get("search", "").strip()
         if search_query:  
@@ -7406,38 +7465,39 @@ class ListVisitTechniqueView(LoginRequiredMixin, CustomPermissionRequiredMixin, 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         today = date.today()
-        visitech_queryset = VisiteTechnique.objects.all()
+        visitech_base = VisiteTechnique.objects.all()
         form = self.form_class(self.request.GET)
-        # ------------------ FILTRES -------------------
+        # ------------------ FILTRES (base : catégorie + immat uniquement) -------------------
         if form.is_valid():
             categorie_filter = form.cleaned_data.get('categorie')
             date_debut = form.cleaned_data.get('date_debut')
             date_fin = form.cleaned_data.get('date_fin')
             immatriculation = form.cleaned_data.get('immatriculation')
             if categorie_filter:
-                visitech_queryset = visitech_queryset.filter(vehicule__category__category=categorie_filter)
-
+                visitech_base = visitech_base.filter(vehicule__category__category=categorie_filter)
             if immatriculation:
-                visitech_queryset = visitech_queryset.filter(vehicule__immatriculation__icontains=immatriculation)
-            has_date_filter = bool(date_debut and date_fin)
-            if has_date_filter:
-                visitech_queryset = visitech_queryset.filter(date_saisie__range=[date_debut, date_fin])
+                visitech_base = visitech_base.filter(vehicule__immatriculation__icontains=immatriculation)
+            # Filtre de date pour l'affichage : plage si fournie, sinon mois en cours (comme ListReparationView)
+            if date_debut and date_fin:
+                filtre_visitech = visitech_base.filter(date_saisie__range=[date_debut, date_fin])
             else:
-                visitech_queryset = visitech_queryset.filter(
+                filtre_visitech = visitech_base.filter(
                     date_saisie__month=today.month,
                     date_saisie__year=today.year
                 )
         else:
-            visitech_queryset = visitech_queryset.filter(
+            filtre_visitech = visitech_base.filter(
                 date_saisie__month=today.month,
                 date_saisie__year=today.year
             )
         # ------------------ STATISTIQUES -------------------
-        visitech_jours = visitech_queryset.filter(date_saisie=today).aggregate(somme=Sum('montant'))['somme'] or 0
+        # Jours / Mois : sur la période affichée (filtre_visitech)
+        visitech_jours = filtre_visitech.filter(date_saisie=today).aggregate(somme=Sum('montant'))['somme'] or 0
         visitech_jours_format = '{:,}'.format(visitech_jours).replace(',', ' ')
-        visitech_mois = visitech_queryset.aggregate(somme=Sum('montant'))['somme'] or 0
+        visitech_mois = filtre_visitech.aggregate(somme=Sum('montant'))['somme'] or 0
         visitech_mois_format = '{:,}'.format(visitech_mois).replace(',', ' ')
-        visitech_an = visitech_queryset.filter(date_saisie__year=today.year).aggregate(somme=Sum('montant'))['somme'] or 0
+        # Année : sur la base (toute l'année en cours), comme ListReparationView
+        visitech_an = visitech_base.filter(date_saisie__year=today.year).aggregate(somme=Sum('montant'))['somme'] or 0
         visitech_an_format = '{:,}'.format(visitech_an).replace(',', ' ')
         #------------------------Permissions groupées pour le template (boutons Exporter, sup visite, modifier visite)------------------------#
         grouped_permissions = {}
@@ -7448,9 +7508,8 @@ class ListVisitTechniqueView(LoginRequiredMixin, CustomPermissionRequiredMixin, 
                 if perm.categorie not in grouped_permissions:
                     grouped_permissions[perm.categorie] = []
                 grouped_permissions[perm.categorie].append(perm)
-
         context.update({
-            'liste_visitech': visitech_queryset,
+            'liste_visitech': filtre_visitech,
             'visitech_an_format': visitech_an_format,
             'visitech_mois_format': visitech_mois_format,
             'visitech_jours_format': visitech_jours_format,
@@ -7951,6 +8010,81 @@ class AddReparationView(LoginRequiredMixin, CustomPermissionRequiredMixin, Creat
         return super().form_invalid(form)
     def get_success_url(self):
         return reverse('add_reparation', kwargs={'pk': self.kwargs['pk']})
+
+class UpdateReparationView(LoginRequiredMixin, CustomPermissionRequiredMixin, UpdateView):
+    login_url = 'login'
+    permission_url = 'update_reparation'
+    model = Reparation
+    form_class = ReparationForm
+    template_name = "perfect/update_reparation.html"
+    success_message = 'Réparation modifiée avec succès✓✓'
+    error_message = "Erreur lors de la modification ✘✘"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.POST:
+            context['piece_formset'] = PieceFormSet(self.request.POST, self.request.FILES or None, instance=self.object)
+        else:
+            context['piece_formset'] = PieceFormSet(instance=self.object)
+        context['vehicule'] = self.object.vehicule
+        return context
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.GET.get('partial'):
+            context = self.get_context_data(object=self.object)
+            return render(request, 'perfect/partials/reparation_update_form.html', context)
+        return super().get(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        context = self.get_context_data()
+        piece_formset = context['piece_formset']
+        form.instance.auteur = self.request.user
+
+        if form.is_valid() and piece_formset.is_valid():
+            with transaction.atomic():
+                self.object = form.save(commit=False)
+                self.object.save()
+
+                for piece_form in piece_formset:
+                    piece = piece_form.save(commit=False)
+                    if piece.libelle:
+                        piece.auteur = self.request.user
+                        piece.reparation = self.object
+                piece_formset.instance = self.object
+                piece_formset.save()
+
+                total_pieces = 0
+                for piece in self.object.pieces.all():
+                    total_pieces += (piece.montant or 0) * (piece.quantite or 1)
+                prestation = form.cleaned_data.get("prestation", 0)
+                self.object.montant = total_pieces + prestation
+                self.object.save()
+
+            messages.success(self.request, self.success_message)
+            return redirect(self.get_success_url())
+
+        return self.form_invalid(form)
+
+    def form_invalid(self, form):
+        context = self.get_context_data()
+        piece_formset = context.get("piece_formset")
+        print("=== ERREURS UPDATE REPARATION ===")
+        print(form.errors)
+        if piece_formset is not None:
+            print("=== ERREURS PIECES (UPDATE) ===")
+            print(piece_formset.errors)
+        messages.error(self.request, self.error_message)
+        if self.request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': False,
+                'errors': form.errors,
+                'piece_errors': piece_formset.errors if piece_formset else {},
+            }, status=400)
+        return super().form_invalid(form)
+
+    def get_success_url(self):
+        return reverse("list_repa")
 
 @require_POST
 @login_required
@@ -8638,14 +8772,10 @@ class ListReparationView(LoginRequiredMixin, CustomPermissionRequiredMixin, List
 
             if categorie_filter:
                 reparat_base = reparat_base.filter(vehicule__category__category=categorie_filter)
-
             if motif_filter:
                 reparat_base = reparat_base.filter(motif=motif_filter)
-
             if immatriculation:
                 reparat_base = reparat_base.filter(vehicule__immatriculation__icontains=immatriculation)
-
-            # Filtre de date pour l'affichage : plage si fournie, sinon mois en cours (comme ListRecetView)
             if date_debut and date_fin:
                 filtre_reparat = reparat_base.filter(date_saisie__range=[date_debut, date_fin])
             else:
@@ -8691,7 +8821,6 @@ class ExportReparationExcelView(LoginRequiredMixin, View):
         categorie = request.GET.get('categorie')
         motif = request.GET.get('motif')
         today = date.today()
-        # Filtre par date : plage fournie par l'utilisateur, sinon mois en cours par défaut
         if date_debut and date_fin:
             try:
                 date_debut_obj = datetime.strptime(date_debut, "%Y-%m-%d").date()
@@ -8707,7 +8836,6 @@ class ExportReparationExcelView(LoginRequiredMixin, View):
                 date_saisie__month=today.month,
                 date_saisie__year=today.year
             )
-
         if immatriculation:
             reparations = reparations.filter(vehicule__immatriculation__icontains=immatriculation)
         if categorie:
@@ -8759,7 +8887,6 @@ class ExportReparationExcelView(LoginRequiredMixin, View):
                 r.date_saisie.strftime("%d-%m-%Y") if r.date_saisie else "",
                 r.auteur.username if r.auteur else "N/A"
             ])
-
         for col_num, column_title in enumerate(headers, 1):
             col_letter = get_column_letter(col_num)
             ws.column_dimensions[col_letter].width = 22
@@ -8791,9 +8918,9 @@ class BestReparationView(LoginRequiredMixin, CustomPermissionRequiredMixin, Temp
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         form = self.form_class(self.request.GET)
-        reparation_queryset = Reparation.objects.all()
+        reparat_base = Reparation.objects.all()
         today = date.today()
-        # ------------------ FILTRES -------------------
+        # ------------------ FILTRES (base : catégorie + motif uniquement) -------------------
         if form.is_valid():
             categorie_filter = form.cleaned_data.get('categorie')
             date_debut = form.cleaned_data.get('date_debut')
@@ -8801,42 +8928,38 @@ class BestReparationView(LoginRequiredMixin, CustomPermissionRequiredMixin, Temp
             motif_filter = form.cleaned_data.get('motif')
 
             if categorie_filter:
-                reparation_queryset = reparation_queryset.filter(
+                reparat_base = reparat_base.filter(
                     vehicule__category__category=categorie_filter
                 )
             if motif_filter:
-                reparation_queryset = reparation_queryset.filter(
-                    motif=motif_filter
-                )
-            # Filtre de date : si fourni, utiliser la plage ; sinon par défaut = mois en cours
-            has_date_filter = bool(date_debut and date_fin)
-            if has_date_filter:
-                reparation_queryset = reparation_queryset.filter(
+                reparat_base = reparat_base.filter(motif=motif_filter)
+            if date_debut and date_fin:
+                filtre_reparat = reparat_base.filter(
                     date_saisie__range=[date_debut, date_fin]
                 )
             else:
-                # Par défaut : données du mois en cours
-                reparation_queryset = reparation_queryset.filter(
+                filtre_reparat = reparat_base.filter(
                     date_saisie__month=today.month,
                     date_saisie__year=today.year
                 )
         else:
-            # Formulaire invalide ou vide : par défaut mois en cours
-            reparation_queryset = reparation_queryset.filter(
+            filtre_reparat = reparat_base.filter(
                 date_saisie__month=today.month,
                 date_saisie__year=today.year
             )
-        # ------------------ STATISTIQUES (sur le queryset déjà filtré) -------------------
-        reparat_total = reparation_queryset.count()
-        reparat_jours = reparation_queryset.filter(date_saisie=today).aggregate(somme=Sum('montant'))['somme'] or 0
+        # ------------------ STATISTIQUES (comme ListReparationView) -------------------
+        reparat_total = filtre_reparat.count()
+        # Jours / Mois : sur la période affichée (filtre_reparat)
+        reparat_jours = filtre_reparat.filter(date_saisie=today).aggregate(somme=Sum('montant'))['somme'] or 0
         reparat_jours_format = '{:,}'.format(reparat_jours).replace(',', ' ')
-        reparat_mois = reparation_queryset.aggregate(somme=Sum('montant'))['somme'] or 0
+        reparat_mois = filtre_reparat.aggregate(somme=Sum('montant'))['somme'] or 0
         reparat_mois_format = '{:,}'.format(reparat_mois).replace(',', ' ')
-        reparat_an = reparation_queryset.filter(date_saisie__year=today.year).aggregate(somme=Sum('montant'))['somme'] or 0
+        # Année : sur la base, toute l'année en cours
+        reparat_an = reparat_base.filter(date_saisie__year=today.year).aggregate(somme=Sum('montant'))['somme'] or 0
         reparat_an_format = '{:,}'.format(reparat_an).replace(',', ' ')
-        # ------------------ AGREGATION (Panne, Visite, Accident) -------------------
+        # ------------------ AGREGATION (Panne, Visite, Accident) sur la période affichée -------------------
         best_reparations = (
-            reparation_queryset.values(
+            filtre_reparat.values(
                 'vehicule__id',
                 'vehicule__immatriculation',
                 'vehicule__category__category'
@@ -9027,7 +9150,7 @@ class AddEntretienView(LoginRequiredMixin, CustomPermissionRequiredMixin, Create
             except:
                 vehicules = Vehicule.objects.none() 
         else:
-            print("*****ALL*******")
+            print()
 
         search_query = self.request.GET.get("search", "").strip()
         if search_query:  
@@ -9038,7 +9161,6 @@ class AddEntretienView(LoginRequiredMixin, CustomPermissionRequiredMixin, Create
         if form.is_valid():
             date_debut = form.cleaned_data.get('date_debut')
             date_fin = form.cleaned_data.get('date_fin')
-
         today = date.today()
         if date_debut and date_fin:
             entret_queryset = entret_queryset.filter(date_saisie__range=[date_debut, date_fin])
@@ -9047,7 +9169,6 @@ class AddEntretienView(LoginRequiredMixin, CustomPermissionRequiredMixin, Create
                 date_saisie__month=today.month,
                 date_saisie__year=today.year
             )
-
         entret_jours = entret_queryset.filter(date_saisie=today).aggregate(somme=Sum('montant'))['somme'] or 0
         entret_jours_format = '{:,}'.format(entret_jours).replace(',', ' ')
         entret_mois = entret_queryset.aggregate(somme=Sum('montant'))['somme'] or 0
@@ -9055,7 +9176,6 @@ class AddEntretienView(LoginRequiredMixin, CustomPermissionRequiredMixin, Create
         entret_an = entret_queryset.filter(date_saisie__year=today.year).aggregate(somme=Sum('montant'))['somme'] or 0
         entret_an_format = '{:,}'.format(entret_an).replace(',', ' ')
         liste_entret = entret_queryset.order_by('-date_saisie')
-        
         context = {
             "vehicules": vehicules,
             "vehicule": vehicule,
@@ -9095,20 +9215,16 @@ class ListEntretienView(LoginRequiredMixin, CustomPermissionRequiredMixin, ListV
         today = date.today()
         entret_base = Entretien.objects.all()
         form = self.form_class(self.request.GET)
-
         # ------------------ FILTRES (base : catégorie + immat uniquement) -------------------
         if form.is_valid():
             categorie_filter = form.cleaned_data.get('categorie')
             date_debut = form.cleaned_data.get('date_debut')
             date_fin = form.cleaned_data.get('date_fin')
             immatriculation = form.cleaned_data.get('immatriculation')
-
             if categorie_filter:
                 entret_base = entret_base.filter(vehicule__category__category=categorie_filter)
-
             if immatriculation:
                 entret_base = entret_base.filter(vehicule__immatriculation__icontains=immatriculation)
-
             # Filtre de date pour l'affichage : plage si fournie, sinon mois en cours (comme ListRecetView)
             if date_debut and date_fin:
                 filtre_entret = entret_base.filter(date_saisie__range=[date_debut, date_fin])
@@ -9122,9 +9238,7 @@ class ListEntretienView(LoginRequiredMixin, CustomPermissionRequiredMixin, ListV
                 date_saisie__month=today.month,
                 date_saisie__year=today.year
             )
-
         # ------------------ STATISTIQUES -------------------
-        # Jours / Mois : sur la période affichée (filtre_entret)
         entret_jours = filtre_entret.filter(date_saisie=today).aggregate(somme=Sum('montant'))['somme'] or 0
         entret_jours_format = '{:,}'.format(entret_jours).replace(',', ' ')
         entret_mois = filtre_entret.aggregate(somme=Sum('montant'))['somme'] or 0
@@ -9132,7 +9246,6 @@ class ListEntretienView(LoginRequiredMixin, CustomPermissionRequiredMixin, ListV
         # Année : sur la base (toute l'année en cours), comme ListRecetView
         entret_an = entret_base.filter(date_saisie__year=today.year).aggregate(somme=Sum('montant'))['somme'] or 0
         entret_an_format = '{:,}'.format(entret_an).replace(',', ' ')
-
         context = {
             'liste_entret': filtre_entret,
             'entret_an_format': entret_an_format,
@@ -9209,7 +9322,6 @@ class ExportEntretienExcelView(LoginRequiredMixin, View):
                 e.auteur.username if e.auteur else "",
                 e.date_saisie.strftime("%d/%m/%Y") if e.date_saisie else "",
             ])
-
         for col_num, column_title in enumerate(headers, 1):
             col_letter = get_column_letter(col_num)
             ws.column_dimensions[col_letter].width = 22
@@ -9258,13 +9370,11 @@ class UpdatEntretienView(LoginRequiredMixin, CustomPermissionRequiredMixin, Upda
     success_url = reverse_lazy('list_entretien')
     success_message = 'Entretien modifiée avec succès ✓✓'
     timeout_minutes = 600
-
     def get_success_url(self):
         next_url = self.request.GET.get('next') or self.request.POST.get('next')
         if next_url:
             return next_url
         return str(self.success_url)
-
     def dispatch(self, request, *args, **kwargs):
         last_activity = request.session.get('last_activity')
         if last_activity:
@@ -9274,14 +9384,12 @@ class UpdatEntretienView(LoginRequiredMixin, CustomPermissionRequiredMixin, Upda
                 messages.warning(request, "Vous avez été déconnecté ")
                 return redirect("login")
         return super().dispatch(request, *args, **kwargs)
-
     def form_valid(self, form):
         form.instance.auteur = self.request.user
         response = super().form_valid(form)
         if self.request.headers.get("x-requested-with") == "XMLHttpRequest":
             return JsonResponse({"success": True, "message": self.success_message})
         return response
-
     def form_invalid(self, form):
         if self.request.headers.get("x-requested-with") == "XMLHttpRequest":
             from django.template.loader import render_to_string
@@ -9325,7 +9433,6 @@ def historique(request):
     selected_year = int(request.GET.get('annee', current_year))
     selected_categorie_id = request.GET.get('categorie', '').strip()
     immatriculation_filter = request.GET.get('immatriculation', '').strip()
-
     try:
         selected_categorie_id = int(selected_categorie_id) if selected_categorie_id else None
     except (ValueError, TypeError):
@@ -9350,7 +9457,6 @@ def historique(request):
         'assurance': (Assurance, 'vehicule'),
         'soldejour': (SoldeJour, None),
     }
-
     context = {}
     for name, (model, vehicule_path) in models_with_amount.items():
         qs = model.history.filter(history_date__year=selected_year)
@@ -9361,10 +9467,8 @@ def historique(request):
                 qs = qs.filter(**{f'{vehicule_path}__immatriculation__icontains': immatriculation_filter})
         total = qs.aggregate(Sum('montant'))['montant__sum'] or 0
         context[f"total_{name}"] = '{:,}'.format(total).replace(',', ' ')
-
     last_10_years = [current_year - i for i in range(10)][::-1]
     categories_list = CategoVehi.objects.all().order_by('category')
-
     context["selected_year"] = selected_year
     context["last_10_years"] = last_10_years
     context["categories_list"] = categories_list

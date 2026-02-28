@@ -38,8 +38,6 @@
     </div>
 {% endblock search_form %} 
 {% block main_content %}
-{% if user.user_type == '4' %}
-{% else %}
 <div class="col-lg-12">
     <table>
         <thead>
@@ -124,7 +122,6 @@
         </tfoot>
     </table>
 </div>
-{% endif %}
 {% endblock main_content %}
 
 {% block custom_js %}

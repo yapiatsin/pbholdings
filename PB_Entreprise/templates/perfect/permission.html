@@ -3,7 +3,7 @@
 {% block title %} Gestion des Permissions {% endblock title %} 
 
 {% block page_title %}
-    <img class="profile-user-img" style="border:none; height:55px;width:55px" src="{% static 'recet.png' %}" alt="User profile picture">Gestion des Permissions
+    <img class="profile-user-img" style="border:none; height:55px;width:55px" src="{% static 'agear.png' %}" alt="User profile picture">Gestion des Permissions
 {% endblock page_title %} 
 
 {% block page_action %}
@@ -93,7 +93,7 @@
 <div class="col-md-12">
     <div class="card" style="border-radius:25px;">
         <div class="card-header">
-            <h3 class="card-title">Liste des Permissions ({{ permissions|length }})</h3>
+            <h3 class="card-title">Liste des Permissions</h3>
             <div class="card-tools">
                 <form method="get" class="form-inline">
                     <input type="text" name="search" class="form-control form-control-sm" placeholder="Rechercher..." value="{{ request.GET.search }}">

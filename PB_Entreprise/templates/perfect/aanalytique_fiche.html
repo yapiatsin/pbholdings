@@ -134,7 +134,7 @@
                             <td class="text-right">{{ row.charge_var|default:"-" }}</td>
                             <td class="text-right">{{ row.total_charge|default:"-" }}</td>
                             <td class="text-right">{{ row.marge_contribution|default:"-" }}</td>
-                            <td class="text-right" {% if row.taux_marge >= 90 %}style="background-color: rgba(213, 247, 121, 0.85);"{% endif %}>{{ row.taux_marge_str }}</td>
+                            <td class="text-right" {% if row.taux_marge >= 90 %}style="background-color: rgba(213, 247, 121, 0.85);"{% elif row.taux_marge < 50 %}style="background-color: rgba(247, 125, 121, 0.85);"{% endif %}>{{ row.taux_marge_str }}</td>
                             <td class="text-right">{{row.marge_cout_direct|default:"-"}}</td>
                         </tr>
                     {% empty %}

@@ -23,7 +23,6 @@ def alertes_count(request):
     """Calcule le nombre total d'alertes critiques pour l'affichage dans la navbar"""
     if not request.user.is_authenticated:
         return {'total_alertes': 0, 'alertes_list': []}
-    
     try:
         user = request.user
         total_alertes = 0

@@ -1,0 +1,75 @@
+<form method="post" action="{% url 'update_reparation' object.pk %}" role="form" id="form-update-reparation" enctype="multipart/form-data">
+  {% csrf_token %}
+  <div class="row card-body">
+    <div class="col-md-12 form-group">
+      <input value="REPARATION" class="form-control text-center" disabled>
+    </div>
+    <div class="col-md-3 col-sm-6 form-group">
+      <label>Motif de réparation</label> {{ form.motif }}
+    </div>
+    <div class="col-md-3 col-sm-6 form-group">
+      <label>N° facture</label> {{ form.num_fich }}
+    </div>
+    <div class="col-md-3 col-sm-6 form-group">
+      <label>Heure d'entrée</label> {{ form.date_entree }}
+    </div>
+    <div class="col-md-3 col-sm-6 form-group">
+      <label>Heure de sortie</label> {{ form.date_sortie }}
+    </div>
+    <div class="col-md-12 form-group">
+      <label>Réçu</label> {{ form.image }}
+      {% if object.image %}
+      <p class="mt-2"><img src="{{ object.image.url }}" alt="Réçu actuel" class="img-fluid" style="max-height:100px;"></p>
+      {% endif %}
+    </div>
+    <div class="col-md-12 form-group">
+      <label>Description de la réparation</label> {{ form.description }}
+    </div>
+    <hr class="col-md-12">
+    <div class="col-md-12 form-group">
+      <input value="LES PIÈCES DE REPARATION" class="form-control text-center" disabled>
+    </div>
+    <div class="col-md-12">
+      <div class="text-right mb-3">
+        <button type="button" class="btn btn-primary" id="add-piece-update" style="position:absolute;right: -80px; top:95px; z-index:1; border-radius: 50px;"><i class="fa fa-plus"></i> Ajouter</button>
+      </div>
+      <div id="piece-formset-container-update">
+        {{ piece_formset.management_form }}
+        {% for piece_form in piece_formset %}
+        <div class="ligne-piece border p-3 mb-2 bg-light rounded">
+          <div class="row">
+            {% for hidden in piece_form.hidden_fields %}{{ hidden }}{% endfor %}
+            <div class="col-md-3">
+              {{ piece_form.libelle.label_tag }}
+              {{ piece_form.libelle }}
+            </div>
+            <div class="col-md-3">
+              {{ piece_form.lieu.label_tag }}
+              {{ piece_form.lieu }}
+            </div>
+            <div class="col-md-2">
+              {{ piece_form.quantite.label_tag }}
+              {{ piece_form.quantite }}
+            </div>
+            <div class="col-md-3">
+              {{ piece_form.montant.label_tag }}
+              {{ piece_form.montant }}
+            </div>
+            <div class="col-md-1 d-flex align-items-end" style="position: relative; top: -3px;">
+              <button type="button" class="btn btn-outline-danger btn-sm remove-piece-update" style="margin-top: -15px;">🗑</button>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    <hr class="col-md-12">
+    <div class="col-md-12 form-group">
+      <label>Coût de prestation</label> {{ form.prestation }}
+    </div>
+  </div>
+  <div class="modal-footer justify-content-between">
+    <button type="button" class="btn btn-outline-secondary" style="border-radius:25px;" data-dismiss="modal">Annuler</button>
+    <button type="submit" class="btn btn-outline-primary" style="border-radius:25px;">Enregistrer</button>
+  </div>
+</form>

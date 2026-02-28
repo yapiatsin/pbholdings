@@ -1,0 +1,108 @@
+{% extends 'perfect/base.html' %} 
+{% load static %} 
+{% block title %} Modifier la réparation {% endblock title %}  
+{% block page_title %}
+<a href="{% url 'add_reparation' vehicule.pk %}"><img class="profile-user-img" style="border:none; height:25px;width:25px" src="{% static 'retour.png' %}" alt="Retour"></a>
+<img class="profile-user-img" style="border:none; height:45px;width:45px" src="{% static 'clereparat.png' %}" alt="User profile picture"> Modifier la réparation du <b class="text-danger"> {{ vehicule }}</b> 
+{% endblock page_title %} 
+
+{% block page_action %}
+<a class="btn btn-default text-info" href="{% url 'add_reparation' vehicule.pk %}" style="font-size: 16px;"><i style="font-size: 20px;" class="fa fa-refresh"></i></a>
+<a class="btn btn-default text-info" href="{% url 'list_repa' %}" style="font-size: 16px;">Liste des réparations</a>
+{% endblock page_action %}
+
+{% block main_content %}
+
+<div class="col-md-12">
+    <div class="card" style="box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); border-radius:25px;">
+        <div class="card-header" style="font-weight:700; color: #06497C;">
+            Modifier la réparation
+        </div>
+        <div class="card-body">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <div class="row">
+                    <div class="col-md-12 form-group">
+                        <input value="REPARATION" class="form-control text-center" disabled>
+                    </div>
+
+                    <div class="col-md-3 col-sm-6 form-group">
+                        <label>Motif de réparation</label> {{ form.motif }}
+                    </div>
+                    <div class="col-md-3 col-sm-6 form-group">
+                        <label>N° facture</label> {{ form.num_fich }}
+                    </div>
+                    <div class="col-md-3 col-sm-6 form-group">
+                        <label>Heure d'entrée</label> {{ form.date_entree }}
+                    </div>
+                    <div class="col-md-3 col-sm-6 form-group">
+                        <label>Heure de sortie</label> {{ form.date_sortie }}
+                    </div>
+
+                    <div class="col-md-12 form-group">
+                        <label>Réçu</label> {{ form.image }}
+                        {% if object.image %}
+                        <p class="mt-2"><img src="{{ object.image.url }}" alt="Réçu actuel" class="img-fluid" style="max-height:120px;"></p>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-12 form-group">
+                        <label>Description de la réparation</label> {{ form.description }}
+                    </div>
+
+                    <hr class="col-md-12">
+
+                    <!-- Pièces : modification / suppression uniquement (pas d'ajout) -->
+                    <div class="col-md-12 form-group">
+                        <input value="LES PIÈCES DE REPARATION (vous pouvez modifier ou supprimer une ligne)" class="form-control text-center" disabled>
+                    </div>
+
+                    <div class="col-md-12">
+                        <div id="piece-formset-container">
+                            {{ piece_formset.management_form }}
+                            {% for piece_form in piece_formset %}
+                            <div class="ligne-piece border p-3 mb-2 bg-light rounded">
+                                <div class="row">
+                                    {% for hidden in piece_form.hidden_fields %}{{ hidden }}{% endfor %}
+                                    <div class="col-md-3">
+                                        {{ piece_form.libelle.label_tag }}
+                                        {{ piece_form.libelle }}
+                                    </div>
+                                    <div class="col-md-2">
+                                        {{ piece_form.lieu.label_tag }}
+                                        {{ piece_form.lieu }}
+                                    </div>
+                                    <div class="col-md-2">
+                                        {{ piece_form.quantite.label_tag }}
+                                        {{ piece_form.quantite }}
+                                    </div>
+                                    <div class="col-md-2">
+                                        {{ piece_form.montant.label_tag }}
+                                        {{ piece_form.montant }}
+                                    </div>
+                                    <div class="col-md-2 d-flex align-items-end">
+                                        <label class="mb-0 mr-2">Supprimer</label>
+                                        {{ piece_form.DELETE }}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <hr class="col-md-12">
+                    <div class="col-md-12 form-group">
+                        <label>Coût de prestation</label> {{ form.prestation }}
+                    </div>
+                </div>
+
+                <div class="modal-footer justify-content-between px-0">
+                    <a href="{% url 'add_reparation' vehicule.pk %}" class="btn btn-outline-secondary" style="border-radius:25px;">Annuler</a>
+                    <button type="submit" class="btn btn-outline-primary" style="border-radius:25px;">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock main_content %}

@@ -35,6 +35,23 @@
 {% endblock page_action %}
 
 {% block main_content %}
+<!-- Modal modification réparation (contenu chargé en AJAX) -->
+<div class="modal fade" id="modal-update-reparation">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" style="font-weight:700;color: #06497C;">Modifier la réparation du <b class="text-danger" id="modal-update-vehicule"></b></h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" id="modal-update-reparation-body">
+        <p class="text-center text-muted">Chargement...</p>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="modal fade" id="modal-sm">
     <div class="modal-dialog modal-sm">
         <div class="modal-content" style="border-radius:25px;">
@@ -167,7 +184,7 @@
                                                             {% for categorie, perms in grouped_permissions.items %}
                                                                 {% if categorie.categorie == 'permreparation' %}
                                                                     {% for perm in perms %}
-                                                                        {% if perm.name == "sup réparation" %}
+                                                                        {% if perm.name == "sup reparation" %}
                                                                             <input type="checkbox" id="select-all">
                                                                         {% endif %}
                                                                     {% endfor %}
@@ -193,7 +210,7 @@
                                                                     {% for categorie, perms in grouped_permissions.items %}
                                                                         {% if categorie.categorie == 'permreparation' %}
                                                                             {% for perm in perms %}
-                                                                                {% if perm.name == "sup réparation" %}
+                                                                                {% if perm.name == "sup reparation" %}
                                                                                     <input type="checkbox" name="reparation_ids" value="{{ u.id }}">
                                                                                 {% endif %}
                                                                             {% endfor %}
@@ -215,8 +232,13 @@
                                                                         {% if categorie.categorie == 'permreparation' %}
                                                                             {% for perm in perms %}
                                                                                 {% if perm.name == "Détail réparation" %}
-                                                                                    <a href="{% url perm.url u.pk %}" class="text-primary">
+                                                                                    <a href="{% url perm.url u.pk %}" class="text-primary" title="Détail">
                                                                                         <i style="font-size: 20px;" class="fa fa-eye text-info"></i>
+                                                                                    </a>
+                                                                                {% endif %}
+                                                                                {% if perm.name == "modifier réparation" %}
+                                                                                    <a href="#" class="edit-reparation-link text-primary ml-2" data-url="{% url 'update_reparation' u.pk %}" data-immat="{{ u.vehicule.immatriculation }}" title="Modifier la réparation">
+                                                                                        <i style="font-size: 20px;" class="fa fa-edit text-warning"></i>
                                                                                     </a>
                                                                                 {% endif %}
                                                                             {% endfor %}
@@ -267,11 +289,107 @@
 </div>
 
 <script>
-    document.getElementById('select-all').onclick = function() {
-        let checkboxes = document.querySelectorAll('input[name="reparation_ids"]');
-        for (let checkbox of checkboxes) {
-            checkbox.checked = this.checked;
+    (function() {
+        var selectAll = document.getElementById('select-all');
+        if (selectAll) {
+            selectAll.onclick = function() {
+                var checkboxes = document.querySelectorAll('input[name="reparation_ids"]');
+                for (var i = 0; i < checkboxes.length; i++) checkboxes[i].checked = this.checked;
+            };
         }
-    };
+    })();
+
+    // Chargement du formulaire de modification en AJAX et ouverture du modal (délégation d'événements pour compatibilité DataTables)
+    document.addEventListener('DOMContentLoaded', function() {
+        function openEditModal(url, immat) {
+            var modalBody = document.getElementById('modal-update-reparation-body');
+            var modalTitle = document.getElementById('modal-update-vehicule');
+            if (modalTitle) modalTitle.textContent = immat || '';
+            if (modalBody) modalBody.innerHTML = '<p class="text-center text-muted">Chargement...</p>';
+            var modalEl = document.getElementById('modal-update-reparation');
+            if (!modalEl) return;
+            // Bootstrap 4 : jQuery .modal('show')  |  Bootstrap 5 : bootstrap.Modal.getOrCreateInstance
+            if (typeof $ !== 'undefined' && $.fn.modal) {
+                $(modalEl).modal('show');
+            } else if (typeof bootstrap !== 'undefined' && bootstrap.Modal && typeof bootstrap.Modal.getOrCreateInstance === 'function') {
+                var modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+                modal.show();
+            } else {
+                modalEl.classList.add('show');
+                modalEl.style.display = 'block';
+                modalEl.setAttribute('aria-modal', 'true');
+                document.body.classList.add('modal-open');
+                var backdrop = document.createElement('div');
+                backdrop.className = 'modal-backdrop fade show';
+                backdrop.id = 'modal-update-backdrop';
+                document.body.appendChild(backdrop);
+            }
+            fetch(url + '?partial=1', {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            }).then(function(r) { return r.text(); }).then(function(html) {
+                if (modalBody) modalBody.innerHTML = html;
+                initUpdateReparationFormset();
+            }).catch(function() {
+                if (modalBody) modalBody.innerHTML = '<p class="text-danger">Erreur lors du chargement.</p>';
+            });
+        }
+        document.addEventListener('click', function(e) {
+            var link = e.target.closest && e.target.closest('.edit-reparation-link');
+            if (!link) return;
+            e.preventDefault();
+            var url = link.getAttribute('data-url');
+            var immat = link.getAttribute('data-immat') || '';
+            if (url) openEditModal(url, immat);
+        });
+    });
+
+    function initUpdateReparationFormset() {
+        var container = document.getElementById('piece-formset-container-update');
+        if (!container) return;
+        var addBtn = document.getElementById('add-piece-update');
+        var totalForms = container.querySelector('input[name$="-TOTAL_FORMS"]');
+        if (!totalForms) return;
+
+        if (addBtn) {
+            addBtn.onclick = function() {
+                var firstRow = container.querySelector('.ligne-piece');
+                if (!firstRow) return;
+                var newRow = firstRow.cloneNode(true);
+                newRow.classList.remove('d-none');
+                newRow.querySelectorAll('input, select, textarea').forEach(function(inp) {
+                    if (inp.name && inp.name.indexOf('pieces-') === 0) inp.value = '';
+                    if (inp.name && inp.name.indexOf('-DELETE') !== -1) inp.checked = false;
+                });
+                var count = parseInt(totalForms.value, 10);
+                newRow.querySelectorAll('input, select, textarea').forEach(function(inp) {
+                    if (inp.name) inp.name = inp.name.replace(/pieces-\d+-/, 'pieces-' + count + '-');
+                    if (inp.id) inp.id = (inp.id || '').replace(/id_pieces-\d+-/, 'id_pieces-' + count + '-');
+                });
+                totalForms.value = count + 1;
+                container.appendChild(newRow);
+            };
+        }
+
+        container.addEventListener('click', function(e) {
+            if (!e.target || !e.target.classList.contains('remove-piece-update')) return;
+            var row = e.target.closest('.ligne-piece');
+            if (!row) return;
+            var deleteInput = row.querySelector('input[name$="-DELETE"]');
+            if (deleteInput) {
+                deleteInput.checked = true;
+                row.style.display = 'none';
+            } else {
+                row.remove();
+                var rows = container.querySelectorAll('.ligne-piece');
+                rows.forEach(function(r, i) {
+                    r.querySelectorAll('input, select, textarea').forEach(function(inp) {
+                        if (inp.name) inp.name = inp.name.replace(/pieces-\d+-/, 'pieces-' + i + '-');
+                        if (inp.id) inp.id = (inp.id || '').replace(/id_pieces-\d+-/, 'id_pieces-' + i + '-');
+                    });
+                });
+                totalForms.value = rows.length;
+            }
+        });
+    }
 </script>
 {% endblock main_content %}

@@ -6,13 +6,13 @@ urlpatterns = [
     path('B', base, name='base'),
     path('recette journaliere', MyRecetteView.as_view(), name='rec_day'),
     path('recette journaliere/export-excel/', ExportRecetteMensuelleExcelView.as_view(), name='export_recette_mensuelle_excel'),
-    path('bilan day', Bilanday.as_view(), name='bilanday'),
+    # path('bilan day', Bilanday.as_view(), name='bilanday'),
+    # path('bilan-day/export-excel/', ExportBilandayExcelView.as_view(), name='export_bilanday_excel'),
     path('temps arret', TableaustopView.as_view(), name='temps'),
     path('temps-arret/export-excel/', ExportTempsArretExcelView.as_view(), name='export_temps_arret_excel'),
     path('Tableau de bord', DashboardView.as_view(), name='dash'),
     path('Saisie comptable /', SaisiComptaView.as_view(), name='saisi_compta'),
     path('dashboard Garage /', DashboardGaragView.as_view(), name='dashgarage'),
-     
     path('alertes', GestionalerteView.as_view(), name='alerte'),
 
     path('fiche-analytique-exploitation', AnalytiqueFicheView.as_view(), name='analytique_fiche'),
@@ -110,6 +110,7 @@ urlpatterns = [
     path('liste reparation',ListReparationView.as_view(), name="list_repa"),
     path('top vehicule reparation',BestReparationView.as_view(), name="top_repa"),
     path('top-reparations/export-excel/', ExportBestReparationExcelView.as_view(), name='export_top_reparation_excel'),
+    path('reparation /<int:pk>/ modifier', UpdateReparationView.as_view(), name="update_reparation"),
     path('reparation /<int:pk>/ detail', DetailReparatView.as_view(), name="detail_reparat"),
     path('reparation /<int:pk>/ export-pdf/', ExportReparationPDFView.as_view(), name='export_reparation_pdf'),
     path('reparation /delete-selected/', views.delete_selected_reparation, name='delete_selected_reparation'),

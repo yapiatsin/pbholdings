@@ -969,7 +969,10 @@ class PieceForm(forms.ModelForm):
             'quantite': forms.NumberInput(attrs={'class': 'form-control', 'min': '0'}),
             'montant': forms.NumberInput(attrs={'class':'form-control','min':'0'}),  
         }
-PieceFormSet = inlineformset_factory(Reparation, Piece, form=PieceForm, extra=1, can_delete=True)  
+PieceFormSet = inlineformset_factory(Reparation, Piece, form=PieceForm, extra=1, can_delete=True)
+# Formset pour la modification : afficher les pièces existantes, suppression possible, pas d'ajout
+PieceFormSetUpdate = inlineformset_factory(Reparation, Piece, form=PieceForm, extra=0, can_delete=True)
+
 class PiecEchangeForm(forms.ModelForm):
     date_saisie = forms.DateTimeField(widget= forms.DateInput(format=('%m/%d/%Y'), attrs={'class':'form-control','format':'yyyy-mm-dd', 'type':'date'}))
     class Meta:
