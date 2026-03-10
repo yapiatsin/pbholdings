@@ -2859,13 +2859,13 @@ class GestionalerteView(LoginRequiredMixin, CustomPermissionRequiredMixin, Templ
                 gerant = user.gerants.get()
                 categories_gerant = gerant.gerant_voiture.all()
                 if categories_gerant.exists():  
-                    vehicules = Vehicule.objects.filter(category__in=categories_gerant)
+                    vehicules = Vehicule.objects.filter(category__in=categories_gerant, car_statut=True)
                 else:
                     vehicules = Vehicule.objects.none()
             except Gerant.DoesNotExist:
                 vehicules = Vehicule.objects.none()
         else:
-            vehicules = Vehicule.objects.all()
+            vehicules = Vehicule.objects.filter(car_statut=True)
         resultat_vehicule = []
         alert_color = " "
         forms = DateForm(self.request.GET)
