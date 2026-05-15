@@ -16,13 +16,14 @@
             text-align: center;
             font-size: 18px;
             border-radius: 50px;
-            border: 1px solid #ccc;
+            border: 1px solid rgba(168, 50, 50, 0.35);
             padding: 0;
             box-sizing: border-box; 
         }
         .otp-input:focus {
             outline: none;
-            border-color:rgba(129, 190, 255, 0.42);
+            border-color: rgba(168, 50, 50, 0.65);
+            box-shadow: 0 0 0 2px rgba(168, 50, 50, 0.15);
         }
         .label-container {
             display: flex;
@@ -41,34 +42,34 @@
     
     <div class="login-box">
         <div class="login-logo" style="font-size: 30px">
-            <a href="#" class="text" style="color: rgba(2, 26, 78, 0.63)"><b>P&BENTREPRISE</b></a>
+            <a href="#" class="text" style="color: #a83232;"><b>P&BENTREPRISE</b></a>
         </div>
-        <div class="card" style="background-color:rgba(255, 255, 255, 0.1); border-radius: 10px">
-            <div class="card-body login-card-body" style="background-color:rgba(255, 255, 255, 0.1);border-radius: 10px">
-                <h3 class="text-center text-"><img src="{% static 'security.png' %}" alt="" srcset=""></h3>
-                <h3 class="text-center text-" style="font-size:18px; color: rgba(2, 26, 78, 0.63)">Vérification OTP</h3>
-                <p class="login-box-msg text-" style="color: rgba(2, 26, 78, 0.63)">Veuillez entrer l'OTP reçu par e-mail pour vérifier votre identité..</p>
+        <div class="card" style="background-color:rgba(255, 255, 255, 0.12); border-radius: 20px; border: 1px solid rgba(168, 50, 50, 0.25); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08); background-image: linear-gradient(145deg, rgba(251, 237, 237, 0.45) 0%, rgba(255, 255, 255, 0.12) 100%);">
+            <div class="card-body login-card-body" style="background-color:transparent;border-radius: 20px;">
+                <h3 class="text-center"><img src="{% static 'security.png' %}" alt="" srcset=""></h3>
+                <h3 class="text-center" style="font-size:18px; font-weight: 600; color: #a83232;">Vérification OTP</h3>
+                <p class="login-box-msg" style="color: #1a1a1a;">Veuillez entrer l'OTP reçu par e-mail pour vérifier votre identité..</p>
                 <form method="post" id="otp-form" name="loginForm" class="text-center">
                   {% csrf_token %}
                     <div class="otp-container">
-                        <input class="otp-input" style="border-color: gba(255, 255, 255, 0.24); background-color:rgba(255, 255, 255, 0.1); color: rgba(2, 26, 78, 0.63)" type="text" id="otp1" maxlength="1" required />
-                        <input class="otp-input" style="border-color: gba(255, 255, 255, 0.24); background-color:rgba(255, 255, 255, 0.1); color: rgba(2, 26, 78, 0.63)" type="text" id="otp2" maxlength="1" required />
-                        <input class="otp-input" style="border-color: gba(255, 255, 255, 0.24); background-color:rgba(255, 255, 255, 0.1); color: rgba(2, 26, 78, 0.63)" type="text" id="otp3" maxlength="1" required />
-                        <input class="otp-input" style="border-color: gba(255, 255, 255, 0.24); background-color:rgba(255, 255, 255, 0.1); color: rgba(2, 26, 78, 0.63)" type="text" id="otp4" maxlength="1" required />
+                        <input class="otp-input" style="background-color:rgba(255, 255, 255, 0.15); color: #1a1a1a;" type="text" id="otp1" maxlength="1" required />
+                        <input class="otp-input" style="background-color:rgba(255, 255, 255, 0.15); color: #1a1a1a;" type="text" id="otp2" maxlength="1" required />
+                        <input class="otp-input" style="background-color:rgba(255, 255, 255, 0.15); color: #1a1a1a;" type="text" id="otp3" maxlength="1" required />
+                        <input class="otp-input" style="background-color:rgba(255, 255, 255, 0.15); color: #1a1a1a;" type="text" id="otp4" maxlength="1" required />
                     </div>
                     <input type="hidden" id="otp" name="otp" />
                     <br>
                     <div class="d-grid text-center">
-                        <button type="submit" class="btn btn-outline-primary w-100" id="loginButton" style="border-radius: 50px; border-color:rgba(2, 26, 78, 0.63)">
-                            <span id="buttonText" style="color: rgba(2, 26, 78, 0.63)">Vérifier</span>
-                            <span id="spinner" class="spinner-border spinner-border-sm d-none" style="color: rgba(2, 26, 78, 0.63);" role="status" aria-hidden="true"></span>
+                        <button type="submit" class="btn w-100" id="loginButton" style="border-radius: 50px; border: 1px solid #a83232; background: transparent; color: #a83232; font-weight: 600;">
+                            <span id="buttonText">Vérifier</span>
+                            <span id="spinner" class="spinner-border spinner-border-sm d-none" style="color: #a83232;" role="status" aria-hidden="true"></span>
                         </button>
                     </div>
                 </form>
                 <p class="mt-2 mb-1 text-center">
-                    <a href="{% url 'login' %}" class="text" style="color: rgba(2, 26, 78, 0.63)">Se connecter</a>
+                    <a href="{% url 'login' %}" class="text" style="color: #a83232; font-weight: 600;">Se connecter</a>
                 </p>
-                <p class="mt-2 mb-1 text-center" style="font-size: 14px; font-weight: 500; color: rgba(2, 26, 78, 0.7); font-style: italic; letter-spacing: 0.3px;">A tes résolutions repondra le succès</p>
+                <p class="mt-2 mb-1 text-center" style="font-size: 14px; font-weight: 500; color: rgba(26, 26, 26, 0.65); font-style: italic; letter-spacing: 0.3px;">A tes résolutions repondra le succès</p>
             </div>
        </div>
     </div>

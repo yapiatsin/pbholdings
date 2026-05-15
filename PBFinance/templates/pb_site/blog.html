@@ -1,0 +1,355 @@
+{% extends 'pb_site/base.html' %}
+{% load static %}
+{% block title %}P&BEntreprise — Blog{% endblock title %}
+
+{% block page_header_background %}{% static 'pb_site_asset/img/bg-img/blog.jpg' %}{% endblock page_header_background %}
+{% block page_header_title %}Blog{% endblock page_header_title %}
+{% block page_header_inner %}blog{% endblock page_header_inner %}
+
+{% block content %}
+    <section class="blog-section pt-120 pb-120 fade-wrapper">
+        <div class="container">
+            {% csrf_token %}
+            <div id="pb-blog-config"
+                 data-vue-url-template="{{ blog_vue_url_template|escape }}"
+                 hidden></div>
+            <script type="application/json" id="pb-blog-articles-data">{{ articles_json|safe }}</script>
+
+            <div class="row gy-lg-0 gy-5">
+                <div class="col-lg-8 col-md-12" id="pb-blog-articles-column">
+                    {% if articles %}
+                        {% for article in articles %}
+                            <article class="post-card post-inner fade-top pb-blog-article-card"
+                                     data-slug="{{ article.slug|escape }}"
+                                     data-category-slug="{% if article.categorie %}{{ article.categorie.slug|escape }}{% endif %}"
+                                     data-tag-slugs="{% for t in article.tags.all %}{{ t.slug|escape }}{% if not forloop.last %},{% endif %}{% endfor %}"
+                                     data-pb-search="{{ article.titre|escape }} {{ article.extrait|default:''|escape }} {% if article.categorie %}{{ article.categorie.nom|escape }}{% endif %}">
+                                <div class="post-thumb">
+                                    {% if article.image_principale %}
+                                        <img src="{{ article.image_principale.url }}" alt="{{ article.titre|escape }}">
+                                    {% else %}
+                                        <img src="{% static 'pb_site_asset/img/bg-img/sieg.webp' %}" alt="">
+                                    {% endif %}
+                                </div>
+                                <div class="post-content-wrap">
+                                    <div class="post-content">
+                                        <ul class="post-meta">
+                                            <li><i class="fa-regular fa-calendar"></i>{{ article.date_publication|date:"d/m/Y" }}</li>
+                                            <li><i class="fa-regular fa-user"></i>{{ article.auteur_nom|default:"P&BEntreprise" }}</li>
+                                            {% if article.categorie %}
+                                                <li><i class="fa-regular fa-folder"></i>{{ article.categorie.nom }}</li>
+                                            {% endif %}
+                                            <li><i class="fa-regular fa-eye"></i><span class="pb-blog-card-vues" data-slug="{{ article.slug|escape }}">{{ article.nb_vues }}</span> vues</li>
+                                        </ul>
+                                        <h3 class="title">
+                                            <a href="#" class="pb-blog-open-modal" data-slug="{{ article.slug|escape }}">{{ article.titre }}</a>
+                                        </h3>
+                                        <p>{% if article.extrait %}{{ article.extrait|truncatewords:40 }}{% else %}{{ article.contenu|striptags|truncatewords:40 }}{% endif %}</p>
+                                        {% if article.tags.all %}
+                                            <p class="mb-0 small text-muted">
+                                                {% for t in article.tags.all %}
+                                                    <span class="badge bg-light text-dark me-1">{{ t.nom }}</span>
+                                                {% endfor %}
+                                            </p>
+                                        {% endif %}
+                                    </div>
+                                    <div class="post-bottom">
+                                        <a href="#" class="read-more pb-blog-open-modal" data-slug="{{ article.slug|escape }}">Lire la suite<i class="fa-solid fa-chevrons-right"></i></a>
+                                    </div>
+                                </div>
+                            </article>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-center py-5">Aucun article pour le moment.</p>
+                    {% endif %}
+                </div>
+
+                <div class="col-lg-4 col-md-12">
+                    <div class="sidebar-widget">
+                        <div class="search-form">
+                            <form class="search-form" id="pb-blog-search-form" action="#" onsubmit="return false;">
+                                <input type="search" class="form-control" id="pb-blog-search-input" placeholder="Rechercher un article ou une catégorie…" autocomplete="off">
+                            </form>
+                            <button class="search-btn" type="button" id="pb-blog-search-btn" aria-label="Rechercher">
+                                <i class="fa-regular fa-magnifying-glass"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="sidebar-widget pb-blog-category-list">
+                        <h3 class="widget-title">Catégories</h3>
+                        <ul class="category-list">
+                            <li class="active pb-blog-cat-item" data-category-slug="">
+                                <button type="button" class="border-0 bg-transparent w-100 text-start p-0" style="cursor:pointer;">
+                                    Toutes les catégories <i class="fa-sharp fa-regular fa-arrow-right"></i>
+                                </button>
+                            </li>
+                            {% for c in categories %}
+                                <li class="pb-blog-cat-item" data-category-slug="{{ c.slug|escape }}">
+                                    <button type="button" class="border-0 bg-transparent w-100 text-start p-0" style="cursor:pointer;">
+                                        {{ c.nom }} <i class="fa-sharp fa-regular fa-arrow-right"></i>
+                                    </button>
+                                </li>
+                            {% empty %}
+                                <li class="text-muted small">Aucune catégorie.</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    <div class="sidebar-widget">
+                        <h3 class="widget-title">Articles récents</h3>
+                        {% for article in articles|slice:":5" %}
+                            <div class="sidebar-post">
+                                {% if article.image_principale %}
+                                    <img src="{{ article.image_principale.url }}" alt="{{ article.titre|escape }}">
+                                {% else %}
+                                    <img src="{% static 'pb_site_asset/img/bg-img/sieg.webp' %}" alt="">
+                                {% endif %}
+                                <div class="post-content">
+                                    <ul class="post-meta">
+                                        <li><i class="fa-light fa-circle-user"></i>{{ article.auteur_nom|default:"P&BEntreprise" }}</li>
+                                    </ul>
+                                    <h3 class="title">
+                                        <a href="#" class="pb-blog-open-modal" data-slug="{{ article.slug|escape }}">{{ article.titre|truncatewords:8 }}</a>
+                                    </h3>
+                                </div>
+                            </div>
+                        {% empty %}
+                            <p class="small text-muted">Aucun article.</p>
+                        {% endfor %}
+                    </div>
+
+                    <div class="sidebar-widget sticky-widget pb-blog-tag-list">
+                        <h3 class="widget-title">Tags</h3>
+                        <ul class="tags">
+                            <li>
+                                <button type="button" class="border-0 rounded-pill px-3 py-1 small bg-light pb-blog-tag-btn is-active" data-tag-slug="">
+                                    Tous
+                                </button>
+                            </li>
+                            {% for t in tags %}
+                                <li>
+                                    <button type="button" class="border-0 rounded-pill px-3 py-1 small bg-light pb-blog-tag-btn" data-tag-slug="{{ t.slug|escape }}">
+                                        {{ t.nom }}
+                                    </button>
+                                </li>
+                            {% empty %}
+                                <li class="text-muted small">Aucun tag.</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modal détail article -->
+    <div class="modal fade" id="pbBlogArticleModal" tabindex="-1" aria-labelledby="pbBlogArticleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title h5" id="pbBlogArticleModalLabel"></h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                </div>
+                <div class="modal-body">
+                    <ul class="post-meta mb-3" id="pbBlogModalMeta"></ul>
+                    <img src="" alt="" class="img-fluid rounded mb-3 d-none" id="pbBlogModalImg">
+                    <div class="blog-article-body" id="pbBlogModalBody"></div>
+                    <p class="text-muted small mb-0 mt-3">
+                        <i class="fa-regular fa-eye me-1"></i><span id="pbBlogModalVues">0</span> consultation(s)
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block extra_js %}
+<script>
+(function () {
+    if (typeof CSS === 'undefined' || !CSS.escape) {
+        window.CSS = window.CSS || {};
+        CSS.escape = function (s) {
+            return String(s).replace(/[^a-zA-Z0-9_\-]/g, '\\$&');
+        };
+    }
+
+    var cfg = document.getElementById('pb-blog-config');
+    var vueUrlTemplate = cfg ? cfg.getAttribute('data-vue-url-template') : '';
+    var placeholder = 'pbarticlevueplaceholder';
+
+    var dataEl = document.getElementById('pb-blog-articles-data');
+    var articlesBySlug = {};
+    try {
+        var raw = dataEl ? dataEl.textContent : '[]';
+        var list = JSON.parse(raw);
+        list.forEach(function (a) { articlesBySlug[a.slug] = a; });
+    } catch (e) {
+        console.warn('pb-blog: JSON articles invalide', e);
+    }
+
+    function getCookie(name) {
+        var v = document.cookie.match('(^|;) ?' + name + '=([^;]*)(;|$)');
+        return v ? decodeURIComponent(v[2]) : '';
+    }
+
+    var state = { categorySlug: '', tagSlug: '', search: '' };
+
+    function norm(s) {
+        return (s || '').toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    }
+
+    function applyFilters() {
+        var q = norm(state.search);
+        var cards = document.querySelectorAll('.pb-blog-article-card');
+        cards.forEach(function (card) {
+            var cat = card.getAttribute('data-category-slug') || '';
+            var tags = (card.getAttribute('data-tag-slugs') || '').split(',').map(function (x) { return x.trim(); }).filter(Boolean);
+            var searchBlob = norm(card.getAttribute('data-pb-search') || '');
+
+            var okCat = !state.categorySlug || cat === state.categorySlug;
+            var okTag = !state.tagSlug || tags.indexOf(state.tagSlug) !== -1;
+            var okSearch = !q || searchBlob.indexOf(q) !== -1;
+
+            card.classList.toggle('is-hidden', !(okCat && okTag && okSearch));
+        });
+    }
+
+    function setActiveCategory(slug) {
+        state.categorySlug = slug || '';
+        document.querySelectorAll('.pb-blog-cat-item').forEach(function (li) {
+            var s = li.getAttribute('data-category-slug') || '';
+            li.classList.toggle('active', s === state.categorySlug);
+        });
+        applyFilters();
+    }
+
+    function setActiveTag(slug) {
+        state.tagSlug = slug || '';
+        document.querySelectorAll('.pb-blog-tag-btn').forEach(function (btn) {
+            var s = btn.getAttribute('data-tag-slug') || '';
+            btn.classList.toggle('is-active', s === state.tagSlug);
+        });
+        applyFilters();
+    }
+
+    document.querySelectorAll('.pb-blog-cat-item').forEach(function (li) {
+        li.addEventListener('click', function () {
+            setActiveCategory(li.getAttribute('data-category-slug') || '');
+        });
+    });
+
+    document.querySelectorAll('.pb-blog-tag-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            setActiveTag(btn.getAttribute('data-tag-slug') || '');
+        });
+    });
+
+    var searchInput = document.getElementById('pb-blog-search-input');
+    var searchBtn = document.getElementById('pb-blog-search-btn');
+    function runSearch() {
+        state.search = searchInput ? searchInput.value : '';
+        applyFilters();
+    }
+    if (searchBtn) searchBtn.addEventListener('click', runSearch);
+    if (searchInput) {
+        searchInput.addEventListener('input', function () { runSearch(); });
+        searchInput.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') { e.preventDefault(); runSearch(); }
+        });
+    }
+
+    var modalEl = document.getElementById('pbBlogArticleModal');
+    var bsModal = null;
+    if (modalEl && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+        bsModal = new bootstrap.Modal(modalEl);
+    }
+
+    function formatDate(iso) {
+        if (!iso) return '';
+        try {
+            var d = new Date(iso);
+            if (isNaN(d.getTime())) return '';
+            return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
+        } catch (e) { return ''; }
+    }
+
+    function postIncrementVue(slug, onDone) {
+        if (!vueUrlTemplate || vueUrlTemplate.indexOf(placeholder) === -1) {
+            if (onDone) onDone(null);
+            return;
+        }
+        var url = vueUrlTemplate.replace(placeholder, slug);
+        var csrftoken = getCookie('csrftoken');
+        fetch(url, {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: {
+                'X-CSRFToken': csrftoken,
+                'Accept': 'application/json',
+            },
+        })
+            .then(function (r) { return r.json().catch(function () { return {}; }); })
+            .then(function (data) {
+                if (data && data.ok && typeof data.nb_vues === 'number') {
+                    var a = articlesBySlug[slug];
+                    if (a) a.nb_vues = data.nb_vues;
+                    document.querySelectorAll('.pb-blog-card-vues[data-slug="' + CSS.escape(slug) + '"]').forEach(function (el) {
+                        el.textContent = String(data.nb_vues);
+                    });
+                    var mv = document.getElementById('pbBlogModalVues');
+                    if (mv) mv.textContent = String(data.nb_vues);
+                }
+                if (onDone) onDone(data);
+            })
+            .catch(function () { if (onDone) onDone(null); });
+    }
+
+    function openArticleModal(slug) {
+        var a = articlesBySlug[slug];
+        if (!a || !modalEl) return;
+
+        var titleEl = document.getElementById('pbBlogArticleModalLabel');
+        var metaEl = document.getElementById('pbBlogModalMeta');
+        var imgEl = document.getElementById('pbBlogModalImg');
+        var bodyEl = document.getElementById('pbBlogModalBody');
+        var vuesEl = document.getElementById('pbBlogModalVues');
+
+        if (titleEl) titleEl.textContent = a.titre || '';
+        if (metaEl) {
+            var parts = [];
+            parts.push('<li><i class="fa-regular fa-calendar"></i>' + formatDate(a.date_publication) + '</li>');
+            parts.push('<li><i class="fa-regular fa-user"></i>' + (a.auteur_nom || 'P&BEntreprise') + '</li>');
+            if (a.categorie_nom) {
+                parts.push('<li><i class="fa-regular fa-folder"></i>' + a.categorie_nom + '</li>');
+            }
+            metaEl.innerHTML = parts.join('');
+        }
+        if (imgEl) {
+            if (a.image) {
+                imgEl.src = a.image;
+                imgEl.alt = a.titre || '';
+                imgEl.classList.remove('d-none');
+            } else {
+                imgEl.removeAttribute('src');
+                imgEl.classList.add('d-none');
+            }
+        }
+        if (bodyEl) bodyEl.innerHTML = a.contenu || '';
+        if (vuesEl) vuesEl.textContent = String(a.nb_vues != null ? a.nb_vues : 0);
+
+        postIncrementVue(slug);
+
+        if (bsModal) bsModal.show();
+    }
+
+    document.querySelectorAll('.pb-blog-open-modal').forEach(function (el) {
+        el.addEventListener('click', function (e) {
+            e.preventDefault();
+            var slug = el.getAttribute('data-slug');
+            if (slug) openArticleModal(slug);
+        });
+    });
+})();
+</script>
+{% endblock extra_js %}

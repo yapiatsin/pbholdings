@@ -1,0 +1,287 @@
+{% extends 'pb_site/base.html' %}
+{% load static %}
+{% block title %}P&BEntreprise — À Propos{% endblock title %}
+{% block body_class %}contact-page{% endblock body_class %}
+
+
+{% block page_header_background %}{% static 'pb_site_asset/img/service/service-img.png' %}{% endblock page_header_background %}
+{% block page_header_title %}À Propos{% endblock page_header_title %}
+{% block page_header_inner %}À Propos{% endblock page_header_inner %}
+{% block content %}
+
+
+<section class="about-section-4 pt-120 pb-120"> 
+    <div class="container">
+        <div class="row align-items-center fade-wrapper">
+            <div class="col-lg-6 col-md-12">
+                <div class="about-content-4">
+                    <div class="section-heading mb-30">
+                        <h4 class="sub-heading" data-text-animation="fade-in" data-duration="1.5"><span class="left-shape"></span>À Propos de Nous</h4>
+                        <h2 class="section-title mb-0" data-text-animation data-split="word" data-duration="1">Votre partenaire de mobilité et d'entretien à Abidjan</h2>
+                    </div>
+                    <p class="fade-top">{{ page_accueil.description|default:"Fondée à Abidjan, P&BEntreprise est une entreprise spécialisée dans le transport de personnes (VTC & Taxi) et la distribution de pièces détachées Suzuki." }}</p>
+                    {% with piliers=page_accueil.piliers.all %}
+                        {% if piliers %}
+                            <ul class="about-list fade-top">
+                                {% for pilier in piliers %}
+                                    <li><span class="number"></span>{{ pilier.titre }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    {% endwith %}
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-12">
+                <div class="about-img-wrap-4 fade-top" style="max-width: 100%; width: 100%; height: 600px;">
+                    <div class="about-img img-1" style="max-width: 100%; width: 100%; height: 100%; position: relative; left: auto; right: auto; top: 0;">
+                        <img src="{% static 'pb_site_asset/img/bg-img/alto.png' %}" alt="about" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- ./ about-section -->
+
+<section class="about-cta fade-wrapper">
+    <div class="container">
+        <div class="about-cta-wrap pt-120 pb-120 text-center fade-top">
+            <div class="bg-item">
+                <div class="bg-img" data-background="{% static 'pb_site_asset/img/bg-img/mtc.jpg' %}"></div>
+                <div class="overlay"></div>
+                <div class="overlay-2"></div>
+            </div>
+            <div class="section-heading white-content mb-40">
+                <h4 class="sub-heading" data-text-animation="fade-in" data-duration="1.5"><span class="left-shape"></span>Pourquoi Nous Choisir</h4>
+                <h2 class="section-title mb-0" data-text-animation data-split="word" data-duration="1">Des services pensés pour votre confort, votre sécurité et votre satisfaction</h2>
+                <h2 class="section-title mb-0" data-text-animation data-split="word" data-duration="1">10 ans d'expérience</h2>
+                <p class="fade-top">10 ans d'expérience dans le transport de personnes et la distribution de pièces détachées Suzuki.</p>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- ./ about-cta -->
+
+<section class="team-details pt-120 pb-120 strength-section--index3-stack">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="team-details-wrap">
+                    <div class="team-counter-area mb-80">
+                        <div class="section-heading">
+                            <h4 class="sub-heading" data-text-animation="fade-in" data-duration="1.5"><span class="left-shape"></span>{% if categori_page.page == 'Apropos' %}Nos Points Forts{% else %}Nos Points Forts{% endif %}</h4>
+                            <h2 class="section-title mb-0" data-text-animation data-split="word" data-duration="1">{% if categori_page.page == 'Apropos' %}Ce qui fait la différence avec P&amp;BEntreprise{% else %}Nos Points Forts{% endif %}</h2>
+                        </div>
+                        <div class="row gy-lg-0 gy-4 justify-content-center mt-40">
+                            {% if statistiques_procedure %}
+                                {% for stat in statistiques_procedure %}
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="team-counter">
+                                        <div class="icon">
+                                            <i class="{% if stat.icone %}fas fa-{{ stat.icone }} {% else %} fas fa-shield-alt{% endif %} fx-media fx-media--neutral"></i>
+                                        </div>
+                                        <div class="content">
+                                            <h3 class="title">{{ stat.nombre }}</h3>
+                                            <p>{{ stat.libelle }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class=" row team-details-form">
+                        <div class="heading-area text-center">
+                            <span>{{ question_page.sous_titre }}</span>
+                            <h3 class="title">{% if categori_page.page == 'Apropos' %}{{ question_page.titre }}{% else %}{% endif %}</h3>
+                        </div>
+                        {% if questions %}
+                            {% for question in questions %}
+                            <div class="col-lg-6">
+                                <div class="faq-content">
+                                    <div class="faq-accordion fade-wrapper">
+                                        <div class="accordion" id="accordionExample">
+                                            <div class="accordion-item fade-top">
+                                                <h2 class="accordion-header" id="headingOne">
+                                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                                        {{ question.question }}
+                                                    </button>
+                                                </h2>
+                                                <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                                                    <div class="accordion-body">
+                                                        {{ question.reponse }}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+    
+{% endblock content %}
+{% block extra_js %}
+    <!-- Animation d'apparition au scroll des panneaux contact -->
+    <script>
+        (function () {
+            var panels = document.querySelectorAll('.contact-panel-anim');
+            if (!panels.length) return;
+            var observer = new IntersectionObserver(function (entries) {
+                entries.forEach(function (entry) {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.15 });
+            panels.forEach(function (panel) { observer.observe(panel); });
+        })();
+    </script>
+
+    <!-- Initialisation de la carte Leaflet -->
+    <script>
+    (function () {
+        var mapEl = document.getElementById('contactLeafletMap');
+        if (!mapEl) return;
+
+        // Créer la carte
+        var map = L.map('contactLeafletMap', {
+            scrollWheelZoom: false,
+            zoomControl: true
+        });
+
+        map.on('click', function () { map.scrollWheelZoom.enable(); });
+        map.on('mouseout', function () { map.scrollWheelZoom.disable(); });
+
+        // Tuiles OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+            maxZoom: 19
+        }).addTo(map);
+
+        // Icône personnalisée rouge
+        function createMarkerIcon() {
+            return L.divIcon({
+                className: 'pb-map-marker',
+                html: '<div class="pb-map-marker__pin"><i class="fa-solid fa-location-dot"></i></div>',
+                iconSize: [36, 46],
+                iconAnchor: [18, 46],
+                popupAnchor: [0, -48]
+            });
+        }
+
+        // Agences
+        var agencies = [
+            {
+                name: 'P&B Entreprise — Bingerville',
+                lat: 5.3617,
+                lng: -3.8866,
+                address: 'Non loin de AB Center, Bingerville',
+                phone: '+225 27 21 73 78 96'
+            },
+            {
+                name: 'P&B Auto Pièces — Koumassi',
+                lat: 5.2922,
+                lng: -3.9580,
+                address: 'En face du cimetière, Koumassi',
+                phone: '+225 01 02 31 91 12'
+            }
+        ];
+
+        var markers = [];
+        agencies.forEach(function (ag) {
+            var popupHtml =
+                '<div class="pb-map-popup">' +
+                    '<h4 class="pb-map-popup__title">' + ag.name + '</h4>' +
+                    '<p class="pb-map-popup__address"><i class="fa-solid fa-location-dot"></i> ' + ag.address + '</p>' +
+                    '<p class="pb-map-popup__phone"><i class="fa-solid fa-phone"></i> ' + ag.phone + '</p>' +
+                    '<button class="pb-map-popup__route-btn" onclick="window.pbGetRoute(' + ag.lat + ',' + ag.lng + ',\'' + ag.name + '\')">' +
+                        '<i class="fa-solid fa-diamond-turn-right"></i> Itinéraire depuis ma position' +
+                    '</button>' +
+                '</div>';
+
+            var marker = L.marker([ag.lat, ag.lng], { icon: createMarkerIcon() })
+                .addTo(map)
+                .bindPopup(popupHtml, { maxWidth: 280, className: 'pb-map-popup-wrap' });
+            markers.push(marker);
+        });
+
+        // Ajuster la vue
+        var group = L.featureGroup(markers);
+        map.fitBounds(group.getBounds().pad(0.3));
+
+        // Routing / Itinéraire
+        var routingControl = null;
+        var userMarker = null;
+
+        window.pbGetRoute = function (destLat, destLng, destName) {
+            if (!navigator.geolocation) {
+                alert('La géolocalisation n\'est pas supportée par votre navigateur.');
+                return;
+            }
+            navigator.geolocation.getCurrentPosition(
+                function (pos) {
+                    var userLat = pos.coords.latitude;
+                    var userLng = pos.coords.longitude;
+
+                    if (routingControl) { map.removeControl(routingControl); routingControl = null; }
+                    if (userMarker) { map.removeLayer(userMarker); userMarker = null; }
+
+                    var userIcon = L.divIcon({
+                        className: 'pb-map-marker pb-map-marker--user',
+                        html: '<div class="pb-map-marker__pin pb-map-marker__pin--user"><i class="fa-solid fa-street-view"></i></div>',
+                        iconSize: [36, 46],
+                        iconAnchor: [18, 46],
+                        popupAnchor: [0, -48]
+                    });
+
+                    userMarker = L.marker([userLat, userLng], { icon: userIcon })
+                        .addTo(map)
+                        .bindPopup('<strong>Votre position</strong>')
+                        .openPopup();
+
+                    routingControl = L.Routing.control({
+                        waypoints: [
+                            L.latLng(userLat, userLng),
+                            L.latLng(destLat, destLng)
+                        ],
+                        router: L.Routing.osrmv1({
+                            serviceUrl: 'https://router.project-osrm.org/route/v1'
+                        }),
+                        lineOptions: {
+                            styles: [{ color: '#E63946', weight: 5, opacity: 0.8 }]
+                        },
+                        show: true,
+                        addWaypoints: false,
+                        draggableWaypoints: false,
+                        fitSelectedRoutes: true,
+                        createMarker: function () { return null; }
+                    }).addTo(map);
+                },
+                function (err) {
+                    alert('Impossible d\'obtenir votre position : ' + err.message);
+                },
+                { enableHighAccuracy: true, timeout: 10000 }
+            );
+        };
+
+        window.pbClearRoute = function () {
+            if (routingControl) { map.removeControl(routingControl); routingControl = null; }
+            if (userMarker) { map.removeLayer(userMarker); userMarker = null; }
+            map.fitBounds(group.getBounds().pad(0.3));
+        };
+    })();
+    </script>
+{% endblock extra_js %}
+
+

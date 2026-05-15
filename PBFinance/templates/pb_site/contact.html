@@ -1,0 +1,353 @@
+{% extends 'pb_site/base.html' %}
+{% load static %}
+
+{% block title %}P&BEntreprise — Contact{% endblock title %}
+{% block body_class %}contact-page{% endblock body_class %}
+
+{% block extra_css %}
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+    <!-- Leaflet Routing Machine CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css">
+{% endblock extra_css %}
+
+{% block nav_active_contact %}active{% endblock nav_active_contact %}
+
+{% block page_header_background %}{% static 'pb_site_asset/img/bg-img/n_contact.avif' %}{% endblock page_header_background %}
+{% block page_header_title %}Contactez-Nous{% endblock page_header_title %}
+{% block page_header_inner %}Contact{% endblock page_header_inner %}
+
+{% block content %}
+    <!-- ================ SECTION CONTACT : CARTE + FORMULAIRE ================ -->
+    <section class="contact-section contact-section--map pt-130 pb-130">
+        <div class="container">
+            <!-- Données des agences injectées depuis la base -->
+            {{ agences_json|json_script:"pb-agences-data" }}
+
+            <!-- Carte Leaflet interactive -->
+            <div class="contact-map-wrap">
+                <div class="contact-map-wrap__iframe">
+                    <div id="contactLeafletMap"></div>
+                </div>
+                <div class="contact-map-wrap__badge">
+                    <i class="fa-sharp fa-solid fa-location-dot"></i>
+                    <span>Localisation de nos agences</span>
+                </div>
+            </div>
+
+            <!-- Panneaux formulaire & infos -->
+            <div class="contact-panels-below">
+                <div class="row gy-4 align-items-stretch">
+                    <!-- Visuel : pleine largeur sous lg, demi-largeur à partir de lg -->
+                    <div class="col-12 col-lg-6 contact-panel-anim contact-panel-anim--left">
+                        <div class="blog-contact-form contact-glass-card contact-visual-card" style="--bz-color-theme-primary: #EC281C; background-image: url('{% static 'pb_site_asset/img/bg-img/mtc.jpg' %}'); background-size: cover; background-position: center; background-repeat: no-repeat;">
+                            
+                        </div>
+                    </div>
+
+                    <!-- Informations entreprise -->
+                    <div class="col-12 col-lg-6 contact-panel-anim contact-panel-anim--right">
+                        <div class="contact-content contact-glass-card">
+                            <div class="contact-top">
+                                <h3 class="title">Informations entreprise</h3>
+                                <p>P&amp;BEntreprise votre partenaire de mobilit&eacute; &agrave; Abidjan. Disponible du lundi au vendredi 8h00 &agrave; 18h00 et le samedi 8h00 &agrave; 12h00.</p>
+                            </div>
+                            <div class="contact-list">
+                                <div class="list-item">
+                                    <div class="icon">
+                                        <i class="fa-sharp fa-solid fa-phone"></i>
+                                    </div>
+                                    <div class="content">
+                                        <h4 class="title">Contact & Email</h4>
+                                        <span><a href="tel:{% if site_config.telephone %}{{ site_config.telephone |cut:' ' }}{% else %}+2252721737896{% endif %}">Contact: {% if site_config.telephone %}{{ site_config.telephone |cut:' ' }}{% else %}(+225) 27 21 73 78 96{% endif %}</a></span>
+                                        <span><a href="mailto:{% if site_config.email_principal %}{{ site_config.email_principal }}{% else %}pacomebertine@gmail.com{% endif %}">Email: {% if site_config.email_principal %}{{ site_config.email_principal }}{% else %}pacomebertine@gmail.com{% endif %}</a></span>
+                                    </div>
+                                </div>
+                                <div class="list-item">
+                                    <div class="icon">
+                                        <i class="fa-sharp fa-solid fa-location-dot"></i>
+                                    </div>
+                                    <div class="content">
+                                        <h4 class="title">Adresse</h4>
+                                        <p>Abidjan<br>{% if site_config.adresse %}{{ site_config.adresse }}{% else %}Koumassi & Bingerville{% endif %}</p>
+                                    </div>
+                                </div>
+                                <div class="list-item">
+                                    <div class="icon">
+                                        <i class="fa-sharp fa-solid fa-clock"></i>
+                                    </div>
+                                    <div class="content">
+                                        <h4 class="title">Horaires d'ouverture</h4>
+                                        <span>Lundi - Vendredi : 08:00 - 18:00</span>
+                                        <span>Samedi : 08:00 - 12:00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock content %}
+
+{% block extra_js %}
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <!-- Leaflet Routing Machine JS -->
+    <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.min.js"></script>
+
+    <!-- Animation d'apparition au scroll des panneaux contact -->
+    <script>
+        (function () {
+            var panels = document.querySelectorAll('.contact-panel-anim');
+            if (!panels.length) return;
+            var observer = new IntersectionObserver(function (entries) {
+                entries.forEach(function (entry) {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.15 });
+            panels.forEach(function (panel) { observer.observe(panel); });
+        })();
+    </script>
+
+    <!-- Initialisation de la carte Leaflet (après window.load + recalcul taille préloader / layout) -->
+    <script>
+    (function () {
+        var mapEl = document.getElementById('contactLeafletMap');
+        if (!mapEl || typeof L === 'undefined') return;
+
+        function bootContactMap() {
+            if (window.__pbContactLeafletBooted) return;
+            window.__pbContactLeafletBooted = true;
+
+            // Récupération des agences depuis la base de données (json_script)
+            var agencies = [];
+            var dataNode = document.getElementById('pb-agences-data');
+            if (dataNode) {
+                try { agencies = JSON.parse(dataNode.textContent) || []; }
+                catch (e) { agencies = []; }
+            }
+
+            var defaultCenter = [5.2934, -3.6591];
+            var defaultZoom = 11;
+
+            var map = L.map('contactLeafletMap', {
+                scrollWheelZoom: false,
+                zoomControl: true,
+                center: defaultCenter,
+                zoom: defaultZoom
+            });
+
+            function refreshMapSize() {
+                try {
+                    map.invalidateSize({ animate: false });
+                } catch (e) {}
+            }
+
+            window.addEventListener('resize', refreshMapSize);
+            window.addEventListener('orientationchange', refreshMapSize);
+
+            var wrapIframe = document.querySelector('.contact-map-wrap__iframe');
+            if (wrapIframe && typeof ResizeObserver !== 'undefined') {
+                var ro = new ResizeObserver(function () {
+                    refreshMapSize();
+                });
+                ro.observe(wrapIframe);
+            }
+
+            var pre = document.getElementById('preloader');
+            if (pre && typeof MutationObserver !== 'undefined') {
+                var mo = new MutationObserver(function () {
+                    try {
+                        if (window.getComputedStyle(pre).display === 'none') {
+                            refreshMapSize();
+                            setTimeout(refreshMapSize, 50);
+                            setTimeout(refreshMapSize, 400);
+                            mo.disconnect();
+                        }
+                    } catch (e) {}
+                });
+                mo.observe(pre, { attributes: true, attributeFilter: ['style', 'class'] });
+            }
+
+            function scheduleRefreshes() {
+                if (window.requestAnimationFrame) {
+                    requestAnimationFrame(refreshMapSize);
+                }
+                setTimeout(refreshMapSize, 0);
+                setTimeout(refreshMapSize, 100);
+                setTimeout(refreshMapSize, 400);
+                setTimeout(refreshMapSize, 1200);
+                setTimeout(refreshMapSize, 1800);
+            }
+
+            scheduleRefreshes();
+
+            map.on('click', function () { map.scrollWheelZoom.enable(); });
+            map.on('mouseout', function () { map.scrollWheelZoom.disable(); });
+
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+                subdomains: 'abcd',
+                maxZoom: 20
+            }).addTo(map);
+
+            function createMarkerIcon() {
+                return L.divIcon({
+                    className: 'pb-map-marker',
+                    html: '<div class="pb-map-marker__pin"><i class="fa-solid fa-location-dot"></i></div>',
+                    iconSize: [36, 46],
+                    iconAnchor: [18, 46],
+                    popupAnchor: [0, -48]
+                });
+            }
+
+            function escapeHtml(str) {
+                if (str === null || str === undefined) return '';
+                return String(str)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#39;');
+            }
+
+            var markers = [];
+            agencies.forEach(function (ag) {
+                if (typeof ag.lat !== 'number' || typeof ag.lng !== 'number') return;
+
+                var phoneHtml = ag.phone
+                    ? '<p class="pb-map-popup__phone"><i class="fa-solid fa-phone"></i> <a href="tel:' + escapeHtml(ag.phone) + '">' + escapeHtml(ag.phone) + '</a></p>'
+                    : '';
+                var emailHtml = ag.email
+                    ? '<p class="pb-map-popup__email"><i class="fa-solid fa-envelope"></i> <a href="mailto:' + escapeHtml(ag.email) + '">' + escapeHtml(ag.email) + '</a></p>'
+                    : '';
+                var horairesHtml = ag.horaires
+                    ? '<p class="pb-map-popup__hours"><i class="fa-solid fa-clock"></i> ' + escapeHtml(ag.horaires).replace(/\n/g, '<br>') + '</p>'
+                    : '';
+
+                var popupHtml =
+                    '<div class="pb-map-popup">' +
+                        '<h4 class="pb-map-popup__title">' + escapeHtml(ag.name) + '</h4>' +
+                        '<p class="pb-map-popup__address"><i class="fa-solid fa-location-dot"></i> ' + escapeHtml(ag.address) + '</p>' +
+                        phoneHtml +
+                        emailHtml +
+                        horairesHtml +
+                        '<button class="pb-map-popup__route-btn" onclick="window.pbGetRoute(' + ag.lat + ',' + ag.lng + ',\'' + escapeHtml(ag.name).replace(/'/g, "\\'") + '\')">' +
+                            '<i class="fa-solid fa-diamond-turn-right"></i> Itinéraire depuis ma position' +
+                        '</button>' +
+                    '</div>';
+
+                var marker = L.marker([ag.lat, ag.lng], { icon: createMarkerIcon() })
+                    .addTo(map)
+                    .bindPopup(popupHtml, { maxWidth: 280, className: 'pb-map-popup-wrap' });
+                markers.push(marker);
+            });
+
+            var group = null;
+            if (markers.length > 0) {
+                group = L.featureGroup(markers);
+                if (markers.length === 1) {
+                    map.setView(markers[0].getLatLng(), 14);
+                } else {
+                    map.fitBounds(group.getBounds().pad(0.3));
+                }
+            }
+
+            refreshMapSize();
+            setTimeout(refreshMapSize, 50);
+            setTimeout(refreshMapSize, 300);
+
+            var mapWrap = document.querySelector('.contact-map-wrap');
+            if (mapWrap && typeof IntersectionObserver !== 'undefined') {
+                var io = new IntersectionObserver(function (entries) {
+                    entries.forEach(function (entry) {
+                        if (entry.isIntersecting) {
+                            refreshMapSize();
+                            setTimeout(refreshMapSize, 100);
+                        }
+                    });
+                }, { threshold: 0.05 });
+                io.observe(mapWrap);
+            }
+
+            var routingControl = null;
+            var userMarker = null;
+
+            window.pbGetRoute = function (destLat, destLng, destName) {
+                if (!navigator.geolocation) {
+                    alert('La géolocalisation n\'est pas supportée par votre navigateur.');
+                    return;
+                }
+                navigator.geolocation.getCurrentPosition(
+                    function (pos) {
+                        var userLat = pos.coords.latitude;
+                        var userLng = pos.coords.longitude;
+
+                        if (routingControl) { map.removeControl(routingControl); routingControl = null; }
+                        if (userMarker) { map.removeLayer(userMarker); userMarker = null; }
+
+                        var userIcon = L.divIcon({
+                            className: 'pb-map-marker pb-map-marker--user',
+                            html: '<div class="pb-map-marker__pin pb-map-marker__pin--user"><i class="fa-solid fa-street-view"></i></div>',
+                            iconSize: [36, 46],
+                            iconAnchor: [18, 46],
+                            popupAnchor: [0, -48]
+                        });
+
+                        userMarker = L.marker([userLat, userLng], { icon: userIcon })
+                            .addTo(map)
+                            .bindPopup('<strong>Votre position</strong>')
+                            .openPopup();
+
+                        routingControl = L.Routing.control({
+                            waypoints: [
+                                L.latLng(userLat, userLng),
+                                L.latLng(destLat, destLng)
+                            ],
+                            router: L.Routing.osrmv1({
+                                serviceUrl: 'https://router.project-osrm.org/route/v1'
+                            }),
+                            lineOptions: {
+                                styles: [{ color: '#E63946', weight: 5, opacity: 0.8 }]
+                            },
+                            show: true,
+                            addWaypoints: false,
+                            draggableWaypoints: false,
+                            fitSelectedRoutes: true,
+                            createMarker: function () { return null; }
+                        }).addTo(map);
+                    },
+                    function (err) {
+                        alert('Impossible d\'obtenir votre position : ' + err.message);
+                    },
+                    { enableHighAccuracy: true, timeout: 10000 }
+                );
+            };
+
+            window.pbClearRoute = function () {
+                if (routingControl) { map.removeControl(routingControl); routingControl = null; }
+                if (userMarker) { map.removeLayer(userMarker); userMarker = null; }
+                if (group && markers.length > 1) {
+                    map.fitBounds(group.getBounds().pad(0.3));
+                } else if (markers.length === 1) {
+                    map.setView(markers[0].getLatLng(), 14);
+                } else {
+                    map.setView(defaultCenter, defaultZoom);
+                }
+            };
+        }
+
+        if (document.readyState === 'complete') {
+            bootContactMap();
+        } else {
+            window.addEventListener('load', bootContactMap);
+        }
+    })();
+    </script>
+{% endblock extra_js %}

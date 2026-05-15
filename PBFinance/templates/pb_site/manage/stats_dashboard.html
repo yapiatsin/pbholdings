@@ -1,0 +1,1154 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Statistiques du site | P&BEntreprise</title>
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'pb_site_asset/img/logo/icn.png' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Palette alignée sur PB_Entreprise/perfect/dashboard.html (cartes courbes) */
+        :root {
+            --pb-maroon: #a83232;
+            --pb-maroon-soft: rgba(168, 50, 50, 0.16);
+            --pb-maroon-border: rgba(168, 50, 50, 0.2);
+            --pb-maroon-line: rgba(168, 50, 50, 0.85);
+            --pb-rose-bg: rgba(251, 237, 237, 0.95);
+            --pb-rose-grad-top: rgba(251, 237, 237, 0.95);
+            --pb-rose-grad-bot: rgba(255, 255, 255, 0.95);
+            --pb-primary: #a83232;
+            --pb-primary-dark: #8a2929;
+            --pb-chart-grey: #888888;
+            --pb-chart-dark: #1a1a1a;
+            --pb-chart-dark-soft: rgba(26, 26, 26, 0.22);
+            --pb-text: #1a1a1a;
+            --pb-text-muted: #6b7280;
+            --pb-border: #e0e0e0;
+            --pb-bg: #f4f6f9;
+            --pb-card-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);
+            /* Même pile verticale que Performance : graphique + en-tête + paddings corps */
+            --pb-perf-chart-height: 360px;
+        }
+        * { box-sizing: border-box; }
+        body {
+            background: var(--pb-bg);
+            font-family: 'Inter', 'Segoe UI', -apple-system, sans-serif;
+            color: var(--pb-text);
+            position: relative;
+        }
+        /* Filigrane discret (même esprit tableau de bord véhicule) */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.04;
+            background: url('{% static "pb_site_asset/img/bg-img/gent.png" %}') center 30% / min(90vw, 720px) no-repeat;
+        }
+        main { position: relative; }
+        /* Ne pas mettre z-index sur main : le backdrop du modal est sur body (z-index ~1050)
+           et masquerait tout le contenu du main, y compris la boîte de dialogue. */
+        .pb-header, footer { position: relative; z-index: 1; }
+
+        /* ====== HEADER ====== */
+        .pb-header {
+            background: #fff;
+            border-bottom: 2px solid var(--pb-maroon-border);
+            padding: 14px 0;
+            margin-bottom: 22px;
+            box-shadow: 0 1px 0 rgba(168, 50, 50, 0.08);
+        }
+        .pb-header h1 {
+            color: var(--pb-maroon);
+            font-weight: 700;
+            margin: 0;
+            font-size: 1.4rem;
+        }
+        .pb-header p { margin: 0; color: var(--pb-text-muted); font-size: .88rem; }
+        .breadcrumb { background: transparent; padding: 0; margin-bottom: 14px; }
+        .breadcrumb a { color: var(--pb-maroon); text-decoration: none; }
+
+        /* ====== KPI CARD (top row) — même esprit cartes dashboard ====== */
+        .stat-card {
+            background: #fff;
+            border: 1px solid var(--pb-maroon-border);
+            border-radius: 20px;
+            padding: 20px 22px;
+            height: 100%;
+            box-shadow: var(--pb-card-shadow);
+            transition: transform .2s ease, box-shadow .2s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 28px rgba(168, 50, 50, 0.1);
+        }
+        .stat-card__head {
+            display: flex; align-items: center; gap: 10px;
+            margin-bottom: 14px;
+        }
+        .stat-card__icon {
+            width: 36px; height: 36px;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem;
+        }
+        .stat-card__title {
+            font-size: .92rem;
+            font-weight: 700;
+            color: var(--pb-maroon);
+        }
+        .stat-card__value-row {
+            display: flex; align-items: baseline; gap: 12px;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+        .stat-card__value {
+            font-size: 1.7rem;
+            font-weight: 700;
+            color: var(--pb-text);
+            line-height: 1;
+        }
+        .stat-card__delta {
+            background: rgba(251, 237, 237, 0.9);
+            color: var(--pb-maroon);
+            padding: 3px 8px;
+            border-radius: 999px;
+            font-size: .72rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .stat-card__delta.is-down {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        .stat-card__desc {
+            color: var(--pb-text-muted);
+            font-size: .78rem;
+            line-height: 1.4;
+            margin: 0 0 14px;
+        }
+        .stat-card__progress-wrap {
+            display: flex; align-items: center; gap: 10px;
+        }
+        .stat-card__progress {
+            flex-grow: 1;
+            height: 6px;
+            background: rgba(136, 136, 136, 0.15);
+            border-radius: 999px;
+            overflow: hidden;
+        }
+        .stat-card__progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--pb-maroon), rgba(168, 50, 50, 0.65));
+            border-radius: 999px;
+            transition: width .6s ease;
+        }
+        .stat-card__progress-label {
+            font-size: .72rem;
+            color: var(--pb-text-muted);
+            white-space: nowrap;
+        }
+
+        /* Icônes KPI : pastille claire + bordeaux (comme dashboard) */
+        .stat-visite .stat-card__icon,
+        .stat-clic .stat-card__icon,
+        .stat-unique .stat-card__icon,
+        .stat-pages .stat-card__icon {
+            background: #f4f6f9;
+            box-shadow: rgba(50, 50, 93, 0.12) 0 2px 5px -1px, rgba(0, 0, 0, 0.08) 0 1px 3px -1px;
+            color: var(--pb-maroon);
+        }
+        .stat-clic .stat-card__progress-bar,
+        .stat-unique .stat-card__progress-bar {
+            background: linear-gradient(90deg, rgba(26, 26, 26, 0.75), rgba(136, 136, 136, 0.5));
+        }
+        .stat-pages .stat-card__progress-bar {
+            background: linear-gradient(90deg, var(--pb-maroon), rgba(168, 50, 50, 0.5));
+        }
+
+        /* ====== CARD GENERIC (en-tête dégradé rose — dashboard lignes 208–210) ====== */
+        .pb-card {
+            background: #fff;
+            border: 1px solid var(--pb-maroon-border);
+            border-radius: 20px;
+            margin-bottom: 22px;
+            box-shadow: var(--pb-card-shadow);
+            overflow: hidden;
+        }
+        .pb-card-header {
+            padding: 14px 18px;
+            background: linear-gradient(180deg, var(--pb-rose-grad-top), var(--pb-rose-grad-bot));
+            border-bottom: 1px solid rgba(168, 50, 50, 0.15);
+            display: flex; align-items: center; justify-content: space-between;
+            flex-wrap: wrap; gap: 10px;
+        }
+        .pb-card-header h2 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            margin: 0;
+            color: var(--pb-maroon);
+        }
+        .pb-card.h-100 {
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+        .pb-card.h-100 > .pb-card-body:not(.p-0) {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+        /* Cas particulier : body en p-0 (ex. carte « Pages performantes ») —
+           on garde le padding nul mais on active le flex + min-height: 0
+           indispensables pour que le scroll interne fonctionne et que la carte
+           respecte la hauteur de la rangée. */
+        .pb-card.h-100 > .pb-card-body.p-0 {
+            flex: 1 1 auto;
+            min-height: 0;
+        }
+        .pb-card-body { padding: 18px 20px; }
+
+        .filter-bar {
+            background: #fff;
+            border: 1px solid var(--pb-maroon-border);
+            border-radius: 20px;
+            padding: 14px 18px;
+            margin-bottom: 22px;
+            box-shadow: var(--pb-card-shadow);
+        }
+        .filter-bar label {
+            font-size: .72rem; font-weight: 600;
+            text-transform: uppercase; letter-spacing: .4px;
+            color: var(--pb-text-muted); margin-bottom: 4px;
+        }
+        .btn-pb-primary { background: var(--pb-maroon); color: #fff; border: none; }
+        .btn-pb-primary:hover { background: var(--pb-primary-dark); color: #fff; }
+
+        .modal-content {
+            border-radius: 20px;
+            border: 1px solid rgba(168, 50, 50, 0.12);
+            overflow: hidden;
+        }
+        .modal-header { border-bottom-color: rgba(168, 50, 50, 0.1); }
+
+        /* ====== CHARTS ====== */
+        .chart-wrap {
+            position: relative;
+            width: 100%;
+            height: var(--pb-perf-chart-height);
+        }
+        .chart-wrap.small { height: 260px; }
+
+        /* Zones scroll (listes longues) */
+        .pb-card-scroll--pages,
+        .pb-card-scroll--visited,
+        .pb-card-scroll--reseaux {
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .pb-card-scroll--pages { overflow-x: hidden; }
+        .pb-card-scroll--visited,
+        .pb-card-scroll--reseaux { overflow-x: hidden; }
+        .pb-card-scroll--visited {
+            margin: 0 -4px;
+            padding: 0 4px 4px;
+        }
+        /* Padding interne pour la liste « Pages performantes » (body en p-0,
+           sinon la liste serait collée aux bords) */
+        .pb-card-scroll--pages {
+            padding: 14px 18px;
+        }
+        .pb-card-scroll--pages table thead th {
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            background: linear-gradient(180deg, rgba(251, 237, 237, 0.98), #f9fafb);
+            box-shadow: 0 1px 0 rgba(168, 50, 50, 0.12);
+            white-space: nowrap;
+        }
+        .pb-table-pages {
+            table-layout: fixed;
+            width: 100%;
+        }
+        .pb-table-pages th,
+        .pb-table-pages td {
+            vertical-align: middle;
+        }
+        .pb-table-pages .pb-page-url {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 0;
+        }
+        .pb-table-pages .pb-page-url .text-truncate {
+            max-width: none;
+            flex: 1;
+            min-width: 0;
+        }
+        .pb-table-pages .col-visites { text-align: center; }
+        .pb-table-pages .col-part { text-align: end; }
+
+        /* Carte Réseaux : liste scroll + note fixe en bas */
+        .pb-card-body--reseaux {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+        .pb-reseau-foot {
+            flex-shrink: 0;
+            margin-top: auto;
+            padding-top: 10px;
+            border-top: 1px solid rgba(168, 50, 50, 0.08);
+        }
+
+        /* Ligne du bas : même hauteur minimale que la colonne « Réseaux » (xl) */
+        .pb-stats-mid-row > .col-xl-4 {
+            display: flex;
+        }
+        .pb-stats-mid-row > .col-xl-4 > .pb-card,
+        .pb-stats-mid-row > .col-xl-8 > .pb-card {
+            width: 100%;
+        }
+        .pb-stats-mid-row > .col-xl-8 {
+            display: flex;
+        }
+        .pb-card-body--visited {
+            padding: 18px;
+        }
+        .pb-visited-fixed {
+            flex-shrink: 0;
+            margin-bottom: 12px;
+        }
+        .pb-card-scroll--visited .top-list li:first-child {
+            padding-top: 4px;
+        }
+
+        /* Hauteur réduite + STRICTEMENT uniforme pour la rangée du bas.
+           (Pages performantes / Évolution journalière / Pages les plus visitées)
+
+           Stratégie blindée :
+           - On ne dépend PAS de la classe `.h-100` sur la pb-card (elle peut
+             manquer ponctuellement). On cible `.pb-card` directement.
+           - Hauteur définie (`height`) — pas `max-height` — pour que les
+             enfants `height: 100%` se résolvent.
+           - `!important` pour court-circuiter toute autre règle empilée.
+           - Le scroll interne reste géré par `.pb-card-scroll--*`
+             (overflow-y: auto, déjà défini plus haut).
+           - La forme du pb-card (border-radius, shadow, border) reste intacte. */
+        @media (min-width: 1200px) {
+            .pb-stats-bottom-row {
+                align-items: stretch;
+            }
+            .pb-stats-bottom-row > .col-xl-4 {
+                display: flex !important;
+                flex-direction: column;
+                height: 300px !important;
+                min-height: 300px !important;
+                max-height: 300px !important;
+            }
+            .pb-stats-bottom-row > .col-xl-4 > .pb-card {
+                flex: 1 1 auto !important;
+                width: 100% !important;
+                height: 100% !important;
+                max-height: 100% !important;
+                margin-bottom: 0 !important;
+                overflow: hidden;
+                display: flex;
+                flex-direction: column;
+                min-height: 0;
+            }
+            .pb-stats-bottom-row > .col-xl-4 > .pb-card > .pb-card-body {
+                flex: 1 1 auto;
+                min-height: 0;
+                display: flex;
+                flex-direction: column;
+            }
+        }
+        .pb-stats-bottom-row .chart-wrap.chart-wrap--daily {
+            height: 200px;
+        }
+        .top-list { padding: 0; margin: 0; list-style: none; }
+        .top-list li {
+            padding: 12px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        .top-list li:last-child { border-bottom: 0; }
+        .top-list__row {
+            display: flex; align-items: center;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            gap: 12px;
+        }
+        .top-list__name {
+            font-size: .85rem;
+            color: var(--pb-text);
+            font-weight: 500;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            flex: 1;
+            min-width: 0;
+        }
+        .top-list__pct {
+            font-size: .8rem;
+            color: var(--pb-text-muted);
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        /* Ajustements pour la liste « Pages performantes » qui ajoute icône + pastille
+           dans .top-list__row, en plus des éléments standards (nom + %) */
+        .top-list__row .product-thumb {
+            width: 28px;
+            height: 28px;
+            margin-right: 0;
+            font-size: .8rem;
+        }
+        .top-list__row .pill-count {
+            flex-shrink: 0;
+        }
+        .top-list__bar {
+            height: 6px;
+            background: #e5e7eb;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+        /* Barre + pastille du nombre de visites alignées sur la même ligne */
+        .top-list__bar-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .top-list__bar-row > .top-list__bar {
+            flex: 1;
+            min-width: 0;
+        }
+        .top-list__bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--pb-maroon-soft), rgba(168, 50, 50, 0.35));
+            border-radius: 999px;
+        }
+
+        /* ====== TABLE ====== */
+        .table thead { background: linear-gradient(180deg, rgba(251, 237, 237, 0.5), #f9fafb); }
+        .table th {
+            font-size: .72rem;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+            color: var(--pb-text-muted);
+            font-weight: 600;
+            border-bottom: 1px solid var(--pb-border);
+        }
+        .table td {
+            vertical-align: middle;
+            font-size: .85rem;
+            color: var(--pb-text);
+            border-bottom: 1px solid #f3f4f6;
+        }
+        .product-thumb {
+            width: 32px; height: 32px;
+            border-radius: 8px;
+            background: rgba(251, 237, 237, 0.9);
+            color: var(--pb-maroon);
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: .9rem;
+            margin-right: 8px;
+            flex-shrink: 0;
+        }
+        .pill-count {
+            background: rgba(251, 237, 237, 0.95);
+            color: var(--pb-maroon);
+            padding: 3px 10px;
+            border-radius: 999px;
+            font-size: .72rem;
+            font-weight: 600;
+        }
+
+        /* ====== EMPTY STATE ====== */
+        .empty-state {
+            text-align: center;
+            padding: 30px 20px;
+            color: var(--pb-text-muted);
+        }
+        .empty-state i { font-size: 2.2rem; color: #d1d5db; margin-bottom: 8px; }
+
+        /* ====== RATING / SCORE (Customer Reviews-like) ====== */
+        .rating-summary {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            margin-bottom: 4px;
+        }
+        .rating-score {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--pb-text);
+        }
+        .rating-stars { color: var(--pb-maroon); font-size: .95rem; }
+        .rating-meta {
+            color: var(--pb-text-muted);
+            font-size: .78rem;
+            margin-bottom: 18px;
+        }
+
+        /* ====== RÉSEAUX (compact list) ====== */
+        .reseau-mini {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        .reseau-mini:last-child { border-bottom: 0; }
+        .reseau-mini__icon {
+            width: 36px; height: 36px;
+            border-radius: 10px;
+            background: rgba(251, 237, 237, 0.95);
+            color: var(--pb-maroon);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+        .reseau-mini__body { flex: 1; min-width: 0; }
+        .reseau-mini__name {
+            font-weight: 600; color: var(--pb-text); font-size: .88rem;
+            margin-bottom: 4px;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .reseau-mini__bar {
+            height: 6px; background: #e5e7eb; border-radius: 999px; overflow: hidden;
+        }
+        .reseau-mini__bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--pb-maroon-soft), rgba(168, 50, 50, 0.45));
+            border-radius: 999px;
+        }
+        .reseau-mini__count {
+            font-weight: 700; color: var(--pb-text); font-size: .9rem;
+            margin-left: 8px;
+            white-space: nowrap;
+        }
+        .reseau-mini__pct {
+            color: var(--pb-text-muted);
+            font-size: .75rem;
+            font-weight: 600;
+        }
+
+        /* ====== Map placeholder block (looks like image 1) ====== */
+        .reseau-summary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin-bottom: 18px;
+        }
+        .reseau-summary-card {
+            border: 1px solid var(--pb-maroon-border);
+            border-radius: 10px;
+            padding: 10px 12px;
+            background: #fff;
+            display: flex; flex-direction: column; gap: 4px;
+        }
+        .reseau-summary-card__top {
+            display: flex; align-items: center; gap: 8px;
+        }
+        .reseau-summary-card__icon {
+            width: 24px; height: 24px;
+            border-radius: 6px;
+            background: rgba(251, 237, 237, 0.95);
+            color: var(--pb-maroon);
+            display: flex; align-items: center; justify-content: center;
+            font-size: .75rem;
+        }
+        .reseau-summary-card__name {
+            font-weight: 600;
+            font-size: .82rem;
+            color: var(--pb-text);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .reseau-summary-card__count {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--pb-text);
+            line-height: 1;
+        }
+        .reseau-summary-card__meta {
+            color: var(--pb-text-muted);
+            font-size: .7rem;
+        }
+
+        @media (max-width: 768px) {
+            .stat-card__value { font-size: 1.4rem; }
+            .chart-wrap:not(.chart-wrap--daily) { height: 260px; }
+            .pb-stats-bottom-row .chart-wrap.chart-wrap--daily {
+                min-height: 11rem;
+            }
+            .pb-stats-bottom-row > .col-xl-4 > .pb-card.h-100 {
+                min-height: 0 !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header class="pb-header">
+    <div class="container-fluid px-4">
+        <h1><i class="fa-solid fa-chart-line me-2"></i>Statistiques du site</h1>
+        <p>
+            Analyse des visites et interactions sur votre site P&BEntreprise
+            <span class="badge bg-light text-muted border ms-2">
+                <i class="fa-regular fa-clock me-1"></i>
+                1 visite = 1 IP toutes les {{ visit_window_minutes }} min
+            </span>
+        </p>
+    </div>
+</header>
+
+<main class="container-fluid px-4 pb-5">
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb">
+        <a href="{% url 'manage_dashboard' %}"><i class="fa-solid fa-gauge-high me-1"></i>Gestion</a>
+        <span class="mx-2 text-muted">/</span>
+        <span class="text-muted">Statistiques</span>
+    </nav>
+
+    <!-- ===================== FILTRE (déclencheur de modal) ===================== -->
+    <div class="filter-bar d-flex align-items-center justify-content-between flex-wrap gap-2">
+        <div class="small text-muted">
+            <i class="fa-solid fa-circle-info me-1"></i>
+            Le filtre s'applique à <strong>toutes les sections</strong> du tableau de bord —
+            période actuelle : <strong>{{ periode_label }}</strong>
+            ({{ date_debut }} → {{ date_fin }})
+        </div>
+        <div class="d-flex gap-2">
+            <button type="button" class="btn btn-pb-primary"
+                    data-bs-toggle="modal" data-bs-target="#filterModal">
+                <i class="fa-solid fa-filter me-1"></i> Filtrer
+            </button>
+            <a href="{% url 'stats_dashboard' %}" class="btn btn-outline-secondary"
+               title="Réinitialiser">
+                <i class="fa-solid fa-rotate-left"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- ===================== TOP : 4 KPI CARDS ===================== -->
+    <div class="row g-3 mb-2">
+        <!-- Visites totales -->
+        <div class="col-xl-3 col-md-6">
+            <div class="stat-card stat-visite">
+                <div class="stat-card__head">
+                    <span class="stat-card__icon"><i class="fa-solid fa-eye"></i></span>
+                    <span class="stat-card__title">Visites totales</span>
+                </div>
+                <div class="stat-card__value-row">
+                    <span class="stat-card__value">{{ total_visites_filtre }}</span>
+                    <span class="stat-card__delta {% if delta_visites < 0 %}is-down{% endif %}">
+                        {% if delta_visites >= 0 %}+{% endif %}{{ delta_visites }}%
+                    </span>
+                </div>
+                <p class="stat-card__desc">
+                    Données obtenues pour {{ periode_label }} sur les visites du site.
+                </p>
+                <div class="stat-card__progress-wrap">
+                    <div class="stat-card__progress">
+                        <div class="stat-card__progress-bar" style="width: {{ progress_visites }}%"></div>
+                    </div>
+                    <span class="stat-card__progress-label">{{ total_visites_jour }} aujourd'hui</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Clics totaux -->
+        <div class="col-xl-3 col-md-6">
+            <div class="stat-card stat-clic">
+                <div class="stat-card__head">
+                    <span class="stat-card__icon"><i class="fa-solid fa-hand-pointer"></i></span>
+                    <span class="stat-card__title">Clics totaux</span>
+                </div>
+                <div class="stat-card__value-row">
+                    <span class="stat-card__value">{{ total_clics_filtre }}</span>
+                    <span class="stat-card__delta {% if delta_clics < 0 %}is-down{% endif %}">
+                        {% if delta_clics >= 0 %}+{% endif %}{{ delta_clics }}%
+                    </span>
+                </div>
+                <p class="stat-card__desc">
+                    Interactions enregistrées (boutons, liens) pour {{ periode_label }}.
+                </p>
+                <div class="stat-card__progress-wrap">
+                    <div class="stat-card__progress">
+                        <div class="stat-card__progress-bar" style="width: {{ progress_clics }}%"></div>
+                    </div>
+                    <span class="stat-card__progress-label">{{ total_clics_jour }} aujourd'hui</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Visiteurs uniques -->
+        <div class="col-xl-3 col-md-6">
+            <div class="stat-card stat-unique">
+                <div class="stat-card__head">
+                    <span class="stat-card__icon"><i class="fa-solid fa-users"></i></span>
+                    <span class="stat-card__title">Visiteurs uniques</span>
+                </div>
+                <div class="stat-card__value-row">
+                    <span class="stat-card__value">{{ visiteurs_uniques }}</span>
+                    <span class="stat-card__delta {% if delta_visiteurs < 0 %}is-down{% endif %}">
+                        {% if delta_visiteurs >= 0 %}+{% endif %}{{ delta_visiteurs }}%
+                    </span>
+                </div>
+                <p class="stat-card__desc">
+                    Sessions distinctes observées pour {{ periode_label }}.
+                </p>
+                <div class="stat-card__progress-wrap">
+                    <div class="stat-card__progress">
+                        <div class="stat-card__progress-bar" style="width: {{ progress_visiteurs }}%"></div>
+                    </div>
+                    <span class="stat-card__progress-label">{{ visiteurs_uniques_jour }} aujourd'hui</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pages uniques -->
+        <div class="col-xl-3 col-md-6">
+            <div class="stat-card stat-pages">
+                <div class="stat-card__head">
+                    <span class="stat-card__icon"><i class="fa-solid fa-file-lines"></i></span>
+                    <span class="stat-card__title">Pages uniques</span>
+                </div>
+                <div class="stat-card__value-row">
+                    <span class="stat-card__value">{{ pages_uniques_filtre }}</span>
+                    <span class="stat-card__delta {% if delta_pages < 0 %}is-down{% endif %}">
+                        {% if delta_pages >= 0 %}+{% endif %}{{ delta_pages }}%
+                    </span>
+                </div>
+                <p class="stat-card__desc">
+                    Nombre d'URL différentes consultées pour {{ periode_label }}.
+                </p>
+                <div class="stat-card__progress-wrap">
+                    <div class="stat-card__progress">
+                        <div class="stat-card__progress-bar" style="width: {{ progress_pages }}%"></div>
+                    </div>
+                    <span class="stat-card__progress-label">{{ pages_uniques_jour }} aujourd'hui</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================== MIDDLE : Performance + Réseaux Sociaux ===================== -->
+    <div class="row g-3 pb-stats-mid-row">
+        <!-- Performance Overview (8 cols) -->
+        <div class="col-xl-8 d-flex">
+            <div class="pb-card h-100 w-100">
+                <div class="pb-card-header">
+                    <h2>Vue d'ensemble — Performance</h2>
+                    <div class="d-flex align-items-center gap-3 small">
+                        <span><i class="fa-solid fa-circle me-1" style="color:rgba(168,50,50,0.9);font-size:.6rem;"></i> Visites</span>
+                        <span><i class="fa-solid fa-circle me-1" style="color:#1a1a1a;font-size:.6rem;"></i> Clics</span>
+                    </div>
+                </div>
+                <div class="pb-card-body">
+                    <div class="chart-wrap">
+                        <canvas id="chartPerformance"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Réseaux Sociaux (4 cols) -->
+        <div class="col-xl-4 d-flex">
+            <div class="pb-card h-100 w-100" id="pbCardReseaux">
+                <div class="pb-card-header">
+                    <h2>Clics sur les réseaux sociaux</h2>
+                    <a href="{% url 'manage_reseausocial' %}" class="btn btn-sm btn-outline-secondary" style="border-color: rgba(168,50,50,0.35); color: var(--pb-maroon);">
+                        <i class="fa-solid fa-gear me-1"></i> Gérer
+                    </a>
+                </div>
+                {% if reseaux_sociaux_stats %}
+                <div class="pb-card-body pb-card-body--reseaux flex-grow-1">
+                    <div class="pb-card-scroll--reseaux">
+                        {% for r in reseaux_sociaux_stats %}
+                        <div class="reseau-mini">
+                            <span class="reseau-mini__icon">
+                                {% if r.icon %}
+                                    <i class="{{ r.icon }}"></i>
+                                {% else %}
+                                    <i class="fa-solid fa-share-nodes"></i>
+                                {% endif %}
+                            </span>
+                            <div class="reseau-mini__body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="reseau-mini__name" title="{{ r.nom }}">{{ r.nom }}</span>
+                                    <span class="reseau-mini__pct">{{ r.pct_du_total }}%</span>
+                                </div>
+                                <div class="reseau-mini__bar">
+                                    <div class="reseau-mini__bar-fill" style="width: {{ r.pct_du_max }}%"></div>
+                                </div>
+                            </div>
+                            <span class="reseau-mini__count">{{ r.counter_periode }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="pb-reseau-foot small text-muted mb-0">
+                        <i class="fa-regular fa-clock me-1"></i>
+                        1 clic = 1 IP / {{ reseau_click_window_minutes }} min
+                    </div>
+                </div>
+                {% else %}
+                <div class="pb-card-body">
+                    <div class="empty-state">
+                        <i class="fa-solid fa-share-nodes"></i>
+                        <p class="mb-2">Aucun réseau social configuré.</p>
+                        <a href="{% url 'manage_reseausocial' %}" class="btn btn-sm btn-pb-primary">
+                            <i class="fa-solid fa-plus me-1"></i> Ajouter un réseau social
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================== BOTTOM : Top Pages + Daily + Customer-Reviews-like ===================== -->
+    <div class="row g-3 mt-3 pb-stats-bottom-row">
+        <!-- Évolution journalière (4 cols) — style "Repeat Customer Rate" -->
+        <div class="col-xl-8 d-flex">
+            <div class="pb-card h-100 w-100">
+                <div class="pb-card-header">
+                    <h2>Évolution journalière</h2>
+                    <div class="d-flex align-items-center gap-3 small text-muted flex-shrink-0">
+                        <span class="text-nowrap"><i class="fa-solid fa-circle me-1" style="color:rgba(168,50,50,0.9);font-size:.6rem;"></i> Visites</span>
+                        <span class="text-nowrap"><i class="fa-solid fa-circle me-1" style="color:#1a1a1a;font-size:.6rem;"></i> Clics</span>
+                    </div>
+                </div>
+                <div class="pb-card-body pb-card-body--chart-daily flex-grow-1">
+                    <div class="chart-wrap chart-wrap--daily flex-grow-1 w-100">
+                        <canvas id="chartJour"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pages les plus visitées (4 cols) — style "Customer Reviews" -->
+        <div class="col-xl-4 d-flex">
+            <div class="pb-card h-100 w-100">
+                <div class="pb-card-header">
+                    <h2>Pages les plus visitées</h2>
+                </div>
+                <div class="pb-card-body pb-card-body--visited flex-grow-1">
+                    <div class="pb-visited-fixed">
+                    <div class="rating-summary">
+                        <span class="rating-score">{{ score_perf }}</span>
+                        <span class="rating-stars">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= score_perf %}
+                                    <i class="fa-solid fa-star"></i>
+                                {% else %}
+                                    <i class="fa-regular fa-star"></i>
+                                {% endif %}
+                            {% endfor %}
+                        </span>
+                        <span class="ms-auto text-muted small">({{ score_perf }} / 5)</span>
+                    </div>
+                    <p class="rating-meta mb-0">
+                        {{ total_visites_filtre }} visite{{ total_visites_filtre|pluralize }}
+                        — {{ pages_uniques_filtre }} page{{ pages_uniques_filtre|pluralize }} consultée{{ pages_uniques_filtre|pluralize }}
+                    </p>
+                    </div>
+
+                    {% if top_pages %}
+                        <div class="pb-card-scroll--visited">
+                        <ul class="top-list">
+                            {% for p in top_pages %}
+                            {% with first=top_pages.0.total %}
+                            <li>
+                                <div class="top-list__row">
+                                    <span class="top-list__name" title="{{ p.url_visitee }}">
+                                        {{ p.url_visitee|default:"/" }}
+                                    </span>
+                                    <span class="top-list__pct">
+                                        {% widthratio p.total first 100 %}%
+                                    </span>
+                                </div>
+                                <div class="top-list__bar-row">
+                                    <div class="top-list__bar">
+                                        <div class="top-list__bar-fill" style="width: {% widthratio p.total first 100 %}%"></div>
+                                    </div>
+                                    <span class="pill-count">{{ p.total }}</span>
+                                </div>
+                            </li>
+                            {% endwith %}
+                            {% endfor %}
+                        </ul>
+                        </div>
+                    {% else %}
+                        <div class="empty-state">
+                            <i class="fa-solid fa-inbox"></i>
+                            <p class="mb-0">Aucune visite sur la période.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Modal hors de <main> : évite que le backdrop Bootstrap (sur body, z-index élevé) recouvre la boîte de dialogue -->
+<div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form method="get">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="filterModalLabel">
+                        <i class="fa-solid fa-filter me-2" style="color: var(--pb-maroon);"></i>
+                        Filtrer la période
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="periode" class="form-label fw-semibold small text-uppercase text-muted">Période</label>
+                        <select class="form-select" name="periode" id="periode" onchange="togglePeriodeCustom(this.value)">
+                            <option value="jour"   {% if periode == 'jour' %}selected{% endif %}>Aujourd'hui</option>
+                            <option value="semaine"{% if periode == 'semaine' %}selected{% endif %}>Cette semaine</option>
+                            <option value="mois"   {% if periode == 'mois' %}selected{% endif %}>Ce mois</option>
+                            <option value="annee"  {% if periode == 'annee' %}selected{% endif %}>Cette année</option>
+                            <option value="custom" {% if periode == 'custom' %}selected{% endif %}>Personnalisé</option>
+                        </select>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6 periode-custom" {% if periode != 'custom' %}style="display:none;"{% endif %}>
+                            <label for="date_debut" class="form-label fw-semibold small text-uppercase text-muted">Date de début</label>
+                            <input type="date" class="form-control" name="date_debut" id="date_debut" value="{{ date_debut }}">
+                        </div>
+                        <div class="col-md-6 periode-custom" {% if periode != 'custom' %}style="display:none;"{% endif %}>
+                            <label for="date_fin" class="form-label fw-semibold small text-uppercase text-muted">Date de fin</label>
+                            <input type="date" class="form-control" name="date_fin" id="date_fin" value="{{ date_fin }}">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        Annuler
+                    </button>
+                    <button type="submit" class="btn btn-pb-primary">
+                        <i class="fa-solid fa-check me-1"></i> Appliquer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<footer class="text-center text-muted py-4 small">
+    <p class="mb-0">P&BEntreprise — Administration du site</p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+    // Toggle dates personnalisées
+    function togglePeriodeCustom(val) {
+        document.querySelectorAll('.periode-custom').forEach(function (n) {
+            n.style.display = (val === 'custom') ? '' : 'none';
+        });
+    }
+
+    /* Hauteur carte « Pages performantes » (#pbCardPagesPerf) = carte « Réseaux » (#pbCardReseaux), xl+ */
+    (function () {
+        var src = document.getElementById('pbCardReseaux');
+        var dst = document.getElementById('pbCardPagesPerf');
+        if (!src || !dst) {
+            window.scheduleSyncPagesPerfToReseaux = function () {};
+            return;
+        }
+
+        function syncPagesPerfCardToReseaux() {
+            if (!window.matchMedia('(min-width: 1200px)').matches) {
+                dst.style.removeProperty('min-height');
+                return;
+            }
+            var h = src.getBoundingClientRect().height;
+            if (h > 0) {
+                dst.style.setProperty('min-height', Math.round(h) + 'px', 'important');
+            }
+        }
+
+        var t;
+        function scheduleSyncPagesPerfToReseaux() {
+            clearTimeout(t);
+            t = setTimeout(function () {
+                requestAnimationFrame(syncPagesPerfCardToReseaux);
+            }, 40);
+        }
+
+        window.scheduleSyncPagesPerfToReseaux = scheduleSyncPagesPerfToReseaux;
+
+        window.addEventListener('load', scheduleSyncPagesPerfToReseaux);
+        window.addEventListener('resize', scheduleSyncPagesPerfToReseaux);
+        setTimeout(scheduleSyncPagesPerfToReseaux, 200);
+        setTimeout(scheduleSyncPagesPerfToReseaux, 600);
+
+        if (window.ResizeObserver) {
+            new ResizeObserver(scheduleSyncPagesPerfToReseaux).observe(src);
+        }
+    })();
+
+    // ===== Performance Overview chart (bar Visites + line Clics) =====
+    var ctxPerf = document.getElementById('chartPerformance');
+    if (ctxPerf) {
+        var perfLabels = {{ perf_labels_json|safe }};
+        var perfVisites = {{ perf_visites_json|safe }};
+        var perfClics = {{ perf_clics_json|safe }};
+        var hasPerfData = perfVisites.some(function (v) { return v > 0; }) ||
+                          perfClics.some(function (v) { return v > 0; });
+        if (!perfLabels.length || !hasPerfData) {
+            ctxPerf.parentElement.innerHTML =
+                '<div class="empty-state"><i class="fa-solid fa-chart-simple"></i><p class="mb-0">Aucune donnée sur la période.</p></div>';
+            if (typeof scheduleSyncPagesPerfToReseaux === 'function') {
+                scheduleSyncPagesPerfToReseaux();
+            }
+        } else {
+            var ctx = ctxPerf.getContext('2d');
+            var gradClics = ctx.createLinearGradient(0, 0, 0, 400);
+            gradClics.addColorStop(0, 'rgba(26, 26, 26, 0.14)');
+            gradClics.addColorStop(0.45, 'rgba(26, 26, 26, 0.06)');
+            gradClics.addColorStop(1, 'rgba(26, 26, 26, 0.01)');
+            new Chart(ctxPerf, {
+                data: {
+                    labels: perfLabels,
+                    datasets: [
+                        {
+                            type: 'bar',
+                            label: 'Visites',
+                            data: perfVisites,
+                            borderWidth: 1,
+                            borderColor: 'rgba(168, 50, 50, 0.9)',
+                            backgroundColor: 'rgba(168, 50, 50, 0.16)',
+                            borderRadius: 12,
+                            borderSkipped: false,
+                            maxBarThickness: 22,
+                            order: 2
+                        },
+                        {
+                            type: 'line',
+                            label: 'Clics',
+                            data: perfClics,
+                            borderColor: 'rgba(26, 26, 26, 0.9)',
+                            backgroundColor: gradClics,
+                            tension: 0.4,
+                            borderWidth: 2,
+                            pointRadius: 4,
+                            pointBackgroundColor: 'rgba(26, 26, 26, 0.85)',
+                            pointBorderColor: '#fff',
+                            fill: true,
+                            order: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#888' }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            ticks: { precision: 0, color: '#888' },
+                            grid: { color: 'rgba(136, 136, 136, 0.22)' }
+                        }
+                    }
+                }
+            });
+            if (typeof scheduleSyncPagesPerfToReseaux === 'function') {
+                scheduleSyncPagesPerfToReseaux();
+            }
+        }
+    }
+
+    // ===== Évolution journalière (visites + clics) =====
+    var ctxJour = document.getElementById('chartJour');
+    if (ctxJour) {
+        var labelsJour = {{ daily_labels_json|safe }};
+        var dataVisites = {{ daily_data_json|safe }};
+        var dataClics = {{ daily_clics_json|safe }};
+        if (!labelsJour.length) {
+            ctxJour.parentElement.innerHTML =
+                '<div class="empty-state"><i class="fa-solid fa-chart-simple"></i><p class="mb-0">Aucune donnée sur la période.</p></div>';
+            if (typeof scheduleSyncPagesPerfToReseaux === 'function') {
+                scheduleSyncPagesPerfToReseaux();
+            }
+        } else {
+            var cj = ctxJour.getContext('2d');
+            var gradVisites = cj.createLinearGradient(0, 0, 0, 400);
+            gradVisites.addColorStop(0, 'rgba(168, 50, 50, 0.22)');
+            gradVisites.addColorStop(0.45, 'rgba(168, 50, 50, 0.08)');
+            gradVisites.addColorStop(1, 'rgba(168, 50, 50, 0.01)');
+            var gradClicsJ = cj.createLinearGradient(0, 0, 0, 400);
+            gradClicsJ.addColorStop(0, 'rgba(26, 26, 26, 0.12)');
+            gradClicsJ.addColorStop(0.5, 'rgba(136, 136, 136, 0.06)');
+            gradClicsJ.addColorStop(1, 'rgba(136, 136, 136, 0.02)');
+            new Chart(ctxJour, {
+                type: 'line',
+                data: {
+                    labels: labelsJour,
+                    datasets: [
+                        {
+                            label: 'Visites',
+                            data: dataVisites,
+                            borderColor: 'rgba(168, 50, 50, 0.85)',
+                            backgroundColor: gradVisites,
+                            tension: 0.4,
+                            borderWidth: 2,
+                            pointRadius: 3,
+                            pointBackgroundColor: 'rgba(168, 50, 50, 0.9)',
+                            fill: true
+                        },
+                        {
+                            label: 'Clics',
+                            data: dataClics,
+                            borderColor: 'rgba(26, 26, 26, 0.85)',
+                            backgroundColor: gradClicsJ,
+                            tension: 0.4,
+                            borderWidth: 2,
+                            pointRadius: 3,
+                            pointBackgroundColor: 'rgba(26, 26, 26, 0.85)',
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#888' }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            ticks: { precision: 0, color: '#888' },
+                            grid: { color: 'rgba(136, 136, 136, 0.22)' }
+                        }
+                    }
+                }
+            });
+            if (typeof scheduleSyncPagesPerfToReseaux === 'function') {
+                scheduleSyncPagesPerfToReseaux();
+            }
+        }
+    }
+
+</script>
+</body>
+</html>

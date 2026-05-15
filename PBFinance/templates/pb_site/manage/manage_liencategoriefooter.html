@@ -1,0 +1,371 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ titre }} — Gestion | P&BEntreprise</title>
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'pb_site_asset/img/logo/icn.png' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --pb-primary: #EC281C; }
+        body { background: #f5f6fa; font-family: 'Segoe UI', sans-serif; }
+        .pb-header { background: #fff; border-bottom: 3px solid var(--pb-primary); padding: 14px 0; }
+        .pb-header h1 { color: var(--pb-primary); font-weight: 700; margin: 0; font-size: 1.4rem; }
+        .pb-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,.05); margin-bottom: 25px; }
+        .pb-card-header { padding: 14px 20px; border-bottom: 1px solid #e5e7eb; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+        .pb-card-header h2 { font-size: 1.1rem; margin: 0; color: #111; font-weight: 600; }
+        .pb-card-body { padding: 20px; }
+        .btn-pb-primary { background: var(--pb-primary); color: #fff; border: none; }
+        .btn-pb-primary:hover { background: #c81f14; color: #fff; }
+        .table thead { background: #f8f9fa; }
+        .table th { font-size: .85rem; text-transform: uppercase; letter-spacing: .3px; color: #555; }
+        .table td { vertical-align: middle; font-size: .9rem; }
+        .action-btns .btn { padding: 4px 10px; font-size: .8rem; }
+        .form-label { font-weight: 600; font-size: .85rem; color: #444; }
+        .badge-state { font-size: .7rem; padding: 4px 8px; }
+        .form-errors { color: #b00020; font-size: .8rem; margin-top: 3px; }
+        .breadcrumb { background: transparent; padding: 0; margin-bottom: 15px; }
+        .breadcrumb a { color: var(--pb-primary); text-decoration: none; }
+        .empty-state { text-align: center; padding: 40px 20px; color: #888; }
+        .empty-state i { font-size: 3rem; color: #ccc; margin-bottom: 15px; }
+        .search-box { max-width: 320px; }
+
+        #crudModal .modal-dialog { max-width: 1000px; width: calc(100% - 24px); margin: 1rem auto; }
+        #crudModal .modal-content { max-height: calc(100vh - 2rem); border-radius: 12px; overflow: hidden; }
+        #crudModal .modal-header { flex-shrink: 0; padding: 14px 20px; }
+        #crudModal .modal-body { overflow-y: auto; overflow-x: hidden; padding: 22px 24px; flex: 1 1 auto; }
+        #crudModal .modal-footer { flex-shrink: 0; padding: 12px 20px; background: #fafbfc; border-top: 1px solid #e5e7eb; gap: 8px; }
+
+        .lien-section { background: #f9fafb; border: 1px dashed #d1d5db; border-radius: 10px; padding: 16px; margin-top: 10px; }
+        .lien-section h6 { color: var(--pb-primary); font-weight: 700; margin-bottom: 12px; }
+        .lien-form { background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; margin-bottom: 10px; position: relative; }
+        .lien-form.marked-delete { opacity: .5; background: #fee2e2; }
+        .lien-remove { position: absolute; top: 6px; right: 8px; background: transparent; border: none; color: #b91c1c; font-size: 1rem; cursor: pointer; }
+        .lien-remove:hover { color: #7f1d1d; }
+
+        @media (max-width: 767.98px) {
+            #crudModal .modal-dialog { max-width: 100%; width: 100%; height: 100%; margin: 0; }
+            #crudModal .modal-content { max-height: 100vh; height: 100vh; border-radius: 0; }
+            #crudModal .row.g-3 > [class*="col-"] { flex: 0 0 100%; max-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<header class="pb-header">
+    <div class="container-fluid px-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <h1><i class="fa-solid fa-globe me-2"></i>Gestion site web — {{ titre }}</h1>
+            <a href="{% url 'manage_dashboard' %}" class="btn btn-sm btn-outline-secondary">Tableau de bord</a>
+        </div>
+    </div>
+</header>
+
+<main class="container-fluid py-4 px-4">
+    <nav class="breadcrumb">
+        <a href="{% url 'manage_dashboard' %}">Tableau de bord</a>
+        <span class="mx-2">›</span>
+        <span>{{ titre }}</span>
+    </nav>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if confirm_delete %}
+        <div class="pb-card border-danger">
+            <div class="pb-card-header bg-danger text-white">
+                <h2><i class="fa-solid fa-triangle-exclamation me-2"></i>Confirmer la suppression</h2>
+            </div>
+            <div class="pb-card-body">
+                <p class="mb-3">Voulez-vous vraiment supprimer <strong>"{{ confirm_delete }}"</strong> ?<br>
+                    <small class="text-muted">Les liens associés seront aussi supprimés.</small>
+                </p>
+                <form method="post" action="?delete={{ confirm_delete.pk }}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger"><i class="fa-solid fa-trash me-1"></i> Supprimer définitivement</button>
+                    <a href="{% url url_name %}" class="btn btn-secondary"><i class="fa-solid fa-xmark me-1"></i> Annuler</a>
+                </form>
+            </div>
+        </div>
+    {% else %}
+        <div class="pb-card">
+            <div class="pb-card-header">
+                <h2><i class="fa-solid fa-list me-2"></i>Liste — {{ paginator.count|default:objets|length }} élément(s)</h2>
+                <div class="d-flex gap-2 align-items-center flex-wrap">
+                    <form method="get" class="search-box">
+                        <div class="input-group input-group-sm">
+                            <input type="search" name="q" value="{{ q|default:'' }}" class="form-control" placeholder="Rechercher...">
+                            <button class="btn btn-outline-secondary" type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
+                        </div>
+                    </form>
+                    <button type="button" class="btn btn-pb-primary btn-sm" data-bs-toggle="modal" data-bs-target="#crudModal">
+                        <i class="fa-solid fa-plus me-1"></i> Ajouter
+                    </button>
+                </div>
+            </div>
+            <div class="pb-card-body p-0">
+                {% if objets %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th width="60">ID</th>
+                                    <th>Libellé</th>
+                                    <th>Liens</th>
+                                    <th width="130">État</th>
+                                    <th width="180" class="text-end pe-3">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for obj in objets %}
+                                    <tr {% if edit_obj and edit_obj.pk == obj.pk %}class="table-warning"{% endif %}>
+                                        <td><span class="text-muted">#{{ obj.pk }}</span></td>
+                                        <td><strong>{{ obj }}</strong></td>
+                                        <td><span class="badge bg-info">{{ obj.liens_categorie_footer.count }}</span></td>
+                                        <td>
+                                            {% if obj.actif %}
+                                                <span class="badge bg-success badge-state">Actif</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary badge-state">Inactif</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="text-end pe-3 action-btns">
+                                            <a href="?edit={{ obj.pk }}" class="btn btn-outline-warning" title="Modifier"><i class="fa-solid fa-pen"></i></a>
+                                            <a href="?delete={{ obj.pk }}" class="btn btn-outline-danger" title="Supprimer"><i class="fa-solid fa-trash"></i></a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {% if paginator.num_pages > 1 %}
+                        <nav class="p-3">
+                            <ul class="pagination pagination-sm mb-0 justify-content-center">
+                                {% if page_obj.has_previous %}
+                                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if q %}&q={{ q }}{% endif %}">‹ Précédent</a></li>
+                                {% endif %}
+                                <li class="page-item active"><span class="page-link">{{ page_obj.number }} / {{ paginator.num_pages }}</span></li>
+                                {% if page_obj.has_next %}
+                                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if q %}&q={{ q }}{% endif %}">Suivant ›</a></li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                    {% endif %}
+                {% else %}
+                    <div class="empty-state">
+                        <i class="fa-solid fa-inbox"></i>
+                        <p class="mb-0">Aucun élément pour le moment.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+</main>
+
+{# =================== MODAL : FORMULAIRE AJOUT / ÉDITION + LIENS =================== #}
+{% if not confirm_delete %}
+<div class="modal fade" id="crudModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header" style="background: var(--pb-primary); color: #fff;">
+                <h5 class="modal-title">
+                    {% if edit_obj %}
+                        <i class="fa-solid fa-pen-to-square me-2"></i>Modifier : {{ edit_obj }}
+                    {% else %}
+                        <i class="fa-solid fa-plus me-2"></i>Ajouter une catégorie de liens footer
+                    {% endif %}
+                </h5>
+                <button type="button" class="btn-close btn-close-white"
+                        {% if edit_obj %}onclick="window.location='{% url url_name %}'"{% else %}data-bs-dismiss="modal"{% endif %}
+                        aria-label="Fermer"></button>
+            </div>
+            <form method="post" enctype="multipart/form-data" novalidate>
+                {% csrf_token %}
+                <div class="modal-body">
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                    {% endif %}
+
+                    <h6 class="text-uppercase text-muted mb-3" style="font-size:.8rem; letter-spacing:.5px;">
+                        <i class="fa-solid fa-folder me-1"></i> Informations de la catégorie
+                    </h6>
+                    <div class="row g-3">
+                        {% for field in form %}
+                            <div class="col-md-6 {% if field.field.widget.input_type == 'textarea' %}col-12{% endif %}">
+                                <label for="{{ field.id_for_label }}" class="form-label">
+                                    {{ field.label }}
+                                    {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+                                </label>
+                                {{ field }}
+                                {% if field.help_text %}<small class="text-muted d-block">{{ field.help_text }}</small>{% endif %}
+                                {% if field.errors %}<div class="form-errors">{{ field.errors|striptags }}</div>{% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    {# ============= LIENS FOOTER (formset) ============= #}
+                    <div class="lien-section mt-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="mb-0"><i class="fa-solid fa-link me-1"></i> Liens footer</h6>
+                            <button type="button" class="btn btn-sm btn-pb-primary" id="add-lien-btn">
+                                <i class="fa-solid fa-plus me-1"></i> Ajouter
+                            </button>
+                        </div>
+
+                        {{ formset.management_form }}
+                        {% if formset.non_form_errors %}
+                            <div class="alert alert-danger">{{ formset.non_form_errors }}</div>
+                        {% endif %}
+
+                        <div id="lien-forms-container">
+                            {% for lf in formset.forms %}
+                                <div class="lien-form" data-form-index="{{ forloop.counter0 }}">
+                                    {% for hidden in lf.hidden_fields %}{{ hidden }}{% endfor %}
+                                    <button type="button" class="lien-remove" title="Retirer"><i class="fa-solid fa-xmark"></i></button>
+                                    <div class="row g-2">
+                                        <div class="col-md-5">
+                                            <label class="form-label">{{ lf.libelle.label }}</label>
+                                            {{ lf.libelle }}
+                                            {% if lf.libelle.errors %}<div class="form-errors">{{ lf.libelle.errors|striptags }}</div>{% endif %}
+                                        </div>
+                                        <div class="col-md-5">
+                                            <label class="form-label">{{ lf.lien.label }}</label>
+                                            {{ lf.lien }}
+                                            {% if lf.lien.errors %}<div class="form-errors">{{ lf.lien.errors|striptags }}</div>{% endif %}
+                                        </div>
+                                        <div class="col-md-1">
+                                            <label class="form-label">{{ lf.ordre.label }}</label>
+                                            {{ lf.ordre }}
+                                            {% if lf.ordre.errors %}<div class="form-errors">{{ lf.ordre.errors|striptags }}</div>{% endif %}
+                                        </div>
+                                        <div class="col-md-1 d-flex align-items-end">
+                                            <div class="form-check">
+                                                {{ lf.actif }}
+                                                <label class="form-check-label ms-1 small">{{ lf.actif.label }}</label>
+                                            </div>
+                                        </div>
+                                        {% if lf.DELETE %}<div class="d-none">{{ lf.DELETE }}</div>{% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <template id="empty-lien-form">
+                            <div class="lien-form" data-form-index="__prefix__">
+                                {% with empty=formset.empty_form %}
+                                    {% for hidden in empty.hidden_fields %}{{ hidden }}{% endfor %}
+                                    <button type="button" class="lien-remove" title="Retirer"><i class="fa-solid fa-xmark"></i></button>
+                                    <div class="row g-2">
+                                        <div class="col-md-5">
+                                            <label class="form-label">{{ empty.libelle.label }}</label>
+                                            {{ empty.libelle }}
+                                        </div>
+                                        <div class="col-md-5">
+                                            <label class="form-label">{{ empty.lien.label }}</label>
+                                            {{ empty.lien }}
+                                        </div>
+                                        <div class="col-md-1">
+                                            <label class="form-label">{{ empty.ordre.label }}</label>
+                                            {{ empty.ordre }}
+                                        </div>
+                                        <div class="col-md-1 d-flex align-items-end">
+                                            <div class="form-check">
+                                                {{ empty.actif }}
+                                                <label class="form-check-label ms-1 small">{{ empty.actif.label }}</label>
+                                            </div>
+                                        </div>
+                                        {% if empty.DELETE %}<div class="d-none">{{ empty.DELETE }}</div>{% endif %}
+                                    </div>
+                                {% endwith %}
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <a href="{% url url_name %}" class="btn btn-outline-secondary"><i class="fa-solid fa-xmark me-1"></i> Annuler</a>
+                    <button type="submit" class="btn btn-pb-primary">
+                        {% if edit_obj %}
+                            <i class="fa-solid fa-save me-1"></i> Enregistrer les modifications
+                        {% else %}
+                            <i class="fa-solid fa-plus me-1"></i> Enregistrer
+                        {% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<footer class="text-center text-muted py-4 small">
+    <p class="mb-0">P&BEntreprise — Gestion dynamique du site · {{ model_name }}</p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    (function () {
+        var modalEl = document.getElementById('crudModal');
+        if (!modalEl) return;
+
+        var isEditing = {% if edit_obj %}true{% else %}false{% endif %};
+        var hasErrors = modalEl.querySelectorAll('.form-errors, .alert-danger').length > 0;
+        if (isEditing || hasErrors) {
+            new bootstrap.Modal(modalEl).show();
+        }
+
+        var prefix = 'liens';
+        var container = document.getElementById('lien-forms-container');
+        var tpl = document.getElementById('empty-lien-form');
+        var addBtn = document.getElementById('add-lien-btn');
+        var totalInput = document.querySelector('input[name="' + prefix + '-TOTAL_FORMS"]');
+
+        function attachRemoveHandlers(root) {
+            root.querySelectorAll('.lien-remove').forEach(function (btn) {
+                if (btn.dataset.bound) return;
+                btn.dataset.bound = '1';
+                btn.addEventListener('click', function () {
+                    var block = btn.closest('.lien-form');
+                    if (!block) return;
+                    var deleteInput = block.querySelector('input[type="checkbox"][name$="-DELETE"]');
+                    var idInput = block.querySelector('input[name$="-id"]');
+                    if (deleteInput && idInput && idInput.value) {
+                        deleteInput.checked = true;
+                        block.classList.add('marked-delete');
+                    } else {
+                        block.remove();
+                        if (totalInput) {
+                            totalInput.value = Math.max(parseInt(totalInput.value || '0', 10) - 1, 0);
+                        }
+                    }
+                });
+            });
+        }
+
+        if (addBtn && container && tpl && totalInput) {
+            addBtn.addEventListener('click', function () {
+                var index = parseInt(totalInput.value || '0', 10);
+                var html = tpl.innerHTML.replace(/__prefix__/g, index);
+                var wrapper = document.createElement('div');
+                wrapper.innerHTML = html.trim();
+                var node = wrapper.firstElementChild;
+                container.appendChild(node);
+                totalInput.value = index + 1;
+                attachRemoveHandlers(node);
+            });
+        }
+
+        attachRemoveHandlers(container || document);
+    })();
+</script>
+</body>
+</html>

@@ -2,7 +2,7 @@
 {% load static %} 
 {% block title %} Temps d'arrêt {% endblock title %} 
 {% block page_action %}
-    <button type="button" class="btn btn-default text-info" data-toggle="modal" data-target="#modal-sm"><i style="font-size: 20px;" class="fa fa-calendar"></i></button>
+    <button type="button" class="btn btn-default" data-toggle="modal" data-target="#modal-sm" style="color: #a83232;"><i style="font-size: 20px; color: rgba(168, 50, 50, 0.75);" class="fa fa-calendar"></i></button>
 {% endblock page_action %}
 {% block page_title %}
     <img class="profile-user-img" style="border:none; height:45px;width:45px" src="{% static 'temp_arret.png' %}" alt="User profile picture">Temps d'arrêt 
@@ -12,9 +12,9 @@
 
 <div class="modal fade" id="modal-sm">
     <div class="modal-dialog modal-lg">
-        <div class="modal-content" style="border-radius:25px;">
-            <div class="modal-header">
-                <h4 class="modal-title" style="font-weight:700;color: #06497C;">FILTRE</h4>
+        <div class="modal-content" style="border-radius:25px; border: 1px solid rgba(168, 50, 50, 0.2);">
+            <div class="modal-header" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.98)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 25px 25px 0 0;">
+                <h4 class="modal-title" style="font-weight:700;color: #a83232;">FILTRE</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -25,20 +25,20 @@
                         <div class="row clearfix">
                             <div class="col-md-12 form-group"><input type="text" value="Critère de filtre" class="form-control text-center" disabled></div>
                             <div class="col-6">
-                                <label>Date debut </label>
+                                <label style="font-weight:600; color: #a83232;">Date debut </label>
                                 <div class="form-group">                                    
                                     {{ form.date_debut }}
                                 </div>
                             </div>
                             <div class="col-6">
-                                <label>Date fin</label>
+                                <label style="font-weight:600; color: #a83232;">Date fin</label>
                                 <div class="form-group">                                    
                                     {{ form.date_fin }}
                                 </div>
                             </div>
                             
                             <div class="col-12">
-                                <label>Categorie</label>
+                                <label style="font-weight:600; color: #a83232;">Categorie</label>
                                 <div class="form-group">                                    
                                     {{ form.categorie }}
                                 </div>
@@ -46,7 +46,7 @@
                         </div>
                         <div class="modal-footer justify-content-between p-2">
                             <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Annuler</button>
-                            <button type="submit" class="btn btn-outline-success" >Afficher</button>
+                            <button type="submit" class="btn" style="border-radius:25px; border: 1px solid #a83232; color: #a83232; background: transparent; font-weight: 600;">Afficher</button>
                         </div>
                     </form>
                 </div>
@@ -61,8 +61,8 @@
             <img style="height: 50px; width: 55px; position:relative; margin-top: 4px; margin-left: 0px;" src="{% static 'visit.png' %}" alt="" srcset="">
         </span>
         <div class="info-box-content">
-            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Visites</span>
-            <span class="info-box-number" style="font-size:20px; color: #fa7832;">
+            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">Visites</span>
+            <span class="info-box-number" style="font-size:20px; color: #1a1a1a;">
             {{visit_mois_format}}
             <small>frs cfa</small>
             </span>
@@ -76,8 +76,8 @@
             <img style="height: 50px; width: 55px; position:relative; margin-top: 3px; margin-left: 0px;" src="{% static 'entret.png' %}" alt="" srcset="">
         </span>
         <div class="info-box-content">
-            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Entretiens</span>
-            <span class="info-box-number" style="font-size:20px; color: #fa7832;">
+            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">Entretiens</span>
+            <span class="info-box-number" style="font-size:20px; color: #1a1a1a;">
             {{entretien_mois_format}}
             <small>frs cfa</small>
             </span>
@@ -91,8 +91,8 @@
         <img style="height: 40px; width: 40px; position:relative; margin-top: 6px; margin-left: 0px;" src="{% static 'clereparat.png' %}" alt="" srcset="">
     </span>
     <div class="info-box-content">
-        <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Réparations</span>
-        <span class="info-box-number" style="font-size:20px; color: #fa7832;">
+        <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">Réparations</span>
+        <span class="info-box-number" style="font-size:20px; color: #1a1a1a;">
         {{reparat_mois_format}}
         <small>frs cfa</small>
         </span>
@@ -106,8 +106,8 @@
             <img style="height: 45px; width: 45px; position:relative; margin-top: 2px;margin-left: 0px;" src="{% static 'temp_arret.png' %}" alt="" srcset="">
         </span>
         <div class="info-box-content">
-            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Autres arrêts</span>
-            <span class="info-box-number" style="font-size:20px; color: #fa7832;">
+            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">Autres arrêts</span>
+            <span class="info-box-number" style="font-size:20px; color: #1a1a1a;">
             {{autarret_mois_format}}
             <small>frs cfa</small>
             </span>
@@ -123,15 +123,15 @@
                 <div id="" class="">
                     <div class="row p-0 m-0">
                         <div class="col-md-12 p-0">
-                            <div class="card" style="box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);backdrop-filter: blur(5.2px);--webkit-backdrop-filter: blur(5.2px); border-radius:25px;">
-                                <div class="card-header col-12 col-sm-12 col-md-12" style="font-size:18px; font-weight: 700; color: #06497C;">
+                            <div class="card" style="box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06); border: 1px solid rgba(168, 50, 50, 0.2); backdrop-filter: blur(5.2px); -webkit-backdrop-filter: blur(5.2px); border-radius:20px;">
+                                <div class="card-header col-12 col-sm-12 col-md-12" style="font-size:18px; font-weight: 700; color: #a83232; background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.98)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 20px 20px 0 0;">
                                     <form class="search-form">
                                         <div class="input-group">
-                                            <input type="text" name="search" value="{{ search_query }}" class="form-control" placeholder="Saisissez l'immatriculation du véhicule..." style="border-radius: 50px 0 0 50px;">
+                                            <input type="text" name="search" value="{{ search_query }}" class="form-control" placeholder="Saisissez l'immatriculation du véhicule..." style="border-radius: 50px 0 0 50px; border: 1px solid rgba(168, 50, 50, 0.15);">
                                             <div class="input-group-append">
-                                            <button type="submit" name="submit" class="btn btn-danger" style="border-radius: 0 "><i class="fas fa-search"></i>
+                                            <button type="submit" name="submit" class="btn" style="border-radius: 0; background-color: #a83232; border-color: #a83232; color: #fff;"><i class="fas fa-search"></i>
                                             </button>
-                                            <a href="{% url 'temps_arrets' %}" name="submit" class="btn btn-danger" style="border-radius: 0 50px 50px 0;"><i class="fas fa-refresh text-light"></i></a>
+                                            <a href="{% url 'temps_arrets' %}" name="submit" class="btn" style="border-radius: 0 50px 50px 0; background-color: #a83232; border-color: #a83232; color: #fff;"><i class="fas fa-refresh"></i></a>
                                             </div>
                                         </div>
                                     </form>
@@ -141,10 +141,10 @@
                                     <div class="col-md-4">
                                     {% if vehicules %}
                                         {% for v in vehicules %}
-                                            <div class="card card-widget widget-user" style="border-radius:25px; ">
-                                                <div class="widget-user-header" style="border-radius:25px;">
-                                                    <i class="fa fa-car text-center" style="font-size: 50px; color:rgba(139, 139, 139, 0.39);"></i>
-                                                  <h5 class="widget-user-desc">{{v.immatriculation}}</h5>
+                                            <div class="card card-widget widget-user" style="border-radius:20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);">
+                                                <div class="widget-user-header" style="border-radius:20px 20px 0 0;">
+                                                    <i class="fa fa-car text-center" style="font-size: 50px; color: rgba(168, 50, 50, 0.45);"></i>
+                                                  <h5 class="widget-user-desc" style="color: #1a1a1a; font-weight: 700;">{{v.immatriculation}}</h5>
                                                 </div>
                                                 <div class="card-footer p-0">
                                                   <ul class="nav flex-column">
@@ -155,7 +155,7 @@
                                                                     {% if perm.name == "add visite" %}
                                                                         <a href="{% url perm.url v.pk %}" class="nav-link" title="Ajouter une visite">
                                                                             Visite technique
-                                                                            <span class="float-right badge bg-primary"><i style="font-size: 20px;" class="fa fa-plus-circle"></i></span>
+                                                                            <span class="float-right badge" style="background-color: #a83232; color: #fff;"><i style="font-size: 20px;" class="fa fa-plus-circle"></i></span>
                                                                         </a>
                                                                     {% endif %}
                                                                 {% endfor %}
@@ -169,7 +169,7 @@
                                                                     {% if perm.name == "add entretien" %}
                                                                         <a href="{% url perm.url v.pk %}" class="nav-link" title="Ajouter un entretien">
                                                                             Entretien
-                                                                            <span class="float-right badge bg-info"><i style="font-size: 20px;" class="fa fa-plus-circle"></i></span>
+                                                                            <span class="float-right badge" style="background-color: rgba(168, 50, 50, 0.85); color: #fff;"><i style="font-size: 20px;" class="fa fa-plus-circle"></i></span>
                                                                         </a>
                                                                     {% endif %}
                                                                 {% endfor %}
@@ -183,7 +183,7 @@
                                                                     {% if perm.name == "add reparation" %}
                                                                         <a href="{% url perm.url v.pk %}" class="nav-link" title="Ajouter un réparation">
                                                                             Réparation
-                                                                            <span class="float-right badge bg-success"><i style="font-size: 20px;" class="fa fa-plus-circle"></i></span>
+                                                                            <span class="float-right badge" style="background-color: #8b2929; color: #fff;"><i style="font-size: 20px;" class="fa fa-plus-circle"></i></span>
                                                                         </a>
                                                                     {% endif %}
                                                                 {% endfor %}
@@ -197,7 +197,7 @@
                                                                     {% if perm.name == "add autre arrêt" %}
                                                                         <a href="{% url perm.url v.pk %}" class="nav-link" title="Ajouter un autre arrêt">
                                                                             Autre arrêt
-                                                                            <span class="float-right badge bg-secondary"><i style="font-size: 20px;" class="fa fa-plus-circle"></i></span>
+                                                                            <span class="float-right badge" style="background-color: #1a1a1a; color: #fff;"><i style="font-size: 20px;" class="fa fa-plus-circle"></i></span>
                                                                         </a>
                                                                     {% endif %}
                                                                 {% endfor %}
@@ -208,9 +208,6 @@
                                                 </div>
                                             </div>
                                         {% endfor %}
-                                        
-                                    {% else %}
-                                        <p>Aucun véhicule trouvé.</p>
                                     {% endif %}
                                     </div>
                                 </div>

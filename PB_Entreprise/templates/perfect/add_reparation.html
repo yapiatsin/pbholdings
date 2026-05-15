@@ -3,14 +3,14 @@
 {% block title %} Saisie & Etat des réparations {% endblock title %}  
 {% block page_title %}
 <a href="{% url 'temps_arrets' %}"><img class="profile-user-img" style="border:none; height:25px;width:25px" src="{% static 'retour.png' %}" alt="Retour"></a>
-<img class="profile-user-img" style="border:none; height:45px;width:45px" src="{% static 'clereparat.png' %}" alt="User profile picture">Saisie & Etat des réparations du <b class="text-danger"> {{vehicule}}</b> 
+<img class="profile-user-img" style="border:none; height:45px;width:45px" src="{% static 'clereparat.png' %}" alt="User profile picture">Saisie & Etat des réparations du <b style="color: #1a1a1a;"> {{vehicule}}</b> 
 {% endblock page_title %} 
 
 {% block page_action %}
         <form id="quickForm">
-            <button type="button" class="btn btn-default text-success" data-toggle="modal" data-target="#modal-lg">Saisie <i class="fa fa-plus-circle"></i></button>
-            <a class="btn btn-default text-info" data-toggle="modal" data-target="#modal-sm" href="#" style="font-size: 16px;"><i style="font-size: 20px;" class="fa fa-calendar"></i></a>
-            <a class="btn btn-default text-info" href="{% url 'add_reparation' vehicule.pk %}" style="font-size: 16px;"><i style="font-size: 20px;" class="fa fa-refresh"></i></a>
+            <button type="button" class="btn btn-default" data-toggle="modal" data-target="#modal-lg" style="color: #a83232;">Saisie <i class="fa fa-plus-circle"></i></button>
+            <a class="btn btn-default" data-toggle="modal" data-target="#modal-sm" href="#" style="font-size: 16px; color: #a83232;"><i style="font-size: 20px; color: rgba(168, 50, 50, 0.75);" class="fa fa-calendar"></i></a>
+            <a class="btn btn-default" href="{% url 'add_reparation' vehicule.pk %}" style="font-size: 16px; color: #a83232;"><i style="font-size: 20px; color: rgba(168, 50, 50, 0.75);" class="fas fa-sync"></i></a>
         </form>
 {% endblock page_action %}
 
@@ -18,9 +18,9 @@
 
 <div class="modal fade" id="modal-sm">
     <div class="modal-dialog modal-sm">
-        <div class="modal-content" style="border-radius:25px;">
-            <div class="modal-header">
-                <h4 class="modal-title" style="font-weight:700;color: #06497C;">FILTRE</h4>
+        <div class="modal-content" style="border-radius:25px; border: 1px solid rgba(168, 50, 50, 0.2);">
+            <div class="modal-header" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.98)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 25px 25px 0 0;">
+                <h4 class="modal-title" style="font-weight:700;color: #a83232;">FILTRE</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -30,19 +30,19 @@
                     <form id="basic-form" method="get" novalidate>
                         <div class="row clearfix">
                             <div class="col-12">
-                                <label>Date debut </label>
+                                <label style="font-weight:600; color: #a83232;">Date debut </label>
                                 <div class="form-group">                                    
                                     {{ form.date_debut }}
                                 </div>
                             </div>
                             <div class="col-12">
-                                <label>Date fin</label>
+                                <label style="font-weight:600; color: #a83232;">Date fin</label>
                                 <div class="form-group">                                    
                                     {{ form.date_fin }}
                                 </div>
                             </div>
                             <div class="col-12">
-                              <label>Date fin</label>
+                              <label style="font-weight:600; color: #a83232;">Motif</label>
                                 <div class="form-group">                                    
                                     {{ form.motif }}
                                 </div>
@@ -50,7 +50,7 @@
                         </div>
                         <div class="modal-footer justify-content-between">
                             <button type="button" class="btn btn-outline-secondary" style="border-radius:25px;" data-dismiss="modal">Annuler</button>
-                            <button type="submit" class="btn btn-outline-success" style="border-radius:25px;">Afficher</button>
+                            <button type="submit" class="btn" style="border-radius:25px; border: 1px solid #a83232; color: #a83232; background: transparent; font-weight: 600;">Afficher</button>
                         </div>
                     </form>
                 </div>
@@ -61,10 +61,10 @@
 
 <div class="col-12 col-sm-6 col-md-3">
     <div class="info-box" style="border-radius:25px;">
-        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-plus" style="color:rgba(6, 73, 124, 0.54);"></i></span>
+        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-gears" style="color:rgba(168, 50, 50, 0.65);"></i></span>
         <div class="info-box-content">
-            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Nombre total</span>
-            <span class="info-box-number" style="font-size:20px; color: #fa7832">
+            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">Nombre total</span>
+            <span class="info-box-number" style="font-size:20px; color: #1a1a1a">
             {{reparat_total}}
             <small></small>
             </span>
@@ -75,10 +75,10 @@
 <div class="clearfix hidden-md-up"></div>
 <div class="col-12 col-sm-6 col-md-3">
     <div class="info-box" style="border-radius:25px;">
-        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-clock" style="color:rgba(6, 73, 124, 0.54);"></i></span>
+        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-clock" style="color:rgba(168, 50, 50, 0.65);"></i></span>
         <div class="info-box-content">
-            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Aujourd'hui</span>
-            <span class="info-box-number" style="font-size:20px; color: #fa7832">
+            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">Aujourd'hui</span>
+            <span class="info-box-number" style="font-size:20px; color: #1a1a1a">
             {{reparat_jours_format}}
             <small>frs cfa</small>
             </span>
@@ -89,10 +89,10 @@
 <div class="clearfix hidden-md-up"></div>
 <div class="col-12 col-sm-6 col-md-3">
     <div class="info-box mb-3" style="border-radius:25px;">
-    <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fa fa-calendar" style="color:rgba(6, 73, 124, 0.54);"></i></span>
+    <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fa fa-calendar" style="color:rgba(168, 50, 50, 0.65);"></i></span>
     <div class="info-box-content">
-        <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Mensuelle</span>
-        <span class="info-box-number" style="font-size:20px; color: #fa7832">
+        <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">Mensuelle</span>
+        <span class="info-box-number" style="font-size:20px; color: #1a1a1a">
         {{reparat_mois_format}}
         <small>frs cfa</small>
         </span>
@@ -103,10 +103,10 @@
 <div class="clearfix hidden-md-up"></div>
 <div class="col-12 col-sm-6 col-md-3" >
     <div class="info-box mb-3" style="border-radius:25px;">
-        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-calendar" style="color:rgba(6, 73, 124, 0.54);"></i></span>
+        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-calendar" style="color:rgba(168, 50, 50, 0.65);"></i></span>
         <div class="info-box-content">
-            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Annuelle</span>
-            <span class="info-box-number" style="font-size:20px; color: #fa7832">
+            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">Annuelle</span>
+            <span class="info-box-number" style="font-size:20px; color: #1a1a1a">
             {{reparat_an_format}}
             <small>frs cfa</small>
             </span>
@@ -116,10 +116,10 @@
 
 <div class="modal fade" id="modal-lg">
     <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h4 class="modal-title" style="font-weight:700;color: #06497C;">
-            Enrégistrer une nouvelle réparation du <b class="text-danger"> {{vehicule}}</b>
+      <div class="modal-content" style="border-radius:25px; border: 1px solid rgba(168, 50, 50, 0.2);">
+        <div class="modal-header" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.98)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 25px 25px 0 0;">
+          <h4 class="modal-title" style="font-weight:700;color: #a83232;">
+            Enrégistrer une nouvelle réparation du <b style="color: #1a1a1a;"> {{vehicule}}</b>
           </h4>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
@@ -165,7 +165,7 @@
   
               <div class="col-md-12">
                 <div class="text-right mb-3">
-                  <button type="button" class="btn btn-primary" id="add-piece" style="position:absolute;right: -80px; top:95px; z-index:1; border-radius: 50px;"><i class="fa fa-plus"></i> Ajouter</button>
+                  <button type="button" class="btn" id="add-piece" style="position:absolute;right: -80px; top:95px; z-index:1; border-radius: 50px; background-color: #a83232; border-color: #a83232; color: #fff;"><i class="fa fa-plus"></i> Ajouter</button>
                 </div>
                 <div id="piece-formset-container">
                   {{ piece_formset.management_form }}
@@ -189,7 +189,7 @@
                           {{ form.montant }}
                         </div>
                         <div class="col-md-1 d-flex align-items-end" style="position: relative; top: -3px;">
-                          <button type="button" class="btn btn-outline-danger btn-sm remove-piece" style="margin-top: -15px;">🗑</button>
+                          <button type="button" class="btn btn-sm remove-piece" style="margin-top: -15px; border: 1px solid rgba(168, 50, 50, 0.45); color: #a83232; background: transparent;">🗑</button>
                         </div>
                       </div>
                     </div>
@@ -205,7 +205,7 @@
             </div>
             <div class="modal-footer justify-content-between">
                 <button type="button" class=" btn btn-outline-secondary" style="border-radius:25px;" data-dismiss="modal" aria-label="Close">Annuler</button>
-                <button type="submit" class="btn btn-outline-primary" style="border-radius:25px;">Enregistrer</button>
+                <button type="submit" class="btn" style="border-radius:25px; border: 1px solid #a83232; color: #a83232; background: transparent; font-weight: 600;">Enregistrer</button>
             </div>
           </form>
         </div>
@@ -221,7 +221,7 @@
                     <div class="row p-0 m-0">
                         <div class="col-md-12 p-0">
                             <div class="card" style="box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);backdrop-filter: blur(5.2px);--webkit-backdrop-filter: blur(5.2px); border-radius:25px;">
-                                <div class="card-header col-12 col-sm-12 col-md-12" style="font-size:18px; font-weight: 700; color: #06497C;">
+                                <div class="card-header col-12 col-sm-12 col-md-12" style="font-size:18px; font-weight: 700; color: #a83232;">
                                     <form class="search-form">
                                         <div class="input-group">
                                             <input type="text" name="search" value="{{ search_query }}" class="form-control" placeholder="Saisissez l'immatriculation du véhicule..." style="border-radius: 50px 0 0 50px;">
@@ -349,7 +349,7 @@
                                             {% if liste_reparat %} 
                                                 {% for u in liste_reparat %}
                                                     <tr class="text-center">
-                                                        <td><a href="{% url 'detail_reparat' u.pk %}" class="mr-3 text-primary">{{u.vehicule.immatriculation}}</a></td>
+                                                        <td><a href="{% url 'detail_reparat' u.pk %}" class="mr-3" style="color: #a83232;">{{u.vehicule.immatriculation}}</a></td>
                                                         <td>{{u.motif}}</td>
                                                         <td>{{u.montant}}</td>
                                                         <td>{{u.date_saisie|date:"d/m/Y"}}</td>
@@ -374,49 +374,60 @@
     document.addEventListener('DOMContentLoaded', function () {
       const formsetContainer = document.getElementById('piece-formset-container');
       const addButton = document.getElementById('add-piece');
-      const totalForms = document.querySelector('#id_pieces-TOTAL_FORMS'); // ⚠ Vérifie bien le préfixe (ici 'pieces')
-    
-      addButton.addEventListener('click', function () {
-        const currentFormCount = parseInt(totalForms.value);
-        const firstForm = formsetContainer.querySelector('.ligne-piece');
-        if (!firstForm) return;
-        // Clone du premier formulaire
-        const newForm = firstForm.cloneNode(true);
-        // Réinitialiser les valeurs
-        newForm.querySelectorAll('input, select, textarea').forEach(function (input) {
-          input.value = '';
-        });
-        // Mise à jour des indexes
-        newForm.querySelectorAll('input, select, textarea').forEach(function (input) {
+      const totalForms = document.querySelector('#id_pieces-TOTAL_FORMS');
+      const initialRow = formsetContainer.querySelector('.ligne-piece');
+      const rowTemplate = initialRow ? initialRow.cloneNode(true) : null;
+
+      function reindexPieceRow(fromEl, newIndex) {
+        fromEl.querySelectorAll('input, select, textarea').forEach(function (input) {
           if (input.name) {
-            input.name = input.name.replace(/pieces-\d+-/, `pieces-${currentFormCount}-`);
+            input.name = input.name.replace(/pieces-\d+-/, 'pieces-' + newIndex + '-');
           }
           if (input.id) {
-            input.id = input.id.replace(/id_pieces-\d+-/, `id_pieces-${currentFormCount}-`);
+            input.id = input.id.replace(/id_pieces-\d+-/, 'id_pieces-' + newIndex + '-');
           }
         });
+      }
+
+      addButton.addEventListener('click', function () {
+        const currentFormCount = parseInt(totalForms.value, 10) || 0;
+        const sourceRow = formsetContainer.querySelector('.ligne-piece');
+        let newForm = null;
+        if (sourceRow) {
+          newForm = sourceRow.cloneNode(true);
+        } else if (rowTemplate) {
+          newForm = rowTemplate.cloneNode(true);
+        }
+        if (!newForm) return;
+
+        newForm.querySelectorAll('input, select, textarea').forEach(function (input) {
+          if (input.type === 'checkbox' || input.type === 'radio') {
+            input.checked = false;
+          } else if (input.type === 'file') {
+            input.value = '';
+          } else {
+            input.value = '';
+          }
+        });
+
+        reindexPieceRow(newForm, currentFormCount);
         totalForms.value = currentFormCount + 1;
         formsetContainer.appendChild(newForm);
       });
-      // Suppression d'une pièce
+
       formsetContainer.addEventListener('click', function (e) {
-        if (e.target && e.target.classList.contains('remove-piece')) {
-          const ligne = e.target.closest('.ligne-piece');
-          ligne.remove();
-          updateFormIndexes();
-        }
+        const btn = e.target.closest('.remove-piece');
+        if (!btn) return;
+        const ligne = btn.closest('.ligne-piece');
+        if (!ligne) return;
+        ligne.remove();
+        updateFormIndexes();
       });
+
       function updateFormIndexes() {
-        const forms = document.querySelectorAll('.ligne-piece');
-        forms.forEach(function (form, index) {
-          form.querySelectorAll('input, select, textarea').forEach(function (input) {
-            if (input.name) {
-              input.name = input.name.replace(/pieces-\d+-/, `pieces-${index}-`);
-            }
-            if (input.id) {
-              input.id = input.id.replace(/id_pieces-\d+-/, `id_pieces-${index}-`);
-            }
-          });
+        const forms = formsetContainer.querySelectorAll('.ligne-piece');
+        forms.forEach(function (formEl, index) {
+          reindexPieceRow(formEl, index);
         });
         totalForms.value = forms.length;
       }

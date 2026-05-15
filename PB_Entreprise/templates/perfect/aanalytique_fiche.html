@@ -4,22 +4,22 @@
 {% block page_title %} ETAT ANALYTIQUE EXPLOITATION{% endblock page_title %} 
 {% block search_form %}
     <div class="col-sm-12 text-right mb-2">
-        <a class="btn btn-default text-info" data-toggle="modal" data-target="#modal-filtre-analytique" href="#" style="font-size: 16px;">
-            <i class="fa fa-calendar"></i> Filtres
+        <a class="btn btn-default" data-toggle="modal" data-target="#modal-filtre-analytique" href="#" style="font-size: 16px; color: #a83232;">
+            <i class="fa fa-calendar" style="color: rgba(168, 50, 50, 0.75);"></i> Filtres
         </a>
         {% for categorie, perms in grouped_permissions.items %}
             {% if categorie.categorie == 'Exporter' %}
                 {% for perm in perms %}
                     {% if perm.name == "Export analytique" %}
-                        <a class="btn btn-default text-info" href="{% url 'export_analytique_fiche_excel' %}?month={{ month }}&year={{ year }}{% if selected_categorie_id %}&categorie={{ selected_categorie_id }}{% endif %}{% if request.GET.date_debut %}&date_debut={{ request.GET.date_debut }}{% endif %}{% if request.GET.date_fin %}&date_fin={{ request.GET.date_fin }}{% endif %}{% if request.GET.immatriculation %}&immatriculation={{ request.GET.immatriculation }}{% endif %}" style="font-size: 16px;">
-                            <i class="fas fa-file-excel-o"></i> Exporter
+                        <a class="btn btn-default" href="{% url 'export_analytique_fiche_excel' %}?month={{ month }}&year={{ year }}{% if selected_categorie_id %}&categorie={{ selected_categorie_id }}{% endif %}{% if request.GET.date_debut %}&date_debut={{ request.GET.date_debut }}{% endif %}{% if request.GET.date_fin %}&date_fin={{ request.GET.date_fin }}{% endif %}{% if request.GET.immatriculation %}&immatriculation={{ request.GET.immatriculation }}{% endif %}" style="font-size: 16px; color: #a83232;">
+                            <i class="fas fa-file-excel-o" style="color: rgba(168, 50, 50, 0.75);"></i> Exporter
                         </a>
                     {% endif %}
                 {% endfor %}
             {% endif %}
         {% endfor %}
-        <a class="btn btn-default text-info" href="{% url 'analytique_fiche' %}" style="font-size: 16px;">
-            <i class="fas fa-refresh"></i>
+        <a class="btn btn-default" href="{% url 'analytique_fiche' %}" style="font-size: 16px; color: #a83232;">
+            <i class="fas fa-sync" style="color: rgba(168, 50, 50, 0.75);"></i>
         </a>
     </div>
     <div class="col-sm-5">
@@ -52,9 +52,9 @@
     </div>
     <div class="modal fade" id="modal-filtre-analytique">
         <div class="modal-dialog modal-sm">
-            <div class="modal-content" style="border-radius:25px;">
-                <div class="modal-header">
-                    <h4 class="modal-title" style="font-weight:700;color: #06497C; font-size:15px;">FILTRE</h4>
+            <div class="modal-content" style="border-radius:25px; border: 1px solid rgba(168, 50, 50, 0.2);">
+                <div class="modal-header" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.98)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 25px 25px 0 0;">
+                    <h4 class="modal-title" style="font-weight:700;color: #a83232; font-size:15px;">FILTRE</h4>
                     <button type="button" style="border-radius:25px;" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -65,25 +65,25 @@
                         <input type="hidden" name="year" id="form-year" value="{{ year }}">
                         <div class="row clearfix">
                             <div class="col-12">
-                                <label style="font-weight:700;color:rgba(152, 152, 152, 0.85); font-size:15px;">Date début</label>
+                                <label style="font-weight:700;color:#a83232; font-size:15px;">Date début</label>
                                 <div class="form-group">
                                     {{ form.date_debut }}
                                 </div>
                             </div>
                             <div class="col-12">
-                                <label style="font-weight:700;color: rgba(152, 152, 152, 0.85); font-size:15px;">Date fin</label>
+                                <label style="font-weight:700;color: #a83232; font-size:15px;">Date fin</label>
                                 <div class="form-group">
                                     {{ form.date_fin }}
                                 </div>
                             </div>
                             <div class="col-12">
-                                <label style="font-weight:700;color: rgba(152, 152, 152, 0.85); font-size:15px;">Catégorie</label>
+                                <label style="font-weight:700;color: #a83232; font-size:15px;">Catégorie</label>
                                 <div class="form-group">
                                     {{ form.categorie }}
                                 </div>
                             </div>
                             <div class="col-12">
-                                <label style="font-weight:700;color: rgba(152, 152, 152, 0.85); font-size:15px;">Immatriculation</label>
+                                <label style="font-weight:700;color: #a83232; font-size:15px;">Immatriculation</label>
                                 <div class="form-group">
                                     {{ form.immatriculation }}
                                 </div>
@@ -91,7 +91,7 @@
                         </div>
                         <div class="modal-footer justify-content-between p-2">
                             <button type="button" class="btn btn-outline-secondary" style="border-radius:25px;" data-dismiss="modal">Annuler</button>
-                            <button type="submit" class="btn btn-outline-success" style="border-radius:25px;">Afficher</button>
+                            <button type="submit" class="btn" style="border-radius:25px; border: 1px solid #a83232; color: #a83232; background: transparent; font-weight: 600;">Afficher</button>
                         </div>
                     </form>
                 </div>
@@ -101,30 +101,30 @@
 {% endblock search_form %} 
 {% block main_content %}
 <div class="col-lg-12">
-    <div class="card" style="border-radius:25px;">
-        <div class="card-body table-responsive p-0" style="border-radius:25px;height: 600px;">
-            <h5 class="text-center mb-3 mt-3" style="font-weight:700; color:#df2a33;">
+    <div class="card" style="border-radius:20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);">
+        <div class="card-body table-responsive p-0" style="border-radius:20px;height: 650px;">
+            <h5 class="text-center mb-3 mt-3" style="font-weight:700; color:#a83232;">
                 ANALYTIQUE - {{ period_label|upper }}
             </h5>
-            <table class="table table-bordered table-head-fixed text-nowrap table-hover table-sm" style="font-size:13px; border:none; border-bottom: 2px solid rgb(250, 242, 242);">
+            <table class="table table-bordered table-head-fixed text-nowrap table-hover table-sm" style="font-size:13px; border:none; border-bottom: 2px solid rgba(168, 50, 50, 0.12);">
                 <thead>
-                    <tr style="font-weight: 700; background-color:rgb(17, 112, 236); font-size: 14px;">
-                        <th class="text-left" style="background-color:rgb(17, 112, 236); color:white;">N°</th>
-                        <th class="text-left" style="background-color:rgb(17, 112, 236); color:white;">MATRICULE</th>
-                        <th class="text-left" style="background-color:rgb(17, 112, 236); color:white;">MARQUE</th>
-                        <th class="text-left" style="background-color:rgb(17, 112, 236); color:white;">CATEGORIE</th>
-                        <th class="text-right" style="background-color:rgb(17, 112, 236); color:white;">RECETTES</th>
-                        <th class="text-right" style="background-color:rgb(17, 112, 236); color:white;">CHARGES FIXES</th>
-                        <th class="text-right" style="background-color:rgb(17, 112, 236); color:white;">CHARGE VARIABLE</th>
-                        <th class="text-right" style="background-color:rgb(17, 112, 236); color:white;">TOTAL CHARGES</th>
-                        <th class="text-right" style="background-color:rgb(17, 112, 236); color:white;">MARGES DE CONTRIBUTIONS</th>
-                        <th class="text-right" style="background-color:rgb(17, 112, 236); color:white;">TAUX MARGE (%)</th>
-                        <th class="text-right" style="background-color:rgb(17, 112, 236); color:white;">MARGE SUR COÛT DIRECT</th>
+                    <tr style="font-weight: 700; background-color:#a83232; font-size: 14px;">
+                        <th class="text-left" style="background-color:#a83232; color:#fff; border-color: rgba(255,255,255,0.2);">N°</th>
+                        <th class="text-left" style="background-color:#a83232; color:#fff; border-color: rgba(255,255,255,0.2);">MATRICULE</th>
+                        <th class="text-left" style="background-color:#a83232; color:#fff; border-color: rgba(255,255,255,0.2);">MARQUE</th>
+                        <th class="text-left" style="background-color:#a83232; color:#fff; border-color: rgba(255,255,255,0.2);">CATEGORIE</th>
+                        <th class="text-right" style="background-color:#a83232; color:#fff; border-color: rgba(255,255,255,0.2);">RECETTES</th>
+                        <th class="text-right" style="background-color:#a83232; color:#fff; border-color: rgba(255,255,255,0.2);">CHARGES FIXES</th>
+                        <th class="text-right" style="background-color:#a83232; color:#fff; border-color: rgba(255,255,255,0.2);">CHARGE VARIABLE</th>
+                        <th class="text-right" style="background-color:#a83232; color:#fff; border-color: rgba(255,255,255,0.2);">TOTAL CHARGES</th>
+                        <th class="text-right" style="background-color:#a83232; color:#fff; border-color: rgba(255,255,255,0.2);">MARGES DE CONTRIBUTIONS</th>
+                        <th class="text-right" style="background-color:#a83232; color:#fff; border-color: rgba(255,255,255,0.2);">TAUX MARGE (%)</th>
+                        <th class="text-right" style="background-color:#a83232; color:#fff; border-color: rgba(255,255,255,0.2);">MARGE SUR COÛT DIRECT</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for row in resultat_vehicule %}
-                        <tr style="font-size:15px;">
+                        <tr style="font-size:15px; color: #1a1a1a;">
                             <td class="text-left">{{ row.numero }}</td>
                             <td class="text-left">{{ row.vehicule.immatriculation }}</td>
                             <td class="text-left">{{ row.vehicule.marque }}</td>
@@ -139,13 +139,13 @@
                         </tr>
                     {% empty %}
                         <tr>
-                            <td colspan="12" class="text-center text-muted">Aucun véhicule trouvé pour la période sélectionnée.</td>
+                            <td colspan="11" class="text-center text-muted">Aucun véhicule trouvé pour la période sélectionnée.</td>
                         </tr>
                     {% endfor %}
                 </tbody>
                 <tfoot>
-                    <tr style="font-weight: bold; background-color:rgb(241, 241, 241); font-size:15px;">
-                        <td colspan="4" class="text-center">TOTAL</td>
+                    <tr style="font-weight: bold; background-color:rgba(251, 237, 237, 0.45); font-size:15px; color: #1a1a1a;">
+                        <td colspan="4" class="text-center" style="color: #a83232;">TOTAL</td>
                         <td class="text-right">{{ total_recettes|default:0 }}</td>
                         <td class="text-right">{{ total_charg_fix|default:0 }}</td>
                         <td class="text-right">{{ total_charg_var|default:0 }}</td>
@@ -154,15 +154,15 @@
                         <td class="text-right">{{ taux_marge_global }}%</td>
                         <td class="text-right">{{ total_marge_cout_direct|default:0 }}</td>
                     </tr>
-                    <tr style="font-weight: bold; background-color:rgb(255, 219, 219); font-size:15px;">
+                    <tr style="font-weight: bold; background-color:rgba(168, 50, 50, 0.08); font-size:15px;">
                         <td colspan="11" class="text-center"></td>
                     </tr>
-                    <tr style="font-weight: bold; background-color:rgb(250, 242, 242); font-size:15px;">
-                        <td colspan="10" class="text-center">Resultat</td>
-                        <td class="text-center" style="font-weight: bold; background-color:rgb(255, 219, 219); font-size:15px;color:rgb(1, 60, 78); border-bottom: 2px solid rgb(255, 219, 219);">{{ total_generale|default:0 }}</td>
+                    <tr style="font-weight: bold; background-color:rgba(251, 237, 237, 0.55); font-size:15px;">
+                        <td colspan="10" class="text-center" style="color: #a83232;">Resultat</td>
+                        <td class="text-center" style="font-weight: bold; background-color:rgba(251, 237, 237, 0.85); font-size:15px;color:#1a1a1a; border-bottom: 2px solid rgba(168, 50, 50, 0.2);">{{ total_generale|default:0 }}</td>
                     </tr>
-                    <tr style="font-weight: bold; background-color:rgb(255, 219, 219); font-size:15px;">
-                        <td colspan="12" class="text-center"></td>
+                    <tr style="font-weight: bold; background-color:rgba(168, 50, 50, 0.08); font-size:15px;">
+                        <td colspan="11" class="text-center"></td>
                     </tr>
                 </tfoot>
             </table>

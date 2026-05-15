@@ -9,17 +9,17 @@
 {% block page_action %}
     <form id="quickForm" method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        <button type="button" class="btn btn-default text-primary" data-toggle="modal" data-target="#modal-lg">
+        <button type="button" class="btn btn-default" data-toggle="modal" data-target="#modal-lg" style="color: #a83232;">
             <i class="fa fa-plus-circle"></i> Nouvelle Permission
         </button>
-        <a href="{% url 'export_permissions_excel' %}" class="btn btn-default text-success">
+        <a href="{% url 'export_permissions_excel' %}" class="btn btn-default" style="color: #a83232;">
             <i class="fa fa-file-excel-o"></i> Exporter
         </a>
-        <button type="button" class="btn btn-default text-info" data-toggle="modal" data-target="#modal-import">
+        <button type="button" class="btn btn-default" data-toggle="modal" data-target="#modal-import" style="color: #a83232;">
             <i class="fa fa-upload"></i> Importer
         </button>
-        <a href="{% url 'list_permissions' %}" class="btn btn-default text-info">
-            <i class="fa fa-refresh"></i>
+        <a href="{% url 'list_permissions' %}" class="btn btn-default" style="color: #a83232;">
+            <i class="fas fa-sync" style="color: rgba(168, 50, 50, 0.75);"></i>
         </a>
     </form>
 {% endblock page_action %}
@@ -28,9 +28,9 @@
 <!-- Modal pour créer une permission -->
 <div class="modal fade" id="modal-lg">
     <div class="modal-dialog modal-lg">
-        <div class="modal-content" style="border-radius:25px;">
-            <div class="modal-header">
-                <h4 class="modal-title" style="font-weight:700;color: #06497C; font-size:16px;">Nouvelle Permission</h4>
+        <div class="modal-content" style="border-radius:25px; border: 1px solid rgba(168, 50, 50, 0.2);">
+            <div class="modal-header" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.98)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 25px 25px 0 0;">
+                <h4 class="modal-title" style="font-weight:700;color: #a83232; font-size:16px;">Nouvelle Permission</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -54,7 +54,7 @@
                     </div>
                     <div class="modal-footer justify-content-between">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
-                        <button type="submit" class="btn btn-outline-primary">Enregistrer</button>
+                        <button type="submit" class="btn" style="border-radius:25px; border: 1px solid #a83232; color: #a83232; background: transparent; font-weight: 600;">Enregistrer</button>
                     </div>
                 </form> 
             </div>
@@ -65,9 +65,9 @@
 <!-- Modal pour importer Excel -->
 <div class="modal fade" id="modal-import">
     <div class="modal-dialog modal-sm">
-        <div class="modal-content" style="border-radius:25px;">
-            <div class="modal-header">
-                <h4 class="modal-title" style="font-weight:700;color: #06497C; font-size:16px;">Importer depuis Excel</h4>
+        <div class="modal-content" style="border-radius:25px; border: 1px solid rgba(168, 50, 50, 0.2);">
+            <div class="modal-header" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.98)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 25px 25px 0 0;">
+                <h4 class="modal-title" style="font-weight:700;color: #a83232; font-size:16px;">Importer depuis Excel</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -82,7 +82,7 @@
                     </div>
                     <div class="modal-footer justify-content-between p-2">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
-                        <button type="submit" class="btn btn-outline-primary">Importer</button>
+                        <button type="submit" class="btn" style="border-radius:25px; border: 1px solid #a83232; color: #a83232; background: transparent; font-weight: 600;">Importer</button>
                     </div>
                 </form> 
             </div>
@@ -91,9 +91,9 @@
 </div>
 
 <div class="col-md-12">
-    <div class="card" style="border-radius:25px;">
-        <div class="card-header">
-            <h3 class="card-title">Liste des Permissions</h3>
+    <div class="card" style="border-radius:25px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);">
+        <div class="card-header" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.98)); border-bottom: 1px solid rgba(168, 50, 50, 0.15);">
+            <h3 class="card-title" style="color: #a83232; font-weight: 700;">Liste des Permissions</h3>
             <div class="card-tools">
                 <form method="get" class="form-inline">
                     <input type="text" name="search" class="form-control form-control-sm" placeholder="Rechercher..." value="{{ request.GET.search }}">
@@ -103,7 +103,7 @@
                             <option value="{{ cat.id }}" {% if request.GET.categorie == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.categorie }}</option>
                         {% endfor %}
                     </select>
-                    <button type="submit" class="btn btn-sm btn-primary ml-2"><i class="fa fa-search"></i></button>
+                    <button type="submit" class="btn btn-sm ml-2" style="background-color: #a83232; border-color: #a83232; color: #fff;"><i class="fa fa-search"></i></button>
                 </form>
             </div>
         </div>
@@ -123,13 +123,13 @@
                     <tr>
                         <td>{{ permission.id }}</td>
                         <td>{{ permission.name }}</td>
-                        <td><span class="badge badge-info">{{ permission.categorie.categorie }}</span></td>
+                        <td><span class="badge" style="background-color: rgba(168, 50, 50, 0.12); color: #1a1a1a; border: 1px solid rgba(168, 50, 50, 0.25);">{{ permission.categorie.categorie }}</span></td>
                         <td><code>{{ permission.url }}</code></td>
                         <td>
-                            <button type="button" class="btn btn-sm btn-warning" data-toggle="modal" data-target="#modal-update-{{ permission.pk }}">
+                            <button type="button" class="btn btn-sm" data-toggle="modal" data-target="#modal-update-{{ permission.pk }}" style="border: 1px solid rgba(168, 50, 50, 0.45); color: #a83232; background: transparent;">
                                 <i class="fa fa-edit"></i>
                             </button>
-                            <a href="{% url 'delete_permission' permission.pk %}" class="btn btn-sm btn-danger" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette permission?');">
+                            <a href="{% url 'delete_permission' permission.pk %}" class="btn btn-sm" style="border: 1px solid rgba(168, 50, 50, 0.35); color: #1a1a1a; background: transparent;" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette permission?');">
                                 <i class="fa fa-trash"></i>
                             </a>
                         </td>
@@ -137,7 +137,7 @@
                     <!-- Modal pour modifier -->
                     <div class="modal fade" id="modal-update-{{ permission.pk }}">
                         <div class="modal-dialog modal-lg">
-                            <div class="modal-content" style="border-radius:25px;">
+                            <div class="modal-content" style="border-radius:25px; border: 1px solid rgba(168, 50, 50, 0.2);">
                                 {% with permission as object %}
                                     {% include 'perfect/partials/permission_form.html' %}
                                 {% endwith %}

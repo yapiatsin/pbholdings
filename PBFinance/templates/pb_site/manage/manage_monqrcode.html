@@ -1,0 +1,320 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ titre }} — Gestion | P&BEntreprise</title>
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'pb_site_asset/img/logo/icn.png' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --pb-primary: #EC281C; }
+        body { background: #f5f6fa; font-family: 'Segoe UI', sans-serif; }
+        .pb-header { background: #fff; border-bottom: 3px solid var(--pb-primary); padding: 14px 0; }
+        .pb-header h1 { color: var(--pb-primary); font-weight: 700; margin: 0; font-size: 1.4rem; }
+        .pb-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,.05); margin-bottom: 25px; }
+        .pb-card-header { padding: 14px 20px; border-bottom: 1px solid #e5e7eb; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+        .pb-card-header h2 { font-size: 1.1rem; margin: 0; color: #111; font-weight: 600; }
+        .pb-card-body { padding: 20px; }
+        .btn-pb-primary { background: var(--pb-primary); color: #fff; border: none; }
+        .btn-pb-primary:hover { background: #c81f14; color: #fff; }
+        .table thead { background: #f8f9fa; }
+        .table th { font-size: .85rem; text-transform: uppercase; letter-spacing: .3px; color: #555; }
+        .table td { vertical-align: middle; font-size: .9rem; }
+        .action-btns .btn { padding: 4px 10px; font-size: .8rem; }
+        .form-label { font-weight: 600; font-size: .85rem; color: #444; }
+        .badge-state { font-size: .7rem; padding: 4px 8px; }
+        .form-errors { color: #b00020; font-size: .8rem; margin-top: 3px; }
+        .alert { border-radius: 8px; }
+        .breadcrumb { background: transparent; padding: 0; margin-bottom: 15px; }
+        .breadcrumb a { color: var(--pb-primary); text-decoration: none; }
+        .empty-state { text-align: center; padding: 40px 20px; color: #888; }
+        .empty-state i { font-size: 3rem; color: #ccc; margin-bottom: 15px; }
+        .search-box { max-width: 320px; }
+
+        .qr-thumb { width: 70px; height: 70px; object-fit: contain; border: 1px solid #e5e7eb; border-radius: 6px; padding: 4px; background: #fff; }
+        .qr-thumb-empty {
+            width: 70px; height: 70px; border: 2px dashed #ddd; border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            color: #aaa; font-size: 1.6rem; background: #fafafa;
+        }
+        .qr-link { color: #555; word-break: break-all; font-size: .82rem; }
+        .qr-preview-modal img { max-width: 100%; height: auto; }
+
+        #crudModal .modal-dialog { max-width: 900px; width: calc(100% - 24px); margin: 1rem auto; }
+        #crudModal .modal-content { max-height: calc(100vh - 2rem); border-radius: 12px; overflow: hidden; }
+        #crudModal .modal-header { flex-shrink: 0; padding: 14px 20px; }
+        #crudModal .modal-title { font-size: 1.05rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: calc(100% - 40px); }
+        #crudModal .modal-body { overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; padding: 22px 24px; flex: 1 1 auto; }
+        #crudModal .modal-body::-webkit-scrollbar { width: 8px; }
+        #crudModal .modal-body::-webkit-scrollbar-track { background: #f0f0f0; border-radius: 4px; }
+        #crudModal .modal-body::-webkit-scrollbar-thumb { background: #c8c8c8; border-radius: 4px; }
+        #crudModal .modal-body::-webkit-scrollbar-thumb:hover { background: var(--pb-primary); }
+        #crudModal .modal-footer { flex-shrink: 0; padding: 12px 20px; background: #fafbfc; border-top: 1px solid #e5e7eb; gap: 8px; }
+        #crudModal .form-label { margin-bottom: 4px; }
+        #crudModal .form-control, #crudModal .form-select { font-size: .92rem; }
+        #crudModal textarea.form-control { min-height: 90px; resize: vertical; }
+
+        @media (min-width: 1200px) { #crudModal .modal-dialog { max-width: 1040px; } }
+        @media (max-width: 991.98px) { #crudModal .modal-dialog { max-width: 95%; } }
+        @media (max-width: 767.98px) {
+            #crudModal .modal-dialog { max-width: 100%; width: 100%; height: 100%; margin: 0; }
+            #crudModal .modal-content { max-height: 100vh; height: 100vh; border-radius: 0; }
+            #crudModal .modal-body { padding: 16px; }
+            #crudModal .modal-footer { padding: 10px 16px; flex-direction: column-reverse; align-items: stretch; }
+            #crudModal .modal-footer .btn { width: 100%; margin: 0 !important; }
+            #crudModal .row.g-3 > [class*="col-"] { flex: 0 0 100%; max-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<header class="pb-header">
+    <div class="container-fluid px-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <h1><i class="fa-solid fa-qrcode me-2"></i>Gestion site web — {{ titre }}</h1>
+            <a href="{% url 'manage_dashboard' %}" class="btn btn-sm btn-outline-secondary">
+                Tableau de bord
+            </a>
+        </div>
+    </div>
+</header>
+
+<main class="container-fluid py-4 px-4">
+
+    <nav class="breadcrumb">
+        <a href="{% url 'manage_dashboard' %}">Tableau de bord</a>
+        <span class="mx-2">›</span>
+        <span>{{ titre }}</span>
+    </nav>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if confirm_delete %}
+        <div class="pb-card border-danger">
+            <div class="pb-card-header bg-danger text-white">
+                <h2><i class="fa-solid fa-triangle-exclamation me-2"></i>Confirmer la suppression</h2>
+            </div>
+            <div class="pb-card-body">
+                <p class="mb-3">Voulez-vous vraiment supprimer <strong>"{{ confirm_delete }}"</strong> ?<br>
+                    <small class="text-muted">Cette action est irréversible.</small>
+                </p>
+                <form method="post" action="?delete={{ confirm_delete.pk }}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fa-solid fa-trash me-1"></i> Supprimer définitivement
+                    </button>
+                    <a href="{% url url_name %}" class="btn btn-secondary">
+                        <i class="fa-solid fa-xmark me-1"></i> Annuler
+                    </a>
+                </form>
+            </div>
+        </div>
+    {% else %}
+
+        <div class="pb-card">
+            <div class="pb-card-header">
+                <h2><i class="fa-solid fa-list me-2"></i>Liste — {{ paginator.count|default:objets|length }} QR code(s)</h2>
+                <div class="d-flex gap-2 align-items-center flex-wrap">
+                    <form method="get" class="search-box">
+                        <div class="input-group input-group-sm">
+                            <input type="search" name="q" value="{{ q|default:'' }}" class="form-control" placeholder="Rechercher (titre ou lien)...">
+                            <button class="btn btn-outline-secondary" type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
+                        </div>
+                    </form>
+                    <button type="button" class="btn btn-pb-primary btn-sm" data-bs-toggle="modal" data-bs-target="#crudModal">
+                        <i class="fa-solid fa-plus me-1"></i> Ajouter
+                    </button>
+                </div>
+            </div>
+            <div class="pb-card-body p-0">
+                {% if objets %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th width="60">ID</th>
+                                    <th width="90">QR</th>
+                                    <th>Titre / Lien</th>
+                                    <th width="100">État</th>
+                                    <th width="280" class="text-end pe-3">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for obj in objets %}
+                                    <tr {% if edit_obj and edit_obj.pk == obj.pk %}class="table-warning"{% endif %}>
+                                        <td><span class="text-muted">#{{ obj.pk }}</span></td>
+                                        <td>
+                                            {% if obj.qrcode_image %}
+                                                <a href="{{ obj.qrcode_image.url }}" target="_blank" title="Voir en grand">
+                                                    <img src="{{ obj.qrcode_image.url }}" alt="{{ obj.titre }}" class="qr-thumb">
+                                                </a>
+                                            {% else %}
+                                                <div class="qr-thumb-empty" title="Pas encore généré">
+                                                    <i class="fa-solid fa-qrcode"></i>
+                                                </div>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <strong>{{ obj.titre }}</strong>
+                                            <div class="qr-link mt-1">
+                                                <i class="fa-solid fa-link me-1"></i>{{ obj.lien|truncatechars:80 }}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            {% if obj.actif %}
+                                                <span class="badge bg-success badge-state">Actif</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary badge-state">Inactif</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="text-end pe-3 action-btns">
+                                            <form method="post" action="{% url 'regenerer_qrcode' obj.pk %}" class="d-inline">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-outline-primary" title="Générer / Régénérer le QR code">
+                                                    <i class="fa-solid fa-rotate me-1"></i>Générer
+                                                </button>
+                                            </form>
+                                            {% if obj.qrcode_image %}
+                                                <a href="{{ obj.qrcode_image.url }}" download class="btn btn-outline-success" title="Télécharger le QR">
+                                                    <i class="fa-solid fa-download"></i>
+                                                </a>
+                                            {% endif %}
+                                            <a href="?edit={{ obj.pk }}" class="btn btn-outline-warning" title="Modifier">
+                                                <i class="fa-solid fa-pen"></i>
+                                            </a>
+                                            <a href="?delete={{ obj.pk }}" class="btn btn-outline-danger" title="Supprimer">
+                                                <i class="fa-solid fa-trash"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {% if paginator.num_pages > 1 %}
+                        <nav class="p-3">
+                            <ul class="pagination pagination-sm mb-0 justify-content-center">
+                                {% if page_obj.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if q %}&q={{ q }}{% endif %}">‹ Précédent</a>
+                                    </li>
+                                {% endif %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ page_obj.number }} / {{ paginator.num_pages }}</span>
+                                </li>
+                                {% if page_obj.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if q %}&q={{ q }}{% endif %}">Suivant ›</a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                    {% endif %}
+                {% else %}
+                    <div class="empty-state">
+                        <i class="fa-solid fa-qrcode"></i>
+                        <p class="mb-0">Aucun QR code pour le moment.</p>
+                        <small>Cliquez sur « Ajouter » pour créer votre premier QR code.</small>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+</main>
+
+{% if not confirm_delete %}
+<div class="modal fade" id="crudModal" tabindex="-1" aria-labelledby="crudModalLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header" style="background: var(--pb-primary); color: #fff;">
+                <h5 class="modal-title" id="crudModalLabel">
+                    {% if edit_obj %}
+                        <i class="fa-solid fa-pen-to-square me-2"></i>Modifier : {{ edit_obj }}
+                    {% else %}
+                        <i class="fa-solid fa-qrcode me-2"></i>Nouveau QR code
+                    {% endif %}
+                </h5>
+                <button type="button" class="btn-close btn-close-white"
+                        {% if edit_obj %}onclick="window.location='{% url url_name %}'"{% else %}data-bs-dismiss="modal"{% endif %}
+                        aria-label="Fermer"></button>
+            </div>
+            <form method="post" enctype="multipart/form-data" novalidate>
+                {% csrf_token %}
+                <div class="modal-body">
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                    {% endif %}
+
+                    {% if edit_obj and edit_obj.qrcode_image %}
+                        <div class="text-center mb-3">
+                            <small class="text-muted d-block mb-2">Aperçu actuel</small>
+                            <img src="{{ edit_obj.qrcode_image.url }}" alt="{{ edit_obj.titre }}"
+                                 style="max-width: 180px; border: 1px solid #e5e7eb; border-radius: 8px; padding: 6px; background: #fff;">
+                        </div>
+                    {% endif %}
+
+                    <div class="row g-3">
+                        {% for field in form %}
+                            <div class="col-md-6 {% if field.field.widget.input_type == 'textarea' %}col-12{% endif %}">
+                                <label for="{{ field.id_for_label }}" class="form-label">
+                                    {{ field.label }}
+                                    {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+                                </label>
+                                {{ field }}
+                                {% if field.help_text %}
+                                    <small class="text-muted d-block">{{ field.help_text }}</small>
+                                {% endif %}
+                                {% if field.errors %}
+                                    <div class="form-errors">{{ field.errors|striptags }}</div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a href="{% url url_name %}" class="btn btn-outline-secondary">
+                        <i class="fa-solid fa-xmark me-1"></i> Annuler
+                    </a>
+                    <button type="submit" class="btn btn-pb-primary">
+                        {% if edit_obj %}
+                            <i class="fa-solid fa-rotate me-1"></i> Enregistrer & Générer
+                        {% else %}
+                            <i class="fa-solid fa-qrcode me-1"></i> Créer & Générer
+                        {% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<footer class="text-center text-muted py-4 small">
+    <p class="mb-0">P&BEntreprise — Gestion dynamique du site · {{ model_name }}</p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    (function () {
+        var modalEl = document.getElementById('crudModal');
+        if (!modalEl) return;
+        var isEditing = {% if edit_obj %}true{% else %}false{% endif %};
+        var hasErrors = modalEl.querySelectorAll('.form-errors').length > 0;
+        if (isEditing || hasErrors) {
+            var modal = new bootstrap.Modal(modalEl);
+            modal.show();
+        }
+    })();
+</script>
+</body>
+</html>

@@ -1,0 +1,1529 @@
+{% load static %}
+{% load pb_links %}
+
+<!DOCTYPE html>
+<html class="no-js" lang="fr">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="P&BEntreprise - Transport VTC, Taxi et vente de pièces détachées Suzuki à Abidjan. Service professionnel, fiable et disponible 24h/24.">
+    <!-- Site Title -->
+    <title>{% if site_config and site_config.nom_site %}{{ site_config.nom_site }}{% if site_config.slogan %} — {{ site_config.slogan }}{% endif %}{% else %}P&BEntreprise — Transport VTC, Taxi, Location & Pièces Suzuki{% endif %}</title>
+    <!-- Place favicon.ico in the root directory -->
+    {% if site_config and site_config.favicon %}
+        <link rel="shortcut icon" type="image/x-icon" href="{{ site_config.favicon.url }}">
+    {% else %}
+        <link rel="shortcut icon" type="image/x-icon" href="{% static 'pb_site_asset/img/logo/icn.png' %}">
+    {% endif %}
+    <!-- CSS here -->
+    <link rel="stylesheet" href="{% static 'pb_site_asset/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'pb_site_asset/css/fontawesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'pb_site_asset/css/venobox.min.css' %}">
+    <link rel="stylesheet" href="{% static 'pb_site_asset/css/animate.min.css' %}">
+    <link rel="stylesheet" href="{% static 'pb_site_asset/css/keyframe-animation.css' %}">
+    <link rel="stylesheet" href="{% static 'pb_site_asset/css/daterangepicker.css' %}">
+    <link rel="stylesheet" href="{% static 'pb_site_asset/css/magnific-popup.css' %}">
+    <link rel="stylesheet" href="{% static 'pb_site_asset/css/odometer.min.css' %}">
+    <link rel="stylesheet" href="{% static 'pb_site_asset/css/nice-select.css' %}">
+    <link rel="stylesheet" href="{% static 'pb_site_asset/css/swiper.min.css' %}">
+    <link rel="stylesheet" href="{% static 'pb_site_asset/css/slick.min.css' %}">
+    <link rel="stylesheet" href="{% static 'pb_site_asset/css/main.css' %}">
+    <link rel="stylesheet" href="{% static 'pb_site_asset/css/effects-3d.css' %}">
+</head>
+
+<body class="index-3-page">
+    <!-- header-area-start -->
+    <header class="header header-3 sticky-active" style="--bz-color-theme-primary: #EC281C">
+        <div class="overlay"></div>
+        <div class="top-bar">
+            <div class="container-2">
+                <div class="top-bar-inner">
+                    <ul class="top-bar-list">
+                        {% if site_config and site_config.telephone %}
+                            <li><i class="fa-sharp fa-regular fa-phone"></i><a href="tel:{{ site_config.telephone|cut:' ' }}">{{ site_config.telephone }}</a></li>
+                        {% else %}
+                            <li><i class="fa-sharp fa-regular fa-phone"></i><a href="tel:+2252721737896">(+225) 27 21 73 78 96</a></li>
+                        {% endif %}
+
+                        {% if site_config and site_config.email_principal %}
+                            <li><i class="fa-sharp fa-regular fa-envelope"></i><a href="mailto:{{ site_config.email_principal }}">{{ site_config.email_principal }}</a></li>
+                        {% else %}
+                            <li><i class="fa-sharp fa-regular fa-envelope"></i><a href="mailto:pacomebertine@gmail.com">pacomebertine@gmail.com</a></li>
+                        {% endif %}
+
+                        {% if site_config and site_config.bandeau_top %}
+                            <li><i class="fa-sharp fa-regular fa-location-dot"></i><span class="top-bar-location-marquee" aria-label="{{ site_config.nom_site|default:'Nos agences' }}"><span class="top-bar-location-marquee__track"><span class="top-bar-location-marquee__text">{{ site_config.bandeau_top }}</span></span></span></li>
+                        {% else %}
+                            <li><i class="fa-sharp fa-regular fa-location-dot"></i><span class="top-bar-location-marquee" aria-label="Nos agences à Abidjan"><span class="top-bar-location-marquee__track"><span class="top-bar-location-marquee__text">Nous sommes situés à Abidjan Koumassi en face du cimetière et à Bingerville non loin de AB Center. Disponibles 24h/24 — Appelez le (+225) 27 21 73 78 96 / 01 02 31 91 12 / 01 52 11 95 96</span></span></span></li>
+                        {% endif %}
+                    </ul>
+                    <ul class="social-list">
+                        {% if pb_langues %}
+                            <li class="pb-lang-switch">
+                                <a href="#" id="pb-lang-current"><i class="fa fa-globe"></i></a>
+                                <ul class="pb-lang-dropdown">
+                                    {% for langue in pb_langues %}
+                                        <li><a href="#" data-lang="{{ langue.slug }}">{{ langue.nom }}</a></li>
+                                    {% endfor %}
+                                </ul>
+                            </li>
+                        {% endif %}
+                        {% for r in pb_reseaux_sociaux|slice:":3" %}
+                            <li>
+                                <a href="{% url 'reseau_social_click' r.pk %}"
+                                   target="_blank" rel="noopener"
+                                   title="{{ r.nom }}">
+                                    <i class="{{ r.icon|default:'fa-solid fa-share-nodes' }}"></i>
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="primary-header">
+            <div class="container-2">
+                <div class="primary-header-inner">
+                    <div class="inner-left">
+                        <div class="header-logo">
+                            <a href="{% url 'home' %}">
+                                {% if site_config and site_config.logo_principal %}
+                                    <img class="fx-media fx-media--neutral" src="{{ site_config.logo_principal.url }}" alt="logo {{ site_config.nom_site|default:'P&BEntreprise' }}">
+                                {% else %}
+                                    <img class="fx-media fx-media--neutral" src="{% static 'pb_site_asset/img/logo/new_logo.png' %}" alt="logo P&BEntreprise">
+                                {% endif %}
+                            </a>
+                        </div>
+                        <div class="header-menu-wrap">
+                            <div class="mobile-menu-items">
+                                <ul>
+                                    {% for categorie in pb_navigation_categories %}
+                                        <li class="{% if categorie.sous_actives %}menu-item-has-children{% endif %}{% if forloop.first %} active{% endif %}">
+                                            {% if categorie.lien %}
+                                                <a href="{{ categorie.lien|pb_link }}">{{ categorie.libelle }}</a>
+                                            {% else %}
+                                                <a>{{ categorie.libelle }}</a>
+                                            {% endif %}
+                                            {% if categorie.sous_actives %}
+                                                <ul>
+                                                    {% for sous in categorie.sous_actives %}
+                                                        <li><a href="{{ sous.lien|pb_link }}">{{ sous.libelle }}</a></li>
+                                                    {% endfor %}
+                                                </ul>
+                                            {% endif %}
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="header-right-wrap">
+                        <div class="header-right">
+                            <a href="#" class="bz-primary-btn">Téléchargez l'appli</a>
+                            <div class="sidebar-icon-2">
+                                <button class="sidebar-trigger open">
+                                    <span></span>
+                                    <span></span>
+                                    <span></span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div id="sidebar-area" class="sidebar-area" style="--bz-color-theme-primary: #EC281C">
+        <button class="sidebar-trigger close">
+            <svg class="sidebar-close" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="16px" height="12.7px" viewBox="0 0 16 12.7" style="enable-background: new 0 0 16 12.7" xml:space="preserve">
+                <g>
+                    <rect x="0" y="5.4" transform="matrix(0.7071 -0.7071 0.7071 0.7071 -2.1569 7.5208)" width="16" height="2"></rect>
+                    <rect x="0" y="5.4" transform="matrix(0.7071 0.7071 -0.7071 0.7071 6.8431 -3.7929)" width="16" height="2"></rect>
+                </g>
+            </svg>
+        </button>
+        <div class="side-menu-content">
+            <div class="side-menu-logo">
+                <a href="{% url 'home' %}">
+                    {% if site_config and site_config.logo_principal %}
+                        <img class="fx-media fx-media--neutral" src="{{ site_config.logo_principal.url }}" alt="logo {{ site_config.nom_site|default:'P&BEntreprise' }}">
+                    {% else %}
+                        <img class="fx-media fx-media--neutral" src="{% static 'pb_site_asset/img/logo/new_logo.png' %}" alt="logo P&BEntreprise">
+                    {% endif %}
+                </a>
+            </div>
+            <div class="side-menu-wrap"></div>
+            <div class="side-menu-about">
+                <div class="side-menu-header">
+                    <h3>À Propos de Nous</h3>
+                </div>
+                <p>P&BEntreprise est votre partenaire de mobilité à Abidjan. Nous proposons des services de transport VTC et Taxi ainsi que la vente de pièces détachées Suzuki d'origine. Fiabilité, confort et professionnalisme sont au cœur de notre engagement.</p>
+                <a href="contact.html" class="bz-primary-btn">Nous Contacter</a>
+            </div>
+            <div class="side-menu-contact">
+                <div class="side-menu-header">
+                    <h3>Contactez-Nous</h3>
+                </div>
+                <ul class="side-menu-list">
+                    <li>
+                        <i class="fas fa-map-marker-alt"></i>
+                        <p>Abidjan, Koumassi & Bingerville</p>
+                    </li>
+                    <li>
+                        <i class="fas fa-phone"></i>
+                        <a href="tel:+2252721737896">(+225) 27 21 73 78 96 / 01 02 31 91 12</a>
+                    </li>
+                    <li>
+                        <i class="fas fa-envelope-open-text"></i>
+                        <a href="mailto:pacomebertine@gmail.com">pacomebertine@gmail.com</a>
+                    </li>
+                </ul>
+            </div>
+            <ul class="side-menu-social">
+                {% for r in pb_reseaux_sociaux %}
+                    <li>
+                        <a href="{% url 'reseau_social_click' r.pk %}"
+                           target="_blank" rel="noopener"
+                           title="{{ r.nom }}">
+                            <i class="{{ r.icon|default:'fa-solid fa-share-nodes' }}"></i>
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <div id="preloader">
+        <div class="loading" data-loading-text="P&BEntreprise..."></div>
+    </div>
+
+    <section class="hero-section-3 hero-slider-3">
+        <div class="swiper hero-swiper-3">
+            <div class="swiper-wrapper">
+                {% if hero_slides %}
+                    {% for hero_slide in hero_slides %}
+                        <div class="swiper-slide">
+                            <div class="hero-slide-bg" data-background="{{ hero_slide.image_fond.url }}"></div>
+                            <div class="shapes" aria-hidden="true">
+                                <div class="shape shape-1"><img class="fx-media fx-media--neutral" src="{% static 'pb_site_asset/img/shapes/hero-bg-shape-2.png' %}" alt=""></div>
+                                <div class="shape shape-2"><img class="fx-media fx-media--neutral" src="{% static 'pb_site_asset/img/shapes/hero-bg-shape-3.png' %}" alt=""></div>
+                            </div>
+                            <div class="container-2">
+                                <div class="hero-content hero-content-3 hero-slide-content">
+                                    <div class="section-heading mb-40 red-content">
+                                        {% if hero_slide.sous_titre %}
+                                            <h4 class="sub-heading"><span class="left-shape"></span>{{ hero_slide.sous_titre }}</h4>
+                                        {% endif %}
+                                        <h2 class="section-title">{{ hero_slide.titre|safe }}</h2>
+                                        <p>{{ hero_slide.description }}</p>
+                                    </div>
+                                    <div class="hero-btn-wrap" style="--bz-color-theme-primary: #EC281C">
+                                        <a href="{{ hero_slide.bouton_lien|pb_link }}" class="bz-primary-btn">{{ hero_slide.bouton_texte }}{% if hero_slide.bouton_icone %} <i class="{{ hero_slide.bouton_icone }}"></i>{% endif %}</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="swiper-slide">
+                        <div class="hero-slide-bg" data-background="{% static 'pb_site_asset/img/bg-img/alto-grey.jpg' %}"></div>
+                        <div class="shapes" aria-hidden="true">
+                            <div class="shape shape-1"><img class="fx-media fx-media--neutral" src="pb_site_asset/img/shapes/hero-bg-shape-2.png" alt=""></div>
+                            <div class="shape shape-2"><img class="fx-media fx-media--neutral" src="pb_site_asset/img/shapes/hero-bg-shape-3.png" alt=""></div>
+                        </div>
+                        <div class="container-2">
+                            <div class="hero-content hero-content-3 hero-slide-content">
+                                <div class="section-heading mb-40 red-content">
+                                    <h4 class="sub-heading"><span class="left-shape"></span>Confort & Disponibilité</h4>
+                                    <h2 class="section-title">Un transport premium<br>au cœur d'Abidjan</h2>
+                                    <p>Voyagez en toute sérénité avec notre flotte de véhicules modernes et climatisés. Chauffeurs professionnels, ponctualité garantie et tarifs transparents pour tous vos déplacements.</p>
+                                </div>
+                                <div class="hero-btn-wrap" style="--bz-color-theme-primary: #EC281C">
+                                    <a href="#promo-section" class="bz-primary-btn js-scroll-to-promo">Decouvrir<i class="fa-regular fa-arrow-down"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="swiper-slide">
+                        <div class="hero-slide-bg" data-background="{% static 'pb_site_asset/img/bg-img/bg_vu_top.webp' %}"></div>
+                        <div class="shapes" aria-hidden="true">
+                            <div class="shape shape-1"><img class="fx-media fx-media--neutral" src="{% static 'pb_site_asset/img/shapes/hero-bg-shape-2.png' %}" alt=""></div>
+                            <div class="shape shape-2"><img class="fx-media fx-media--neutral" src="{% static 'pb_site_asset/img/shapes/hero-bg-shape-3.png' %}" alt=""></div>
+                        </div>
+                        <div class="container-2">
+                            <div class="hero-content hero-content-3 hero-slide-content">
+                                <div class="section-heading mb-40 red-content">
+                                    <h4 class="sub-heading"><span class="left-shape"></span>Confort & Disponibilité</h4>
+                                    <h2 class="section-title">Un transport premium<br>au cœur d'Abidjan</h2>
+                                    <p>Voyagez en toute sérénité avec notre flotte de véhicules modernes et climatisés. Chauffeurs professionnels, ponctualité garantie et tarifs transparents pour tous vos déplacements.</p>
+                                </div>
+                                <div class="hero-btn-wrap" style="--bz-color-theme-primary: #EC281C">
+                                    <a href="contact.html" class="bz-primary-btn">Réserver maintenant <i class="fa-regular fa-arrow-right"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="swiper-slide">
+                        <div class="hero-slide-bg" data-background="{% static 'pb_site_asset/img/bg-img/suzuki-evx.jpg' %}"></div>
+                        <div class="shapes" aria-hidden="true">
+                            <div class="shape shape-1"><img class="fx-media fx-media--neutral" src="{% static 'pb_site_asset/img/shapes/hero-bg-shape-2.png' %}" alt=""></div>
+                            <div class="shape shape-2"><img class="fx-media fx-media--neutral" src="{% static 'pb_site_asset/img/shapes/hero-bg-shape-3.png' %}" alt=""></div>
+                        </div>
+                        <div class="container-2">
+                            <div class="hero-content hero-content-3 hero-slide-content">
+                                <div class="section-heading mb-40 red-content">
+                                    <h4 class="sub-heading"><span class="left-shape"></span>VTC & Taxi Professionnel</h4>
+                                    <h2 class="section-title">Votre mobilité,<br>notre priorité absolue</h2>
+                                    <p>De Koumassi à Bingerville, de l'aéroport à votre domicile — P&BEntreprise assure vos trajets quotidiens, transferts aéroport, déplacements d'affaires et sorties événementielles avec excellence.</p>
+                                </div>
+                                <div class="hero-btn-wrap" style="--bz-color-theme-primary: #EC281C">
+                                    <a href="contact.html" class="bz-primary-btn">Nous contacter <i class="fa-regular fa-arrow-right"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="swiper-slide">
+                        <div class="hero-slide-bg" data-background="{% static 'pb_site_asset/img/bg-img/mtc.jpg' %}"></div>
+                        <div class="shapes" aria-hidden="true">
+                            <div class="shape shape-1"><img class="fx-media fx-media--neutral" src="{% static 'pb_site_asset/img/shapes/hero-bg-shape-2.png' %}" alt=""></div>
+                            <div class="shape shape-2"><img class="fx-media fx-media--neutral" src="{% static 'pb_site_asset/img/shapes/hero-bg-shape-3.png' %}" alt=""></div>
+                        </div>
+                        <div class="container-2">
+                            <div class="hero-content hero-content-3 hero-slide-content">
+                                <div class="section-heading mb-40 red-content">
+                                    <h4 class="sub-heading"><span class="left-shape"></span>Pièces Détachées Suzuki</h4>
+                                    <h2 class="section-title">Les pièces d'origine<br>livrées rapidement</h2>
+                                    <p>Distributeur spécialisé en pièces détachées Suzuki à Abidjan. Stock permanent de pièces authentiques pour l'entretien, la réparation et la performance optimale de vos véhicules Suzuki.</p>
+                                </div>
+                                <div class="hero-btn-wrap" style="--bz-color-theme-primary: #EC281C">
+                                    <a href="contact.html" class="bz-primary-btn">Commander une pièce <i class="fa-regular fa-arrow-right"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="swiper-pagination hero-swiper-pagination-3"></div>
+        </div>
+        <div class="pb-hero-glass-panel is-visible" aria-hidden="true"></div>
+    </section>
+
+    {% if pb_section_visible.promo %}
+        <section id="promo-section" class="promo-section pb-120">
+            <div class="container-2">
+                <div class="row gy-lg-0 gy-4 justify-content-center fade-wrapper">
+                    {% if promo_sections %}
+                        {% for promo_sect in promo_sections %}
+                            <div class="col-lg-4 col-md-6">
+                                <div class="promo-item white-content js-scroll slide-left">
+                                    <div class="bg-items">
+                                        <div class="bg-img"><img class="fx-media fx-media--promo-inner" src="{{ promo_sect.image.url }}" alt="Transport VTC Abidjan"></div>
+                                        <div class="overlay"></div>
+                                        <div class="overlay-2"></div>
+                                    </div>
+                                    <h3 class="title"><a href="{% url 'detail_service' promo_sect.pk %}">{{ promo_sect.titre }}</a></h3>
+                                    <p>{{ promo_sect.description }}</p>
+                                    <a href="{% url 'detail_service' promo_sect.pk %}" class="bz-primary-btn red-btn">{{ promo_sect.bouton_texte }} <i class="fa-regular fa-arrow-right"></i></a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="col-lg-4 col-md-6">
+                            <div class="promo-item white-content js-scroll slide-left">
+                                <div class="bg-items">
+                                    <div class="bg-img"><img class="fx-media fx-media--promo-inner" src="{% static 'pb_site_asset/img/bg-img/chauf_vtc.webp' %}" alt="Transport VTC Abidjan"></div>
+                                    <div class="overlay"></div>
+                                    <div class="overlay-2"></div>
+                                </div>
+                                <h3 class="title">Transport VTC & TAXI</h3>
+                                <p>Une expérience de transport haut de gamme pour particuliers et entreprises. Réservez votre chauffeur privé à la demande ou sur abonnement mensuel pour tous vos déplacements à Abidjan et environs.</p>
+                                <a href="#" class="bz-primary-btn red-btn">En savoir plus <i class="fa-regular fa-arrow-right"></i></a>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6">
+                            <div class="promo-item white-content js-scroll slide-left">
+                                <div class="bg-items">
+                                    <div class="bg-img"><img class="fx-media fx-media--promo-inner" src="{% static 'pb_site_asset/img/bg-img/s_carry.png' %}" alt="Taxi Abidjan Koumassi Bingerville"></div>
+                                    <div class="overlay"></div>
+                                    <div class="overlay-2"></div>
+                                </div>
+                                <h3 class="title">Livraison et Location</h3>
+                                <p>Disponible à toute heure, 7 jours sur 7. Nos taxis desservent Koumassi, Bingerville et l'ensemble du Grand Abidjan. Tarifs compétitifs, compteur certifié et chauffeurs agréés pour votre tranquillité.</p>
+                                <a href="#" class="bz-primary-btn red-btn">En savoir plus <i class="fa-regular fa-arrow-right"></i></a>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6">
+                            <div class="promo-item white-content js-scroll slide-left">
+                                <div class="bg-items">
+                                    <div class="bg-img"><img class="fx-media fx-media--promo-inner" src="{% static 'pb_site_asset/img/bg-img/mot.png' %}" alt="Pièces détachées Suzuki Abidjan"></div>
+                                    <div class="overlay"></div>
+                                    <div class="overlay-2"></div>
+                                </div>
+                                <h3 class="title">Pièces Suzuki d'Origine</h3>
+                                <p>Votre spécialiste en pièces détachées Suzuki à Abidjan. Moteur, carrosserie, electricité, freinage — nous proposons des pièces neuves et d'occasion certifiées pour tous modèles Suzuki.</p>
+                                <a href="#" class="bz-primary-btn red-btn">En savoir plus <i class="fa-regular fa-arrow-right"></i></a>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+    {% endif %}
+    
+    {% if pb_section_visible.presentation %}
+        <section class="about-section-3 pb-120 pb-glass-section">
+            <div class="pb-glass-decor" aria-hidden="true">
+                <span class="pb-glass-decor__shard"></span>
+                <span class="pb-glass-decor__shard"></span>
+                <span class="pb-glass-decor__shard"></span>
+            </div>
+            <div class="pb-about-right-shape" aria-hidden="true">
+                <img class="fx-media fx-media--neutral" src="{% static 'pb_site_asset/img/shapes/counter-shape-2.png' %}" alt="">
+            </div>
+            <div class="container-2">
+                <div class="row about-section-3__row">
+                    <div class="col-lg-6">
+                        <div class="about-img-slide-in">
+                            {% if page_accueil.image %}
+                                <img class="fx-media" src="{{ page_accueil.image.url }}" alt="{{ page_accueil.titre|default:'P&BEntreprise - Présentation' }}">
+                            {% else %}
+                                <img class="fx-media" src="{% static 'pb_site_asset/img/images/car_present.png' %}" alt="P&BEntreprise - Présentation">
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="about-content-3 fade-wrapper">
+                            <div class="section-heading red-content mb-20">
+                                <h4 class="sub-heading" data-text-animation="fade-in" data-duration="1.5"><span class="left-shape"></span>{{ page_accueil.sous_titre|default:"Qui Sommes-Nous" }}</h4>
+                                <h2 class="section-title" data-text-animation data-split="word" data-duration="1">{{ page_accueil.titre|default:"P&BEntreprise, votre partenaire de confiance en mobilité" }}</h2>
+                            </div>
+                            <p class="fade-top">{{ page_accueil.description|default:"Fondée à Abidjan, P&BEntreprise est une entreprise spécialisée dans le transport de personnes (VTC & Taxi) et la distribution de pièces détachées Suzuki." }}</p>
+                            {% with piliers=page_accueil.piliers.all %}
+                                {% if piliers %}
+                                    <ul class="about-list fade-top">
+                                        {% for pilier in piliers %}
+                                            <li><span class="number">{{ forloop.counter|stringformat:"02d" }}</span>{{ pilier.titre }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                {% endif %}
+                            {% endwith %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    {% endif %}
+
+    {% if pb_section_visible.nos_services %}
+        <section class="service-section-3 service-section-3--card-3d pt-120 pb-120">
+            <div class="bg-shape"><img class="fx-media fx-media--neutral" src="{% static 'pb_site_asset/img/shapes/service-bg-shape.png' %}" alt="img"></div>
+            <div class="container-2">
+                <div class="section-heading text-center red-content">
+                    <h4 class="sub-heading" data-text-animation="fade-in" data-duration="1.5"><span class="left-shape"></span>Nos Categories de Service mobilité</h4>
+                    <h2 class="section-title mb-0" data-text-animation data-split="word" data-duration="1">Des solutions complètes pour votre mobilité</h2>
+                </div>
+                <div class="row gy-lg-0 gy-4 justify-content-center fade-wrapper pb-cat-grid">
+                    {% if categoservices %}
+                        {% for category in categoservices %}
+                        <div class="col-lg-3 col-md-6">
+                            <div class="pb-cat-card fade-top js-scroll slide-left">
+                                <div class="pb-cat-card__thumb">
+                                    {% if category.image %}
+                                        <img src="{{ category.image.url }}" alt="{{ category.nom }}">
+                                    {% else %}
+                                        <img src="{% static 'pb_site_asset/img/bg-img/servi_car1.png' %}" alt="{{ category.nom }}">
+                                    {% endif %}
+                                </div>
+                                <div class="pb-cat-card__body">
+                                    <h3 class="pb-cat-card__title">{{ category.nom }}</h3>
+                                    {% if category.tagline %}
+                                        <p class="pb-cat-card__tagline">{{ category.tagline }}</p>
+                                    {% endif %}
+                                    {% if category.modeles_vehicules %}
+                                        <p class="pb-cat-card__models">{{ category.modeles_vehicules }}</p>
+                                    {% endif %}
+
+                                    {% if category.caracteristiques.all %}
+                                        <button class="pb-cat-card__accordion-btn" type="button" data-bs-toggle="collapse" data-bs-target="#catCollapse1" aria-expanded="false" aria-controls="catCollapse{{ category.pk }}">
+                                            <span>Caractéristiques</span>
+                                            <i class="fa-solid fa-chevron-down"></i>
+                                        </button>
+                                        <div id="catCollapse1" class="collapse pb-cat-card__details">
+                                            <ul>
+                                                {% for carac in category.caracteristiques.all %}
+                                                    <li>{% if carac.emoji %}{{ carac.emoji }} {% endif %}{{ carac.texte }}</li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    {% endif %}
+
+                                    <a href="{{ category.bouton_lien|pb_link }}" class="pb-cat-card__btn">{{ category.bouton_texte|default:"Ouvrir dans le navigateur" }}</a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+    {% endif %}
+
+    {% if pb_section_visible.nos_offres %}
+        <section class="cta-section cta-2 pt-120 pb-120 pb-glass-section pb-glass-section--cta2">
+            <div class="bg-img js-scroll slide-left"><img class="fx-media" src="{% static 'pb_site_asset/img/bg-img/bg_resev.jpeg' %}" alt="img"></div>
+            <div class="overlay"></div>
+            <div class="overlay-2"></div>
+            <div class="pb-glass-decor pb-glass-decor--on-dark" aria-hidden="true">
+                <span class="pb-glass-decor__shard"></span>
+                <span class="pb-glass-decor__shard"></span>
+                <span class="pb-glass-decor__shard"></span>
+            </div>
+            <div class="container-2">
+                <div class="cta-wrap">
+                    <div class="cta-content">
+                        <div class="section-heading mb-0 white-content">
+                            <h4 class="sub-heading" data-text-animation="fade-in" data-duration="1.5"><span class="left-shape"></span>Nos offres</h4>
+                            <h2 class="section-title mb-0" data-text-animation data-split="word" data-duration="1">Devenir chauffeur ou livreur, besoin d'un véhicule ou d'une pièce Suzuki?</h2>
+                        </div>
+                    </div>
+                    <div class="cta-btn-wrap">
+                        <a href="contact.html" class="bz-primary-btn red-btn">Contactez-nous<i class="fa-sharp fa-solid fa-play"></i></a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    {% endif %}
+
+    {% if pb_section_visible.compteur %}
+        <section class="strength-section strength-section--index3-stack">
+            <div class="bg-item">
+                <div class="bg-img" data-background="{% static 'pb_site_asset/img/bg-img/strength-bg.png' %}"></div>
+                <div class="overlay"></div>
+                <div class="shapes">
+                    <div class="shape"><img class="fx-media fx-media--neutral" src="{% static 'pb_site_asset/img/shapes/strength-shape-1.png' %}" alt="img"></div>
+                    <div class="shape-2"></div>
+                </div>
+                <div class="strength-mask-img js-scroll slide-left">
+                    <div class="mask-overlay"></div>
+                    <img class="fx-media" src="{% static 'pb_site_asset/img/images/strength-img-1.png' %}" alt="img">
+                </div>
+            </div>
+            <div class="container-2">
+                <div class="row strength-wrap fade-wrapper">
+                    {% if compteurs %}
+                        <div class="col-lg-6 col-md-12">
+                            <div class="strength-content strength-content--index3-stack pt-120 pb-120">
+                                <div class="section-heading mb-20 white-content red-content">
+                                    <h4 class="sub-heading" data-text-animation="fade-in" data-duration="1.5"><span class="left-shape"></span>{{ compteurs.sous_titre|default:"Nos Chiffres Clés" }}</h4>
+                                    <h2 class="section-title mb-0" data-text-animation data-split="word" data-duration="1">{{ compteurs.titre|default:"P&BEntreprise en chiffres" }}</h2>
+                                </div>
+                                <div class="row gy-lg-0 gy-4 justify-content-center mt-40">
+                                    <div class="col-lg-4 col-md-6">
+                                        <div class="team-counter">
+                                            <div class="icon">
+                                                <i class="fas fa-id-card-alt fx-media fx-media--neutral"></i>
+                                            </div>
+                                            <div class="content">
+                                                <h3 class="title"><span class="odometer" data-count="{{ compteurs.nombre_chauffeur|default:0 }}">{{ compteurs.nombre_chauffeur|default:0 }}</span>+</h3>
+                                                <p>Chauffeurs</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 col-md-6">
+                                        <div class="team-counter">
+                                            <div class="icon">
+                                                <i class="fas fa-users fx-media fx-media--neutral"></i>
+                                            </div>
+                                            <div class="content">
+                                                <h3 class="title"><span class="odometer" data-count="{{ compteurs.nombre_satisfaction|default:0 }}">{{ compteurs.nombre_satisfaction|default:0 }}</span>%</h3>
+                                                <p>Clients satisfaits</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 col-md-6">
+                                        <div class="team-counter">
+                                            <div class="icon">
+                                                <i class="fas fa-gears fx-media fx-media--neutral"></i>
+                                            </div>
+                                            <div class="content">
+                                                <h3 class="title"><span class="odometer" data-count="{{ compteurs.nombre_piece|default:0 }}">{{ compteurs.nombre_piece|default:0 }}</span> +</h3>
+                                                <p>Pièces vendues</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-12">
+                            <div class="strength-man js-scroll slide-left">
+                                {% if compteurs.image %}
+                                    <img class="men fx-media" src="{{ compteurs.image.url }}" alt="{{ compteurs.titre|default:'Équipe P&BEntreprise' }}">
+                                {% else %}
+                                    <img class="men fx-media" src="{% static 'pb_site_asset/img/bg-img/bm.png' %}" alt="Équipe P&BEntreprise">
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="col-lg-6 col-md-12">
+                            <div class="strength-content strength-content--index3-stack pt-120 pb-120">
+                                <div class="section-heading mb-20 white-content red-content">
+                                    <h4 class="sub-heading" data-text-animation="fade-in" data-duration="1.5"><span class="left-shape"></span>Nos Chiffres Clés</h4>
+                                    <h2 class="section-title mb-0" data-text-animation data-split="word" data-duration="1">P&BEntreprise en chiffres</h2>
+                                </div>
+                                <div class="row gy-lg-0 gy-4 justify-content-center mt-40">
+                                    <div class="col-lg-4 col-md-6">
+                                        <div class="team-counter">
+                                            <div class="icon">
+                                                <i class="fas fa-id-card-alt fx-media fx-media--neutral"></i>
+                                            </div>
+                                            <div class="content">
+                                                <h3 class="title"><span class="odometer" data-count="200">0</span>+</h3>
+                                                <p>Chauffeurs</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 col-md-6">
+                                        <div class="team-counter">
+                                            <div class="icon">
+                                                <i class="fas fa-users fx-media fx-media--neutral"></i>
+                                            </div>
+                                            <div class="content">
+                                                <h3 class="title"><span class="odometer" data-count="99">0</span>%</h3>
+                                                <p>Clients satisfaits</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 col-md-6">
+                                        <div class="team-counter">
+                                            <div class="icon">
+                                                <i class="fas fa-gears fx-media fx-media--neutral"></i>
+                                            </div>
+                                            <div class="content">
+                                                <h3 class="title"><span class="odometer" data-count="3000">0</span>+</h3>
+                                                <p>Pièces vendues</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-md-12">
+                            <div class="strength-man js-scroll slide-left">
+                                <img class="men fx-media" src="{% static 'pb_site_asset/img/bg-img/bm.png' %}" alt="Équipe P&BEntreprise">
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+    {% endif %}
+
+    <!-- CTA Section -->
+    {% if pb_section_visible.vehicule_location %}
+        <section class="cta-section-3 service_location_car cta-section-3--index3-stack pb-glass-section">
+            <div class="container-2">
+                <div class="section-heading mb-20 white-content red-content">
+                    <h4 class="sub-heading" data-text-animation="fade-in" data-duration="1.5"><span class="left-shape"></span>Location de voiture</h4>
+                    <h2 class="section-title mb-0" data-text-animation data-split="word" data-duration="1">Profitez de notre large gamme de véhicules</h2>
+                </div>
+
+                {% if cars_list %}
+                    {# Données JSON consommées par le script plus bas #}
+                    {{ cars_json|json_script:"cars-data" }}
+
+                    <!-- Onglets véhicules -->
+                    <div class="car-hire-tabs">
+                        {% for c in cars_list %}
+                            <button type="button" class="car-hire-tab {% if forloop.first %}active{% endif %}" data-car-tab="{{ c.slug }}">
+                                <span class="car-hire-tab__label">{{ c.tab_label }}</span>
+                                {% if c.tab_image %}
+                                    <img src="{{ c.tab_image }}" alt="{{ c.tab_label }}">
+                                {% endif %}
+                            </button>
+                        {% endfor %}
+                    </div>
+                    <!-- Panneau principal (contenu initial = premier véhicule) -->
+                    {% with first=cars_list.0 %}
+                        <div class="car-hire-panel">
+                            <div class="car-hire-panel__info">
+                                <h3 class="car-hire-panel__title">{{ first.title }}</h3>
+                                <p class="car-hire-panel__desc">{{ first.desc }}</p>
+
+                                <ul class="car-hire-panel__features">
+                                    {% for f in first.features %}
+                                        <li><i class="fa-solid fa-check"></i> {{ f }}</li>
+                                    {% endfor %}
+                                </ul>
+
+                                <div class="car-hire-panel__price">
+                                    <span class="amount">{{ first.price }} FCFA</span>
+                                    <span class="unit">{{ first.unit }}</span>
+                                </div>
+
+                                <a href="{{ first.button_link }}" class="car-hire-panel__btn">{{ first.button_text }}</a>
+                            </div>
+
+                            <div class="car-hire-panel__image">
+                                {% if first.image %}
+                                    <img src="{{ first.image }}" alt="{{ first.title }}">
+                                {% endif %}
+                            </div>
+
+                            <div class="car-hire-panel__specs">
+                                {% for label, value in first.specs.items %}
+                                    <div class="car-hire-panel__spec-row">
+                                        <span class="label">{{ label }}</span>
+                                        <span class="value">{{ value }}</span>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endwith %}
+                {% else %}
+                    <div class="text-center text-white py-5">
+                        <p class="mb-0">Aucun véhicule de location disponible pour le moment.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </section>
+    {% endif %}
+
+    {% if pb_section_visible.faites_une_location %}
+        <section class="cta-section-3 cta-section-3--index3-stack pb-glass-section">
+            <div class="pb-glass-decor pb-glass-decor--on-dark" aria-hidden="true">
+                <span class="pb-glass-decor__shard"></span>
+                <span class="pb-glass-decor__shard"></span>
+                <span class="pb-glass-decor__shard"></span>
+            </div>
+            <div class="container-2">
+                <div class="cta-wrap-3">
+                    <div class="shapes">
+                        <div class="shape-1">
+                            <img class="fx-media fx-media--neutral" src="{% static 'pb_site_asset/img/shapes/cta-shape-1.png' %}" alt="cta">
+                        </div>
+                        <div class="shape-2">
+                            <img class="fx-media fx-media--neutral" src="{% static 'pb_site_asset/img/bg-img/car.png' %}" alt="cta">
+                        </div>
+                    </div>
+                    <h3 class="title">Faites une location de voiture</h3>
+                    <p>Vous êtes chauffeur professionnel, technicien automobile ou commercial passionné ? <br> P&BEntreprise recrute des talents pour renforcer ses équipes à Abidjan.</p>
+                    <a href="contact.html" class="cta-glass-rent">Louer maintenant <i class="fa-sharp fa-solid fa-play m-1"></i></a>
+                </div>
+            </div>
+        </section>
+    {% endif %}
+
+    {% if pb_section_visible.piece_detachee %}
+        <section class="process-section-2 process-section-2--green-cards pt-120 pb-120 pb-glass-section">
+            <div class="pb-glass-decor" aria-hidden="true">
+                <span class="pb-glass-decor__shard"></span>
+                <span class="pb-glass-decor__shard"></span>
+                <span class="pb-glass-decor__shard"></span>
+            </div>
+            <div class="pb-process-bottom-left-shape" aria-hidden="true">
+                <img class="fx-media fx-media--neutral" src="{% static 'pb_site_asset/img/shapes/hero-bg-shap.png' %}" alt="">
+            </div>
+            <div class="container-2">
+                <div class="section-heading text-center red-content">
+                    <h4 class="sub-heading" data-text-animation="fade-in" data-duration="1.5"><span class="left-shape"></span>Nos articles</h4>
+                    <h2 class="section-title mb-0" data-text-animation data-split="word" data-duration="1">Nos qualités de pièces détachées Suzuki</h2>
+                </div>
+                <div class="row gy-lg-0 gy-4 fade-wrapper">
+                    {% if piec_detac %}
+                    {% for piece in piec_detac %}
+                        <div class="col-lg-4 col-md-6">
+                            <div class="process-item fade-top js-scroll slide-left">
+                                <div class="process-thumb img-reveal">
+                                    <div class="img-overlay overlay-2"></div>
+                                    <img class="fx-media" src="{{ piece.image.url }}" alt="{{ piece.titre }}">
+                                    <span>{{ piece.categorie.nom }}</span>
+                                </div>
+                                <div class="process-content">
+                                    <ul class="process-meta">
+                                        <li><i class="fa-regular fa-gears"></i>{{ piece.meta }}</li>
+                                    </ul>
+                                    <h3 class="title">{{ piece.titre }}</h3>
+                                    <p>{{ piece.description }}</p>
+                                    <a href="{% url 'pieces_detachees' %}?piece={{ piece.pk }}#piece-{{ piece.pk }}" class="process-cta">Voir plus <i class="fa-regular fa-arrow-right"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    {% else %}
+                        <div class="col-lg-4 col-md-6">
+                            <div class="process-item fade-top js-scroll slide-left">
+                                <div class="process-thumb img-reveal">
+                                    <div class="img-overlay overlay-2"></div>
+                                    <img class="fx-media" src="{% static 'pb_site_asset/img/bg-img/gent.png' %}" alt="Pneus Suzuki">
+                                    <span>Pneus</span>
+                                </div>
+                                <div class="process-content">
+                                    <ul class="process-meta">
+                                        <li><i class="fa-regular fa-gears"></i>Pièces d'origine</li>
+                                    </ul>
+                                    <h3 class="title">Pneus Suzuki</h3>
+                                    <p>Des pneus homologués pour votre Suzuki, garantissant adhérence, sécurité et longévité sur toutes les routes.</p>
+                                    <a href="service-details.html" class="process-cta">Voir plus <i class="fa-regular fa-arrow-right"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6">
+                            <div class="process-item fade-top js-scroll slide-left">
+                                <div class="process-thumb img-reveal">
+                                    <div class="img-overlay overlay-2"></div>
+                                    <img class="fx-media" src="{% static 'pb_site_asset/img/bg-img/frein.png' %}" alt="Freins Suzuki">
+                                    <span>Freins</span>
+                                </div>
+                                <div class="process-content">
+                                    <ul class="process-meta">
+                                        <li><i class="fa-regular fa-gears"></i>Pièces d'origine</li>
+                                    </ul>
+                                    <h3 class="title">Freins Suzuki</h3>
+                                    <p>Des systèmes de freinage certifiés pour une performance optimale et une sécurité maximale au quotidien.</p>
+                                    <a href="service-details.html" class="process-cta">Voir plus <i class="fa-regular fa-arrow-right"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6">
+                            <div class="process-item fade-top js-scroll slide-left">
+                                <div class="process-thumb img-reveal">
+                                    <div class="img-overlay overlay-2"></div>
+                                    <img class="fx-media" src="{% static 'pb_site_asset/img/bg-img/phares.png' %}" alt="Phares Suzuki">
+                                    <span>Phares</span>
+                                </div>
+                                <div class="process-content">
+                                    <ul class="process-meta">
+                                        <li><i class="fa-regular fa-gears"></i>Pièces d'origine</li>
+                                    </ul>
+                                    <h3 class="title">Phares Suzuki</h3>
+                                    <p>Des phares d'origine pour une visibilité optimale de nuit comme de jour, adaptés à chaque modèle Suzuki.</p>
+                                    <a href="service-details.html" class="process-cta">Voir plus <i class="fa-regular fa-arrow-right"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+    {% endif %}
+
+    {% if pb_section_visible.application %}
+        <section class="team-section-3 team-section-3--card-3d pt-120 pb-120 pb-glass-section">
+            <div class="pb-glass-decor" aria-hidden="true">
+                <span class="pb-glass-decor__shard"></span>
+                <span class="pb-glass-decor__shard"></span>
+                <span class="pb-glass-decor__shard"></span>
+            </div>
+            <div class="container-2">
+                <div class="section-heading text-center red-content">
+                    <h4 class="sub-heading" data-text-animation="fade-in" data-duration="1.5">
+                        <span class="left-shape"></span>{{ categorie_application.sous_titre|default:"Notre Application" }}
+                    </h4>
+                    <h2 class="section-title mb-0" data-text-animation data-split="word" data-duration="1">
+                        {{ categorie_application.titre|default:"Pour vos trajets confortables, abordables" }}
+                    </h2>
+                    {% if categorie_application and categorie_application.description %}
+                        <p class="mt-3">{{ categorie_application.description }}</p>
+                    {% endif %}
+                </div>
+
+                <div class="row align-items-stretch gx-3 gy-3 mt-4">
+                    <!-- Cartes à gauche -->
+                    <div class="col-lg-7">
+                        <div class="row g-3 fade-wrapper pb-demo-grid">
+                            {% if applications %}
+                                {% for application in applications %}
+                                    <div class="col-6 fade-top">
+                                        <div class="pb-demo-card">
+                                            <div class="pb-demo-card__icon">
+                                                <i class="fa-solid fa-{{ application.icone }}"></i>
+                                            </div>
+                                            <h3 class="pb-demo-card__title">{{ application.titre }}</h3>
+                                            <p class="pb-demo-card__desc">{{ application.description }}</p>
+                                            <a href="{{ application.bouton_lien }}" class="pb-demo-card__btn">{{ application.bouton_texte }}</a>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                            <div class="col-12 fade-top">
+                                <div class="pb-demo-cta">
+                                    {% if pb_qrcode_app %}
+                                        <div class="pb-demo-cta__text">
+                                            <h3 class="pb-demo-cta__title">{{ pb_qrcode_app.titre }}</h3>
+                                        </div>
+                                        <div class="pb-demo-cta__qr">
+                                            <img src="{{ pb_qrcode_app.qrcode_image.url }}" alt="QR code {{ pb_qrcode_app.titre }}">
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Image à droite -->
+                    <div class="col-lg-5 team-section-3__img-col js-scroll slide-left">
+                        {% if categorie_application and categorie_application.image %}
+                            <img src="{{ categorie_application.image.url }}" alt="{{ categorie_application.titre }}" class="team-section-3__mockup">
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </section>
+    {% endif %}
+
+    <!-- #Notre Équipe .team-card -->
+    {% if pb_section_visible.temoignage %}
+        <section class="testimonial-section-3 testimonial-cube-section testimonial-cube-section--index3-stack overflow-hidden position-relative">
+            <div id="testi-cube-particles" class="testi-cube-particles" aria-hidden="true"></div>
+            <div class="container-2 position-relative" style="z-index: 1">
+                <div class="testi-cube-grid">
+                    <div class="testi-cube-content text-center text-lg-start">
+                        <div class="section-heading white-content mb-0">
+                            {% if temoignages_page %}
+                                <h4 class="sub-heading" data-text-animation="fade-in" data-duration="1.5"><span class="left-shape"></span>{{ temoignages_page.sous_titre|default:"Avis de nos Clients" }}</h4>
+                                <h2 class="section-title mb-0" data-text-animation data-split="word" data-duration="1">{{ temoignages_page.titre|safe }}</h2>
+                                <p class="testi-cube-lead">{{ temoignages_page.description }}</p>
+                                <a href="{{ temoignages_page.bouton_lien|pb_link }}" class="bz-primary-btn red-btn testi-cube-cta">{{ temoignages_page.bouton_texte }} <i class="{{ temoignages_page.bouton_icone|default:'fa-regular fa-arrow-right' }}"></i></a>
+                            {% else %}
+                                <h4 class="sub-heading" data-text-animation="fade-in" data-duration="1.5"><span class="left-shape"></span>Avis de nos Clients</h4>
+                                <h2 class="section-title mb-0" data-text-animation data-split="word" data-duration="1">Ce que disent nos clients sur nos services</h2>
+                                <p class="testi-cube-lead">Chaque jour, des professionnels et des particuliers nous font confiance pour la mobilité et l’entretien Suzuki à Abidjan. Faites défiler le cube pour découvrir leurs retours.</p>
+                                <a href="{% url 'contact' %}" class="bz-primary-btn red-btn testi-cube-cta">Nous contacter <i class="fa-regular fa-arrow-right"></i></a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="testi-cube-slider-col">
+                        <div class="swiper testi-cube-swiper">
+                            <div class="swiper-wrapper">
+                                {% for temoignage in temoignages|slice:":4" %}
+                                <div class="swiper-slide js-scroll slide-left">
+                                    {% if temoignage.image_fond %}
+                                        <img class="fx-media" src="{{ temoignage.image_fond.url }}" alt="{{ temoignage.nom_client }}">
+                                    {% else %}
+                                        <img class="fx-media" src="{% static 'pb_site_asset/img/bg-img/bg_resev.jpeg' %}" alt="{{ temoignage.nom_client }}">
+                                    {% endif %}
+                                    <div class="testi-cube-profile">
+                                        {% if temoignage.photo %}
+                                            <img src="{{ temoignage.photo.url }}" alt="Profil {{ temoignage.nom_client }}">
+                                        {% else %}
+                                            <img src="{% static 'pb_site_asset/img/user_0.png' %}" alt="Profil client">
+                                        {% endif %}
+                                    </div>
+                                    <div class="testi-cube-badge{% if forloop.counter|divisibleby:2 %} testi-cube-badge--dark{% endif %}">{{ temoignage.get_badge_display }}</div>
+                                    <div class="testi-cube-overlay">
+                                        <h3 class="testi-cube-overlay__title">{{ temoignage.nom_client }}</h3>
+                                        <p class="testi-cube-overlay__role">{{ temoignage.role }}</p>
+                                        <p class="testi-cube-overlay__text">{{ temoignage.texte }}</p>
+                                        <div class="testi-cube-ratings">
+                                            <div class="testi-cube-stars" aria-hidden="true">
+                                                {% for _ in "12345"|make_list %}
+                                                    {% if forloop.counter <= temoignage.note %}
+                                                        <i class="fa-sharp fa-solid fa-star"></i>
+                                                    {% else %}
+                                                        <i class="fa-sharp fa-regular fa-star"></i>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </div>
+                                            <span>Notation {{ temoignage.note }}/5 · Avis client</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <div class="swiper-pagination testi-cube-pagination"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    {% endif %}
+
+    {% if pb_section_visible.actualites %}
+        <section class="blog-section-3 pt-120 pb-120 blog-section-3--index3-stack pb-glass-section">
+            <div class="pb-glass-decor" aria-hidden="true">
+                <span class="pb-glass-decor__shard"></span>
+                <span class="pb-glass-decor__shard"></span>
+                <span class="pb-glass-decor__shard"></span>
+            </div>
+            <div class="container-2">
+                <div class="blog-top heading-space">
+                    <div class="section-heading red-content mb-0">
+                        <h4 class="sub-heading" data-text-animation="fade-in" data-duration="1.5"><span class="left-shape"></span>Nos Actualités</h4>
+                        <h2 class="section-title mb-0" data-text-animation data-split="word" data-duration="1">Actualités mobilité et nouveautés P&BEntreprise</h2>
+                    </div>
+                    <a href="{% url 'blogs' %}" class="bz-primary-btn red-btn">Accedez <i class="fa-regular fa-arrow-right"></i></a>
+                </div>
+                <div class="row gy-lg-0 gy-4 fade-wrapper">
+                    {% if blog_arti %}
+                        {% for blog in blog_arti %}
+                            <div class="col-md-6">
+                                <div class="post-card-3 fade-top" style="--bz-color-theme-primary: #EC281C">
+                                    <div class="post-thumb img-reveal">
+                                        <div class="img-overlay"></div>
+                                        {% if blog.image_principale %}
+                                            <img src="{{ blog.image_principale.url }}" alt="{{ blog.titre }}">
+                                        {% endif %}
+                                    </div>
+                                    <div class="post-content">
+                                        <ul class="post-meta">
+                                            <li><i class="fa-regular fa-calendar"></i>{{ blog.date_publication|date:"d F Y" }}</li>
+                                            <li><i class="fa-regular fa-user"></i>par P&BEntreprise</li>
+                                        </ul>
+                                        <h3 class="title"><a href="{ url 'blog_details' blog.slug %}">{{ blog.titre }}</a></h3>
+                                        <a href="{ url 'blog_details' blog.slug %}" class="blog-btn"><i class="fa-regular fa-arrow-right"></i>Lire l'article</a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+    {% endif %}
+
+    {% if pb_section_visible.partenaires %}
+        <div class="sponsor-section pb-120 pb-glass-section">
+            <div class="pb-glass-decor" aria-hidden="true">
+                <span class="pb-glass-decor__shard"></span>
+                <span class="pb-glass-decor__shard"></span>
+                <span class="pb-glass-decor__shard"></span>
+            </div>
+            <div class="container">
+                <div class="section-heading text-center red-content">
+                    <h4 class="sub-heading" data-text-animation="fade-in" data-duration="1.5"><span class="left-shape"></span>Nos Partenaires & Sponsors</h4>
+                    <h2 class="section-title mb-0" data-text-animation data-split="word" data-duration="1">P&B Entreprise à des partenaires et sponsors qui aident à mieux servir nos clients</h2>
+                </div>
+                <h3 class="sponsor-text-wrap">
+                    <span></span>
+                    <span class="sponsor-text">Sponsors & partenaires</span>
+                    <span></span>
+                </h3>
+                <div class="sponsor-carousel swiper">
+                    <div class="swiper-wrapper">
+                        {% if sponsors %}
+                            {% for sponsor in sponsors %}
+                                <div class="swiper-slide">
+                                    <div class="sponsor-item text-center">
+                                        <a href="{{ sponsor.lien }}"><img src="{{ sponsor.logo.url }}" alt="{{ sponsor.nom }}"></a>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="swiper-slide">
+                                <div class="sponsor-item text-center">
+                                    <a href="#"><img src="{% static 'pb_site_asset/img/sponsor/cfao.png' %}" alt="partenaire"></a>
+                                </div>
+                            </div>
+                            <div class="swiper-slide">
+                                <div class="sponsor-item text-center">
+                                    <a href="#"><img src="{% static 'pb_site_asset/img/sponsor/suzuki.png' %}" alt="partenaire"></a>
+                                </div>
+                            </div>
+                            <div class="swiper-slide">
+                                <div class="sponsor-item text-center">
+                                    <a href="#"><img src="{% static 'pb_site_asset/img/sponsor/bk_afrika.png' %}" alt="partenaire"></a>
+                                </div>
+                            </div>
+                            <div class="swiper-slide">
+                                <div class="sponsor-item text-center">
+                                    <a href="#"><img src="{% static 'pb_site_asset/img/sponsor/yango.png' %}" alt="partenaire"></a>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <footer class="footer-section footer-2 overflow-hidden" style="--bz-color-theme-primary: #EC281C; background-image: url('{% static 'pb_site_asset/img/bg-img/bg_foot0.jpg' %}'); background-size: cover; background-position: center; background-repeat: no-repeat;">
+        <div class="shapes">
+            <div class="shape shape-1"><img src="{% static 'pb_site_asset/img/shapes/footer-shape-1.png' %}" alt="footer"></div>
+            <div class="shape shape-2"><img src="{% static 'pb_site_asset/img/shapes/footer-shape-2.png' %}" alt="footer"></div>
+        </div>
+        <div class="container">
+            <div class="row footer-wrap">
+                <div class="col-lg-3 col-md-6">
+                    <div class="footer-widget">
+                        {% if footers %}
+                            {% for foot in footers %}
+                                <div class="widget-header header-2">
+                                    <div class="footer-logo">
+                                        <a href="index-3.html">{{foot.logo}}</a>
+                                    </div>
+                                </div>
+                                <p>{{foot.localisation_bp}}</p>
+                                <p>Tel 1: {{foot.contact_1}}</p>
+                                <p>Tel 2: {{foot.contact_2}}</p>
+                                <p>Tel 3: {{foot.contact_3}}</p>
+                                <p>Abidjan, Koumassi & Bingerville</p>
+                            {% endfor %}
+                        {% endif %}
+                        <ul class="footer-social">
+                            {% for r in pb_reseaux_sociaux|slice:":4" %}
+                                <li>
+                                    <a href="{% url 'reseau_social_click' r.pk %}"
+                                    target="_blank" rel="noopener"
+                                    title="{{ r.nom }}">
+                                        <i class="{{ r.icon|default:'fa-solid fa-share-nodes' }}"></i>
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                            
+                    </div>
+                </div>
+                {% for categorie in pb_footer_categories %}
+                    <div class="col-lg-3 col-md-6">
+                        <div class="footer-widget widget-space">
+                            <div class="widget-header header-2">
+                                <h3 class="widget-title">{{ categorie.libelle }}</h3>
+                            </div>
+                            <ul class="footer-list">
+                                {% for lien in categorie.liens_actifs %}
+                                    <li>
+                                        <a href="{{ lien.lien|pb_link }}">{{ lien.libelle }}</a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                {% endfor %}
+                <div class="col-lg-3 col-md-6">
+                    <div class="footer-widget widget-space">
+                        <div class="widget-header header-2">
+                            <h3 class="widget-title">Téléchargez</h3>
+                        </div>
+                        <p><a href="#"><img src="{% static 'pb_site_asset/img/logo/googleplay.png' %}" alt="app"></a></p>
+                        <p><a href="#"><img src="{% static 'pb_site_asset/img/logo/appstore.png' %}" alt="app"></a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="copyright-area area-2">
+            <div class="container">
+                <div class="row copyright-content">
+                    <div class="col-md-6">
+                        <p>© 2025 P&BEntreprise. Tous droits réservés.</p>
+                    </div>
+                    <div class="col-md-6">
+                        <ul class="copy-list">
+                            <li><a href="contact.html">Conditions Générales</a></li>
+                            <li><a href="contact.html">Politique de Confidentialité</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <div class="pb-bottom-bar" id="pb-bottom-bar">
+        <div class="pb-bottom-bar__inner">
+            <span class="pb-bottom-bar__text">Téléchargez l'application pour bénéficier de nos offres</span>
+            <div class="pb-bottom-bar__btns">
+                <a href="#" class="pb-bottom-bar__btn pb-bottom-bar__btn--primary">Téléchargez l'appli</a>
+                <a href="contact.html" class="pb-bottom-bar__btn pb-bottom-bar__btn--outline">Ouvrir dans le navigateur</a>
+            </div>
+        </div>
+    </div>
+
+    <div id="scroll-percentage" style="--bz-color-theme-primary: #EC281C"><span id="scroll-percentage-value"></span></div>
+
+    <!-- Modal téléchargement application -->
+    <div class="pb-app-modal" id="pbAppModal">
+        <div class="pb-app-modal__overlay"></div>
+        <div class="pb-app-modal__content">
+            <button type="button" class="pb-app-modal__close" aria-label="Fermer">&times;</button>
+            <div class="pb-app-modal__grid">
+                <div class="pb-app-modal__qr">
+                    {% if pb_qrcode_app and pb_qrcode_app.qrcode_image %}
+                        <a href="{{ pb_qrcode_app.lien }}" target="_blank" rel="noopener">
+                            <img src="{{ pb_qrcode_app.qrcode_image.url }}" alt="{{ pb_qrcode_app.titre }}">
+                        </a>
+                    {% else %}
+                        <img src="{% static 'pb_site_asset/img/bg-img/qrcode.png' %}" alt="QR Code">
+                    {% endif %}
+                </div>
+                <div class="pb-app-modal__text">
+                    <h3 class="pb-app-modal__title">{% if pb_qrcode_app %}{{ pb_qrcode_app.titre }}{% else %}Téléchargez l'application qui facilite tout{% endif %}</h3>
+                </div>
+                <div class="pb-app-modal__desc">
+                    <p>{% if pb_qrcode_app and pb_qrcode_app.description %}{{ pb_qrcode_app.description|linebreaksbr }}{% else %}Réservez un trajet, louez un véhicule ou commandez une pièce détachée Suzuki en quelques clics depuis votre téléphone. L'application  vous connecte à tous les services P&BEntreprise, 24h/24 à Abidjan.{% endif %}</p>
+                    <div class="pb-app-modal__stores">
+                        <a href="#" class="pb-app-modal__store-btn"><i class="fa-brands fa-google-play"></i> Google Play</a>
+                        <a href="#" class="pb-app-modal__store-btn"><i class="fa-brands fa-apple"></i> App Store</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS here -->
+    <script src="{% static 'pb_site_asset/js/vendor/jquary-3.6.0.min.js' %}"></script>
+    <script src="{% static 'pb_site_asset/js/vendor/bootstrap-bundle.js' %}"></script>
+    <script src="{% static 'pb_site_asset/js/vendor/imagesloaded-pkgd.js' %}"></script>
+    <script src="{% static 'pb_site_asset/js/vendor/waypoints.min.js' %}"></script>
+    <script src="{% static 'pb_site_asset/js/vendor/venobox.min.js' %}"></script>
+    <script src="{% static 'pb_site_asset/js/vendor/odometer.min.js' %}"></script>
+    <script src="{% static 'pb_site_asset/js/vendor/meanmenu.js' %}"></script>
+    <script src="{% static 'pb_site_asset/js/vendor/smooth-scroll.js' %}"></script>
+    <script src="{% static 'pb_site_asset/js/vendor/jquery.isotope.js' %}"></script>
+    <script src="{% static 'pb_site_asset/js/vendor/magnific-popup.min.js' %}"></script>
+    <script src="{% static 'pb_site_asset/js/vendor/wow.min.js' %}"></script>
+    <script src="{% static 'pb_site_asset/js/vendor/swiper.min.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.12.0/tsparticles.bundle.min.js"></script>
+    <script src="{% static 'pb_site_asset/js/vendor/slick.min.js' %}"></script>
+    <script src="{% static 'pb_site_asset/js/vendor/moment.min.js' %}"></script>
+    <script src="{% static 'pb_site_asset/js/vendor/daterangepicker.min.js' %}"></script>
+    <script src="{% static 'pb_site_asset/js/vendor/split-type.min.js' %}"></script>
+    <script src="{% static 'pb_site_asset/js/vendor/gsap.min.js' %}"></script>
+    <script src="{% static 'pb_site_asset/js/vendor/scroll-trigger.min.js' %}"></script>
+    <script src="{% static 'pb_site_asset/js/vendor/nice-select.js' %}"></script>
+    <script src="{% static 'pb_site_asset/js/contact.js' %}"></script>
+    <script src="{% static 'pb_site_asset/js/main.js' %}"></script>
+
+    <script src="{% static 'pb_site_asset/js/effects-3d.js' %}"></script>
+
+    <!-- service_location_car : changement dynamique du véhicule sélectionné -->
+    <script>
+        (function() {
+            var section = document.querySelector('.cta-section-3.service_location_car');
+            if (!section) return;
+            // Données fournies par le serveur (TypeVehiculeLocation + VehiculeLocation + features)
+            var carsDataEl = document.getElementById('cars-data');
+            if (!carsDataEl) return;
+            var cars = {};
+            try {
+                cars = JSON.parse(carsDataEl.textContent) || {};
+            } catch (e) {
+                cars = {};
+            }
+            var tabs = section.querySelectorAll('.car-hire-tab');
+            var panelImage = section.querySelector('.car-hire-panel__image img');
+            var panelTitle = section.querySelector('.car-hire-panel__title');
+            var panelDesc = section.querySelector('.car-hire-panel__desc');
+            var panelFeatures = section.querySelector('.car-hire-panel__features');
+            var panelPriceAmount = section.querySelector('.car-hire-panel__price .amount');
+            var panelPriceUnit = section.querySelector('.car-hire-panel__price .unit');
+            var panelSpecs = section.querySelector('.car-hire-panel__specs');
+            var panelBtn = section.querySelector('.car-hire-panel__btn');
+
+            function updateCar(key) {
+                var car = cars[key];
+                if (!car) return;
+
+                // Image + alt
+                if (panelImage) {
+                    if (car.image) {
+                        panelImage.src = car.image;
+                        panelImage.style.display = '';
+                    } else {
+                        panelImage.removeAttribute('src');
+                        panelImage.style.display = 'none';
+                    }
+                    panelImage.alt = car.title || '';
+                }
+
+                // Titre & description
+                if (panelTitle) panelTitle.textContent = car.title || '';
+                if (panelDesc) panelDesc.textContent = car.desc || '';
+
+                // Features (liste dynamique)
+                if (panelFeatures) {
+                    panelFeatures.innerHTML = (car.features || []).map(function(f) {
+                        return '<li><i class="fa-solid fa-check"></i> ' + f + '</li>';
+                    }).join('');
+                }
+
+                // Prix (on conserve le suffixe " FCFA" côté affichage)
+                if (panelPriceAmount) panelPriceAmount.textContent = (car.price || '') + ' FCFA';
+                if (panelPriceUnit) panelPriceUnit.textContent = car.unit || '';
+
+                // Bouton de réservation
+                if (panelBtn) {
+                    if (car.button_text) panelBtn.textContent = car.button_text;
+                    if (car.button_link) panelBtn.setAttribute('href', car.button_link);
+                }
+
+                // Specs (lignes clé/valeur)
+                if (panelSpecs) {
+                    var rows = '';
+                    var specs = car.specs || {};
+                    Object.keys(specs).forEach(function(label) {
+                        rows +=
+                            '<div class="car-hire-panel__spec-row">' +
+                            '<span class="label">' + label + '</span>' +
+                            '<span class="value">' + specs[label] + '</span>' +
+                            '</div>';
+                    });
+                    panelSpecs.innerHTML = rows;
+                }
+
+                // État actif des onglets
+                tabs.forEach(function(t) {
+                    t.classList.toggle('active', t.getAttribute('data-car-tab') === key);
+                });
+            }
+
+            tabs.forEach(function(tab) {
+                tab.addEventListener('click', function() {
+                    var key = tab.getAttribute('data-car-tab');
+                    updateCar(key);
+                });
+            });
+        })();
+    </script>
+    <!-- Modal téléchargement : ouverture / fermeture -->
+    <script>
+        (function() {
+            var modal = document.getElementById('pbAppModal');
+            if (!modal) return;
+
+            var overlay = modal.querySelector('.pb-app-modal__overlay');
+            var closeBtn = modal.querySelector('.pb-app-modal__close');
+
+            function openModal(e) {
+                e.preventDefault();
+                modal.classList.add('is-open');
+                modal.style.setProperty('opacity', '1', 'important');
+                modal.style.setProperty('visibility', 'visible', 'important');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeModal() {
+                modal.classList.remove('is-open');
+                modal.style.setProperty('opacity', '0', 'important');
+                modal.style.setProperty('visibility', 'hidden', 'important');
+                document.body.style.overflow = '';
+            }
+
+            // Tous les boutons "Téléchargez l'appli"
+            document.querySelectorAll('a').forEach(function(a) {
+                if (a.textContent.trim().toLowerCase().indexOf('téléchargez l\'appli') !== -1) {
+                    a.addEventListener('click', openModal);
+                }
+            });
+
+            // Fermer avec overlay, bouton ×, ou Escape
+            if (overlay) overlay.addEventListener('click', closeModal);
+            if (closeBtn) closeBtn.addEventListener('click', closeModal);
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && modal.classList.contains('is-open')) {
+                    closeModal();
+                }
+            });
+        })();
+    </script>
+
+    <!-- ================ PB LANG SWITCHER (traduction dynamique via Google Translate) ================ -->
+    <script>
+    (function () {
+        var STORAGE_KEY = 'pb_site_lang';
+        var CACHE_KEY   = 'pb_site_lang_cache_v1';
+        var ORIGINAL_ATTR = 'data-pb-original';
+        var DEFAULT_LANG = 'fr';
+
+        // Liste blanche des langues actives (rendue par Django).
+        // Si la langue précédemment choisie a été désactivée en admin,
+        // on ignore le choix stocké et on revient à la langue par défaut.
+        var ALLOWED_LANGS = [
+            {% for langue in pb_langues %}'{{ langue.slug|escapejs }}'{% if not forloop.last %}, {% endif %}{% endfor %}
+        ];
+
+        var stored = sessionStorage.getItem(STORAGE_KEY);
+        var currentLang = (stored && (stored === DEFAULT_LANG || ALLOWED_LANGS.indexOf(stored) !== -1))
+            ? stored
+            : DEFAULT_LANG;
+        if (stored && currentLang !== stored) {
+            sessionStorage.setItem(STORAGE_KEY, DEFAULT_LANG);
+        }
+
+        function loadCache() {
+            try { return JSON.parse(sessionStorage.getItem(CACHE_KEY) || '{}'); }
+            catch (e) { return {}; }
+        }
+        function saveCache(cache) {
+            try { sessionStorage.setItem(CACHE_KEY, JSON.stringify(cache)); } catch (e) {}
+        }
+
+        function collectTextNodes(root) {
+            var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+                acceptNode: function (node) {
+                    if (!node.nodeValue || !node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+                    var p = node.parentNode;
+                    if (!p) return NodeFilter.FILTER_REJECT;
+                    var tag = (p.tagName || '').toLowerCase();
+                    if (tag === 'script' || tag === 'style' || tag === 'noscript' || tag === 'code' || tag === 'pre') {
+                        return NodeFilter.FILTER_REJECT;
+                    }
+                    if (p.closest && p.closest('[data-pb-no-translate]')) return NodeFilter.FILTER_REJECT;
+                    return NodeFilter.FILTER_ACCEPT;
+                }
+            });
+            var nodes = [], n;
+            while ((n = walker.nextNode())) nodes.push(n);
+            return nodes;
+        }
+
+        var TRANSLATABLE_ATTRS = ['placeholder', 'title', 'alt', 'aria-label'];
+        function collectAttrTargets(root) {
+            var out = [];
+            TRANSLATABLE_ATTRS.forEach(function (attr) {
+                root.querySelectorAll('[' + attr + ']').forEach(function (el) {
+                    if (el.closest('[data-pb-no-translate]')) return;
+                    var v = el.getAttribute(attr);
+                    if (v && v.trim()) out.push({ el: el, attr: attr, value: v });
+                });
+            });
+            root.querySelectorAll('input[type=submit][value], input[type=button][value], button[value]').forEach(function (el) {
+                if (el.closest('[data-pb-no-translate]')) return;
+                var v = el.getAttribute('value');
+                if (v && v.trim()) out.push({ el: el, attr: 'value', value: v });
+            });
+            return out;
+        }
+
+        function snapshotOriginals() {
+            collectTextNodes(document.body).forEach(function (node) {
+                if (!node.__pbOrig) node.__pbOrig = node.nodeValue;
+            });
+            collectAttrTargets(document.body).forEach(function (t) {
+                var key = ORIGINAL_ATTR + '-' + t.attr;
+                if (!t.el.hasAttribute(key)) t.el.setAttribute(key, t.value);
+            });
+        }
+        function restoreOriginals() {
+            collectTextNodes(document.body).forEach(function (node) {
+                if (node.__pbOrig !== undefined) node.nodeValue = node.__pbOrig;
+            });
+            TRANSLATABLE_ATTRS.concat(['value']).forEach(function (attr) {
+                var key = ORIGINAL_ATTR + '-' + attr;
+                document.querySelectorAll('[' + key + ']').forEach(function (el) {
+                    el.setAttribute(attr, el.getAttribute(key));
+                });
+            });
+        }
+
+        function translateBatch(texts, target) {
+            var MAX_CHARS = 4500;
+            var chunks = [], current = [], currentLen = 0;
+            texts.forEach(function (t) {
+                if (currentLen + t.length + 3 > MAX_CHARS && current.length) {
+                    chunks.push(current); current = []; currentLen = 0;
+                }
+                current.push(t); currentLen += t.length + 3;
+            });
+            if (current.length) chunks.push(current);
+
+            var SEP = '\n|||\n';
+            var promises = chunks.map(function (chunk) {
+                var q = chunk.join(SEP);
+                var url = 'https://translate.googleapis.com/translate_a/single'
+                    + '?client=gtx&sl=auto&tl=' + encodeURIComponent(target)
+                    + '&dt=t&q=' + encodeURIComponent(q);
+                return fetch(url).then(function (r) { return r.json(); }).then(function (data) {
+                    var joined = '';
+                    if (data && data[0]) data[0].forEach(function (seg) { if (seg && seg[0]) joined += seg[0]; });
+                    var parts = joined.split(/\n\s*\|\|\|\s*\n/);
+                    if (parts.length !== chunk.length) return chunk.map(function () { return joined; });
+                    return parts;
+                }).catch(function () { return chunk; });
+            });
+            return Promise.all(promises).then(function (results) {
+                var flat = [];
+                results.forEach(function (arr) { arr.forEach(function (t) { flat.push(t); }); });
+                return flat;
+            });
+        }
+
+        function updateLabel(lang) {
+            var label = document.querySelector('.pb-lang-current-label');
+            if (label) label.textContent = (lang || DEFAULT_LANG).toLowerCase();
+        }
+
+        function applyTranslation(lang) {
+            snapshotOriginals();
+            if (!lang || lang === DEFAULT_LANG) {
+                restoreOriginals();
+                document.documentElement.setAttribute('lang', DEFAULT_LANG);
+                updateLabel(DEFAULT_LANG);
+                sessionStorage.setItem(STORAGE_KEY, DEFAULT_LANG);
+                currentLang = DEFAULT_LANG;
+                return;
+            }
+
+            var nodes = collectTextNodes(document.body);
+            var attrTargets = collectAttrTargets(document.body);
+            var originals = nodes.map(function (n) { return n.__pbOrig; })
+                .concat(attrTargets.map(function (t) { return t.el.getAttribute(ORIGINAL_ATTR + '-' + t.attr) || t.value; }));
+
+            var cache = loadCache();
+            cache[lang] = cache[lang] || {};
+
+            var toTranslate = [], toTranslateIdx = [];
+            originals.forEach(function (txt, i) {
+                if (txt == null) return;
+                if (cache[lang][txt] === undefined) {
+                    toTranslate.push(txt); toTranslateIdx.push(i);
+                }
+            });
+
+            function finalize() {
+                nodes.forEach(function (n) {
+                    var original = n.__pbOrig;
+                    var t = cache[lang][original];
+                    if (t !== undefined) n.nodeValue = t;
+                });
+                attrTargets.forEach(function (t) {
+                    var original = t.el.getAttribute(ORIGINAL_ATTR + '-' + t.attr) || t.value;
+                    var tr = cache[lang][original];
+                    if (tr !== undefined) t.el.setAttribute(t.attr, tr);
+                });
+                document.documentElement.setAttribute('lang', lang);
+                updateLabel(lang);
+                sessionStorage.setItem(STORAGE_KEY, lang);
+                currentLang = lang;
+                saveCache(cache);
+                document.body.classList.remove('pb-translating');
+            }
+
+            if (toTranslate.length === 0) { finalize(); return; }
+
+            document.body.classList.add('pb-translating');
+            translateBatch(toTranslate, lang).then(function (translated) {
+                translated.forEach(function (tr, i) {
+                    cache[lang][toTranslate[i]] = tr || toTranslate[i];
+                });
+                finalize();
+            }).catch(function () { document.body.classList.remove('pb-translating'); });
+        }
+
+        function bindSwitcher() {
+            document.querySelectorAll('.pb-lang-dropdown a[data-lang]').forEach(function (a) {
+                a.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    var lang = (a.getAttribute('data-lang') || '').toLowerCase();
+                    if (!lang) return;
+                    applyTranslation(lang);
+                });
+            });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function () {
+                bindSwitcher();
+                if (currentLang && currentLang !== DEFAULT_LANG) applyTranslation(currentLang);
+                else updateLabel(DEFAULT_LANG);
+            });
+        } else {
+            bindSwitcher();
+            if (currentLang && currentLang !== DEFAULT_LANG) applyTranslation(currentLang);
+            else updateLabel(DEFAULT_LANG);
+        }
+    })();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,293 @@
+{% extends 'pb_site/base.html' %}
+
+{% load static pb_links %}
+
+
+
+{% block title %}P&amp;BEntreprise — Pièces détachées Suzuki{% endblock title %}
+
+
+
+{% block page_header_background %}{% static 'pb_site_asset/img/bg-img/gent.png' %}{% endblock page_header_background %}
+
+{% block page_header_title %}Pièces détachées{% endblock page_header_title %}
+
+{% block page_header_inner %}Suzuki{% endblock page_header_inner %}
+
+
+
+{% block content %}
+
+<section class="process-section-2 process-section-2--green-cards pt-120 pb-120 fade-wrapper pb-pieces-catalogue">
+
+    <div class="container">
+
+        <div class="row gy-lg-0 gy-5">
+
+            <div class="col-lg-8 col-md-12 order-2 order-lg-1">
+
+                <div class="section-heading mb-40">
+
+                    <h4 class="sub-heading" data-text-animation="fade-in" data-duration="1.5"><span class="left-shape"></span>Catalogue</h4>
+
+                    <h2 class="section-title mb-0" data-text-animation data-split="word" data-duration="1">Pièces détachées Suzuki d&apos;origine</h2>
+
+                    <p class="mt-3 mb-0 text-muted">Chez P&amp;B Entreprise, chaque pièce est sélectionnée avec exigence pour garantir performance, durabilité et sécurité à votre véhicule. Nous mettons à votre disposition des pièces automobiles fiables, conçues pour résister au temps et offrir un confort de conduite exceptionnel. Faire confiance à P&amp;B Entreprise, c’est choisir la qualité professionnelle à des prix accessibles, avec un service pensé pour satisfaire chaque client. Que ce soit pour une réparation, un entretien ou une amélioration de votre véhicule, nos pièces vous assurent une tranquillité d’esprit à chaque trajet. Ne laissez pas des pièces de mauvaise qualité compromettre votre sécurité. Passez chez P&amp;B Entreprise dès aujourd’hui et donnez à votre véhicule la performance qu’il mérite. Avec P&amp;B, roulez en toute confiance !</p>
+
+                </div>
+
+                <div class="row gy-4 fade-wrapper" id="pbPiecesGrid">
+
+                    {% for piece in pieces_catalogue %}
+
+                    <div class="col-lg-6 col-md-6 pb-piece-card"
+
+                         id="piece-{{ piece.pk }}"
+
+                         data-cat="{% if piece.categorie_id %}{{ piece.categorie_id }}{% else %}none{% endif %}">
+
+                        <div class="process-item fade-top js-scroll slide-left h-100">
+
+                            <div class="process-thumb img-reveal">
+
+                                <div class="img-overlay overlay-2"></div>
+
+                                {% if piece.image %}
+
+                                    <img class="fx-media" src="{{ piece.image.url }}" alt="{{ piece.titre }}">
+
+                                {% else %}
+
+                                    <img class="fx-media" src="{% static 'pb_site_asset/img/bg-img/gent.png' %}" alt="{{ piece.titre }}">
+
+                                {% endif %}
+
+                                <span>{% if piece.categorie %}{{ piece.categorie.nom }}{% else %}Pièces{% endif %}</span>
+
+                            </div>
+
+                            <div class="process-content">
+
+                                <ul class="process-meta">
+
+                                    <li><i class="fa-regular fa-tag"></i>{{ piece.prix|floatformat:0 }}&nbsp;F&nbsp;CFA</li>
+
+                                    <li><i class="fa-regular fa-cube"></i>{{ piece.unite_prix }}</li>
+
+                                </ul>
+
+                                <h3 class="title">{{ piece.titre }}</h3>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                    {% endfor %}
+                </div>
+                {% if is_paginated %}
+
+                <nav class="pb-pieces-pagination-wrap" aria-label="Pagination du catalogue">
+
+                    <ul class="pb-pieces-pagination">
+
+                        {% if page_obj.has_previous %}
+
+                        <li>
+
+                            <a class="pb-pieces-pagination__nav" href="{% url 'pieces_detachees' %}?{% if current_categorie %}categorie={{ current_categorie }}&{% endif %}page={{ page_obj.previous_page_number }}" aria-label="Page précédente">
+
+                                <i class="fa-regular fa-arrow-left" aria-hidden="true"></i>
+
+                            </a>
+
+                        </li>
+
+                        {% endif %}
+
+                        {% for num in elided_pages %}
+
+                            {% if num == paginator.ELLIPSIS %}
+
+                            <li><span class="pb-pieces-pagination__ellipsis" aria-hidden="true">{{ paginator.ELLIPSIS }}</span></li>
+
+                            {% elif num == page_obj.number %}
+
+                            <li><span class="is-active" aria-current="page">{{ num }}</span></li>
+
+                            {% else %}
+
+                            <li>
+
+                                <a href="{% url 'pieces_detachees' %}?{% if current_categorie %}categorie={{ current_categorie }}&{% endif %}page={{ num }}">{{ num }}</a>
+
+                            </li>
+
+                            {% endif %}
+
+                        {% endfor %}
+
+                        {% if page_obj.has_next %}
+
+                        <li>
+
+                            <a class="pb-pieces-pagination__nav" href="{% url 'pieces_detachees' %}?{% if current_categorie %}categorie={{ current_categorie }}&{% endif %}page={{ page_obj.next_page_number }}" aria-label="Page suivante">
+
+                                <i class="fa-regular fa-arrow-right" aria-hidden="true"></i>
+
+                            </a>
+
+                        </li>
+
+                        {% endif %}
+
+                    </ul>
+
+                </nav>
+
+                {% endif %}
+
+            </div>
+
+            <div class="col-lg-4 col-md-12 order-1 order-lg-2">
+
+                <div class="sidebar-widget pb-pieces-sidebar">
+
+                    <h3 class="widget-title">Pièces récentes</h3>
+
+                    {% if pieces_recentes %}
+
+                        {% for piece in pieces_recentes %}
+
+                            <div class="sidebar-post pb-sidebar-piece">
+
+                                {% if piece.image %}
+
+                                    <img src="{{ piece.image.url }}" alt="{{ piece.titre }}">
+
+                                {% else %}
+
+                                    <img src="{% static 'pb_site_asset/img/bg-img/gent.png' %}" alt="{{ piece.titre }}">
+
+                                {% endif %}
+
+                                <div class="post-content">
+
+                                    <ul class="post-meta">
+
+                                        <li><i class="fa-regular fa-tag"></i>{{ piece.prix|floatformat:0 }}&nbsp;F</li>
+
+                                    </ul>
+
+                                    <h3 class="title">
+
+                                        <a href="{% url 'pieces_detachees' %}?piece={{ piece.pk }}#piece-{{ piece.pk }}">{{ piece.titre }}</a>
+
+                                    </h3>
+
+                                </div>
+
+                            </div>
+
+                        {% endfor %}
+
+                    {% endif %}
+
+                </div>
+
+                <div class="sidebar-widget">
+
+                    <h3 class="widget-title">Catégories</h3>
+
+                    <ul class="category-list pb-piece-cat-list" id="pbPieceCatList">
+
+                        <li class="{% if not current_categorie %}active{% endif %}">
+
+                            <a href="{% url 'pieces_detachees' %}">
+
+                                Toutes les pièces <i class="fa-sharp fa-regular fa-arrow-right"></i>
+
+                            </a>
+
+                        </li>
+
+                        {% for cat in categories_piece %}
+
+                        <li class="{% if current_categorie == cat.pk|stringformat:"d" %}active{% endif %}">
+
+                            <a href="{% url 'pieces_detachees' %}?categorie={{ cat.pk }}">
+
+                                {{ cat.nom }} <i class="fa-sharp fa-regular fa-arrow-right"></i>
+
+                            </a>
+
+                        </li>
+
+                        {% endfor %}
+
+                        {% if pieces_sans_cat_count %}
+
+                        <li class="{% if current_categorie == 'none' %}active{% endif %}">
+
+                            <a href="{% url 'pieces_detachees' %}?categorie=none">
+
+                                Non classées <i class="fa-sharp fa-regular fa-arrow-right"></i>
+
+                            </a>
+
+                        </li>
+
+                        {% endif %}
+
+                    </ul>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock content %}
+
+
+
+{% block extra_js %}
+
+<script>
+
+(function () {
+
+    var hash = location.hash;
+
+    if (!hash || hash.length < 2) return;
+
+    function scrollToPiece() {
+
+        var el = document.querySelector(hash);
+
+        if (!el) return;
+
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    }
+
+    if (document.readyState === 'complete') {
+
+        setTimeout(scrollToPiece, 200);
+
+    } else {
+
+        window.addEventListener('load', function () { setTimeout(scrollToPiece, 200); });
+
+    }
+
+})();
+
+</script>
+
+{% endblock extra_js %}
+

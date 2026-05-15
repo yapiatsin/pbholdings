@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="{% static 'pb/plugins/overlayScrollbars/css/OverlayScrollbars.min.css' %} ">
     <!-- Google Font: Source Sans Pro -->
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!-- Font Awesome 4.7 CDN supprimé — la version locale 6.x est utilisée (cf. all.min.css ci-dessus, v4-shims inclus pour compatibilité) -->
     <!-- DataTables -->
     <link rel="stylesheet" href="{% static 'pb/plugins/datatables-bs4/css/dataTables.bootstrap4.css' %}">
     <!-- jsGrid -->
@@ -32,14 +32,14 @@
     <link rel="stylesheet" href="{% static 'pb/dists/css/adminlte.min.css' %}">
     <style>
         .btn{
-            background-color:rgba(255, 255, 255, 0.24);
-            color:rgba(0, 139, 163, 0.58);
-            border-color: rgba(255, 255, 255, 0.79);
-            color:rgba(255, 255, 255, 0.79);
+            background-color: rgba(255, 255, 255, 0.2);
+            color: #a83232;
+            border-color: rgba(168, 50, 50, 0.45);
         }
         .btn:hover{
-            background-color:rgba(234, 252, 255, 0.32);
-            color:rgb(41, 159, 180)
+            background-color: rgba(251, 237, 237, 0.55);
+            color: #8b2929;
+            border-color: rgba(168, 50, 50, 0.65);
         }
         @import url('https://fonts.googleapis.com/css?family=Nuto:400,700');
         body{
@@ -272,17 +272,22 @@ opacity:1">
         </script>
     {% endblock custom_js %}
     <script>
-        document.getElementById("loginForm").addEventListener("submit", function(event) {
-            event.preventDefault(); 
-            let button = document.getElementById("loginButton");
-            let buttonText = document.getElementById("buttonText");
-            let spinner = document.getElementById("spinner");
-            buttonText.classList.add("d-none");
-            spinner.classList.remove("d-none");
-            setTimeout(() => {
-                this.submit();
-            }, 500);
-        });
+        (function () {
+            var loginForm = document.getElementById("loginForm");
+            if (!loginForm) return;
+            loginForm.addEventListener("submit", function(event) {
+                event.preventDefault();
+                var button = document.getElementById("loginButton");
+                var buttonText = document.getElementById("buttonText");
+                var spinner = document.getElementById("spinner");
+                if (buttonText) buttonText.classList.add("d-none");
+                if (spinner) spinner.classList.remove("d-none");
+                var formEl = this;
+                setTimeout(function () {
+                    formEl.submit();
+                }, 500);
+            });
+        })();
     </script>
     <script src="{% static 'pb/plugins/jquery/jquery.min.js' %} "></script>
     <script src="{% static 'pb/plugins/bootstrap/js/bootstrap.bundle.min.js' %} "></script>

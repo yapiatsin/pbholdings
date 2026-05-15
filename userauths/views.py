@@ -649,39 +649,90 @@ def password_success(request):
     return render(request,'userauths/success.html')
 
 def pb_home(request):
-    return render(request,'perfect/pb_home.html')
+    return render(request,'no_acces.html')
+    # return render(request,'perfect/pb_home.html')
     
+MAX_LOGIN_ATTEMPTS = 3  # nombre d'échecs autorisés avant blocage automatique
+
+
 def loginview(request):
     if request.user.is_authenticated:
-        messages.warning(request,f"hey you are already logged In")
+        messages.warning(request, "hey you are already logged In")
         return redirect("home")
-    if request.method == "POST": 
-        email = request.POST.get("email")  
-        password = request.POST.get("password")
+
+    if request.method == "POST":
+        email = (request.POST.get("email") or "").strip()
+        password = request.POST.get("password") or ""
+
+        # 1) On vérifie d'abord l'existence du compte par email.
         try:
-            user = CustomUser.objects.get(email=email)
-            user = authenticate(request, email=email, password=password)
-            if user is not None:
-                login(request, user)
-                user_type=user.user_type
-                if user_type == '1':
-                    messages.success(request, f"Bienvenue Administrateur {user.username}")
-                    return redirect('dash')
-                elif user_type == '2':
-                    messages.success(request, f"Bienvenue Chef d'exploitation {user.username}")
-                    return redirect('dash')
-                elif user_type == '3':
-                    messages.success(request, f"Bienvenue Comptable {user.username}")
-                    return redirect('dash')
-                elif user_type == '4':
-                    messages.success(request,  f"Bienvenue Gérant {user.username}")
-                    return redirect('dashgarage')
-                else:
-                   return redirect('login')
+            existing_user = CustomUser.objects.get(email=email)
+        except CustomUser.DoesNotExist:
+            existing_user = None
+
+        # 2) Si le compte existe mais est déjà bloqué → message dédié, on ne tente pas l'auth.
+        if existing_user is not None and not existing_user.is_active:
+            messages.error(
+                request,
+                "Votre compte est bloqué. Veuillez contacter l'administrateur de l'application.",
+            )
+            return render(request, "perfect/logins.html")
+
+        # 3) Authentification.
+        user = authenticate(request, email=email, password=password) if existing_user else None
+
+        if user is not None:
+            # Connexion réussie → on remet le compteur à zéro.
+            if user.failed_login_attempts or user.date_blocage:
+                CustomUser.objects.filter(pk=user.pk).update(
+                    failed_login_attempts=0,
+                    date_blocage=None,
+                )
+            login(request, user)
+            user_type = user.user_type
+            if user_type == '1':
+                messages.success(request, f"Bienvenue Administrateur {user.username}")
+                return redirect('dash')
+            elif user_type == '2':
+                messages.success(request, f"Bienvenue Chef d'exploitation {user.username}")
+                return redirect('dash')
+            elif user_type == '3':
+                messages.success(request, f"Bienvenue Comptable {user.username}")
+                return redirect('dash')
+            elif user_type == '4':
+                messages.success(request, f"Bienvenue Gérant {user.username}")
+                return redirect('dashgarage')
             else:
-                messages.error(request,  f"Mot de passe ou email invalide")
-        except:
+                return redirect('login')
+
+        # 4) Échec d'authentification.
+        if existing_user is not None:
+            # Le compte existe → on incrémente le compteur d'échecs.
+            existing_user.failed_login_attempts = (existing_user.failed_login_attempts or 0) + 1
+
+            if existing_user.failed_login_attempts >= MAX_LOGIN_ATTEMPTS:
+                existing_user.is_active = False
+                existing_user.date_blocage = timezone.now()
+                existing_user.save(update_fields=[
+                    'failed_login_attempts', 'is_active', 'date_blocage',
+                ])
+                messages.error(
+                    request,
+                    "Votre compte est bloqué après 3 tentatives infructueuses. "
+                    "Veuillez contacter l'administrateur de l'application.",
+                )
+            else:
+                existing_user.save(update_fields=['failed_login_attempts'])
+                restant = MAX_LOGIN_ATTEMPTS - existing_user.failed_login_attempts
+                messages.error(
+                    request,
+                    f"Mot de passe ou email invalide. Il vous reste {restant} tentative(s) "
+                    f"avant le blocage automatique du compte.",
+                )
+        else:
+            # Aucun compte avec cet email → message générique (on n'expose pas l'info).
             messages.error(request, "Détails de connexion invalides!!!")
+
     return render(request, "perfect/logins.html")
 
 def logout_view(request):
@@ -831,6 +882,7 @@ class PasswordChangeView(PasswordChangeView):
         chefexploit_profil = None
         comptable_profil = None
         gerant_profil = None
+        
         if user.user_type == "1":
             try:
                 admin_profil = Administ.objects.get(user=user)
@@ -855,6 +907,7 @@ class PasswordChangeView(PasswordChangeView):
                 gerant_profil = None
         else: 
             print()
+
         # Récupérer les permissions personnalisées de l'utilisateur
         from userauths.models import TypeCustomPermission
         grouped_permissions = {}
@@ -862,9 +915,14 @@ class PasswordChangeView(PasswordChangeView):
             perms = category.cat_permis.filter(users=user)
             if perms.exists():
                 grouped_permissions[category] = perms
+        
         # Récupérer toutes les permissions personnalisées (sans groupement)
         custom_permissions = user.custom_permissions.all()
+        
+        # Récupérer les permissions système (Django permissions)
         system_permissions = user.user_permissions.all()
+
+        # Passer les informations récupérées au contexte
         context = {
             'form': form,
             'user': user,

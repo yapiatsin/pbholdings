@@ -1,0 +1,355 @@
+{% extends 'pb_site/base.html' %}
+{% load static %}
+{% block title %}P&BEntreprise — Carrière chauffeurs{% endblock title %}
+
+{% block page_header_background %}{% static 'pb_site_asset/img/bg-img/dev2.jpg' %}{% endblock page_header_background %}
+{% block page_header_title %}Chauffeurs{% endblock page_header_title %}
+{% block page_header_inner %}Conducteurs{% endblock page_header_inner %}
+{% block content %}
+
+{% if sections_intro %}
+    {% include 'pb_site/partials/sections_intro.html' %}
+{% else %}
+    <section class="about-section-4 pt-120 pb-120">
+        <div class="container">
+            <div class="row align-items-center fade-wrapper">
+                <div class="col-lg-6 col-md-12">
+                    <div class="about-content-4">
+                        <div class="section-heading mb-30">
+                            <h4 class="sub-heading" data-text-animation="fade-in" data-duration="1.5"><span class="left-shape"></span>À Propos de Nous</h4>
+                            <h2 class="section-title mb-0" data-text-animation data-split="word" data-duration="1">Votre partenaire de mobilité et d'entretien à Abidjan</h2>
+                        </div>
+                        <p class="fade-top">Fondée à Abidjan, P&amp;BEntreprise est spécialisée dans le transport de personnes — VTC et Taxi — et la distribution de pièces détachées Suzuki d'origine. Avec une flotte régulièrement entretenue et une équipe formée aux exigences du terrain, nous offrons des services fiables, confortables et adaptés aux besoins des particuliers comme des professionnels. Notre engagement : vous garantir ponctualité, sécurité et satisfaction à chaque prestation.</p>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-12">
+                    <div class="about-img-wrap-4 fade-top" style="max-width: 100%; width: 100%; height: clamp(260px, 55vw, 600px);">
+                        <div class="about-img img-1" style="max-width: 100%; width: 100%; height: 100%; position: relative; left: auto; right: auto; top: 0; display: block;">
+                            <img src="{% static 'pb_site_asset/img/bg-img/dev2.jpg' %}" alt="about" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="about-cta fade-wrapper ">
+        <div class="container">
+            <div class="row align-items-center fade-wrapper">
+                <div class="col-lg-6 col-md-12">
+                    <div class="about-img-wrap-4 fade-top" style="max-width: 100%; width: 100%; height: clamp(260px, 55vw, 600px);">
+                        <div class="about-img img-1" style="max-width: 100%; width: 100%; height: 100%; position: relative; left: auto; right: auto; top: 0; display: block;">
+                            <img src="{% static 'pb_site_asset/img/bg-img/dev2.jpg' %}" alt="about" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-12">
+                    <div class="about-content-4">
+                        <div class="section-heading mb-30">
+                            <h4 class="sub-heading" data-text-animation="fade-in" data-duration="1.5"><span class="left-shape"></span>À Propos de Nous</h4>
+                            <h2 class="section-title mb-0" data-text-animation data-split="word" data-duration="1">Votre partenaire de mobilité et d'entretien à Abidjan</h2>
+                        </div>
+                        <p class="fade-top">Fondée à Abidjan, P&amp;BEntreprise est spécialisée dans le transport de personnes — VTC et Taxi — et la distribution de pièces détachées Suzuki d'origine. Avec une flotte régulièrement entretenue et une équipe formée aux exigences du terrain, nous offrons des services fiables, confortables et adaptés aux besoins des particuliers comme des professionnels. Notre engagement : vous garantir ponctualité, sécurité et satisfaction à chaque prestation.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endif %}
+<!-- ./ about-section -->
+<!-- ./ about-cta -->
+{% if pb_section_visible.processus %}
+    <section class="team-details pt-120 pb-120">
+        <div class="container">
+            <div class="section-heading">
+                <h4 class="sub-heading" data-text-animation="fade-in" data-duration="1.5"><span class="left-shape"></span>{% if categori_page %}{{ categori_page.sous_titre }}{% else %}Comment ça marche{% endif %}</h4>
+                <h2 class="section-title mb-0" data-text-animation data-split="word" data-duration="1">{% if categori_page %}{{ categori_page.titre }}{% else %}Comment devenir chauffeur chez P&amp;BEntreprise ?{% endif %}</h2>
+            </div>
+            <div class="row gy-lg-0 gy-4 fade-wrapper">
+                {% for carac in caracteristiques_procedure %}
+                    <div class="col-lg-3 col-md-6 fade-top">
+                        <div class="service-process-card">
+                            <span class="number">{{ forloop.counter|stringformat:"02d" }}</span>
+                            <h3 class="title">{{ carac.texte }}</h3>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+{% endif %}
+
+<section class="team-details pb-120 strength-section--index3-stack">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="team-details-wrap">
+
+
+                    <!-- Simulateur de revenus chauffeur (taux + paliers : modèle GainsChauffeur) -->
+                    {{ chauffeur_calc_json|json_script:"pb-chauffeur-calc-data" }}
+                    <div class="pb-earn-calc mb-80" id="pbEarnCalc" data-pb-no-translate>
+                        <div class="row g-4 g-lg-5 align-items-stretch">
+                            <div class="col-lg-5 d-flex flex-column">
+                                <h2 class="pb-earn-calc__title">Calculez le montant que vous pouvez gagner&nbsp;!</h2>
+                                <p class="pb-earn-calc__intro-foot mt-auto pt-4 pt-lg-0">Cet outil vous permet d’estimer votre niveau de revenu en fonction de vos ambitions et de vos capacités.</p>
+                            </div>
+                            <div class="col-lg-7">
+                                <div class="pb-earn-calc__panel">
+                                    <div class="pb-earn-calc__panel-inner">
+                                        <div class="pb-earn-calc__col-controls">
+                                            
+                                            <div class="pb-earn-calc__field">
+                                                <label class="pb-earn-calc__label" for="pbEarnHours">Nombre d'heures travaillées par jour&nbsp;:</label>
+                                                <div class="pb-earn-calc__slider-row">
+                                                    <input type="range" class="pb-earn-calc__range" id="pbEarnHours" min="1" max="12" value="8" step="1">
+                                                    <span class="pb-earn-calc__range-badge" id="pbEarnHoursVal" aria-live="polite">8</span>
+                                                </div>
+                                            </div>
+                                            <div class="pb-earn-calc__field">
+                                                <label class="pb-earn-calc__label" for="pbEarnDays">Nombre de journées de travail par semaine&nbsp;:</label>
+                                                <div class="pb-earn-calc__slider-row">
+                                                    <input type="range" class="pb-earn-calc__range" id="pbEarnDays" min="1" max="7" value="5" step="1">
+                                                    <span class="pb-earn-calc__range-badge" id="pbEarnDaysVal" aria-live="polite">5</span>
+                                                </div>
+                                            </div>
+                                            <div class="pb-earn-calc__field">
+                                                <span class="pb-earn-calc__label">Votre véhicule&nbsp;:</span>
+                                                <div class="pb-earn-calc__toggle" role="group" aria-label="Branding véhicule">
+                                                    <button type="button" class="pb-earn-calc__toggle-btn is-active" id="pbEarnBrandOff" data-branding="0">Sans branding</button>
+                                                    <button type="button" class="pb-earn-calc__toggle-btn" id="pbEarnBrandOn" data-branding="1">Avec branding</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="pb-earn-calc__col-output">
+                                            <div class="pb-earn-calc__hero-result">
+                                                <span class="pb-earn-calc__weekly" id="pbEarnWeekly">{{ chauffeur_calc_weekly_display }}&nbsp;F</span>
+                                                <p class="pb-earn-calc__weekly-sub" id="pbEarnSubLine">hebdomadaire ou <span id="pbEarnHourly">{{ chauffeur_calc_hourly_display }}</span>&nbsp;F par heure</p>
+                                                {% if chauffeur_calc_has_montant_base %}
+                                                <p class="pb-earn-calc__base-line">Montant de base horaire (Abidjan)&nbsp;: <span id="pbEarnMontantBase">{{ chauffeur_calc_montant_base_display }}</span>&nbsp;F&nbsp;/&nbsp;h</p>
+                                                {% endif %}
+                                            </div>
+                                            <div class="pb-earn-calc__presets-wrap">
+                                                <span class="pb-earn-calc__label">Sélectionnez votre revenu souhaité&nbsp;:</span>
+                                                <div class="pb-earn-calc__presets" id="pbEarnPresets">
+                                                    {% for item in chauffeur_calc_preset_buttons %}
+                                                        <button type="button" class="pb-earn-calc__preset" data-target="{{ item.value }}">{{ item.label }}</button>
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                            <p class="pb-earn-calc__disclaimer">Les chiffres présentés sont donnés à titre indicatif et reposent sur une moyenne calculée à partir des données des 30 derniers jours.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="team-counter-area mb-80">
+                        <h3 class="title">{% if categori_page.page == 'Chauffeur' %}Chiffres clés{% else %}Chiffres clés{% endif %}</h3>
+                        <div class="row gy-lg-0 gy-4 justify-content-center mt-40">
+                            {% for stat in statistiques_procedure %}
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="team-counter">
+                                        <div class="icon">
+                                            <i class="{% if stat.icone %}fas fa-{{ stat.icone }} {% else %} fas fa-chart-line{% endif %}"></i>
+                                        </div>
+                                        <div class="content">
+                                            <h3 class="title"><span class="odometer" data-count="{{ stat.nombre }}">{{ stat.nombre }}</span></h3>
+                                            <p>{{ stat.libelle }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    
+
+                    <div class=" row team-details-form">
+                        <div class="heading-area text-center">
+                            <span>{% if question_page %}{{ question_page.sous_titre }}{% else %}Questions Fréquentes{% endif %}</span>
+                            <h3 class="title">{% if question_page %}{{ question_page.titre }}{% else %}Tout ce que vous devez savoir sur nos services{% endif %}</h3>
+                        </div>
+                        {% if questions %}
+                            {% with mid=questions|length|add:1 %}
+                            <div class="col-lg-6">
+                                <div class="faq-content">
+                                    <div class="faq-accordion fade-wrapper">
+                                        <div class="accordion" id="accordionFaqLeft">
+                                            {% for q in questions %}
+                                                {% if forloop.counter0|divisibleby:2 %}
+                                                <div class="accordion-item {% if forloop.first %}{% else %}{% endif %} fade-top">
+                                                    <h2 class="accordion-header" id="headingLeft{{ forloop.counter }}">
+                                                        <button class="accordion-button {% if not forloop.first %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#collapseLeft{{ forloop.counter }}" aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}" aria-controls="collapseLeft{{ forloop.counter }}">
+                                                            {{ q.question }}
+                                                        </button>
+                                                    </h2>
+                                                    <div id="collapseLeft{{ forloop.counter }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}" aria-labelledby="headingLeft{{ forloop.counter }}" data-bs-parent="#accordionFaqLeft">
+                                                        <div class="accordion-body">
+                                                            {{ q.reponse|linebreaksbr }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="faq-content">
+                                    <div class="faq-accordion fade-wrapper">
+                                        <div class="accordion" id="accordionFaqRight">
+                                            {% for q in questions %}
+                                                {% if not forloop.counter0|divisibleby:2 %}
+                                                <div class="accordion-item fade-top">
+                                                    <h2 class="accordion-header" id="headingRight{{ forloop.counter }}">
+                                                        <button class="accordion-button {% if forloop.counter0 != 1 %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#collapseRight{{ forloop.counter }}" aria-expanded="{% if forloop.counter0 == 1 %}true{% else %}false{% endif %}" aria-controls="collapseRight{{ forloop.counter }}">
+                                                            {{ q.question }}
+                                                        </button>
+                                                    </h2>
+                                                    <div id="collapseRight{{ forloop.counter }}" class="accordion-collapse collapse {% if forloop.counter0 == 1 %}show{% endif %}" aria-labelledby="headingRight{{ forloop.counter }}" data-bs-parent="#accordionFaqRight">
+                                                        <div class="accordion-body">
+                                                            {{ q.reponse|linebreaksbr }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endwith %}
+                        {% else %}
+                            <div class="col-12 text-center">
+                                <p>Aucune question disponible pour le moment.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock content %}
+{% block extra_js %}
+    <script>
+    (function () {
+        var root = document.getElementById('pbEarnCalc');
+        if (!root) return;
+
+        var BRANDING_MULT = 1.12;
+        var cfgNode = document.getElementById('pb-chauffeur-calc-data');
+        var BASE_HOURLY_ABIDJAN = 3213.7;
+        try {
+            if (cfgNode && cfgNode.textContent) {
+                var cfg = JSON.parse(cfgNode.textContent);
+                if (typeof cfg.hourlyBase === 'number' && cfg.hourlyBase > 0) {
+                    BASE_HOURLY_ABIDJAN = cfg.hourlyBase;
+                }
+            }
+        } catch (e) {}
+
+        var hoursEl = document.getElementById('pbEarnHours');
+        var daysEl = document.getElementById('pbEarnDays');
+        var hoursValEl = document.getElementById('pbEarnHoursVal');
+        var daysValEl = document.getElementById('pbEarnDaysVal');
+        var weeklyEl = document.getElementById('pbEarnWeekly');
+        var hourlyEl = document.getElementById('pbEarnHourly');
+        var btnOff = document.getElementById('pbEarnBrandOff');
+        var btnOn = document.getElementById('pbEarnBrandOn');
+        var presetsWrap = document.getElementById('pbEarnPresets');
+
+        var brandingOn = false;
+        var presetTolerance = 3200;
+
+        function formatSpace(n) {
+            return Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0');
+        }
+
+        function hourlyRateNumber() {
+            return BASE_HOURLY_ABIDJAN * (brandingOn ? BRANDING_MULT : 1);
+        }
+
+        function weeklyTotal() {
+            var h = parseInt(hoursEl.value, 10) || 0;
+            var d = parseInt(daysEl.value, 10) || 0;
+            return Math.round(h * d * hourlyRateNumber());
+        }
+
+        function syncPresetHighlight() {
+            var w = weeklyTotal();
+            var buttons = presetsWrap.querySelectorAll('.pb-earn-calc__preset');
+            buttons.forEach(function (btn) {
+                var t = parseInt(btn.getAttribute('data-target'), 10);
+                btn.classList.toggle('is-active', Math.abs(w - t) <= presetTolerance);
+            });
+        }
+
+        function render() {
+            hoursValEl.textContent = hoursEl.value;
+            daysValEl.textContent = daysEl.value;
+            var hourlyNum = hourlyRateNumber();
+            var weekly = weeklyTotal();
+            weeklyEl.innerHTML = formatSpace(weekly) + '\u00a0F';
+            hourlyEl.innerHTML = formatSpace(Math.round(hourlyNum));
+            syncPresetHighlight();
+        }
+
+        function setBranding(on) {
+            brandingOn = !!on;
+            btnOff.classList.toggle('is-active', !brandingOn);
+            btnOn.classList.toggle('is-active', brandingOn);
+            render();
+        }
+
+        function solveForTargetWeekly(target) {
+            var hourly = hourlyRateNumber();
+            if (hourly <= 0) return;
+            var H = target / hourly;
+            var bestH = 8;
+            var bestD = 5;
+            var bestErr = Infinity;
+            var d;
+            var h;
+            var w;
+            var err;
+            for (d = 1; d <= 7; d++) {
+                h = Math.round(H / d);
+                h = Math.max(1, Math.min(12, h));
+                w = Math.round(h * d * hourly);
+                err = Math.abs(w - target);
+                if (err < bestErr) {
+                    bestErr = err;
+                    bestH = h;
+                    bestD = d;
+                }
+            }
+            hoursEl.value = String(bestH);
+            daysEl.value = String(bestD);
+        }
+
+        hoursEl.addEventListener('input', render);
+        daysEl.addEventListener('input', render);
+
+        btnOff.addEventListener('click', function () { setBranding(false); });
+        btnOn.addEventListener('click', function () { setBranding(true); });
+
+        presetsWrap.addEventListener('click', function (e) {
+            var btn = e.target.closest('.pb-earn-calc__preset');
+            if (!btn) return;
+            var target = parseInt(btn.getAttribute('data-target'), 10);
+            if (isNaN(target)) return;
+            solveForTargetWeekly(target);
+            render();
+        });
+
+        render();
+    })();
+    </script>
+{% endblock extra_js %}
+
+

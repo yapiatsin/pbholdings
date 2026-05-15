@@ -1,0 +1,381 @@
+{% extends 'pb_site/base.html' %}
+{% load static %}
+{% load pb_links %}
+{% block title %}P&BEntreprise — Clients{% endblock title %}
+
+{% block page_header_background %}{% static 'pb_site_asset/img/bg-img/passager.webp' %}{% endblock page_header_background %}
+{% block page_header_title %}Clients{% endblock page_header_title %}
+{% block page_header_inner %}Clients{% endblock page_header_inner %}
+{% block content %}
+{% if sections_intro %}
+    {% include 'pb_site/partials/sections_intro.html' %}
+{% else %}
+    <section class="about-section-4 pt-120 pb-120">
+        <div class="container">
+            <div class="row align-items-center fade-wrapper">
+                <div class="col-lg-6 col-md-12">
+                    <div class="about-content-4">
+                        <div class="section-heading mb-30">
+                            <h4 class="sub-heading" data-text-animation="fade-in" data-duration="1.5"><span class="left-shape"></span>Clients</h4>
+                            <h2 class="section-title mb-0" data-text-animation data-split="word" data-duration="1">Des trajets confortables et abordables</h2>
+                        </div>
+                        <p class="fade-top">Nous sommes fiers de travailler avec des clients qui nous font confiance et qui nous aident à grandir.</p>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-12">
+                    <div class="about-img-wrap-4 fade-top" style="max-width: 100%; width: 100%; height: clamp(260px, 55vw, 600px);">
+                        <div class="about-img img-1" style="max-width: 100%; width: 100%; height: 100%; position: relative; left: auto; right: auto; top: 0; display: block;">
+                            <img src="{% static 'pb_site_asset/img/bg-img/client3.png' %}" alt="about" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="about-cta fade-wrapper pb-120">
+        <div class="container">
+            <div class="row align-items-center fade-wrapper">
+                <div class="col-lg-6 col-md-12">
+                    <div class="about-img-wrap-4 fade-top" style="max-width: 100%; width: 100%; height: clamp(260px, 55vw, 600px);">
+                        <div class="about-img img-1" style="max-width: 100%; width: 100%; height: 100%; position: relative; left: auto; right: auto; top: 0; display: block;">
+                            <img src="{% static 'pb_site_asset/img/bg-img/assistante.png' %}" alt="about" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-12">
+                    <div class="about-content-4">
+                        <div class="section-heading mb-30">
+                            <h4 class="sub-heading" data-text-animation="fade-in" data-duration="1.5"><span class="left-shape"></span>Passer une commande</h4>
+                            <h2 class="section-title mb-0" data-text-animation data-split="word" data-duration="1">Pas de connexion, appelez le 27 21 73 78 96</h2>
+                        </div>
+                        <p class="fade-top">Nous mettons à votre disposition un véhicule pour un trajet confortable et sécurisé. </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endif %}
+<!-- ./ about-section -->
+ 
+<section class="service-section-3 service-section-3--card-3d pt-120 pb-120">
+    <div class="bg-shape"><img class="fx-media fx-media--neutral" src="{% static 'pb_site_asset/img/shapes/service-bg-shape.png' %}" alt="img"></div>
+    <div class="container-2">
+        <div class="section-heading text-center red-content">
+            <h4 class="sub-heading" data-text-animation="fade-in" data-duration="1.5"><span class="left-shape"></span>Nos Categories de Service mobilité</h4>
+            <h2 class="section-title mb-0" data-text-animation data-split="word" data-duration="1">Des solutions complètes pour votre mobilité</h2>
+        </div>
+        <div class="row gy-lg-0 gy-4 justify-content-center fade-wrapper pb-cat-grid">
+            {% if categoservices %}
+                {% for category in categoservices %}
+                    <div class="col-lg-3 col-md-6">
+                        <div class="pb-cat-card fade-top js-scroll slide-left">
+                            <div class="pb-cat-card__thumb">
+                                {% if category.image %}
+                                    <img src="{{ category.image.url }}" alt="{{ category.nom }}">
+                                {% else %}
+                                    <img src="{% static 'pb_site_asset/img/bg-img/servi_car1.png' %}" alt="{{ category.nom }}">
+                                {% endif %}
+                            </div>
+                            <div class="pb-cat-card__body">
+                                <h3 class="pb-cat-card__title">{{ category.nom }}</h3>
+                                {% if category.tagline %}
+                                    <p class="pb-cat-card__tagline">{{ category.tagline }}</p>
+                                {% endif %}
+                                {% if category.modeles_vehicules %}
+                                    <p class="pb-cat-card__models">{{ category.modeles_vehicules }}</p>
+                                {% endif %}
+
+                                {% if category.caracteristiques.all %}
+                                    <button class="pb-cat-card__accordion-btn" type="button" data-bs-toggle="collapse" data-bs-target="#catCollapse1" aria-expanded="false" aria-controls="catCollapse{{ category.pk }}">
+                                        <span>Caractéristiques</span>
+                                        <i class="fa-solid fa-chevron-down"></i>
+                                    </button>
+                                    <div id="catCollapse1" class="collapse pb-cat-card__details">
+                                        <ul>
+                                            {% for carac in category.caracteristiques.all %}
+                                                <li>{% if carac.emoji %}{{ carac.emoji }} {% endif %}{{ carac.texte }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                {% endif %}
+                                <a href="{{ category.bouton_lien|pb_link }}" class="pb-cat-card__btn">{{ category.bouton_texte|default:"Ouvrir dans le navigateur" }}</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- ./ about-cta -->
+{% if pb_section_visible.processus %}
+    <section class="team-details pt-120 pb-120">
+        <div class="container">
+            <div class="section-heading">
+                <h4 class="sub-heading" data-text-animation="fade-in" data-duration="1.5"><span class="left-shape"></span>{% if categori_page %}{{ categori_page.sous_titre }}{% else %}Comment ça marche{% endif %}</h4>
+                <h2 class="section-title mb-0" data-text-animation data-split="word" data-duration="1">{% if categori_page %}{{ categori_page.titre }}{% else %}Comment devenir chauffeur chez P&amp;BEntreprise ?{% endif %}</h2>
+            </div>
+            <div class="row gy-lg-0 gy-4 fade-wrapper">
+                {% if caracteristiques_procedure %}
+                    {% for carac in caracteristiques_procedure %}
+                        <div class="col-lg-3 col-md-6 fade-top">
+                            <div class="service-process-card">
+                                <span class="number">{{ forloop.counter|stringformat:"02d" }}</span>
+                                <h3 class="title">{{ carac.texte }}</h3>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+    </section>
+{% endif %}
+
+<section class="team-details pb-120 strength-section--index3-stack">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="team-details-wrap">
+                    <div class="team-counter-area mb-80">
+                        <h3 class="title">Nos chiffres clés</h3>
+                        <div class="row gy-lg-0 gy-4 justify-content-center mt-40">
+                            {% for stat in statistiques_procedure %}
+                                <div class="col-lg-4 col-md-6">
+                                    <div class="team-counter">
+                                        <div class="icon">
+                                            <i class="{% if stat.icone %}fas fa-{{ stat.icone }} {% else %} fas fa-chart-line{% endif %} fx-media fx-media--neutral"></i>
+                                        </div>
+                                        <div class="content">
+                                            <h3 class="title"><span class="odometer" data-count="{{ stat.nombre }}">{{ stat.nombre }}</span></h3>
+                                            <p>{{ stat.libelle }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class=" row team-details-form">
+                        <div class="heading-area text-center">
+                            <span>{% if question_page %}{{ question_page.sous_titre }}{% else %}Questions Fréquentes{% endif %}</span>
+                            <h3 class="title">{% if question_page %}{{ question_page.titre }}{% else %}Tout ce que vous devez savoir sur nos services{% endif %}</h3>
+                        </div>
+                        {% if questions %}
+                            <div class="col-lg-6">
+                                <div class="faq-content">
+                                    <div class="faq-accordion fade-wrapper">
+                                        <div class="accordion" id="accordionFaqLeft">
+                                            {% for q in questions %}
+                                                {% if forloop.counter0|divisibleby:2 %}
+                                                <div class="accordion-item fade-top">
+                                                    <h2 class="accordion-header" id="headingLeft{{ forloop.counter }}">
+                                                        <button class="accordion-button {% if not forloop.first %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#collapseLeft{{ forloop.counter }}" aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}" aria-controls="collapseLeft{{ forloop.counter }}">
+                                                            {{ q.question }}
+                                                        </button>
+                                                    </h2>
+                                                    <div id="collapseLeft{{ forloop.counter }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}" aria-labelledby="headingLeft{{ forloop.counter }}" data-bs-parent="#accordionFaqLeft">
+                                                        <div class="accordion-body">
+                                                            {{ q.reponse|linebreaksbr }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="faq-content">
+                                    <div class="faq-accordion fade-wrapper">
+                                        <div class="accordion" id="accordionFaqRight">
+                                            {% for q in questions %}
+                                                {% if not forloop.counter0|divisibleby:2 %}
+                                                <div class="accordion-item fade-top">
+                                                    <h2 class="accordion-header" id="headingRight{{ forloop.counter }}">
+                                                        <button class="accordion-button {% if forloop.counter0 != 1 %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#collapseRight{{ forloop.counter }}" aria-expanded="{% if forloop.counter0 == 1 %}true{% else %}false{% endif %}" aria-controls="collapseRight{{ forloop.counter }}">
+                                                            {{ q.question }}
+                                                        </button>
+                                                    </h2>
+                                                    <div id="collapseRight{{ forloop.counter }}" class="accordion-collapse collapse {% if forloop.counter0 == 1 %}show{% endif %}" aria-labelledby="headingRight{{ forloop.counter }}" data-bs-parent="#accordionFaqRight">
+                                                        <div class="accordion-body">
+                                                            {{ q.reponse|linebreaksbr }}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="col-12 text-center">
+                                <p>Aucune question disponible pour le moment.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock content %}
+{% block extra_js %}
+    <!-- Animation d'apparition au scroll des panneaux contact -->
+    <script>
+        (function () {
+            var panels = document.querySelectorAll('.contact-panel-anim');
+            if (!panels.length) return;
+            var observer = new IntersectionObserver(function (entries) {
+                entries.forEach(function (entry) {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.15 });
+            panels.forEach(function (panel) { observer.observe(panel); });
+        })();
+    </script>
+
+    <!-- Initialisation de la carte Leaflet -->
+    <script>
+    (function () {
+        var mapEl = document.getElementById('contactLeafletMap');
+        if (!mapEl) return;
+
+        // Créer la carte
+        var map = L.map('contactLeafletMap', {
+            scrollWheelZoom: false,
+            zoomControl: true
+        });
+
+        map.on('click', function () { map.scrollWheelZoom.enable(); });
+        map.on('mouseout', function () { map.scrollWheelZoom.disable(); });
+
+        // Tuiles OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+            maxZoom: 19
+        }).addTo(map);
+
+        // Icône personnalisée rouge
+        function createMarkerIcon() {
+            return L.divIcon({
+                className: 'pb-map-marker',
+                html: '<div class="pb-map-marker__pin"><i class="fa-solid fa-location-dot"></i></div>',
+                iconSize: [36, 46],
+                iconAnchor: [18, 46],
+                popupAnchor: [0, -48]
+            });
+        }
+
+        // Agences
+        var agencies = [
+            {
+                name: 'P&B Entreprise — Bingerville',
+                lat: 5.3617,
+                lng: -3.8866,
+                address: 'Non loin de AB Center, Bingerville',
+                phone: '+225 27 21 73 78 96'
+            },
+            {
+                name: 'P&B Auto Pièces — Koumassi',
+                lat: 5.2922,
+                lng: -3.9580,
+                address: 'En face du cimetière, Koumassi',
+                phone: '+225 01 02 31 91 12'
+            }
+        ];
+
+        var markers = [];
+        agencies.forEach(function (ag) {
+            var popupHtml =
+                '<div class="pb-map-popup">' +
+                    '<h4 class="pb-map-popup__title">' + ag.name + '</h4>' +
+                    '<p class="pb-map-popup__address"><i class="fa-solid fa-location-dot"></i> ' + ag.address + '</p>' +
+                    '<p class="pb-map-popup__phone"><i class="fa-solid fa-phone"></i> ' + ag.phone + '</p>' +
+                    '<button class="pb-map-popup__route-btn" onclick="window.pbGetRoute(' + ag.lat + ',' + ag.lng + ',\'' + ag.name + '\')">' +
+                        '<i class="fa-solid fa-diamond-turn-right"></i> Itinéraire depuis ma position' +
+                    '</button>' +
+                '</div>';
+
+            var marker = L.marker([ag.lat, ag.lng], { icon: createMarkerIcon() })
+                .addTo(map)
+                .bindPopup(popupHtml, { maxWidth: 280, className: 'pb-map-popup-wrap' });
+            markers.push(marker);
+        });
+
+        // Ajuster la vue
+        var group = L.featureGroup(markers);
+        map.fitBounds(group.getBounds().pad(0.3));
+
+        // Routing / Itinéraire
+        var routingControl = null;
+        var userMarker = null;
+
+        window.pbGetRoute = function (destLat, destLng, destName) {
+            if (!navigator.geolocation) {
+                alert('La géolocalisation n\'est pas supportée par votre navigateur.');
+                return;
+            }
+            navigator.geolocation.getCurrentPosition(
+                function (pos) {
+                    var userLat = pos.coords.latitude;
+                    var userLng = pos.coords.longitude;
+
+                    if (routingControl) { map.removeControl(routingControl); routingControl = null; }
+                    if (userMarker) { map.removeLayer(userMarker); userMarker = null; }
+
+                    var userIcon = L.divIcon({
+                        className: 'pb-map-marker pb-map-marker--user',
+                        html: '<div class="pb-map-marker__pin pb-map-marker__pin--user"><i class="fa-solid fa-street-view"></i></div>',
+                        iconSize: [36, 46],
+                        iconAnchor: [18, 46],
+                        popupAnchor: [0, -48]
+                    });
+
+                    userMarker = L.marker([userLat, userLng], { icon: userIcon })
+                        .addTo(map)
+                        .bindPopup('<strong>Votre position</strong>')
+                        .openPopup();
+
+                    routingControl = L.Routing.control({
+                        waypoints: [
+                            L.latLng(userLat, userLng),
+                            L.latLng(destLat, destLng)
+                        ],
+                        router: L.Routing.osrmv1({
+                            serviceUrl: 'https://router.project-osrm.org/route/v1'
+                        }),
+                        lineOptions: {
+                            styles: [{ color: '#E63946', weight: 5, opacity: 0.8 }]
+                        },
+                        show: true,
+                        addWaypoints: false,
+                        draggableWaypoints: false,
+                        fitSelectedRoutes: true,
+                        createMarker: function () { return null; }
+                    }).addTo(map);
+                },
+                function (err) {
+                    alert('Impossible d\'obtenir votre position : ' + err.message);
+                },
+                { enableHighAccuracy: true, timeout: 10000 }
+            );
+        };
+
+        window.pbClearRoute = function () {
+            if (routingControl) { map.removeControl(routingControl); routingControl = null; }
+            if (userMarker) { map.removeLayer(userMarker); userMarker = null; }
+            map.fitBounds(group.getBounds().pad(0.3));
+        };
+    })();
+    </script>
+{% endblock extra_js %}
+
+

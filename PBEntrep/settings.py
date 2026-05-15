@@ -46,7 +46,29 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'simple_history.middleware.HistoryRequestMiddleware',
+    'PBFinance.middleware.TrackingMiddleware',
+    # Ajoute CSP, X-Frame-Options: DENY, X-Content-Type-Options et Referrer-Policy.
+    # Corrige le rapport de pentest §4.2 / §6.1.
+    'PBEntrep.security_headers.SecurityHeadersMiddleware',
 ]
+
+# --- En-têtes de sécurité (pentest 14/04/2026 §6.1) ---
+# Clickjacking : forcer X-Frame-Options: DENY (Django par défaut = SAMEORIGIN)
+X_FRAME_OPTIONS = 'DENY'
+# MIME-sniffing
+SECURE_CONTENT_TYPE_NOSNIFF = True
+# Cookies en HTTPS uniquement (la prod est derrière Caddy en HTTPS)
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_SAMESITE = 'Lax'
+# HSTS — recommandé par §4.2 (Optionnel mais bonne pratique)
+SECURE_HSTS_SECONDS = 31536000  # 1 an
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True
+SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 ROOT_URLCONF = 'PBEntrep.urls'
 TEMPLATES = [
@@ -62,6 +84,14 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'PB_Entreprise.context_processors.grouped_user_permissions',
                 'PB_Entreprise.context_processors.alertes_count',
+                'PBFinance.context_processors.pb_navigation',
+                'PBFinance.context_processors.pb_reseaux_sociaux',
+                'PBFinance.context_processors.pb_footer_links',
+                'PBFinance.context_processors.pb_footer',
+                'PBFinance.context_processors.pb_site_config',
+                'PBFinance.context_processors.pb_langues',
+                'PBFinance.context_processors.pb_qrcode_app',
+                'PBFinance.context_processors.pb_sections_visibility',
             ],
         },
     },

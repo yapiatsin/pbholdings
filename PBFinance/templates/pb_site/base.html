@@ -1,0 +1,687 @@
+{% load static %}
+{% load pb_links %}
+<!DOCTYPE html>
+<html class="no-js" lang="fr">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="{% block meta_description %}P&BEntreprise - Transport VTC, Taxi et vente de pièces détachées Suzuki à Abidjan. Service professionnel, fiable et disponible 24h/24.{% endblock meta_description %}">
+    <title>{% block title %}{% if site_config.nom_site %}{{ site_config.nom_site }}{% else %}P&BEntreprise{% endif %}{% endblock title %}</title>
+    {% if site_config.favicon %}
+        <link rel="shortcut icon" type="image/x-icon" href="{{ site_config.favicon.url }}">
+    {% else %}
+        <link rel="shortcut icon" type="image/x-icon" href="{% static 'pb_site_asset/img/logo/icn.png' %}">
+    {% endif %}
+    <!-- CSS -->
+    <link rel="stylesheet" href="{% static 'pb_site_asset/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'pb_site_asset/css/fontawesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'pb_site_asset/css/venobox.min.css' %}">
+    <link rel="stylesheet" href="{% static 'pb_site_asset/css/animate.min.css' %}">
+    <link rel="stylesheet" href="{% static 'pb_site_asset/css/keyframe-animation.css' %}">
+    <link rel="stylesheet" href="{% static 'pb_site_asset/css/daterangepicker.css' %}">
+    <link rel="stylesheet" href="{% static 'pb_site_asset/css/magnific-popup.css' %}">
+    <link rel="stylesheet" href="{% static 'pb_site_asset/css/odometer.min.css' %}">
+    <link rel="stylesheet" href="{% static 'pb_site_asset/css/nice-select.css' %}">
+    <link rel="stylesheet" href="{% static 'pb_site_asset/css/swiper.min.css' %}">
+    <link rel="stylesheet" href="{% static 'pb_site_asset/css/slick.min.css' %}">
+    <link rel="stylesheet" href="{% static 'pb_site_asset/css/main.css' %}">
+
+    <link rel="stylesheet" href="{% static 'pb_site_asset/css/effects-3d.css' %}">
+
+    {% block extra_css %}{% endblock extra_css %}
+</head>
+
+<body class="index-3-page">
+    <!-- ================ HEADER ================ -->
+    <header class="header header-3 sticky-active" style="--bz-color-theme-primary: #EC281C">
+        <div class="overlay"></div>
+        <div class="top-bar">
+            <div class="container-2">
+                <div class="top-bar-inner">
+                    <ul class="top-bar-list">
+                        {% if site_config.telephone %}
+                            <li><i class="fa-sharp fa-regular fa-phone"></i><a href="tel:{{ site_config.telephone|cut:' ' }}">{{ site_config.telephone }}</a></li>
+                        {% else %}
+                            <li><i class="fa-sharp fa-regular fa-phone"></i><a href="tel:+2252721737896">(+225) 27 21 73 78 96</a></li>
+                        {% endif %}
+
+                        {% if site_config.email_principal %}
+                            <li><i class="fa-sharp fa-regular fa-envelope"></i><a href="mailto:{{ site_config.email_principal }}">{{ site_config.email_principal }}</a></li>
+                        {% else %}
+                            <li><i class="fa-sharp fa-regular fa-envelope"></i><a href="mailto:pacomebertine@gmail.com">pacomebertine@gmail.com</a></li>
+                        {% endif %}
+
+                        <li><i class="fa-sharp fa-regular fa-location-dot"></i>
+                            <span class="top-bar-location-marquee" aria-label="Nos agences à Abidjan">
+                                <span class="top-bar-location-marquee__track">
+                                    {% if site_config.bandeau_top %}
+                                        <span class="top-bar-location-marquee__text">{{ site_config.bandeau_top }}</span>
+                                    {% else %}
+                                        <span class="top-bar-location-marquee__text">Nous sommes situés à Abidjan Koumassi en face du cimetière et à Bingerville non loin de AB Center. Disponibles 24h/24 — Appelez le (+225) 27 21 73 78 96 / 01 02 31 91 12 / 01 52 11 95 96</span>
+                                    {% endif %}
+                                </span>
+                            </span>
+                        </li>
+                    </ul>
+                    <ul class="social-list">
+                        {% if pb_langues %}
+                            <li class="pb-lang-switch">
+                                <a href="#" id="pb-lang-current"><i class="fa fa-globe"></i></a>
+                                <ul class="pb-lang-dropdown">
+                                    {% for langue in pb_langues %}
+                                        <li><a href="#" data-lang="{{ langue.slug }}">{{ langue.nom }}</a></li>
+                                    {% endfor %}
+                                </ul>
+                            </li>
+                        {% endif %}
+                        {% for r in pb_reseaux_sociaux|slice:":3" %}
+                            <li>
+                                <a href="{% url 'reseau_social_click' r.pk %}"
+                                   target="_blank" rel="noopener"
+                                   title="{{ r.nom }}">
+                                    <i class="{{ r.icon|default:'fa-solid fa-share-nodes' }}"></i>
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="primary-header">
+            <div class="container-2">
+                <div class="primary-header-inner">
+                    <div class="inner-left">
+                        <div class="header-logo">
+                            <div class="header-logo">
+                                <a href="{% url 'home' %}">
+                                    {% if site_config.logo_principal %}
+                                        <img class="fx-media fx-media--neutral" src="{{ site_config.logo_principal.url }}" alt="logo {{ site_config.nom_site|default:'P&BEntreprise' }}">
+                                    {% else %}
+                                        <img class="fx-media fx-media--neutral" src="{% static 'pb_site_asset/img/logo/logo-5.png' %}" alt="logo P&BEntreprise">
+                                    {% endif %}
+                                </a>
+                            </div>
+                        </div>
+                        <div class="header-menu-wrap">
+                            <div class="mobile-menu-items">
+                                <ul>
+                                    {% for categorie in pb_navigation_categories %}
+                                        <li class="{% if categorie.sous_actives %}menu-item-has-children{% endif %}">
+                                            {% if categorie.lien %}
+                                                <a href="{{ categorie.lien|pb_link }}">{{ categorie.libelle }}</a>
+                                            {% else %}
+                                                <a>{{ categorie.libelle }}</a>
+                                            {% endif %}
+                                            {% if categorie.sous_actives %}
+                                                <ul>
+                                                    {% for sous in categorie.sous_actives %}
+                                                        <li><a href="{{ sous.lien|pb_link }}">{{ sous.libelle }}</a></li>
+                                                    {% endfor %}
+                                                </ul>
+                                            {% endif %}
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="header-right-wrap">
+                        <div class="header-right">
+                            <a href="#" class="bz-primary-btn">Téléchargez l'appli</a>
+                            <div class="sidebar-icon-2">
+                                <button class="sidebar-trigger open">
+                                    <span></span>
+                                    <span></span>
+                                    <span></span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ================ SIDEBAR MOBILE ================ -->
+    <div id="sidebar-area" class="sidebar-area" style="--bz-color-theme-primary: #EC281C">
+        <button class="sidebar-trigger close">
+            <svg class="sidebar-close" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="16px" height="12.7px" viewBox="0 0 16 12.7" style="enable-background: new 0 0 16 12.7" xml:space="preserve">
+                <g>
+                    <rect x="0" y="5.4" transform="matrix(0.7071 -0.7071 0.7071 0.7071 -2.1569 7.5208)" width="16" height="2"></rect>
+                    <rect x="0" y="5.4" transform="matrix(0.7071 0.7071 -0.7071 0.7071 6.8431 -3.7929)" width="16" height="2"></rect>
+                </g>
+            </svg>
+        </button>
+        <div class="side-menu-content">
+            <div class="side-menu-logo">
+                <a href="{% url 'home' %}">
+                    {% if site_config.logo_principal %}
+                        <img class="fx-media fx-media--neutral" src="{{ site_config.logo_principal.url }}" alt="logo {{ site_config.nom_site|default:'P&BEntreprise' }}">
+                    {% else %}
+                        <img class="fx-media fx-media--neutral" src="{% static 'pb_site_asset/img/logo/logo-5.png' %}" alt="logo P&BEntreprise">
+                    {% endif %}
+                </a>
+            </div>
+            <div class="side-menu-wrap"></div>
+            <div class="side-menu-about">
+                <div class="side-menu-header">
+                    <h3>À Propos de Nous</h3>
+                </div>
+                <p>P&BEntreprise est votre partenaire de mobilité à Abidjan. Nous proposons des services de transport VTC et Taxi ainsi que la vente de pièces détachées Suzuki d'origine. Fiabilité, confort et professionnalisme sont au cœur de notre engagement.</p>
+                <a href="{% url 'contact' %}" class="bz-primary-btn">Nous Contacter</a>
+            </div>
+            <div class="side-menu-contact">
+                <div class="side-menu-header">
+                    <h3>Contactez-Nous</h3>
+                </div>
+                <ul class="side-menu-list">
+                    <li>
+                        <i class="fas fa-map-marker-alt"></i>
+                        <p>Abidjan, Koumassi & Bingerville</p>
+                    </li>
+                    <li>
+                        <i class="fas fa-phone"></i>
+                        <a href="tel:+2252721737896">(+225) 27 21 73 78 96 / 01 02 31 91 12</a>
+                    </li>
+                    <li>
+                        <i class="fas fa-envelope-open-text"></i>
+                        <a href="mailto:pacomebertine@gmail.com">pacomebertine@gmail.com</a>
+                    </li>
+                </ul>
+            </div>
+            <ul class="side-menu-social">
+                {% for r in pb_reseaux_sociaux %}
+                    <li>
+                        <a href="{% url 'reseau_social_click' r.pk %}"
+                           target="_blank" rel="noopener"
+                           title="{{ r.nom }}">
+                            <i class="{{ r.icon|default:'fa-solid fa-share-nodes' }}"></i>
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <!-- ================ PRELOADER ================ -->
+    <div id="preloader">
+        <div class="loading" data-loading-text="P&BEntreprise..."></div>
+    </div>
+
+    <!-- ================ PAGE HEADER (optionnel) ================ -->
+    {% block page_header %}
+        <section class="page-header page-header-below-header-3">
+            <div class="bg-img" data-background="{% block page_header_background %}{% static 'pb_site_asset/img/bg-img/n_contact.avif' %}{% endblock page_header_background %}"></div>
+            <div class="overlay"></div>
+            <div class="shapes">
+                <div class="shape shape-1"><img src="{% static 'pb_site_asset/img/shapes/pager-header-shape-1.png' %}" alt="shape"></div>
+                <div class="shape shape-2"><img src="{% static 'pb_site_asset/img/shapes/pager-header-shape-2.png' %}" alt="shape"></div>
+            </div>
+            <div class="container">
+                <div class="page-header-content">
+                    <h1 class="title">{% block page_header_title %}Base{% endblock page_header_title %}</h1>
+                    <h4 class="sub-title">
+                        <span class="home">
+                            <a href="{% url 'home' %}">
+                                <span>Accueil</span>
+                            </a>
+                        </span>
+                        <span class="icon">/</span>
+                        <span class="inner">
+                            <span>{% block page_header_inner %}Base{% endblock page_header_inner %}</span>
+                        </span>
+                    </h4>
+                </div>
+            </div>
+        </section>
+    {% endblock page_header %}
+
+    <!-- ================ CONTENU PRINCIPAL ================ -->
+    {% block content %}{% endblock content %}
+
+    <!-- ================ FOOTER ================ -->
+    <footer class="footer-section footer-2 overflow-hidden" style="--bz-color-theme-primary: #EC281C; background-image: url('{% static 'pb_site_asset/img/bg-img/bg_foot0.jpg' %}'); background-size: cover; background-position: center; background-repeat: no-repeat;">
+        <div class="shapes">
+            <div class="shape shape-1"><img src="{% static 'pb_site_asset/img/shapes/footer-shape-1.png' %}" alt="footer"></div>
+            <div class="shape shape-2"><img src="{% static 'pb_site_asset/img/shapes/footer-shape-2.png' %}" alt="footer"></div>
+        </div>
+        <div class="container">
+            <div class="row footer-wrap">
+                <div class="col-lg-3 col-md-6">
+                    <div class="footer-widget">
+                        {% if footers %}
+                            {% for foot in footers %}
+                                <div class="widget-header header-2">
+                                    <div class="footer-logo">
+                                        <a href="index-3.html">{{foot.logo}}</a>
+                                    </div>
+                                </div>
+                                <p>{{foot.localisation_bp}}</p>
+                                <p>Tel 1: {{foot.contact_1}}</p>
+                                <p>Tel 2: {{foot.contact_2}}</p>
+                                <p>Tel 3: {{foot.contact_3}}</p>
+                                <p>Abidjan, Koumassi & Bingerville</p>
+                            {% endfor %}
+                        {% endif %}
+                        <ul class="footer-social">
+                            {% for r in pb_reseaux_sociaux|slice:":4" %}
+                                <li>
+                                    <a href="{% url 'reseau_social_click' r.pk %}"
+                                    target="_blank" rel="noopener"
+                                    title="{{ r.nom }}">
+                                        <i class="{{ r.icon|default:'fa-solid fa-share-nodes' }}"></i>
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                {% for categorie in pb_footer_categories %}
+                    <div class="col-lg-3 col-md-6">
+                        <div class="footer-widget widget-space">
+                            <div class="widget-header header-2">
+                                <h3 class="widget-title">{{ categorie.libelle }}</h3>
+                            </div>
+                            <ul class="footer-list">
+                                {% for lien in categorie.liens_actifs %}
+                                    <li>
+                                        <a href="{{ lien.lien|pb_link }}">{{ lien.libelle }}</a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                {% endfor %}
+                <div class="col-lg-3 col-md-6">
+                    <div class="footer-widget widget-space">
+                        <div class="widget-header header-2">
+                            <h3 class="widget-title">Téléchargez</h3>
+                        </div>
+                        <p><a href="#"><img src="{% static 'pb_site_asset/img/logo/googleplay.png' %}" alt="app"></a></p>
+                        <p><a href="#"><img src="{% static 'pb_site_asset/img/logo/appstore.png' %}" alt="app"></a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="copyright-area area-2">
+            <div class="container">
+                <div class="row copyright-content">
+                    <div class="col-md-6">
+                        <p>© 2025 P&BEntreprise. Tous droits réservés.</p>
+                    </div>
+                    <div class="col-md-6">
+                        <ul class="copy-list">
+                            <li><a href="contact.html">Conditions Générales</a></li>
+                            <li><a href="contact.html">Politique de Confidentialité</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ================ BARRE TELECHARGEMENT ================ -->
+        <div class="pb-bottom-bar" id="pb-bottom-bar">
+            <div class="pb-bottom-bar__inner">
+                <span class="pb-bottom-bar__text">Téléchargez l'application pour bénéficier de nos offres</span>
+                <div class="pb-bottom-bar__btns">
+                    <a href="#" class="pb-bottom-bar__btn pb-bottom-bar__btn--primary">Téléchargez l'appli</a>
+                    <a href="{% url 'contact' %}" class="pb-bottom-bar__btn pb-bottom-bar__btn--outline">Ouvrir dans le navigateur</a>
+                </div>
+            </div>
+        </div>
+
+    <!-- ================ SCROLL PERCENTAGE ================ -->
+    <div id="scroll-percentage" style="--bz-color-theme-primary: #EC281C"><span id="scroll-percentage-value"></span></div>
+
+    <!-- ================ MODAL TELECHARGEMENT APP ================ -->
+    <div class="pb-app-modal" id="pbAppModal">
+        <div class="pb-app-modal__overlay"></div>
+        <div class="pb-app-modal__content">
+            <button type="button" class="pb-app-modal__close" aria-label="Fermer">&times;</button>
+            <div class="pb-app-modal__grid">
+                <div class="pb-app-modal__qr">
+                    {% if pb_qrcode_app and pb_qrcode_app.qrcode_image %}
+                        <a href="{{ pb_qrcode_app.lien }}" target="_blank" rel="noopener">
+                            <img src="{{ pb_qrcode_app.qrcode_image.url }}" alt="{{ pb_qrcode_app.titre }}">
+                        </a>
+                    {% else %}
+                        <img src="{% static 'pb_site_asset/img/bg-img/qrcode.png' %}" alt="QR Code">
+                    {% endif %}
+                </div>
+                <div class="pb-app-modal__text">
+                    <h3 class="pb-app-modal__title">{% if pb_qrcode_app %}{{ pb_qrcode_app.titre }}{% else %}Téléchargez l'application qui facilite tout{% endif %}</h3>
+                </div>
+                <div class="pb-app-modal__desc">
+                    <p>{% if pb_qrcode_app and pb_qrcode_app.description %}{{ pb_qrcode_app.description|linebreaksbr }}{% else %}Réservez un trajet, louez un véhicule ou commandez une pièce détachée Suzuki en quelques clics depuis votre téléphone. L'application  vous connecte à tous les services P&BEntreprise, 24h/24 à Abidjan.{% endif %}</p>
+                    <div class="pb-app-modal__stores">
+                        <a href="#" class="pb-app-modal__store-btn"><i class="fa-brands fa-google-play"></i> Google Play</a>
+                        <a href="#" class="pb-app-modal__store-btn"><i class="fa-brands fa-apple"></i> App Store</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================ SCRIPTS ================ -->
+    <script src="{% static 'pb_site_asset/js/vendor/jquary-3.6.0.min.js' %}"></script>
+    <script src="{% static 'pb_site_asset/js/vendor/bootstrap-bundle.js' %}"></script>
+    <script src="{% static 'pb_site_asset/js/vendor/imagesloaded-pkgd.js' %}"></script>
+    <script src="{% static 'pb_site_asset/js/vendor/waypoints.min.js' %}"></script>
+    <script src="{% static 'pb_site_asset/js/vendor/venobox.min.js' %}"></script>
+    <script src="{% static 'pb_site_asset/js/vendor/odometer.min.js' %}"></script>
+    <script src="{% static 'pb_site_asset/js/vendor/meanmenu.js' %}"></script>
+    <script src="{% static 'pb_site_asset/js/vendor/smooth-scroll.js' %}"></script>
+    <script src="{% static 'pb_site_asset/js/vendor/jquery.isotope.js' %}"></script>
+    <script src="{% static 'pb_site_asset/js/vendor/magnific-popup.min.js' %}"></script>
+    <script src="{% static 'pb_site_asset/js/vendor/wow.min.js' %}"></script>
+    <script src="{% static 'pb_site_asset/js/vendor/swiper.min.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tsparticles@2.12.0/tsparticles.bundle.min.js"></script>
+    <script src="{% static 'pb_site_asset/js/vendor/slick.min.js' %}"></script>
+    <script src="{% static 'pb_site_asset/js/vendor/moment.min.js' %}"></script>
+    <script src="{% static 'pb_site_asset/js/vendor/daterangepicker.min.js' %}"></script>
+    <script src="{% static 'pb_site_asset/js/vendor/split-type.min.js' %}"></script>
+    <script src="{% static 'pb_site_asset/js/vendor/gsap.min.js' %}"></script>
+    <script src="{% static 'pb_site_asset/js/vendor/scroll-trigger.min.js' %}"></script>
+    <script src="{% static 'pb_site_asset/js/vendor/nice-select.js' %}"></script>
+    <script src="{% static 'pb_site_asset/js/main.js' %}"></script>
+
+    <script src="{% static 'pb_site_asset/js/effects-3d.js' %}"></script>
+
+    <!-- Year dynamique -->
+    <script>
+        document.getElementById("currentYear").textContent = new Date().getFullYear();
+    </script>
+
+    <!-- Modal téléchargement : ouverture / fermeture -->
+    <script>
+        (function () {
+            var modal = document.getElementById('pbAppModal');
+            if (!modal) return;
+            var overlay = modal.querySelector('.pb-app-modal__overlay');
+            var closeBtn = modal.querySelector('.pb-app-modal__close');
+
+            function openModal(e) {
+                e.preventDefault();
+                modal.classList.add('is-open');
+                modal.style.setProperty('opacity', '1', 'important');
+                modal.style.setProperty('visibility', 'visible', 'important');
+                document.body.style.overflow = 'hidden';
+            }
+            function closeModal() {
+                modal.classList.remove('is-open');
+                modal.style.setProperty('opacity', '0', 'important');
+                modal.style.setProperty('visibility', 'hidden', 'important');
+                document.body.style.overflow = '';
+            }
+            document.querySelectorAll('a').forEach(function (a) {
+                if (a.textContent.trim().toLowerCase().indexOf('téléchargez l\'appli') !== -1) {
+                    a.addEventListener('click', openModal);
+                }
+            });
+            if (overlay) overlay.addEventListener('click', closeModal);
+            if (closeBtn) closeBtn.addEventListener('click', closeModal);
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape' && modal.classList.contains('is-open')) closeModal();
+            });
+        })();
+    </script>
+
+    <!-- ================ PB LANG SWITCHER (traduction dynamique) ================ -->
+    <script>
+    (function () {
+        // ------------------------------------------------------------
+        // Traduit toute la page dans la langue choisie via l'API
+        // publique de Google Translate (endpoint gratuit).
+        // - Parcourt tous les noeuds texte visibles du <body>
+        // - Sauvegarde les textes originaux pour pouvoir restaurer
+        // - Met en cache les traductions dans sessionStorage
+        // - Applique aussi aux attributs: placeholder, title, alt, aria-label, value (input submit/button)
+        // ------------------------------------------------------------
+
+        var STORAGE_KEY = 'pb_site_lang';
+        var CACHE_KEY   = 'pb_site_lang_cache_v1';
+        var ORIGINAL_ATTR = 'data-pb-original';
+
+        var DEFAULT_LANG = 'fr';
+
+        // Liste blanche des langues actives (rendue par Django).
+        // Si la langue précédemment choisie a été désactivée en admin,
+        // on ignore le choix stocké et on revient à la langue par défaut.
+        var ALLOWED_LANGS = [
+            {% for langue in pb_langues %}'{{ langue.slug|escapejs }}'{% if not forloop.last %}, {% endif %}{% endfor %}
+        ];
+
+        var stored = sessionStorage.getItem(STORAGE_KEY);
+        var currentLang = (stored && (stored === DEFAULT_LANG || ALLOWED_LANGS.indexOf(stored) !== -1))
+            ? stored
+            : DEFAULT_LANG;
+        if (stored && currentLang !== stored) {
+            sessionStorage.setItem(STORAGE_KEY, DEFAULT_LANG);
+        }
+
+        // --------- Cache persistant (sessionStorage) ----------
+        function loadCache() {
+            try { return JSON.parse(sessionStorage.getItem(CACHE_KEY) || '{}'); }
+            catch (e) { return {}; }
+        }
+        function saveCache(cache) {
+            try { sessionStorage.setItem(CACHE_KEY, JSON.stringify(cache)); } catch (e) {}
+        }
+
+        // --------- Récupération des éléments traduisibles ----------
+        function collectTextNodes(root) {
+            var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+                acceptNode: function (node) {
+                    if (!node.nodeValue || !node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+                    var p = node.parentNode;
+                    if (!p) return NodeFilter.FILTER_REJECT;
+                    var tag = (p.tagName || '').toLowerCase();
+                    if (tag === 'script' || tag === 'style' || tag === 'noscript' || tag === 'code' || tag === 'pre') {
+                        return NodeFilter.FILTER_REJECT;
+                    }
+                    if (p.closest && p.closest('[data-pb-no-translate]')) return NodeFilter.FILTER_REJECT;
+                    return NodeFilter.FILTER_ACCEPT;
+                }
+            });
+            var nodes = [];
+            var n;
+            while ((n = walker.nextNode())) nodes.push(n);
+            return nodes;
+        }
+
+        var TRANSLATABLE_ATTRS = ['placeholder', 'title', 'alt', 'aria-label'];
+        function collectAttrTargets(root) {
+            var out = [];
+            TRANSLATABLE_ATTRS.forEach(function (attr) {
+                root.querySelectorAll('[' + attr + ']').forEach(function (el) {
+                    if (el.closest('[data-pb-no-translate]')) return;
+                    var v = el.getAttribute(attr);
+                    if (v && v.trim()) out.push({ el: el, attr: attr, value: v });
+                });
+            });
+            root.querySelectorAll('input[type=submit][value], input[type=button][value], button[value]').forEach(function (el) {
+                if (el.closest('[data-pb-no-translate]')) return;
+                var v = el.getAttribute('value');
+                if (v && v.trim()) out.push({ el: el, attr: 'value', value: v });
+            });
+            return out;
+        }
+
+        // --------- Sauvegarde / restauration des originaux ----------
+        function snapshotOriginals() {
+            collectTextNodes(document.body).forEach(function (node) {
+                if (!node.__pbOrig) node.__pbOrig = node.nodeValue;
+            });
+            collectAttrTargets(document.body).forEach(function (t) {
+                var key = ORIGINAL_ATTR + '-' + t.attr;
+                if (!t.el.hasAttribute(key)) t.el.setAttribute(key, t.value);
+            });
+        }
+
+        function restoreOriginals() {
+            collectTextNodes(document.body).forEach(function (node) {
+                if (node.__pbOrig !== undefined) node.nodeValue = node.__pbOrig;
+            });
+            TRANSLATABLE_ATTRS.concat(['value']).forEach(function (attr) {
+                var key = ORIGINAL_ATTR + '-' + attr;
+                document.querySelectorAll('[' + key + ']').forEach(function (el) {
+                    el.setAttribute(attr, el.getAttribute(key));
+                });
+            });
+        }
+
+        // --------- Traduction via Google Translate (endpoint public) ----------
+        // Utilise l'endpoint non-officiel "translate.googleapis.com" qui est
+        // gratuit et sans clé API. Source = auto.
+        function translateBatch(texts, target) {
+            // Limite ~5000 caractères par requête → on découpe en paquets
+            var MAX_CHARS = 4500;
+            var chunks = [];
+            var current = [];
+            var currentLen = 0;
+            texts.forEach(function (t) {
+                if (currentLen + t.length + 3 > MAX_CHARS && current.length) {
+                    chunks.push(current);
+                    current = [];
+                    currentLen = 0;
+                }
+                current.push(t);
+                currentLen += t.length + 3;
+            });
+            if (current.length) chunks.push(current);
+
+            var SEP = '\n|||\n';
+            var promises = chunks.map(function (chunk) {
+                var q = chunk.join(SEP);
+                var url = 'https://translate.googleapis.com/translate_a/single'
+                    + '?client=gtx&sl=auto&tl=' + encodeURIComponent(target)
+                    + '&dt=t&q=' + encodeURIComponent(q);
+                return fetch(url).then(function (r) { return r.json(); }).then(function (data) {
+                    var joined = '';
+                    if (data && data[0]) {
+                        data[0].forEach(function (seg) { if (seg && seg[0]) joined += seg[0]; });
+                    }
+                    var parts = joined.split(/\n\s*\|\|\|\s*\n/);
+                    if (parts.length !== chunk.length) {
+                        // Fallback : si la segmentation a été perdue, renvoyer tel quel
+                        return chunk.map(function () { return joined; });
+                    }
+                    return parts;
+                }).catch(function () { return chunk; });
+            });
+            return Promise.all(promises).then(function (results) {
+                var flat = [];
+                results.forEach(function (arr) { arr.forEach(function (t) { flat.push(t); }); });
+                return flat;
+            });
+        }
+
+        // --------- Application de la traduction à la page ----------
+        function applyTranslation(lang) {
+            snapshotOriginals();
+
+            if (!lang || lang === DEFAULT_LANG) {
+                restoreOriginals();
+                document.documentElement.setAttribute('lang', DEFAULT_LANG);
+                updateLabel(DEFAULT_LANG);
+                sessionStorage.setItem(STORAGE_KEY, DEFAULT_LANG);
+                currentLang = DEFAULT_LANG;
+                return;
+            }
+
+            var nodes = collectTextNodes(document.body);
+            var attrTargets = collectAttrTargets(document.body);
+
+            var originals = nodes.map(function (n) { return n.__pbOrig; })
+                .concat(attrTargets.map(function (t) { return t.el.getAttribute(ORIGINAL_ATTR + '-' + t.attr) || t.value; }));
+
+            var cache = loadCache();
+            cache[lang] = cache[lang] || {};
+
+            // 1. Récupérer dans le cache ce qui est déjà traduit
+            var toTranslate = [];
+            var toTranslateIdx = [];
+            originals.forEach(function (txt, i) {
+                if (txt == null) return;
+                if (cache[lang][txt] === undefined) {
+                    toTranslate.push(txt);
+                    toTranslateIdx.push(i);
+                }
+            });
+
+            function finalize() {
+                // Appliquer aux text nodes
+                nodes.forEach(function (n) {
+                    var original = n.__pbOrig;
+                    var t = cache[lang][original];
+                    if (t !== undefined) n.nodeValue = t;
+                });
+                // Appliquer aux attributs
+                attrTargets.forEach(function (t) {
+                    var original = t.el.getAttribute(ORIGINAL_ATTR + '-' + t.attr) || t.value;
+                    var tr = cache[lang][original];
+                    if (tr !== undefined) t.el.setAttribute(t.attr, tr);
+                });
+                document.documentElement.setAttribute('lang', lang);
+                updateLabel(lang);
+                sessionStorage.setItem(STORAGE_KEY, lang);
+                currentLang = lang;
+                saveCache(cache);
+                document.body.classList.remove('pb-translating');
+            }
+
+            if (toTranslate.length === 0) {
+                finalize();
+                return;
+            }
+
+            document.body.classList.add('pb-translating');
+            translateBatch(toTranslate, lang).then(function (translated) {
+                translated.forEach(function (tr, i) {
+                    var originalText = toTranslate[i];
+                    cache[lang][originalText] = tr || originalText;
+                });
+                finalize();
+            }).catch(function () {
+                document.body.classList.remove('pb-translating');
+            });
+        }
+
+        function updateLabel(lang) {
+            var label = document.querySelector('.pb-lang-current-label');
+            if (label) label.textContent = (lang || DEFAULT_LANG).toLowerCase();
+        }
+
+        // --------- Branchement des clics sur le sélecteur ----------
+        function bindSwitcher() {
+            document.querySelectorAll('.pb-lang-dropdown a[data-lang]').forEach(function (a) {
+                a.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    var lang = (a.getAttribute('data-lang') || '').toLowerCase();
+                    if (!lang) return;
+                    applyTranslation(lang);
+                });
+            });
+        }
+
+        // --------- Initialisation ----------
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function () {
+                bindSwitcher();
+                if (currentLang && currentLang !== DEFAULT_LANG) applyTranslation(currentLang);
+                else updateLabel(DEFAULT_LANG);
+            });
+        } else {
+            bindSwitcher();
+            if (currentLang && currentLang !== DEFAULT_LANG) applyTranslation(currentLang);
+            else updateLabel(DEFAULT_LANG);
+        }
+    })();
+    </script>
+
+    {% block extra_js %}{% endblock extra_js %}
+</body>
+</html>

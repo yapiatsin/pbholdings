@@ -6,15 +6,15 @@
     <img class="profile-user-img" style="border:none; height:55px;width:55px" src="{% static 'addcar.png' %}" alt="User profile picture">Catégorie véhicule
 {% endblock page_title %} 
 {% block page_action %}
-    <button type="button" class="btn btn-default text-success" data-toggle="modal" data-target="#modal-lg">Nouvelle catégorie <i class='fa fa-plus-circle'></i></button>
+    <button type="button" class="btn btn-default" data-toggle="modal" data-target="#modal-lg" style="color: #a83232;">Nouvelle catégorie <i class='fa fa-plus-circle'></i></button>
 {% endblock page_action %}
 
 {% block main_content %}
 <div class="modal fade" id="modal-lg">
     <div class="modal-dialog modal-lg">
-        <div class="modal-content" style="border-radius:25px;">
-            <div class="modal-header">
-                <h4 class="modal-title" style="font-weight:700;color: #06497C; font-size:16px;">Enrégistrer une catégorie</h4>
+        <div class="modal-content" style="border-radius:25px; border: 1px solid rgba(168, 50, 50, 0.2);">
+            <div class="modal-header" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.98)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 25px 25px 0 0;">
+                <h4 class="modal-title" style="font-weight:700;color: #a83232; font-size:16px;">Enrégistrer une catégorie</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -24,21 +24,21 @@
                     {% csrf_token %}
                     <div class="row card-body">
 						<div class="col-md-4 col-sm-6  form-group">
-							<label for="fullname"><b>Catégorie</b></label>
+							<label for="fullname" style="font-weight:600; color: #a83232;"><b>Catégorie</b></label>
 							{{form.category}}
 						</div>
 						<div class="col-md-4 col-sm-6  form-group">
-							<label for="fullname"><b>Recette par defaut</b></label>
+							<label for="fullname" style="font-weight:600; color: #a83232;"><b>Recette par defaut</b></label>
 							{{form.recette_defaut}}
 						</div>
 						<div class="col-md-4 col-sm-6  form-group">
-							<label for="fullname"><b>Valeur perdue par arrêt</b></label>
+							<label for="fullname" style="font-weight:600; color: #a83232;"><b>Valeur perdue par arrêt</b></label>
 							{{form.perte_par_30min}}
 						</div>
                     </div>
                     <div class="modal-footer justify-content-between">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
-                        <button type="submit" class="btn btn-outline-primary">Enregistrer</button>
+                        <button type="submit" class="btn" style="border-radius:25px; border: 1px solid #a83232; color: #a83232; background: transparent; font-weight: 600;">Enregistrer</button>
                     </div>
                 </form> 
             </div>
@@ -49,9 +49,9 @@
 <div class="col-md-3">
     <div class="row">
         <div class="col-md-12">
-            <div class="card" style="border-radius:25px 25px 0 0 ;">
-                <div class="card-header">
-                    <h3 class="card-title">{{ categories|length }} Catégorie{% if categories|length > 1  %}s{% endif %}</h3>
+            <div class="card" style="border-radius:25px 25px 0 0; border: 1px solid rgba(168, 50, 50, 0.2);">
+                <div class="card-header" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.98)); border-bottom: 1px solid rgba(168, 50, 50, 0.15);">
+                    <h3 class="card-title" style="color: #a83232; font-weight: 700;">{{ categories|length }} Catégorie{% if categories|length > 1  %}s{% endif %}</h3>
                     <div class="card-tools">
                         <button type="button" class="btn btn-tool" data-card-widget="collapse">
                             <i class="fas fa-minus"></i>
@@ -63,11 +63,11 @@
                     <ul class="products-list product-list-in-card pl-2 pr-2 p-2 m-2">
                         <li class="item">
                             <div class="product-img">
-                                <a href="{% url "all_vehi" %}" class="product-title text-secondary">Tous les véhicules</a>
+                                <a href="{% url "all_vehi" %}" class="product-title" style="color: #1a1a1a;">Tous les véhicules</a>
                             </div>
                             <div class="product-info">
                                 <a href="javascript:void(0)" class="product-title">
-                                    <span class="badge badge-warning float-right p-2">- {{total_veh}} -</span>
+                                    <span class="badge float-right p-2" style="background-color: #a83232; color: #fff;">- {{total_veh}} -</span>
                                 </a>
                             </div>
                         </li>
@@ -78,11 +78,11 @@
                                         {% for c in categories %}
                                             <li class="item">
                                                 <div class="product-img">
-                                                    <a href="{% url 'add_vehi' c.pk %}" class="product-title">{{c.category}}</a>
+                                                    <a href="{% url 'add_vehi' c.pk %}" class="product-title" style="color: #a83232;">{{c.category}}</a>
                                                 </div>
                                                 <div class="product-info">
                                                     <a href="javascript:void(0)" class="product-title">
-                                                        <span class="badge badge-light float-right p-2">- {{c.nb_vehicules}} -</span>
+                                                        <span class="badge float-right p-2" style="background-color: rgba(168, 50, 50, 0.12); color: #1a1a1a; border: 1px solid rgba(168, 50, 50, 0.2);">- {{c.nb_vehicules}} -</span>
                                                     </a>
                                                 </div>
                                             </li>
@@ -104,11 +104,12 @@
                 <div id="" class="">
                     <div class="row p-0 m-0">
                         <div class="col-md-12 p-0">
-                            <div class="card" style="box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+                            <div class="card" style="box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);
+                            border: 1px solid rgba(168, 50, 50, 0.2);
                             backdrop-filter: blur(5.2px);
                             -webkit-backdrop-filter: blur(5.2px); border-radius:25px;">
-                                <div class="card-header">
-                                    <h3 class="card-title">
+                                <div class="card-header" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.98)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 25px 25px 0 0;">
+                                    <h3 class="card-title" style="color: #a83232; font-weight: 700;">
                                         Liste des catégories
                                     </h3>
                                     <div class="card-tools">
@@ -118,7 +119,7 @@
                                 <div class="card-body">
                                     <table id="example1" class="table table-bordered table-striped">
                                         <thead>
-                                            <tr class="text-center text-danger">
+                                            <tr class="text-center" style="color: #a83232;">
                                                 <th>N°CID</th>
                                                 <th>LIBELLE</th>
                                                 <th>RECETTE</th>
@@ -132,7 +133,7 @@
                                                 {% for u in catego_vehi %}
                                                     <tr class="text-center">
                                                         <td><a>{{forloop.counter}}</a></td>
-                                                        <td><a href="{% url 'add_vehi' u.pk %}" class="mr-3 text-primary ">{{u.category}}</a></td>
+                                                        <td><a href="{% url 'add_vehi' u.pk %}" class="mr-3" style="color: #a83232;">{{u.category}}</a></td>
                                                         <td>{{u.recette_defaut}}</td>
                                                         <td>{{u.perte_par_30min}}</td>
                                                         <td>{{u.date_saisie|date:"d/m/Y"}}</td>
@@ -141,16 +142,16 @@
                                                                 {% if categorie.categorie == 'permvehi' %}
                                                                     {% for perm in perms %}
                                                                         {% if perm.name == "add véhicule" %}
-                                                                            <a href="{% url 'add_vehi' u.pk %}" class="mr-3 text-warning ">
-                                                                                <i style="font-size: 20px; "class="fa fa-plus-circle text-success" title='add véhicule'></i>
+                                                                            <a href="{% url 'add_vehi' u.pk %}" class="mr-3">
+                                                                                <i style="font-size: 20px; color: #a83232;" class="fa fa-plus-circle" title='add véhicule'></i>
                                                                             </a>
                                                                         {% elif perm.name == "Update Categorie" %}
                                                                             <a href="#" class="edit-categorie-btn mr-3" data-url="{% url 'updat_catego_vehi' u.pk %}">
-                                                                                <i style="font-size: 20px;" class="fa fa-edit text-warning"></i>
+                                                                                <i style="font-size: 20px; color: rgba(168, 50, 50, 0.85);" class="fa fa-edit"></i>
                                                                             </a>
                                                                         {% elif perm.name == "sup categorie" %}
-                                                                            <a href="{% url 'delete_catego' u.pk %}" class="text-danger" onclick="return confirm('Etes-vous sûre de vouloir supprimer la categorie de véhicule {{u.category|upper}}? car si vous supprimer toutes les véhicules liées seront supprimés')">
-                                                                                <i style="font-size: 20px; " class="fa fa-trash "></i>
+                                                                            <a href="{% url 'delete_catego' u.pk %}" style="color: #1a1a1a;" onclick="return confirm('Etes-vous sûre de vouloir supprimer la categorie de véhicule {{u.category|upper}}? car si vous supprimer toutes les véhicules liées seront supprimés')">
+                                                                                <i style="font-size: 20px;" class="fa fa-trash"></i>
                                                                             </a>
                                                                         {% endif %}
                                                                     {% endfor %}
@@ -174,7 +175,7 @@
 
 <div class="modal fade" id="editcategorieModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
-        <div class="modal-content" style="border-radius:20px;">
+        <div class="modal-content" style="border-radius:20px; border: 1px solid rgba(168, 50, 50, 0.2);">
             <div class="modal-body" id="modalBodyContent">
 
             </div>

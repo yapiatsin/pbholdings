@@ -1,0 +1,355 @@
+{% extends 'pb_site/base.html' %}
+{% load static %}
+{% load pb_links %}
+{% block title %}P&BEntreprise — Services{% endblock title %}
+
+{% block page_header_background %}{% static 'pb_site_asset/img/bg-img/blog.jpg' %}{% endblock page_header_background %}
+{% block page_header_title %}Services{% endblock page_header_title %}
+{% block page_header_inner %}services{% endblock page_header_inner %}
+
+{% block content %}
+    <div class="pb-service-page">
+    {% csrf_token %}
+    <div id="pb-service-config"
+         data-vue-url-template="{{ blog_vue_url_template|escape }}"
+         hidden></div>
+    <script type="application/json" id="pb-service-articles-data">{{ articles_json|safe }}</script>
+    {# Catégories de mobilité #}
+    <section class="about-section-4 pt-120 pb-120">
+        <div class="container">
+            <div class="section-heading mb-30">
+                <h4 class="sub-heading" data-text-animation="fade-in" data-duration="1.5"><span class="left-shape"></span>Nos gammes</h4>
+                <h2 class="section-title mb-0" data-text-animation data-split="word" data-duration="1">Nos offres de mobilité</h2>
+            </div>
+            {% if categoservices %}
+                <div class="row gy-lg-0 gy-4 fade-wrapper">
+                    {% for category in categoservices %}
+                    <div class="col-lg-3 col-md-6">
+                        <div class="pb-cat-card fade-top js-scroll slide-left">
+                            <div class="pb-cat-card__thumb">
+                                {% if category.image %}
+                                    <img src="{{ category.image.url }}" alt="{{ category.nom }}">
+                                {% else %}
+                                    <img src="{% static 'pb_site_asset/img/bg-img/servi_car1.png' %}" alt="{{ category.nom }}">
+                                {% endif %}
+                            </div>
+                            <div class="pb-cat-card__body">
+                                <h3 class="pb-cat-card__title">{{ category.nom }}</h3>
+                                {% if category.tagline %}
+                                    <p class="pb-cat-card__tagline">{{ category.tagline }}</p>
+                                {% endif %}
+                                {% if category.modeles_vehicules %}
+                                    <p class="pb-cat-card__models">{{ category.modeles_vehicules }}</p>
+                                {% endif %}
+
+                                {% if category.caracteristiques.all %}
+                                    <button class="pb-cat-card__accordion-btn" type="button" data-bs-toggle="collapse" data-bs-target="#catCollapse1" aria-expanded="false" aria-controls="catCollapse{{ category.pk }}">
+                                        <span>Caractéristiques</span>
+                                        <i class="fa-solid fa-chevron-down"></i>
+                                    </button>
+                                    <div id="catCollapse1" class="collapse pb-cat-card__details">
+                                        <ul>
+                                            {% for carac in category.caracteristiques.all %}
+                                                <li>{% if carac.emoji %}{{ carac.emoji }} {% endif %}{{ carac.texte }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                {% endif %}
+                                <a href="{{ category.bouton_lien|pb_link }}" class="pb-cat-card__btn">{{ category.bouton_texte|default:"Ouvrir dans le navigateur" }}</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="fade-top text-muted">Aucune catégorie de service n’est publiée pour le moment.</p>
+            {% endif %}
+        </div>
+    </section>
+
+    {% if promo_sections %}
+        <section class="about-cta fade-wrapper">
+            <div class="container">
+                <div class="section-heading mb-30">
+                    <h4 class="sub-heading" data-text-animation="fade-in" data-duration="1.5"><span class="left-shape"></span>Solutions</h4>
+                    <h2 class="section-title mb-0" data-text-animation data-split="word" data-duration="1">Nos solutions les plus demandées</h2>
+                </div>
+                <div class="row gy-lg-0 gy-4 justify-content-center fade-wrapper">
+                    {% for promo in promo_sections %}
+                        <div class="col-lg-4 col-md-6 fade-top">
+                            <div class="promo-item white-content js-scroll slide-left">
+                                <div class="bg-items">
+                                    <div class="bg-img"><img class="fx-media fx-media--promo-inner" src="{{ promo.image.url }}" alt="{{ promo.titre|escape }}"></div>
+                                    <div class="overlay"></div>
+                                    <div class="overlay-2"></div>
+                                </div>
+                                <h3 class="title"><a href="{% url 'detail_service' promo.pk %}">{{ promo.titre }}</a></h3>
+                                <p>{{ promo.description|truncatewords:24 }}</p>
+                                <a href="{% url 'detail_service' promo.pk %}" class="bz-primary-btn red-btn">{{ promo.bouton_texte|default:"En savoir plus" }} <i class="fa-regular fa-arrow-right"></i></a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+    {% endif %}
+
+    {# Actualités — cartes type blog / thème #}
+    <section class="team-details pt-120 pb-120" id="pb-service-actualites">
+        <div class="container">
+            <div class="section-heading mb-30">
+                <h4 class="sub-heading" data-text-animation="fade-in" data-duration="1.5"><span class="left-shape"></span>Blog</h4>
+                <h2 class="section-title mb-0" data-text-animation data-split="word" data-duration="1">Actualités récentes</h2>
+            </div>
+            {% if service_articles %}
+                <div class="row gy-lg-0 gy-4 fade-wrapper">
+                    {% for article in service_articles %}
+                        <div class="col-lg-6 col-md-6 fade-top">
+                            <div class="post-card post-inner">
+                                <div class="post-thumb">
+                                    {% if article.image_principale %}
+                                        <img src="{{ article.image_principale.url }}" alt="{{ article.titre|escape }}">
+                                    {% else %}
+                                        <img src="{% static 'pb_site_asset/img/bg-img/sieg.webp' %}" alt="">
+                                    {% endif %}
+                                </div>
+                                <div class="post-content-wrap">
+                                    <div class="post-content">
+                                        <ul class="post-meta">
+                                            <li><i class="fa-regular fa-calendar"></i>{{ article.date_publication|date:"d/m/Y" }}</li>
+                                            <li><i class="fa-regular fa-eye"></i><span class="pb-svc-card-vues" data-slug="{{ article.slug|escape }}">{{ article.nb_vues }}</span> vues</li>
+                                        </ul>
+                                        <h3 class="title"><a href="#" class="pb-service-open-modal" data-slug="{{ article.slug|escape }}">{{ article.titre }}</a></h3>
+                                        <p>{% if article.extrait %}{{ article.extrait|truncatewords:22 }}{% else %}{{ article.contenu|striptags|truncatewords:22 }}{% endif %}</p>
+                                    </div>
+                                    <div class="post-bottom">
+                                        <a href="#" class="read-more pb-service-open-modal" data-slug="{{ article.slug|escape }}">Lire l’article<i class="fa-solid fa-chevrons-right"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="fade-top text-muted mb-0">Aucun article publié pour le moment. <a href="{% url 'blogs' %}">Voir le blog</a></p>
+            {% endif %}
+        </div>
+    </section>
+
+    {% if nos_services %}
+        <section class="about-section-4 pt-120 pb-120">
+            <div class="container">
+                <div class="section-heading mb-30">
+                    <h4 class="sub-heading" data-text-animation="fade-in" data-duration="1.5"><span class="left-shape"></span>En savoir plus</h4>
+                    <h2 class="section-title mb-0" data-text-animation data-split="word" data-duration="1">Informations complémentaires</h2>
+                </div>
+                <p class="fade-top mb-40">Liens et fiches utiles pour aller plus loin.</p>
+                <div class="row gy-lg-0 gy-4 fade-wrapper">
+                    {% for ns in nos_services %}
+                        <div class="col-md-6 col-lg-4 fade-top">
+                            <div class="about-content-4 pb-service-info about-content-4--bordered h-100">
+                                {% if ns.image %}
+                                    <div class="about-img-wrap-4 mb-4" style="max-width: 100%; height: 200px;">
+                                        <div class="about-img img-1" style="width: 100%; height: 100%;">
+                                            <img src="{{ ns.image.url }}" alt="{{ ns.libelle|escape }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
+                                        </div>
+                                    </div>
+                                {% endif %}
+                                <h3 class="section-title mb-3" style="font-size: 1.25rem;">{{ ns.libelle }}</h3>
+                                {% if ns.description %}
+                                    <p class="fade-top">{{ ns.description|truncatewords:24 }}</p>
+                                {% endif %}
+                                {% if ns.lien_detail %}
+                                    <a href="{{ ns.lien_detail|pb_link }}" class="bz-primary-btn red-btn mt-2 d-inline-flex">Consulter <i class="fa-regular fa-arrow-right"></i></a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+    {% endif %}
+
+    {% if pb_qrcode_app and pb_qrcode_app.qrcode_image %}
+        <section class="pb-service-qr-section team-details fade-wrapper pt-120 pb-120">
+            <div class="container">
+                <div class="pb-service-qr-card fade-wrapper">
+                    <div class="row align-items-center justify-content-between gy-4 gy-lg-0">
+                        <div class="col-lg-7 col-md-12">
+                            <div class="pb-service-qr-card__text">
+                                <div class="section-heading mb-30">
+                                    <h4 class="sub-heading pb-service-qr-card__kicker" data-text-animation="fade-in" data-duration="1.5"><span class="left-shape"></span>Application mobile</h4>
+                                    <h2 class="section-title mb-0 pb-service-qr-card__title" data-text-animation data-split="word" data-duration="1">{{ pb_qrcode_app.titre }}</h2>
+                                </div>
+                                {% if pb_qrcode_app.description %}
+                                    <p class="fade-top pb-service-qr-card__lead">{{ pb_qrcode_app.description|linebreaksbr }}</p>
+                                {% else %}
+                                    <p class="fade-top pb-service-qr-card__lead">Scannez le code pour ouvrir le lien sur votre téléphone (réservation, suivi, offres).</p>
+                                {% endif %}
+                                {% if pb_qrcode_app.lien %}
+                                    <a href="{{ pb_qrcode_app.lien }}" class="bz-primary-btn red-btn fade-top mt-3 d-inline-flex text-uppercase" target="_blank" rel="noopener">Ouvrir le lien <i class="fa-regular fa-arrow-right"></i></a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-12 text-center text-lg-end">
+                            <figure class="pb-service-qr-card__figure mb-0 d-inline-block">
+                                <img src="{{ pb_qrcode_app.qrcode_image.url }}" alt="QR code — {{ pb_qrcode_app.titre|escape }}" class="pb-service-qr-card__qimg">
+                                <figcaption class="pb-service-qr-card__caption mt-3">{{ pb_qrcode_app.titre }}</figcaption>
+                            </figure>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    {% endif %}
+
+    <section class="team-details pb-120">
+        <div class="container">
+            <div class="row justify-content-center text-center gy-3 fade-wrapper">
+                <div class="col-md-6 fade-top">
+                    <a href="{% url 'contact' %}" class="bz-primary-btn red-btn w-100 justify-content-center">Besoin d’un devis ou d’une course ? <i class="fa-regular fa-arrow-right"></i></a>
+                </div>
+                <div class="col-md-6 fade-top">
+                    <a href="{% url 'blogs' %}" class="bz-primary-btn w-100 justify-content-center" style="border: 2px solid #111; background: transparent; color: #111;">Lire nos actualités <i class="fa-regular fa-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    </div>
+
+    <div class="modal fade" id="pbBlogArticleModal" tabindex="-1" aria-labelledby="pbBlogArticleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title h5" id="pbBlogArticleModalLabel"></h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+                </div>
+                <div class="modal-body">
+                    <ul class="post-meta mb-3" id="pbBlogModalMeta"></ul>
+                    <img src="" alt="" class="img-fluid rounded mb-3 d-none" id="pbBlogModalImg">
+                    <div class="blog-article-body" id="pbBlogModalBody"></div>
+                    <p class="text-muted small mb-0 mt-3">
+                        <i class="fa-regular fa-eye me-1"></i><span id="pbBlogModalVues">0</span> consultation(s)
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block extra_js %}
+<script>
+(function () {
+    if (typeof CSS === 'undefined' || !CSS.escape) {
+        window.CSS = window.CSS || {};
+        CSS.escape = function (s) {
+            return String(s).replace(/[^a-zA-Z0-9_\-]/g, '\\$&');
+        };
+    }
+
+    var cfg = document.getElementById('pb-service-config');
+    var vueUrlTemplate = cfg ? cfg.getAttribute('data-vue-url-template') : '';
+    var placeholder = 'pbarticlevueplaceholder';
+    var dataEl = document.getElementById('pb-service-articles-data');
+    var articlesBySlug = {};
+    try {
+        var raw = dataEl ? dataEl.textContent : '[]';
+        var list = JSON.parse(raw);
+        list.forEach(function (a) { articlesBySlug[a.slug] = a; });
+    } catch (e) {
+        console.warn('pb-service: JSON articles invalide', e);
+    }
+
+    function getCookie(name) {
+        var v = document.cookie.match('(^|;) ?' + name + '=([^;]*)(;|$)');
+        return v ? decodeURIComponent(v[2]) : '';
+    }
+
+    var modalEl = document.getElementById('pbBlogArticleModal');
+    var bsModal = null;
+    if (modalEl && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+        bsModal = new bootstrap.Modal(modalEl);
+    }
+
+    function formatDate(iso) {
+        if (!iso) return '';
+        try {
+            var d = new Date(iso);
+            if (isNaN(d.getTime())) return '';
+            return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
+        } catch (e) { return ''; }
+    }
+
+    function postIncrementVue(slug) {
+        if (!vueUrlTemplate || vueUrlTemplate.indexOf(placeholder) === -1) return;
+        var url = vueUrlTemplate.replace(placeholder, slug);
+        fetch(url, {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Accept': 'application/json',
+            },
+        })
+            .then(function (r) { return r.json().catch(function () { return {}; }); })
+            .then(function (data) {
+                if (data && data.ok && typeof data.nb_vues === 'number') {
+                    var a = articlesBySlug[slug];
+                    if (a) a.nb_vues = data.nb_vues;
+                    document.querySelectorAll('.pb-svc-card-vues[data-slug="' + CSS.escape(slug) + '"]').forEach(function (el) {
+                        el.textContent = String(data.nb_vues);
+                    });
+                    var mv = document.getElementById('pbBlogModalVues');
+                    if (mv) mv.textContent = String(data.nb_vues);
+                }
+            })
+            .catch(function () {});
+    }
+
+    function openArticleModal(slug) {
+        var a = articlesBySlug[slug];
+        if (!a || !modalEl) return;
+        var titleEl = document.getElementById('pbBlogArticleModalLabel');
+        var metaEl = document.getElementById('pbBlogModalMeta');
+        var imgEl = document.getElementById('pbBlogModalImg');
+        var bodyEl = document.getElementById('pbBlogModalBody');
+        var vuesEl = document.getElementById('pbBlogModalVues');
+
+        if (titleEl) titleEl.textContent = a.titre || '';
+        if (metaEl) {
+            var parts = [];
+            parts.push('<li><i class="fa-regular fa-calendar"></i>' + formatDate(a.date_publication) + '</li>');
+            parts.push('<li><i class="fa-regular fa-user"></i>' + (a.auteur_nom || 'P&BEntreprise') + '</li>');
+            if (a.categorie_nom) {
+                parts.push('<li><i class="fa-regular fa-folder"></i>' + a.categorie_nom + '</li>');
+            }
+            metaEl.innerHTML = parts.join('');
+        }
+        if (imgEl) {
+            if (a.image) {
+                imgEl.src = a.image;
+                imgEl.alt = a.titre || '';
+                imgEl.classList.remove('d-none');
+            } else {
+                imgEl.removeAttribute('src');
+                imgEl.classList.add('d-none');
+            }
+        }
+        if (bodyEl) bodyEl.innerHTML = a.contenu || '';
+        if (vuesEl) vuesEl.textContent = String(a.nb_vues != null ? a.nb_vues : 0);
+
+        postIncrementVue(slug);
+        if (bsModal) bsModal.show();
+    }
+
+    document.querySelectorAll('.pb-service-open-modal').forEach(function (el) {
+        el.addEventListener('click', function (e) {
+            e.preventDefault();
+            var slug = el.getAttribute('data-slug');
+            if (slug) openArticleModal(slug);
+        });
+    });
+})();
+</script>
+{% endblock extra_js %}

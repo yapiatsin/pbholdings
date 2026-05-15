@@ -6,16 +6,16 @@
 {% endblock page_title %} 
 
 {% block page_action %}
-    <button type="button" class="btn btn-default text-info" data-toggle="modal" data-target="#modal-sm"><i style="font-size: 20px;" class="fa fa-calendar"></i></button>
-    <a href="{% url 'saisi_compta' %}" class="btn btn-default text-info"><i class="fas fa-refresh"></i></a>
+    <button type="button" class="btn btn-default" data-toggle="modal" data-target="#modal-sm" style="color: #a83232;"><i style="font-size: 20px; color: rgba(168, 50, 50, 0.75);" class="fa fa-calendar"></i></button>
+    <a href="{% url 'saisi_compta' %}" class="btn btn-default" style="color: #a83232;"><i style="font-size: 20px; color: rgba(168, 50, 50, 0.75);" class="fas fa-sync"></i></a>
 {% endblock page_action %}
 
 {% block main_content%}
     <div class="modal fade" id="modal-sm">
         <div class="modal-dialog modal-sm">
-            <div class="modal-content" style="border-radius:25px;">
-                <div class="modal-header">
-                    <h4 class="modal-title" style="font-weight:700;color: #06497C;">FILTRE</h4>
+            <div class="modal-content" style="border-radius:25px; border: 1px solid rgba(168, 50, 50, 0.2);">
+                <div class="modal-header" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.98)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 25px 25px 0 0;">
+                    <h4 class="modal-title" style="font-weight:700;color: #a83232;">FILTRE</h4>
                     <button type="button" class="close" style="border-radius: 50%;" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -25,19 +25,19 @@
                         <form id="basic-form" method="get" novalidate>
                             <div class="row clearfix">
                                 <div class="col-12">
-                                    <label>Date debut </label>
+                                    <label style="font-weight:600; color: #a83232;">Date debut </label>
                                     <div class="form-group">                                    
                                         {{ form.date_debut }}
                                     </div>
                                 </div>
                                 <div class="col-12">
-                                    <label>Date fin</label>
+                                    <label style="font-weight:600; color: #a83232;">Date fin</label>
                                     <div class="form-group">                                    
                                         {{ form.date_fin }}
                                     </div>
                                 </div>
                                 <div class="col-12">
-                                    <label>Categorie</label>
+                                    <label style="font-weight:600; color: #a83232;">Categorie</label>
                                     <div class="form-group">                                    
                                         {{ form.categorie }}
                                     </div>
@@ -45,7 +45,7 @@
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Annuler</button>
-                                <button type="submit" class="btn btn-outline-success" >Afficher</button>
+                                <button type="submit" class="btn" style="border-radius:25px; border: 1px solid #a83232; color: #a83232; background: transparent; font-weight: 600;">Afficher</button>
                             </div>
                         </form>
                     </div>
@@ -60,8 +60,8 @@
                 <img style="height: 45px; width: 45px; position:relative; margin-top: 8px; margin-left: 0px;" src="{% static 'recet.png' %}" alt="" srcset="">
             </span>
             <div class="info-box-content">
-                <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Recette</span>
-                <span class="info-box-number" style="font-size:20px; color: #fa7832;">
+                <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">Recette</span>
+                <span class="info-box-number" style="font-size:20px; color: #1a1a1a;">
                 {{recette_mois_format}}
                 <small>frs cfa</small>
                 </span>
@@ -72,8 +72,8 @@
                 <img style="height: 45px; width: 45px; position:relative; margin-top: 8px; margin-left: 0px;" src="{% static 'chargfix.png' %}" alt="" srcset="">
             </span>
             <div class="info-box-content">
-                <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Charge Fixe</span>
-                <span class="info-box-number" style="font-size:20px; color: #fa7832;">
+                <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">Charge Fixe</span>
+                <span class="info-box-number" style="font-size:20px; color: #1a1a1a;">
                 {{chargefixe_mois_format}}
                 <small>frs cfa</small>
                 </span>
@@ -84,8 +84,8 @@
                 <img style="height: 45px; width: 45px; position:relative; margin-top: 8px; margin-left: 0px;" src="{% static 'chargvar.png' %}" alt="" srcset="">
             </span>
             <div class="info-box-content">
-                <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Charge Variable</span>
-                <span class="info-box-number" style="font-size:20px; color: #fa7832;">
+                <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">Charge Variable</span>
+                <span class="info-box-number" style="font-size:20px; color: #1a1a1a;">
                 {{chargvariale_mois_format}}
                 <small>frs cfa</small>
                 </span>
@@ -96,8 +96,8 @@
                 <img style="height: 45px; width: 45px; position:relative; margin-top: 4px;margin-left: 0px;" src="{% static 'sum.png' %}" alt="" srcset="">
             </span>
             <div class="info-box-content">
-                <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Charge totale</span>
-                <span class="info-box-number" style="font-size:20px; color: #fa7832;">
+                <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">Charge totale</span>
+                <span class="info-box-number" style="font-size:20px; color: #1a1a1a;">
                 {{chargtot_mois_format}}
                 <small>frs cfa</small>
                 </span>
@@ -108,8 +108,8 @@
                 <img style="height: 35px; width: 35px; position:relative; margin-top: 6px;margin-left: 0px;" src="{% static 'marge.png' %}" alt="" srcset="">
             </span>
             <div class="info-box-content">
-                <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Marge de contribution</span>
-                <span class="info-box-number" style="font-size:20px; color: #fa7832;">
+                <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">Marge de contribution</span>
+                <span class="info-box-number" style="font-size:20px; color: #1a1a1a;">
                 {{taux_marge_mois_format}}
                 <small>%</small>
                 </span>
@@ -125,7 +125,7 @@
                         <div class="row p-0 m-0">
                             <div class="col-md-12 p-0">
                                 <div class="card" style="box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);backdrop-filter: blur(5.2px);--webkit-backdrop-filter: blur(5.2px); border-radius:25px;">
-                                    <div class="card-header col-12 col-sm-12 col-md-12" style="font-size:18px; font-weight: 700; color: #06497C;">
+                                    <div class="card-header col-12 col-sm-12 col-md-12" style="font-size:18px; font-weight: 700; color: #a83232;">
                                         <form class="search-form">
                                             <div class="input-group">
                                                 <input type="text" name="search" value="{{ search_query }}" class="form-control" placeholder="Saisissez l'immatriculation du véhicule..." style="border-radius: 50px 0 0 50px;">

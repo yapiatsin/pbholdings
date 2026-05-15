@@ -7,7 +7,7 @@
             {{ form.immatriculation }}
             <div class="input-group-append">
             <button type="submit" name="submit" class="btn btn-danger"><i class="fas fa-search"></i></button>
-            <a href="{% url 'list_charg_fix' %}" name="submit" class="btn btn-danger" style="border-radius: 0 50px 50px 0;"><i class="fas fa-refresh text-light"></i></a>
+            <a href="{% url 'list_charg_fix' %}" name="submit" class="btn btn-danger" style="border-radius: 0 50px 50px 0;"><i class="fas fa-sync text-light"></i></a>
             </div>
         </div>
     </form>
@@ -23,23 +23,23 @@
             {% for perm in perms %}
                 {% if perm.name == "Exporter charge fixe" %}
                     <a href="{% url 'export_charge_fixe_excel' %}?date_debut={{ request.GET.date_debut }}&date_fin={{ request.GET.date_fin }}&immatriculation={{ request.GET.immatriculation }}&categorie={{ request.GET.categorie }}" 
-                    class="btn btn-default text-success"> Excel <i class="fa fa-file-excel-o"></i>
+                    class="btn btn-default" style="color: #a83232;"> Excel <i class="fa fa-file-excel-o"></i>
                     </a>
                 {% endif %}
             {% endfor %}
         {% endif %}
         {% endfor %}
-        <a class="btn btn-default text-info" data-toggle="modal" data-target="#modal-sm" href="#" style="font-size: 16px;"><i style="font-size: 20px;" class="fa fa-calendar"></i></a>
-        <a class="btn btn-default text-info" href="{% url 'list_charg_fix' %}" style="font-size: 16px;"><i style="font-size: 20px;" class="fa fa-refresh"></i></a>
+        <a class="btn btn-default" data-toggle="modal" data-target="#modal-sm" href="#" style="font-size: 16px; color: #a83232;"><i style="font-size: 20px;" class="fa fa-calendar"></i></a>
+        <a class="btn btn-default" style="font-size: 16px; color: #a83232;" href="{% url 'list_charg_fix' %}"><i style="font-size: 20px;" class="fas fa-sync"></i></a>
     </form>
 {% endblock page_action %}
 {% block main_content %}
 
 <div class="modal fade" id="modal-sm">
     <div class="modal-dialog modal-sm">
-        <div class="modal-content" style="border-radius:25px;">
-            <div class="modal-header">
-                <h4 class="modal-title" style="font-weight:700;color: #06497C; font-size:15px;">FILTRE</h4>
+        <div class="modal-content" style="border-radius:25px; border: 1px solid rgba(168, 50, 50, 0.2);">
+            <div class="modal-header" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.98)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 25px 25px 0 0;">
+                <h4 class="modal-title" style="font-weight:700;color: #a83232; font-size:15px;">FILTRE</h4>
                 <button type="button" style="border-radius:25px;" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -49,25 +49,25 @@
                     <form id="basic-form" method="get" novalidate>
                         <div class="row clearfix">
                             <div class="col-12">
-                                <label style="font-weight:700;color:rgba(152, 152, 152, 0.85); font-size:15px;">Date debut </label>
+                                <label style="font-weight:600;color: #a83232; font-size:15px;">Date debut </label>
                                 <div class="form-group">                                    
                                     {{ form.date_debut }}
                                 </div>
                             </div>
                             <div class="col-12">
-                                <label style="font-weight:700;color: rgba(152, 152, 152, 0.85); font-size:15px;">Date fin</label>
+                                <label style="font-weight:600;color: #a83232; font-size:15px;">Date fin</label>
                                 <div class="form-group">                                    
                                     {{ form.date_fin }}
                                 </div>
                             </div>
                             <div class="col-12">
-                                <label style="font-weight:700;color: rgba(152, 152, 152, 0.85); font-size:15px;">Categorie</label>
+                                <label style="font-weight:600;color: #a83232; font-size:15px;">Categorie</label>
                                 <div class="form-group">                                    
                                     {{ form.categorie }}
                                 </div>
                             </div>
                             <div class="col-12">
-                                <label style="font-weight:700;color: rgba(152, 152, 152, 0.85); font-size:15px;">Matricule</label>
+                                <label style="font-weight:600;color: #a83232; font-size:15px;">Matricule</label>
                                 <div class="form-group">                                    
                                     {{ form.immatriculation }}
                                 </div>
@@ -75,7 +75,7 @@
                         </div>
                         <div class="modal-footer justify-content-between">
                             <button type="button" class="btn btn-outline-secondary" style="border-radius:25px;" data-dismiss="modal">Annuler</button>
-                            <button type="submit" class="btn btn-outline-success" style="border-radius:25px;">Afficher</button>
+                            <button type="submit" class="btn" style="border-radius:25px; border: 1px solid #a83232; color: #a83232; background: transparent; font-weight: 600;">Afficher</button>
                         </div>
                     </form>
                 </div>
@@ -86,10 +86,10 @@
 
 <div class="col-12 col-sm-6 col-md-4">
     <div class="info-box" style="border-radius:25px;">
-        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-clock" style="color:rgba(6, 73, 124, 0.54);"></i></span>
+        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-file-invoice-dollar" style="color:rgba(168, 50, 50, 0.65);"></i></span>
         <div class="info-box-content">
-            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Aujourd'hui</span>
-            <span class="info-box-number" style="font-size:20px; color: #fa7832;">
+            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">Aujourd'hui</span>
+            <span class="info-box-number" style="font-size:20px; color: #1a1a1a;">
             {{chargefix_jours_format}}
             <small>frs cfa</small>
             </span>
@@ -98,10 +98,10 @@
 </div>
 <div class="col-12 col-sm-6 col-md-4">
     <div class="info-box mb-3" style="border-radius:25px;">
-    <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fa fa-calendar" style="color:rgba(6, 73, 124, 0.54);"></i></span>
+    <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fa fa-calendar" style="color:rgba(168, 50, 50, 0.65);"></i></span>
     <div class="info-box-content">
-        <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Mensuelle</span>
-        <span class="info-box-number" style="font-size:20px; color: #fa7832;">
+        <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">Mensuelle</span>
+        <span class="info-box-number" style="font-size:20px; color: #1a1a1a;">
         {{chargefix_mois_format}}
         <small>frs cfa</small>
         </span>
@@ -111,10 +111,10 @@
 <div class="clearfix hidden-md-up"></div>
 <div class="col-12 col-sm-6 col-md-4" >
     <div class="info-box mb-3" style="border-radius:25px;">
-        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-calendar" style="color:rgba(6, 73, 124, 0.54);"></i></span>
+        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-calendar" style="color:rgba(168, 50, 50, 0.65);"></i></span>
         <div class="info-box-content">
-            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Annuelle</span>
-            <span class="info-box-number" style="font-size:20px; color: #fa7832;">
+            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">Annuelle</span>
+            <span class="info-box-number" style="font-size:20px; color: #1a1a1a;">
             {{chargefix_an_format}}
             <small>frs cfa</small>
             </span>

@@ -124,6 +124,19 @@ class UpdatAutrarretForm(forms.ModelForm):
         self.fields["date_arret"].input_formats = ("%Y-%m-%dT%H:%M",)
         self.fields["date_sortie"].input_formats = ("%Y-%m-%dT%H:%M",)
 
+class ChargeAdminisExcelImportForm(forms.Form):
+    fichier = forms.FileField(
+        label='Fichier Excel (.xlsx)',
+        widget=forms.ClearableFileInput(attrs={'class': 'form-control', 'accept': '.xlsx'}),
+    )
+
+    def clean_fichier(self):
+        f = self.cleaned_data['fichier']
+        if not f.name.lower().endswith('.xlsx'):
+            raise forms.ValidationError('Seuls les fichiers .xlsx sont acceptés.')
+        return f
+
+
 class ChargeAdminisForm(forms.ModelForm):
     date_saisie = forms.DateTimeField(widget= forms.DateTimeInput(format=('%m/%d/%Y %H:%M'), attrs={'class':'form-control','format':'yyyy-mm-dd HH-ii ss', 'type':'date'}))
     class Meta:
@@ -398,6 +411,44 @@ class RecetteForm(forms.ModelForm):
             'numero_fact': forms.TextInput(attrs={'class':'form-control'}),
             'montant': forms.NumberInput(attrs={'class':'form-control','min':'0'}),
         }
+
+class RecetteExcelImportForm(forms.Form):
+    fichier = forms.FileField(
+        label='Fichier Excel (.xlsx)',
+        widget=forms.ClearableFileInput(attrs={'class': 'form-control', 'accept': '.xlsx'}),
+    )
+
+    def clean_fichier(self):
+        f = self.cleaned_data['fichier']
+        if not f.name.lower().endswith('.xlsx'):
+            raise forms.ValidationError('Seuls les fichiers .xlsx sont acceptés.')
+        return f
+
+class ChargeFixeExcelImportForm(forms.Form):
+    fichier = forms.FileField(
+        label='Fichier Excel (.xlsx)',
+        widget=forms.ClearableFileInput(attrs={'class': 'form-control', 'accept': '.xlsx'}),
+    )
+
+    def clean_fichier(self):
+        f = self.cleaned_data['fichier']
+        if not f.name.lower().endswith('.xlsx'):
+            raise forms.ValidationError('Seuls les fichiers .xlsx sont acceptés.')
+        return f
+
+
+class ChargeVariableExcelImportForm(forms.Form):
+    fichier = forms.FileField(
+        label='Fichier Excel (.xlsx)',
+        widget=forms.ClearableFileInput(attrs={'class': 'form-control', 'accept': '.xlsx'}),
+    )
+
+    def clean_fichier(self):
+        f = self.cleaned_data['fichier']
+        if not f.name.lower().endswith('.xlsx'):
+            raise forms.ValidationError('Seuls les fichiers .xlsx sont acceptés.')
+        return f
+
 
 class UpdateRecetteForm(forms.ModelForm):
     class Meta:

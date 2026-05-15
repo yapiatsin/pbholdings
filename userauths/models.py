@@ -22,6 +22,14 @@ class CustomUser(AbstractUser):
     gender = models.CharField(max_length=20, choices=GENDER_SELECTION)
     user_type=models.CharField(default="1", choices=USER, max_length=20)
     is_active = models.BooleanField(default=False)
+    failed_login_attempts = models.PositiveIntegerField(
+        default=0,
+        help_text="Nombre d'échecs de connexion consécutifs. Le compte est désactivé automatiquement après 3 tentatives.",
+    )
+    date_blocage = models.DateTimeField(
+        null=True, blank=True,
+        help_text="Date à laquelle le compte a été bloqué automatiquement.",
+    )
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["username"]
     groups = models.ManyToManyField(

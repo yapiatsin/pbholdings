@@ -25,6 +25,7 @@ urlpatterns = [
     path('charge administrative /<int:pk>/ delet', delete_chargadmin, name='delet_charge_admin'),
     path('charge administrative /<int:pk>/ modifier', UpdateChargeAdminView.as_view(), name='updat_charg_administ'),
     path("charge administrative/export-excel/", ExportChargeAdminisExcelView.as_view(), name="export_charge_admin_excel"),
+    path("charge administrative/exemplaire-import-excel/",DownloadChargeAdminExcelTemplateView.as_view(), name="download_charge_admin_excel_template",),
     
     path('caisse', BilletageView.as_view(), name='billetage'),
     path('caisse/export-excel/', ExportCaisseExcelView.as_view(), name='export_caisse_excel'),
@@ -70,6 +71,8 @@ urlpatterns = [
     path('historique-recettes/export-excel/', ExportHistoriqueRecetteExcelView.as_view(), name='export_historique_recettes_excel'),
     path('recette /<int:pk>/ modifier', UpdateRecetView.as_view(), name="updat_recet"),
     path('recettes /delete-selected/', views.delete_selected_recettes, name='delete_selected_recettes'),
+    path('recettes/excel-import/', AddRecetteExcelView.as_view(), name='add_recette_excel'),
+    path('recettes/excel-import/exemplaire/', DownloadRecetteExcelTemplateView.as_view(), name='download_recette_excel_template'),
     path('recettes /export-excel/', ExportRecetteExcelView.as_view(), name='export_recettes_excel'),
     #-------------------------------------------CHARGE---------------------------------------------
     path('vehicule /<int:pk>/ acharge fixe',AddChargeFixView.as_view(), name="addcharg_fix"),
@@ -78,6 +81,8 @@ urlpatterns = [
     path('liste-charge-fixe',ListChargeFixView.as_view(), name="list_charg_fix"),
     path('historique charge fixe',HistoriqueChargeFixeView.as_view(), name="historique_charge_fixe"),
     path('charge fixe /export-excel/', ExportChargeFixeExcelView.as_view(), name='export_charge_fixe_excel'),
+    path('charge fixe /excel-import/', AddChargeFixExcelView.as_view(), name='add_chargfix_excel'),
+    path('charge fixe /excel-import/exemplaire/', DownloadChargeFixeExcelTemplateView.as_view(), name='download_charge_fixe_excel_template'),
 
     path('vehicule /<int:pk>/ charg_var',AddChargeVarView.as_view(), name="addcharg_var"),
     path('charge variable /<int:pk>/ modifier',UpdateChargeVarView.as_view(), name="updat_charg_var"),
@@ -86,6 +91,8 @@ urlpatterns = [
     path('historique charge variable',HistoriqueChargeVariableView.as_view(), name="historique_charge_variable"),
     path('historique-charge-variable/export-excel/', ExportHistoriqueChargeVariableExcelView.as_view(), name='export_historique_charge_variable_excel'),
     path('charges variables/export-excel/', ExportChargeVariableExcelView.as_view(), name='export_charges_variables_excel'),
+    path('charges variables/excel-import/', AddChargeVarExcelView.as_view(), name='add_chargvar_excel'),
+    path('charges variables/excel-import/exemplaire/', DownloadChargeVariableExcelTemplateView.as_view(), name='download_charge_variable_excel_template'),
 
     #---------ENTRETIEN-------VISITE------REPARATION-------ASSURANCE-------PIECE-----VIGNETTE-----PATENTE--------PERTE-------ACCIDENT--------#
     path('vehicule /<int:pk>/ addautarret',AddAutrarretView.as_view(), name="add_autarrets"),

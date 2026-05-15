@@ -19,8 +19,8 @@
 
 {% block page_action %}
     <form id="quickForm">
-        <a class="btn btn-default text-info" data-toggle="modal" data-target="#modal-sm" href="#" style="font-size: 16px;"> <i style="font-size: 20px;" class="fa fa-calendar"></i></a>
-        <a class="btn btn-default text-info" href="{% url 'dash' %}" style="font-size: 16px;"><i style="font-size: 20px;" class="fa fa-refresh"></i></a>
+        <a class="btn btn-default text-info" data-toggle="modal" data-target="#modal-sm" href="#" style="font-size: 16px;"> <i style="font-size: 20px; color: var(--pb-primary)" class="fa fa-calendar"></i></a>
+        <a class="btn btn-default text-info" href="{% url 'dash' %}" style="font-size: 16px;"><i style="font-size: 20px; color: var(--pb-primary);" class="fas fa-sync"></i></a>
     </form>
 {% endblock page_action %}
 {% block main_content%}
@@ -29,7 +29,7 @@
     <div class="modal-dialog modal-sm">
         <div class="modal-content" style="border-radius:25px;">
             <div class="modal-header">
-                <h4 class="modal-title" style="font-weight:700;color: #06497C; font-size:15px;">FILTRE</h4>
+                <h4 class="modal-title" style="font-weight:700;color: #1a1a1a; font-size:15px;">FILTRE</h4>
                 <button type="button" style="border-radius:25px;" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -76,8 +76,8 @@
 </div>
 
 <div class="col-md-12">
-    <div class="card" style="color: #0176bf; border-radius: 20px; border-color: #00217b; font-weight: 700;">
-        <div class="card-body table-responsive p-0" style="border-radius:8px; border:none">
+    <div class="card" style="color: #a83232; border-radius: 20px; border-color: #a83232; font-weight: 700;">
+        <div class="card-body table-responsive stats-scroll p-0" style="border-radius:8px; border:none">
             <table class="table table text-nowrap">
                 <tr>
                     <div class="col-md-12">
@@ -89,10 +89,10 @@
                                             <img style="height: 40px; width: 40px; position:relative; margin-top: 9px; margin-left: 2px;" src="{% static 'recet.png' %}" alt="" srcset="">
                                         </div>
                                         <div>
-                                        <div style="font-size: 15px;color: #06497C">Recette</div>
-                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
+                                        <div style="font-size: 15px;color: #a83232">Recette</div>
+                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #1a1a1a;">
                                                 {{ total_recette_format }}
-                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
+                                                <small style="color: #1a1a1a; font-weight: 700; line-height: 1;"></small>
                                             </div>
                                         </div>
                                     </div>
@@ -103,10 +103,10 @@
                                             <img style="height: 30px; width: 30px; position:relative; margin-top: 13px; margin-left: 3px;" src="{% static 'marge.png' %}" alt="" srcset="">
                                         </div>
                                         <div>
-                                            <div style="font-size: 15px;color: #06497C">Marge de contribution</div>
-                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
+                                            <div style="font-size: 15px;color: #a83232">Marge de contribution</div>
+                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #1a1a1a;">
                                                 {{ taux_marge }}
-                                                <small style="color: #06497C; font-weight: 700; line-height: 1;">%</small>
+                                                <small style="color: #1a1a1a; font-weight: 700; line-height: 1;">%</small>
                                             </div>
                                         </div>
                                     </div>
@@ -117,10 +117,10 @@
                                             <img style="height: 40px; width: 40px; position:relative; margin-top: 9px; margin-left: 0px;" src="{% static 'brute.png' %}" alt="" srcset="">
                                         </div>
                                         <div>
-                                            <div style="font-size: 15px;color: #06497C">Marge coût direct</div>
-                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
+                                            <div style="font-size: 15px;color: #a83232">Marge coût direct</div>
+                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #1a1a1a;">
                                                 {{ marge_brute_format }}
-                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
+                                                <small style="color: #1a1a1a; font-weight: 700; line-height: 1;"></small>
                                             </div>
                                         </div>
                                     </div>
@@ -131,8 +131,8 @@
                                             <img style="height: 40px; width: 40px; position:relative; margin-top: 9px;margin-left: 0px;" src="{% static 'chargfix.png' %}" alt="" srcset="">
                                         </div>
                                         <div>
-                                            <div style="font-size: 15px;color: #06497C">Charges Fixes</div>
-                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">{{ tot_chargfix }} <small style="color: #06497C; font-weight: 700; line-height: 1;"></small></div>
+                                            <div style="font-size: 15px;color: #a83232">Charges Fixes</div>
+                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #1a1a1a;">{{ tot_chargfix }} <small style="color: #1a1a1a; font-weight: 700; line-height: 1;"></small></div>
                                         </div>
                                     </div>
                                 </td>
@@ -142,10 +142,10 @@
                                             <img style="height: 40px; width: 40px; position:relative; margin-top: 9px; margin-left: 0px;" src="{% static 'chargvar.png' %}" alt="" srcset="">
                                         </div>
                                         <div>
-                                            <div style="font-size: 15px; color: #06497C">Charges Variables</div>
-                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
+                                            <div style="font-size: 15px; color: #a83232">Charges Variables</div>
+                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #1a1a1a;">
                                                 {{ tot_chargvar }}
-                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
+                                                <small style="color: #1a1a1a; font-weight: 700; line-height: 1;"></small>
                                             </div>
                                         </div>
                                     </div>
@@ -156,10 +156,10 @@
                                             <img style="height: 40px; width: 40px; position:relative; margin-top: 8px; margin-left: 0px;" src="{% static 'sum.png' %}" alt="" srcset="">
                                         </div>
                                         <div>
-                                        <div style="font-size: 15px; color: #06497C">Charges Totales</div>
-                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
+                                        <div style="font-size: 15px; color: #a83232">Charges Totales</div>
+                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #1a1a1a;">
                                                 {{ charge_totale }}
-                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
+                                                <small style="color: #1a1a1a; font-weight: 700; line-height: 1;"></small>
                                             </div>
                                         </div>
                                     </div>
@@ -171,10 +171,10 @@
                                             <img style="height: 40px; width: 40px; position:relative; margin-top: 9px; margin-left: 0px;" src="{% static 'gear.png' %}" alt="" srcset="">
                                         </div>
                                         <div>
-                                            <div class="mt-1" style="font-size:14px; font-weight: 700; line-height: 1;color: #06497C">Pièces réparations garages</div>
-                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
+                                            <div class="mt-1" style="font-size:14px; font-weight: 700; line-height: 1;color: #a83232">Pièces réparations garages</div>
+                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #1a1a1a;">
                                                 {{ tot_piece}} 
-                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
+                                                <small style="color: #1a1a1a; font-weight: 700; line-height: 1;"></small>
                                             </div>
                                         </div>
                                     </div>
@@ -185,10 +185,10 @@
                                             <img style="height: 40px; width: 40px; position:relative; margin-top: 8px; margin-left: 0px;" src="{% static 'update.png' %}" alt="" srcset="">
                                         </div>
                                         <div>
-                                            <div style="font-size: 15px; color: #06497C">Pièces réparations rapides</div>
-                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #fa7832;">
+                                            <div style="font-size: 15px; color: #a83232">Pièces réparations rapides</div>
+                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #1a1a1a;">
                                                 {{ tot_piec_echang }}  
-                                                <small style="color: #06497C; font-weight: 700; line-height: 1;"></small>
+                                                <small style="color: #1a1a1a; font-weight: 700; line-height: 1;"></small>
                                             </div>
                                         </div>
                                     </div>
@@ -205,536 +205,456 @@
 <div class="col-md-12">
     <div class="row">
         <div class="col-md-4">
-            <div class="" style="border-radius:20px">
-                <div class="">
-                    <div class="row p-0 m-0">
-                        <div class="col-md-12 p-0">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="card">
-                                        <div class="card-header">Evolution des recettes
-                                            <div class="card-tools">
-                                                <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
-                                            </div>
-                                        </div>
-                                        <div class="card-body" style="background: rgba(255, 255, 255, 0.3);border-radius: 16px;box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-                                        backdrop-filter: blur(8px);
-                                        -webkit-backdrop-filter: blur(8px);">
-                                            <div class="chart">
-                                                <canvas id="barChart" style="min-height: 200px; height: 200px; max-height: 200px; max-width: 100%;"></canvas>
-                                                <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-                                            </div>
-                                            <script>
-                                                const cta = document.getElementById('barChart').getContext('2d');
-                                                const gradient = cta.createLinearGradient(0, 0, 0, 400);
-                                                gradient.addColorStop(0, 'rgb(63,166,235)');
-                                                gradient.addColorStop(1, 'rgb(63,166,235,.1)');
-
-                                                new Chart(cta, {
-                                                    type: 'line',
-                                                    data: {
-                                                        labels: {{labels|safe}},
-                                                        datasets: [{
-                                                            label: 'Recette',
-                                                            data: {{recet_mois_data}},
-                                                            borderWidth: 2,
-                                                            borderColor: 'rgb(23,84,133,.6)',
-                                                            tension: 0.4,
-                                                            fill: true,
-                                                            backgroundColor: [
-                                                                gradient,
-                                                            ],
-                                                        },]
-                                                    },
-                                                    options:{
-                                                        scales:{
-                                                            y:{
-                                                                beginAtZero: true,
-                                                                easing: 'linear',
-                                                                from: 1,
-                                                            }
-                                                        }
-                                                    }
-                                                });
-                                            </script>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+            <div class="card" style="border-radius: 20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);">
+                <div class="card-header d-flex justify-content-between align-items-center" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.95)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 20px 20px 0 0;">
+                    <strong style="font-size: 1.05rem; color: #a83232;">Evolution des recettes</strong>
+                </div>
+                <div class="card-body p-3">
+                    <div class="chart">
+                        <canvas id="barChart" style="min-height: 200px; height: 200px; max-height: 200px; max-width: 100%;"></canvas>
+                        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
                     </div>
+                    <script>
+                        const cta = document.getElementById('barChart').getContext('2d');
+                        const gradient = cta.createLinearGradient(0, 0, 0, 400);
+                        gradient.addColorStop(0, 'rgba(168, 50, 50, 0.22)');
+                        gradient.addColorStop(0.45, 'rgba(168, 50, 50, 0.08)');
+                        gradient.addColorStop(1, 'rgba(168, 50, 50, 0.01)');
+
+                        new Chart(cta, {
+                            type: 'line',
+                            data: {
+                                labels: {{labels|safe}},
+                                datasets: [{
+                                    label: 'Recette',
+                                    data: {{recet_mois_data}},
+                                    borderWidth: 2,
+                                    borderColor: 'rgb(168, 50, 50,.85)',
+                                    tension: 0.4,
+                                    fill: true,
+                                    backgroundColor: [
+                                        gradient,
+                                    ],
+                                },]
+                            },
+                            options:{
+                                scales:{
+                                    y:{
+                                        beginAtZero: true,
+                                        easing: 'linear',
+                                        from: 1,
+                                    }
+                                }
+                            }
+                        });
+                    </script>
                 </div>
             </div>
         </div>
 
         <div class="col-md-4">
-            <div class="" style="border-radius:20px">
-                <div class="">
-                    <div class="row p-0 m-0">
-                        <div class="col-md-12 p-0">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="card">
-                                        <div class="card-header">Evolution des taux
-                                            <div class="card-tools">
-                                                <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
-                                            </div>
-                                        </div>
-                                        <div class="card-body" style="background: rgba(255, 255, 255, 0.3);border-radius: 16px;box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-                                        backdrop-filter: blur(8px);
-                                        -webkit-backdrop-filter: blur(8px);">
-                                            <div class="chart">
-                                                <canvas id="lineCharts" style="min-height: 200px; height: 200px; max-height: 200px; max-width: 100%;"></canvas>
-                                                <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-                                            </div>
-                                            <script>
-                                                const ctz = document.getElementById('lineCharts').getContext('2d');
-                                                const gradient7 = ctz.createLinearGradient(0, 0, 0, 400);
-                                                gradient7.addColorStop(0, 'rgb(255,205,86,.9)');
-                                                gradient7.addColorStop(1, 'rgb(255,193,7,.1)');
-
-                                                new Chart(ctz, {
-                                                    type: 'line',
-                                                    data: {
-                                                        labels: {{labels| safe}},
-                                                        datasets: [{
-                                                            label: 'Taux',
-                                                            data: {{taux_data}},
-                                                            borderWidth: 2,
-                                                            borderColor: 'rgb(255,193,7,.6)',
-                                                            tension: 0.4,
-                                                            fill: true,
-                                                            backgroundColor: [
-                                                                gradient7,
-                                                            ],
-                                                        },]
-                                                    },
-                                                    options: {
-                                                        scales: {
-                                                            y: {
-                                                                beginAtZero: true
-                                                            }
-                                                        }
-                                                    }
-                                                });
-                                            </script>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+            <div class="card" style="border-radius: 20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);">
+                <div class="card-header d-flex justify-content-between align-items-center" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.95)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 20px 20px 0 0;">
+                    <strong style="font-size: 1.05rem; color: #a83232;">Evolution des taux</strong>
+                </div>
+                <div class="card-body p-3">
+                    <div class="chart">
+                        <canvas id="lineCharts" style="min-height: 200px; height: 200px; max-height: 200px; max-width: 100%;"></canvas>
+                        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
                     </div>
+                    <script>
+                        const ctz = document.getElementById('lineCharts').getContext('2d');
+                        const gradient7 = ctz.createLinearGradient(0, 0, 0, 400);
+                        gradient7.addColorStop(0, 'rgba(182, 81, 41, 0.22)');
+                        gradient7.addColorStop(0.45, 'rgba(182, 81, 41, 0.08)');
+                        gradient7.addColorStop(1, 'rgba(182, 81, 41, 0.01)');
+
+                        new Chart(ctz, {
+                            type: 'line',
+                            data: {
+                                labels: {{labels| safe}},
+                                datasets: [{
+                                    label: 'Taux',
+                                    data: {{taux_data}},
+                                    borderWidth: 2,
+                                    borderColor: 'rgb(168, 50, 50,.85)',
+                                    tension: 0.4,
+                                    fill: true,
+                                    backgroundColor: [
+                                        gradient7,
+                                    ],
+                                },]
+                            },
+                            options: {
+                                scales: {
+                                    y: {
+                                        beginAtZero: true
+                                    }
+                                }
+                            }
+                        });
+                    </script>
                 </div>
             </div>
         </div>
 
         <div class="col-md-4">
-            <div class="" style="border-radius:20px">
-                <div class="">
-                    <div class="row p-0 m-0">
-                        <div class="col-md-12 p-0">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <!-- BAR -->
-                                    <div class="card">
-                                        <div class="card-header">
-                                            Recette de semaine en cours
-                                            <div class="card-tools">
-                                                <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
-                                            </div>
-                                        </div>
-                                        <div class="card-body" style="background: rgba(255, 255, 255, 0.3);border-radius: 16px;box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-                                        backdrop-filter: blur(8px);
-                                        -webkit-backdrop-filter: blur(8px);">
-                                        <div class="chart">
-                                            <canvas id="barsChart" style="min-height: 200px; height: 200px; max-height: 200px; max-width: 100%;"></canvas>
-                                            {% comment %} <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> {% endcomment %}
-                                            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-                                            <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
-                                        </div>
-
-                                        <script>
-                                            const ctx = document.getElementById('barsChart').getContext('2d');
-                                            const datasets = {{ datasets_json|safe }};
-                                            const labels = {{ jours_semaine|safe }};
-
-                                            const ventesChart = new Chart(ctx, {
-                                                type: 'radar',
-                                                data: {
-                                                    labels: labels,
-                                                    datasets: datasets
-                                                },
-                                                options: {
-                                                    plugins: {
-                                                        legend: {
-                                                            display: false
-                                                        }
-                                                    },
-                                                    elements: {
-                                                        line: {
-                                                            borderWidth: 2
-                                                        }
-                                                    }
-                                                }
-                                            });
-                                        </script>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+            <div class="card" style="border-radius: 20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);">
+                <div class="card-header d-flex justify-content-between align-items-center" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.95)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 20px 20px 0 0;">
+                    <strong style="font-size: 1.05rem; color: #a83232;">Recettes par catégorie</strong>
+                </div>
+                <div class="card-body p-3">
+                    <div class="chart">
+                        <canvas id="barsChart" style="min-height: 200px; height: 200px; max-height: 200px; max-width: 100%;"></canvas>
+                        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                        <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
                     </div>
+                    <script>
+                        const ctx = document.getElementById('barsChart').getContext('2d');
+                        const basePalette = ['#a83232', '#1a1a1a', '#888', '#022e17', '#5f3a03', '#0d6efd', '#6f42c1'];
+                        const datasets = ({{ datasets_json|safe }} || []).map((dataset, index) => {
+                            const color = basePalette[index % basePalette.length];
+                            const alphaColor = color === '#888' ? 'rgba(136, 136, 136, 0.28)' : `${color}40`;
+                            return {
+                                ...dataset,
+                                borderColor: dataset.borderColor || color,
+                                backgroundColor: dataset.backgroundColor || alphaColor,
+                                pointBackgroundColor: dataset.pointBackgroundColor || color,
+                                pointBorderColor: dataset.pointBorderColor || color,
+                                pointHoverBackgroundColor: dataset.pointHoverBackgroundColor || color,
+                                pointHoverBorderColor: dataset.pointHoverBorderColor || '#fff',
+                                borderWidth: 2
+                            };
+                        });
+                        const labels = {{ jours_semaine|safe }};
+
+                        const ventesChart = new Chart(ctx, {
+                            type: 'radar',
+                            data: {
+                                labels: labels,
+                                datasets: datasets
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: {
+                                    legend: {
+                                        display: true,
+                                        position: 'bottom',
+                                        labels: {
+                                            usePointStyle: true,
+                                            boxWidth: 8,
+                                            color: '#1a1a1a'
+                                        }
+                                    },
+                                    tooltip: {
+                                        callbacks: {
+                                            label: function(context) {
+                                                const value = Number(context.raw || 0).toLocaleString('fr-FR');
+                                                return `${context.dataset.label}: ${value} FCFA`;
+                                            }
+                                        }
+                                    }
+                                },
+                                scales: {
+                                    r: {
+                                        beginAtZero: true,
+                                        angleLines: { color: 'rgba(136, 136, 136, 0.25)' },
+                                        grid: { color: 'rgba(136, 136, 136, 0.25)' },
+                                        pointLabels: { color: '#1a1a1a' },
+                                        ticks: {
+                                            color: '#888',
+                                            backdropColor: 'transparent',
+                                            callback: function(value) {
+                                                return Number(value).toLocaleString('fr-FR');
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    </script>
                 </div>
             </div>
         </div>
 
         <div class="col-md-4">
-            <div class="" style="border-radius:20px">
-                <div class="">
-                    <div class="row p-0 m-0">
-                        <div class="col-md-12 p-0">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="card">
-                                        <div class="card-header">
-                                        Evolution des charges
-                                            <div class="card-tools">
-                                                <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
-                                            </div>
-                                        </div>
-                                        <div class="card-body" style="background: rgba(255, 255, 255, 0.3);border-radius: 16px;box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-                                        backdrop-filter: blur(8px);
-                                        -webkit-backdrop-filter: blur(8px);">
-                                            <div class="chart">
-                                                <canvas id="barCharts" style="min-height: 200px; height: 200px; max-height: 200px; max-width: 100%;"></canvas>
-                                                <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-                                            </div>
-                                            <script>
-                                                const cty = document.getElementById('barCharts').getContext('2d');
-                                                const gradient1 = cty.createLinearGradient(0, 0, 0, 400);
-                                                gradient1.addColorStop(0, 'rgba(255, 136, 0, 1)');
-                                                gradient1.addColorStop(1, 'rgba(154, 82, 0, 1)');
-
-                                                const gradient4 = cty.createLinearGradient(0, 0, 0, 400);
-                                                gradient4.addColorStop(0, 'rgba(254, 95, 92, 1)');
-                                                gradient4.addColorStop(1, 'rgba(103, 2, 0, 1)'); 
-
-                                                new Chart(cty, {
-                                                    type: 'bar',
-                                                    data: {
-                                                        labels: {{labels|safe}},
-                                                        datasets: [{
-                                                            label: 'fixes',
-                                                            data: {{chargfix_mois_data}},
-                                                            borderWidth: 2,
-                                                            borderColor: gradient1,
-                                                            tension: 0.4,
-                                                            fill: true,
-                                                            backgroundColor: [
-                                                                gradient1,
-                                                            ],
-                                                        },
-                                                        {
-                                                            label: 'variables',
-                                                            data: {{chargvar_mois_data}},
-                                                            borderWidth: 2,
-                                                            borderColor: gradient4,
-                                                            tension: 0.4,
-                                                            fill: true,
-                                                            backgroundColor: [
-                                                                gradient4,
-                                                            ],
-                                                        },
-                                                        
-                                                        ]
-                                                    },
-                                                    options: {
-                                                        scales: {
-                                                            y: {
-                                                                beginAtZero: true
-                                                            }
-                                                        }
-                                                    }
-                                                });
-                                            </script>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+            <div class="card" style="border-radius: 20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);">
+                <div class="card-header d-flex justify-content-between align-items-center" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.95)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 20px 20px 0 0;">
+                    <strong style="font-size: 1.05rem; color: #a83232;">Evolution des charges</strong>
+                </div>
+                <div class="card-body p-3">
+                    <div class="chart">
+                        <canvas id="barCharts" style="min-height: 200px; height: 200px; max-height: 200px; max-width: 100%;"></canvas>
+                        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
                     </div>
+                    <script>
+                        const cty = document.getElementById('barCharts').getContext('2d');
+                        new Chart(cty, {
+                            type: 'bar',
+                            data: {
+                                labels: {{labels|safe}},
+                                datasets: [{
+                                    label: 'fixes',
+                                    data: {{chargfix_mois_data}},
+                                    borderWidth: 1,
+                                    borderColor: 'rgba(168, 50, 50, 0.9)',
+                                    backgroundColor: 'rgba(168, 50, 50, 0.16)',
+                                    borderRadius: 12,
+                                    borderSkipped: false,
+                                    barThickness: 22,
+                                },
+                                {
+                                    label: 'variables',
+                                    data: {{chargvar_mois_data}},
+                                    borderWidth: 1,
+                                    borderColor: 'rgba(26, 26, 26, 0.9)',
+                                    backgroundColor: 'rgba(26, 26, 26, 0.22)',
+                                    borderRadius: 12,
+                                    borderSkipped: false,
+                                    barThickness: 22,
+                                },
+
+                                ]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: {
+                                    legend: {
+                                        display: false
+                                    }
+                                },
+                                scales: {
+                                    x: {
+                                        grid: {
+                                            display: false
+                                        },
+                                        ticks: {
+                                            color: '#888'
+                                        }
+                                    },
+                                    y: {
+                                        beginAtZero: true,
+                                        grid: {
+                                            color: 'rgba(136, 136, 136, 0.22)'
+                                        },
+                                        ticks: {
+                                            color: '#888'
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    </script>
                 </div>
             </div>
         </div>
 
         <div class="col-md-4">
-            <div class="" style="border-radius:20px">
-                <div class="">
-                    <div class="row p-0 m-0">
-                        <div class="col-md-12 p-0">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="card">
-                                        <div class="card-header">
-                                        Evolution des Pièces
-                                            <div class="card-tools">
-                                                <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
-                                            </div>
-                                        </div>
-                                        <div class="card-body" style="background: rgba(255, 255, 255, 0.3);border-radius: 16px;box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-                                        backdrop-filter: blur(8px);
-                                        -webkit-backdrop-filter: blur(8px);">
-                                            <div class="chart">
-                                                <canvas id="lineChartxy" style="min-height: 200px; height: 200px; max-height: 200px; max-width: 100%;"></canvas>
-                                                <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-                                            </div>
-                                            <script>
-                                                const ctxy = document.getElementById('lineChartxy').getContext('2d');
-                                                const gradientpiecv = ctxy.createLinearGradient(0, 0, 0, 400);
-                                                gradientpiecv.addColorStop(0, 'rgb(233,30,99)');
-                                                gradientpiecv.addColorStop(1, 'rgb(187,222,251,.1)');
-                                                const gradientpiecta = ctxy.createLinearGradient(0, 0, 0, 400);
-                                                gradientpiecta.addColorStop(0, 'rgb(75, 191, 191)');
-                                                gradientpiecta.addColorStop(1, 'rgb(75, 191, 191,.1)');
-                                                new Chart(ctxy, {
-                                                    type: 'bar',
-                                                    data: {
-                                                        labels: {{labels|safe}},
-                                                        datasets: [
-                                                            {
-                                                                label: 'Réparation rapide',
-                                                                data: {{piecha_mois_data}},
-                                                                borderWidth: 2,
-                                                                borderColor: gradientpiecv,
-                                                                tension: 0.4,
-                                                                fill: true,
-                                                                backgroundColor: [
-                                                                    gradientpiecv,
-                                                                ],
-                                                            }, 
-                                                            {
-                                                                type: 'bar',
-                                                                label: 'Réparation garage',
-                                                                data: {{piec_mois_data}},
-                                                                backgroundColor: gradientpiecta,
-                                                                borderColor: gradientpiecta,
-                                                                borderWidth: 2,
-                                                                fill: true,
-                                                                tension: 0.4,
-                                                            },
-                                                            
-                                                        ]
-                                                    },
-                                                    options: {
-                                                        scales: {
-                                                            y: {
-                                                                beginAtZero: true
-                                                            }
-                                                        }
-                                                    }
-                                                });
-                                            </script>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+            <div class="card" style="border-radius: 20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);">
+                <div class="card-header d-flex justify-content-between align-items-center" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.95)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 20px 20px 0 0;">
+                    <strong style="font-size: 1.05rem; color: #a83232;">Evolution des Pièces</strong>
+                </div>
+                <div class="card-body p-3">
+                    <div class="chart">
+                        <canvas id="lineChartxy" style="min-height: 200px; height: 200px; max-height: 200px; max-width: 100%;"></canvas>
+                        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
                     </div>
+                    <script>
+                        const ctxy = document.getElementById('lineChartxy').getContext('2d');
+                        new Chart(ctxy, {
+                            type: 'bar',
+                            data: {
+                                labels: {{labels|safe}},
+                                datasets: [
+                                    {
+                                        label: 'Réparation rapide',
+                                        data: {{piecha_mois_data}},
+                                        borderWidth: 1,
+                                        borderColor: 'rgba(168, 50, 50, 0.9)',
+                                        backgroundColor: 'rgba(168, 50, 50, 0.16)',
+                                        borderRadius: 12,
+                                        borderSkipped: false,
+                                        barThickness: 22,
+                                    },
+                                    {
+                                        type: 'bar',
+                                        label: 'Réparation garage',
+                                        data: {{piec_mois_data}},
+                                        borderWidth: 1,
+                                        borderColor: 'rgba(26, 26, 26, 0.9)',
+                                        backgroundColor: 'rgba(26, 26, 26, 0.22)',
+                                        borderRadius: 12,
+                                        borderSkipped: false,
+                                        barThickness: 22,
+                                    },
+
+                                ]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: {
+                                    legend: {
+                                        display: false
+                                    }
+                                },
+                                scales: {
+                                    x: {
+                                        grid: {
+                                            display: false
+                                        },
+                                        ticks: {
+                                            color: '#888'
+                                        }
+                                    },
+                                    y: {
+                                        beginAtZero: true,
+                                        grid: {
+                                            color: 'rgba(136, 136, 136, 0.22)'
+                                        },
+                                        ticks: {
+                                            color: '#888'
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    </script>
                 </div>
             </div>
         </div>
 
         <div class="col-md-4">
-            <div class="" style="border-radius:20px">
-                <div class="">
-                    <div class="row p-0 m-0">
-                        <div class="col-md-12 p-0">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <!-- BAR -->
-                                    <div class="card">
-                                        <div class="card-header">Recette par catégorie
-                                            <div class="card-tools">
-                                                <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
-                                            </div>
-                                        </div>
-                                        <div class="card-body" style="background: rgba(255, 255, 255, 0.3);border-radius: 16px;box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-                                        backdrop-filter: blur(8px);
-                                        -webkit-backdrop-filter: blur(8px);">
-                                            <div class="chart">
-                                                <canvas id="lineaCharta" style="min-height: 200px; height: 200px; max-height: 200px; max-width: 100%;"></canvas>
-                                                <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-                                            </div>
-                                            <script>
-                                            const ctxRepartition = document.getElementById('lineaCharta').getContext('2d');
-                                            const repartitionChart = new Chart(ctxRepartition, {
-                                                type: 'doughnut',
-                                                data: {
-                                                    labels: {{ labelscat|safe }},
-                                                    datasets: [{
-                                                        data: {{ datacat|safe }},
-                                                        backgroundColor: [
-                                                            'rgb(242, 164, 136)',
-                                                            'rgb(54, 162, 235)',
-                                                            'rgb(75, 191, 191)',
-                                                            'rgb(255, 205, 87)',
-                                                            'rgb(255, 159, 64)',
-                                                            'rgb(200, 202, 207)',
-                                                            
-                                                        ],
-                                                        borderWidth: 1
-                                                    }]
-                                                },
-                                                options: {
-                                                    plugins: {
-                                                        legend: {
-                                                            position: 'right',
-                                                        }
-                                                    }
-                                                }
-                                            });
-                                        </script> 
-                                        </div>
-                                    </div>
-                                    <!-- FIN BAR -->
-                                </div>
-                            </div>
-                        </div>
+            <div class="card" style="border-radius: 20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);">
+                <div class="card-header d-flex justify-content-between align-items-center" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.95)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 20px 20px 0 0;">
+                    <strong style="font-size: 1.05rem; color: #a83232;">Recette par catégorie</strong>
+                </div>
+                <div class="card-body p-3">
+                    <div class="chart">
+                        <canvas id="lineaCharta" style="min-height: 200px; height: 200px; max-height: 200px; max-width: 100%;"></canvas>
+                        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
                     </div>
+                    <script>
+                    const ctxRepartition = document.getElementById('lineaCharta').getContext('2d');
+                    const repartitionColors = [
+                        '168, 50, 50',
+                        '26, 26, 26',
+                        '136, 136, 136',
+                        '2, 46, 23',
+                        '95, 58, 3',
+                        '168, 50, 50',
+                    ];
+                    const repartitionGradients = repartitionColors.map((color) => {
+                        const gradient = ctxRepartition.createRadialGradient(150, 100, 35, 150, 100, 120);
+                        gradient.addColorStop(0, `rgba(${color}, 0.02)`);
+                        gradient.addColorStop(0.68, `rgba(${color}, 0.12)`);
+                        gradient.addColorStop(1, `rgba(${color}, 0.42)`);
+                        return gradient;
+                    });
+                    const repartitionChart = new Chart(ctxRepartition, {
+                        type: 'doughnut',
+                        data: {
+                            labels: {{ labelscat|safe }},
+                            datasets: [{
+                                data: {{ datacat|safe }},
+                                backgroundColor: repartitionGradients,
+                                borderColor: repartitionColors.map((color) => `rgba(${color}, 0.75)`),
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            plugins: {
+                                legend: {
+                                    position: 'right',
+                                }
+                            }
+                        }
+                    });
+                </script>
                 </div>
             </div>
         </div>
         
         <div class="col-md-4">
-            <div class="" style="border-radius:20px">
-                <div class="">
-                    <div class="row p-0 m-0">
-                        <div class="col-md-12 p-0">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="card">
-                                        <div class="card-header">
-                                            <h3 class="card-title">{{ best_recettes|length }} Meilleur{% if best_recettes|length > 1  %}s{% endif %} recette{% if best_recettes|length > 1  %}s{% endif %}</h3>
-                                            <div class="card-tools">
-                                                <a href="{% url 'best_recets' %}" class="btn btn-tool text-primary" title="Voir la liste des meilleures recettes">
-                                                    Voir <i class="fas fa-plus"></i>
-                                                </a>
-                                                <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                                                    <i class="fas fa-minus"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                        <!-- /.card-header -->
-                                        <div class="card-body p-0">
-                                            <ul class="products-list product-list-in-card pl-2 pr-2">
-                                                {% for c in best_recettes %}
-                                                    <li class="item" style="font-size:15px;">
-                                                        <div class="product-img">
-                                                            <a href="javascript:void(0)" class="product-title text-secondary">{{c.vehicule.immatriculation}}</a>
-                                                        </div>
-                                                        <div class="product-info">
-                                                            <a href="javascript:void(0)" class="product-title">
-                                                                <span class="badge badge-light float-right p-2">- {{c.recs}} -</span>
-                                                            </a>
-                                                        </div>
-                                                    </li>
-                                                {% endfor %}
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+            <div class="card" style="border-radius: 20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);">
+                <div class="card-header d-flex align-items-center flex-nowrap w-100 dashboard-card-header-row" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.95)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 20px 20px 0 0;">
+                    <strong style="font-size: 1.05rem; color: #a83232;" class="card-title mb-0 flex-grow-1">{{ best_recettes|length }} Meilleur{% if best_recettes|length > 1  %}s{% endif %} recette{% if best_recettes|length > 1  %}s{% endif %}</strong>
+                    <div class="card-tools flex-shrink-0">
+                        <a href="{% url 'best_recets' %}" class="btn btn-tool" style="color: #a83232;" title="Voir la liste des meilleures recettes">
+                            Voir <i class="fas fa-plus"></i>
+                        </a>
                     </div>
+                </div>
+                <div class="card-body p-0">
+                    <ul class="products-list product-list-in-card dashboard-products-transparent-items pl-2 pr-2">
+                        {% for c in best_recettes %}
+                            <li class="item" style="font-size:15px;">
+                                <div class="product-img">
+                                    <a href="javascript:void(0)" class="product-title text-secondary">{{c.vehicule.immatriculation}}</a>
+                                </div>
+                                <div class="product-info">
+                                    <a href="javascript:void(0)" class="product-title">
+                                        <span class="badge badge-light float-right p-2">- {{c.recs}} -</span>
+                                    </a>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
                 </div>
             </div>
         </div>
 
         <div class="col-md-4">
-            <div class="" style="border-radius:20px">
-                <div class="">
-                    <div class="row p-0 m-0">
-                        <div class="col-md-12 p-0">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <!-- BAR -->
-                                    <div class="card">
-                                        <div class="card-header">
-                                            <h3 class="card-title" style="font-size:16px;">{{ bests_taux|length }} Meilleur{% if bests_taux|length > 1  %}s{% endif %} Marge{% if bests_taux|length > 1  %}s{% endif %} de contribution</h3>
-                                            <div class="card-tools">
-                                                <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                                                    <i class="fas fa-minus"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                        <!-- /.card-header -->
-                                        <div class="card-body p-0">
-                                            <ul class="products-list product-list-in-card pl-2 pr-2">
-                                                {% for c in bests_taux %}
-                                                    <li class="item" style="font-size:15px;">
-                                                        <div class="product-img">
-                                                            <a href="javascript:void(0)" class="product-title text-secondary">{{c.vehicule.immatriculation}}</a>
-                                                        </div>
-                                                        <div class="product-info">
-                                                            <a href="javascript:void(0)" class="product-title">
-                                                                <span class="badge badge-light float-right p-2">- {{c.taux}} -</span>
-                                                            </a>
-                                                        </div>
-                                                    </li>
-                                                {% endfor %}
-                                            </ul>
-                                        </div>
-                                    </div>
-                                    <!-- FIN BAR -->
+            <div class="card" style="border-radius: 20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);">
+                <div class="card-header d-flex justify-content-between align-items-center flex-wrap" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.95)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 20px 20px 0 0;">
+                    <strong style="font-size: 1.05rem; color: #a83232;" class="card-title mb-0">{{ bests_taux|length }} Meilleur{% if bests_taux|length > 1  %}s{% endif %} Marge{% if bests_taux|length > 1  %}s{% endif %} de contribution</strong>
+                </div>
+                <div class="card-body p-0">
+                    <ul class="products-list product-list-in-card dashboard-products-transparent-items pl-2 pr-2">
+                        {% for c in bests_taux %}
+                            <li class="item" style="font-size:15px;">
+                                <div class="product-img">
+                                    <a href="javascript:void(0)" class="product-title text-secondary">{{c.vehicule.immatriculation}}</a>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
+                                <div class="product-info">
+                                    <a href="javascript:void(0)" class="product-title">
+                                        <span class="badge badge-light float-right p-2">- {{c.taux}} -</span>
+                                    </a>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
                 </div>
             </div>
         </div>
 
         <div class="col-md-4">
-            <div class="" style="border-radius:20px">
-                <div class="">
-                    <div class="row p-0 m-0">
-                        <div class="col-md-12 p-0">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="card">
-                                        <div class="card-header">
-                                            <h3 class="card-title" style="font-size:16px;">{{ top_reparations|length }} Véhicule{% if top_reparations|length > 1  %}s{% endif %} faisant le plus de réparation</h3>
-                                            <div class="card-tools">
-                                                <a href="{% url 'top_repa' %}" class="btn btn-tool text-primary" title="Voir la liste des meilleures recettes">
-                                                    Voir <i class="fas fa-plus"></i>
-                                                </a>
-                                                <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                                                    <i class="fas fa-minus"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                        <!-- /.card-header -->
-                                        <div class="card-body p-0">
-                                            <ul class="products-list product-list-in-card pl-2 pr-2">
-                                                {% for c in top_reparations %}
-                                                    <li class="item" style="font-size:15px;">
-                                                        <div class="product-img">
-                                                            <a href="javascript:void(0)" class="product-title text-secondary">{{c.vehicule__immatriculation}}</a>
-                                                        </div>
-                                                        <div class="product-info">
-                                                            <a href="javascript:void(0)" class="product-title">
-                                                                <span class="badge badge-light float-right p-2">- {{c.total_reparations }} -</span>
-                                                            </a>
-                                                        </div>
-                                                    </li>
-                                                {% endfor %}
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+            <div class="card" style="border-radius: 20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);">
+                <div class="card-header d-flex align-items-center flex-nowrap w-100 dashboard-card-header-row" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.95)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 20px 20px 0 0;">
+                    <strong style="font-size: 1.05rem; color: #a83232;" class="card-title mb-0 flex-grow-1">{{ top_reparations|length }} Véhicule{% if top_reparations|length > 1  %}s{% endif %} faisant le plus de réparation</strong>
+                    <div class="card-tools flex-shrink-0">
+                        <a href="{% url 'top_repa' %}" class="btn btn-tool" style="color: #a83232;" title="Voir la liste des meilleures recettes">
+                            Voir <i class="fas fa-plus"></i>
+                        </a>
                     </div>
+                </div>
+                <div class="card-body p-0">
+                    <ul class="products-list product-list-in-card dashboard-products-transparent-items pl-2 pr-2">
+                        {% for c in top_reparations %}
+                            <li class="item" style="font-size:15px;">
+                                <div class="product-img">
+                                    <a href="javascript:void(0)" class="product-title text-secondary">{{c.vehicule__immatriculation}}</a>
+                                </div>
+                                <div class="product-info">
+                                    <a href="javascript:void(0)" class="product-title">
+                                        <span class="badge badge-light float-right p-2">- {{c.total_reparations }} -</span>
+                                    </a>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
                 </div>
             </div>
         </div>

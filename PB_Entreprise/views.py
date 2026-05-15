@@ -1,4 +1,5 @@
 from datetime import date, datetime, time, timedelta, timezone, timedelta
+from collections import defaultdict
 import json
 from typing import Any
 from django.db.models import Q
@@ -7,7 +8,7 @@ from django.shortcuts import redirect, render,get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse, reverse_lazy
 from django.views import View
-from django.views.generic import ListView, DetailView,CreateView, UpdateView, TemplateView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, TemplateView, FormView
 from django.contrib import messages
 import pandas as pd
 from userauths.models import *
@@ -17,7 +18,7 @@ from django.contrib.auth import logout
 from django.db.models import Count
 from django.db.models import Sum, F, Value
 import calendar
-from django.db.models.functions import ExtractMonth
+from django.db.models.functions import ExtractMonth, TruncDate
 from django.db.models.functions import Coalesce
 from django.db import transaction
 # Create your views here.
@@ -30,12 +31,16 @@ from django.views.decorators.http import require_POST
 from calendar import monthrange
 from calendar import SUNDAY
 from django.utils.timezone import now
+from django.utils import timezone as dj_timezone
 
 from django.core.mail import send_mail
 from userauths.utils import search_vehicules
 
+import io
 import openpyxl
+from openpyxl import load_workbook
 from openpyxl.utils import get_column_letter
+from openpyxl.utils.datetime import from_excel as openpyxl_from_excel
 from openpyxl.styles import Font, PatternFill, Alignment
 from xhtml2pdf import pisa
 from django.conf import settings
@@ -1523,7 +1528,7 @@ class DashboardView(CustomPermissionRequiredMixin,LoginRequiredMixin,TemplateVie
         label = [calendar.month_name[month][:1] for month in range(1, 13)]
         marge_cont, best_recets, best_marge, best_taux, labelscat, datacat, datasets, best_recets, best_marge, best_taux = [],[],[],[],[],[],[],[],[],[]
         
-        jours_semaine = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"]
+        jours_semaine = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"]
         categories = CategoVehi.objects.all()
         vehicules = Vehicule.objects.filter(car_statut=True)
 
@@ -1536,7 +1541,7 @@ class DashboardView(CustomPermissionRequiredMixin,LoginRequiredMixin,TemplateVie
 
         today = date.today()
         start_of_week = today - timedelta(days=today.weekday())
-        end_of_week = start_of_week + timedelta(days=5)
+        end_of_week = start_of_week + timedelta(days=6)
 
         all_vehicule = vehicules
         # Initialiser les variables de filtre par défaut (mois en cours)
@@ -1553,12 +1558,12 @@ class DashboardView(CustomPermissionRequiredMixin,LoginRequiredMixin,TemplateVie
             immatriculation = form.cleaned_data.get('immatriculation')
             
             if categorie_filter:
-                recette_queryset = recette_queryset.filter(vehicule__category__category=categorie_filter)
-                chargfix_queryset = chargfix_queryset.filter(vehicule__category__category=categorie_filter)
-                chargvar_queryset = chargvar_queryset.filter(vehicule__category__category=categorie_filter)
-                reparation_queryset = reparation_queryset.filter(vehicule__category__category=categorie_filter)
-                piechan_queryset = piechan_queryset.filter(vehicule__category__category=categorie_filter)
-                piece_queryset = piece_queryset.filter(reparation__vehicule__category__category=categorie_filter)
+                recette_queryset = recette_queryset.filter(vehicule__category=categorie_filter)
+                chargfix_queryset = chargfix_queryset.filter(vehicule__category=categorie_filter)
+                chargvar_queryset = chargvar_queryset.filter(vehicule__category=categorie_filter)
+                reparation_queryset = reparation_queryset.filter(vehicule__category=categorie_filter)
+                piechan_queryset = piechan_queryset.filter(vehicule__category=categorie_filter)
+                piece_queryset = piece_queryset.filter(reparation__vehicule__category=categorie_filter)
 
             if date_debut and date_fin:
                 recette_queryset = recette_queryset.filter(date_saisie__range=[date_debut, date_fin])
@@ -1704,26 +1709,37 @@ class DashboardView(CustomPermissionRequiredMixin,LoginRequiredMixin,TemplateVie
         labelscat = [item['vehicule__category__category'] for item in rectte_par_categorie]
         datacat = [item['total'] for item in rectte_par_categorie]
 
-        for categorie in categories:
-            ventes = [0] * 6
-            lignes = (
-                filtre_recette.filter(
-                    vehicule__category__category=categorie,
-                    date_saisie__range=[start_of_week, end_of_week]
-                ).annotate(
-                    jour=F("date_saisie"),
-                    total=Sum("montant")
-                ).values("jour").annotate(total=Sum("montant")).order_by('-total')
-            )
-            for ligne in lignes:
-                day_index = ligne["jour"].weekday()
-                if day_index < 6:
-                    ventes[day_index] = float(ligne["total"]) if ligne["total"] else 0
+        chart_dates = [
+            start_of_week + timedelta(days=jour)
+            for jour in range((end_of_week - start_of_week).days + 1)
+        ]
+        jours_semaine = [jour.strftime("%d/%m") for jour in chart_dates]
+        chart_recettes = recette_queryset.filter(date_saisie__range=[start_of_week, end_of_week])
+        if categorie_filter:
+            chart_categories = categories.filter(pk=categorie_filter.pk)
+        else:
+            chart_categories = categories.filter(
+                catego_vehicule__recettes__in=chart_recettes
+            ).distinct()
 
+        recettes_par_categorie = (
+            chart_recettes.values("vehicule__category_id", "date_saisie")
+            .annotate(total=Sum("montant"))
+            .order_by("date_saisie")
+        )
+        recettes_map = {
+            (ligne["vehicule__category_id"], ligne["date_saisie"]): float(ligne["total"] or 0)
+            for ligne in recettes_par_categorie
+        }
+
+        for categorie in chart_categories.order_by("category"):
             datasets.append({
                 "label": categorie.category.upper(),
-                "data": ventes,
-                "fill": True,
+                "data": [
+                    recettes_map.get((categorie.pk, jour), 0)
+                    for jour in chart_dates
+                ],
+                "fill": False,
             })
 
         top_reparations = (
@@ -1737,7 +1753,7 @@ class DashboardView(CustomPermissionRequiredMixin,LoginRequiredMixin,TemplateVie
         context={
             'total_recette_format':total_recette_format,
             "datasets_json": json.dumps(datasets),
-            "jours_semaine" : jours_semaine,
+            "jours_semaine" : json.dumps(jours_semaine),
             
             'vehicules':vehicules,
             'tot_piece':total_piece_format,
@@ -4581,17 +4597,20 @@ class ListRecetView(LoginRequiredMixin, CustomPermissionRequiredMixin, ListView)
 class ExportRecetteExcelView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         recettes = Recette.objects.all()
-        date_debut = request.GET.get('date_debut')
-        date_fin = request.GET.get('date_fin')
-        immatriculation = request.GET.get('immatriculation')
-        categorie = request.GET.get('categorie')
+        if request.GET.get('periode'):
+            recettes, _, _, _, _ = _apply_recette_excel_filters(request, recettes)
+        else:
+            date_debut = request.GET.get('date_debut')
+            date_fin = request.GET.get('date_fin')
+            immatriculation = request.GET.get('immatriculation')
+            categorie = request.GET.get('categorie')
 
-        if date_debut and date_fin:
-            recettes = recettes.filter(date_saisie__range=[date_debut, date_fin])
-        if immatriculation:
-            recettes = recettes.filter(vehicule__immatriculation=immatriculation)
-        if categorie:
-            recettes = recettes.filter(vehicule__category__category=categorie)
+            if date_debut and date_fin:
+                recettes = recettes.filter(date_saisie__range=[date_debut, date_fin])
+            if immatriculation:
+                recettes = recettes.filter(vehicule__immatriculation=immatriculation)
+            if categorie:
+                recettes = recettes.filter(vehicule__category__category=categorie)
 
         wb = openpyxl.Workbook()
         ws = wb.active
@@ -4619,6 +4638,1000 @@ class ExportRecetteExcelView(LoginRequiredMixin, View):
         response['Content-Disposition'] = 'attachment; filename=Recettes.xlsx'
         wb.save(response)
         return response
+
+
+def _apply_recette_excel_filters(request, queryset):
+    today = dj_timezone.localdate()
+    selected_period = request.GET.get('periode', 'today')
+    custom_filter_form = DateFormAnalytique(request.GET or None)
+
+    filter_start = today
+    filter_end = today
+    filtered_qs = queryset
+
+    if selected_period == 'week':
+        filter_start = today - timedelta(days=today.weekday())
+        filter_end = filter_start + timedelta(days=6)
+        filtered_qs = filtered_qs.filter(date__date__range=[filter_start, filter_end])
+    elif selected_period == 'month':
+        filter_start = today.replace(day=1)
+        filter_end = today
+        filtered_qs = filtered_qs.filter(date__year=today.year, date__month=today.month)
+    elif selected_period == 'year':
+        filter_start = date(today.year, 1, 1)
+        filter_end = today
+        filtered_qs = filtered_qs.filter(date__year=today.year)
+    elif selected_period == 'custom':
+        if custom_filter_form.is_valid():
+            date_debut = custom_filter_form.cleaned_data.get('date_debut')
+            date_fin = custom_filter_form.cleaned_data.get('date_fin')
+            categorie = custom_filter_form.cleaned_data.get('categorie')
+            immatriculation = custom_filter_form.cleaned_data.get('immatriculation')
+
+            if date_debut:
+                filtered_qs = filtered_qs.filter(date__date__gte=date_debut)
+                filter_start = date_debut
+            if date_fin:
+                filtered_qs = filtered_qs.filter(date__date__lte=date_fin)
+                filter_end = date_fin
+            if categorie:
+                filtered_qs = filtered_qs.filter(vehicule__category=categorie)
+            if immatriculation:
+                filtered_qs = filtered_qs.filter(vehicule__immatriculation__icontains=immatriculation.strip())
+    else:
+        selected_period = 'today'
+        filtered_qs = filtered_qs.filter(date__date=today)
+
+    if filter_start > filter_end:
+        filter_start, filter_end = filter_end, filter_start
+
+    return filtered_qs, selected_period, custom_filter_form, filter_start, filter_end
+
+
+_CHARGEFIX_EXCEL_HEADER_TO_FIELD = {
+    'immatriculation': 'immatriculation',
+    'marque': None,
+    'categorie': None,
+    'libelle': 'libelle',
+    'montant': 'montant',
+    'date saisie': 'date_saisie',
+    'auteur': None,
+    'compte comptable': 'cpte_comptable',
+    'n facture': 'Num_fact',
+    'numero facture': 'Num_fact',
+    'n piece': 'Num_piece',
+    'numero piece': 'Num_piece',
+}
+
+
+def _chargefix_excel_col_index(header_row):
+    idx = {}
+    for i, cell in enumerate(header_row):
+        norm = _charge_admin_normalize_excel_header(cell)
+        field = _CHARGEFIX_EXCEL_HEADER_TO_FIELD.get(norm)
+        if field and field not in idx:
+            idx[field] = i
+    return idx
+
+
+_CHARGEVAR_EXCEL_HEADER_TO_FIELD = {
+    'immatriculation': 'immatriculation',
+    'marque': None,
+    'categorie': None,
+    'libelle': 'libelle',
+    'montant': 'montant',
+    'date saisie': 'date_saisie',
+    'auteur': None,
+    'compte comptable': 'cpte_comptable',
+    'n facture': 'Num_fact',
+    'numero facture': 'Num_fact',
+    'n piece': 'Num_piece',
+    'numero piece': 'Num_piece',
+}
+
+
+def _chargevar_excel_col_index(header_row):
+    idx = {}
+    for i, cell in enumerate(header_row):
+        norm = _charge_admin_normalize_excel_header(cell)
+        field = _CHARGEVAR_EXCEL_HEADER_TO_FIELD.get(norm)
+        if field and field not in idx:
+            idx[field] = i
+    return idx
+
+
+def _excel_import_template_http_response(headers, example_rows, sheet_title, filename):
+    """Génère un classeur .xlsx avec en-têtes + lignes d'exemple pour l'import (openpyxl)."""
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = sheet_title[:31]
+    ws.append(headers)
+    for row in example_rows:
+        ws.append(row)
+    for col_num in range(1, len(headers) + 1):
+        ws.column_dimensions[get_column_letter(col_num)].width = 20
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = f'attachment; filename={filename}'
+    wb.save(response)
+    return response
+
+
+class DownloadRecetteExcelTemplateView(LoginRequiredMixin, CustomPermissionRequiredMixin, View):
+    login_url = 'login'
+    permission_url = 'add_recette_excel'
+
+    def get(self, request, *args, **kwargs):
+        sample_date = dj_timezone.localdate().strftime('%d-%m-%Y')
+        headers = [
+            'Immatriculation',
+            'Marque',
+            'Catégorie',
+            'Chauffeur',
+            'Montant',
+            'Date saisie',
+            'Compte comptable',
+            'N° Facture',
+            'N° Pièce',
+        ]
+        example_rows = [[
+            'AB-123-CD',
+            'Marque exemple',
+            'Catégorie exemple',
+            'Nom du chauffeur',
+            10000,
+            sample_date,
+            '701000',
+            'FAC-001',
+            'PC-001',
+        ]]
+        return _excel_import_template_http_response(
+            headers,
+            example_rows,
+            'Recettes',
+            'Exemplaire-Recettes-import.xlsx',
+        )
+
+
+class DownloadChargeFixeExcelTemplateView(LoginRequiredMixin, CustomPermissionRequiredMixin, View):
+    login_url = 'login'
+    permission_url = 'list_charg_fix'
+
+    def get(self, request, *args, **kwargs):
+        sample_date = dj_timezone.localdate().strftime('%d-%m-%Y')
+        headers = [
+            'Immatriculation',
+            'Marque',
+            'Catégorie',
+            'Libellé',
+            'Compte comptable',
+            'N° Pièce',
+            'N° Facture',
+            'Montant',
+            'Date saisie',
+        ]
+        example_rows = [[
+            'AB-123-CD',
+            'Marque exemple',
+            'Catégorie exemple',
+            'Libellé charge fixe',
+            '616000',
+            'PC-001',
+            'FAC-001',
+            50000,
+            sample_date,
+        ]]
+        return _excel_import_template_http_response(
+            headers,
+            example_rows,
+            'Charges Fixes',
+            'Exemplaire-Charges-Fixes-import.xlsx',
+        )
+
+
+class DownloadChargeAdminExcelTemplateView(LoginRequiredMixin, CustomPermissionRequiredMixin, View):
+    login_url = 'login'
+    permission_url = 'add_chargadminist'
+
+    def get(self, request, *args, **kwargs):
+        sample_date = dj_timezone.localdate().strftime('%d-%m-%Y')
+        headers = [
+            'Libellé',
+            'Montant',
+            'Compte comptable',
+            'Date saisie',
+            'N° Pièce',
+            'N° Facture',
+        ]
+        example_rows = [[
+            'Frais administratifs exemple',
+            15000,
+            '645000',
+            sample_date,
+            'PC-ADM-001',
+            'FAC-ADM-001',
+        ]]
+        return _excel_import_template_http_response(
+            headers,
+            example_rows,
+            'Charges Admin',
+            'Exemplaire-Charges-Administratives-import.xlsx',
+        )
+
+
+class DownloadChargeVariableExcelTemplateView(LoginRequiredMixin, CustomPermissionRequiredMixin, View):
+    login_url = 'login'
+    permission_url = 'list_charg_var'
+
+    def get(self, request, *args, **kwargs):
+        sample_date = dj_timezone.localdate().strftime('%d-%m-%Y')
+        headers = [
+            'Immatriculation',
+            'Marque',
+            'Catégorie',
+            'Libellé',
+            'Compte comptable',
+            'N° Pièce',
+            'N° Facture',
+            'Montant',
+            'Date saisie',
+        ]
+        example_rows = [[
+            'AB-123-CD',
+            'Marque exemple',
+            'Catégorie exemple',
+            'Libellé charge variable',
+            '606000',
+            'PC-002',
+            'FAC-002',
+            25000,
+            sample_date,
+        ]]
+        return _excel_import_template_http_response(
+            headers,
+            example_rows,
+            'Charges Variables',
+            'Exemplaire-Charges-Variables-import.xlsx',
+        )
+
+
+def _recette_import_row_is_identical(existing, chauffeur, cpte, numero_fact, num_piece, montant):
+    return (
+        existing.montant == montant
+        and (existing.chauffeur or '') == chauffeur
+        and (existing.cpte_comptable or '') == cpte
+        and (existing.numero_fact or '') == numero_fact
+        and (existing.Num_piece or '') == num_piece
+    )
+
+
+def _excel_import_num_piece_month_key(date_saisie, num_piece):
+    """(année, mois, n° pièce) si le n° est renseigné ; sinon None (aucune contrainte d'unicité)."""
+    piece = (num_piece or '').strip()
+    if not piece:
+        return None
+    return (date_saisie.year, date_saisie.month, piece)
+
+
+def _num_piece_already_used_same_month(model_cls, num_piece, date_saisie, exclude_pk=None):
+    qs = model_cls.objects.filter(
+        Num_piece=num_piece,
+        date_saisie__year=date_saisie.year,
+        date_saisie__month=date_saisie.month,
+    )
+    if exclude_pk is not None:
+        qs = qs.exclude(pk=exclude_pk)
+    return qs.exists()
+
+
+class AddRecetteExcelView(LoginRequiredMixin, CustomPermissionRequiredMixin, FormView):
+    login_url = 'login'
+    permission_url = 'add_recette_excel'
+    form_class = RecetteExcelImportForm
+    template_name = 'perfect/add_recet_excel.html'
+    success_url = reverse_lazy('add_recette_excel')
+    timeout_minutes = 500
+
+    def dispatch(self, request, *args, **kwargs):
+        last_activity = request.session.get('last_activity')
+        if last_activity:
+            last_activity = datetime.strptime(last_activity, '%Y-%m-%d %H:%M:%S')
+            if datetime.now() - last_activity > timedelta(minutes=self.timeout_minutes):
+                logout(request)
+                messages.warning(request, 'Vous avez été déconnecté')
+                return redirect('login')
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        self._process_recette_excel(form.cleaned_data['fichier'])
+        return redirect(self.success_url)
+
+    def _process_recette_excel(self, fichier):
+        request = self.request
+        wb = None
+        try:
+            wb = load_workbook(io.BytesIO(fichier.read()), read_only=True, data_only=True)
+            ws = wb.active
+            rows = list(ws.iter_rows(values_only=True))
+        except Exception as exc:
+            messages.error(request, f'Impossible de lire le fichier Excel : {exc}')
+            return
+        finally:
+            if wb is not None:
+                try:
+                    wb.close()
+                except Exception:
+                    pass
+
+        if not rows:
+            messages.warning(request, 'Le fichier ne contient aucune ligne.')
+            return
+
+        header = rows[0]
+        col_idx = _recette_excel_col_index(header)
+        required = ('immatriculation', 'chauffeur', 'montant', 'date_saisie')
+        missing = [c for c in required if c not in col_idx]
+        if missing:
+            messages.error(
+                request,
+                f'Colonnes obligatoires manquantes : {", ".join(missing)}. '
+                'Attendu : au minimum Immatriculation, Chauffeur, Montant, Date saisie (comme l’export « Recettes »).',
+            )
+            return
+
+        created = updated = skipped_same = bad_rows = bad_immat = skipped_num_piece_month = 0
+        seen_num_piece_month = set()
+
+        for rnum, row in enumerate(rows[1:], start=2):
+            if row is None or not any(cell not in (None, '') for cell in row):
+                continue
+
+            def _cell(field):
+                i = col_idx.get(field)
+                if i is None or i >= len(row):
+                    return None
+                return row[i]
+
+            immat_v = _cell('immatriculation')
+            immat_raw = str(immat_v).strip() if immat_v is not None else ''
+            vehicule = Vehicule.objects.filter(immatriculation__iexact=immat_raw).first()
+            if not vehicule:
+                bad_immat += 1
+                continue
+
+            chauffeur_v = _cell('chauffeur')
+            chauffeur = str(chauffeur_v).strip()[:50] if chauffeur_v is not None else ''
+
+            montant_raw = _cell('montant')
+            try:
+                montant = int(round(float(montant_raw))) if montant_raw is not None and montant_raw != '' else None
+            except (TypeError, ValueError):
+                montant = None
+
+            cpte_v = _cell('cpte_comptable')
+            cpte = str(cpte_v).strip()[:100] if cpte_v is not None else ''
+
+            nf_v = _cell('numero_fact')
+            np_v = _cell('Num_piece')
+            numero_fact = str(nf_v).strip()[:20] if nf_v is not None else ''
+            num_piece = str(np_v).strip()[:100] if np_v is not None else ''
+
+            date_saisie = _charge_admin_parse_excel_date(_cell('date_saisie'))
+
+            if not chauffeur or montant is None or not date_saisie:
+                bad_rows += 1
+                continue
+
+            existing = (
+                Recette.objects.filter(vehicule=vehicule, date_saisie=date_saisie)
+                .order_by('-id')
+                .first()
+            )
+
+            if existing:
+                # Regle metier: meme immatriculation + meme date_saisie
+                # => si montant differend, on met a jour le montant ; sinon on ignore.
+                if existing.montant != montant:
+                    existing.montant = montant
+                    existing.auteur = request.user
+                    existing.save(update_fields=['montant', 'auteur'])
+                    updated += 1
+                else:
+                    skipped_same += 1
+                continue
+
+            np_key = _excel_import_num_piece_month_key(date_saisie, num_piece)
+            if np_key:
+                if np_key in seen_num_piece_month:
+                    skipped_num_piece_month += 1
+                    continue
+                if _num_piece_already_used_same_month(Recette, num_piece, date_saisie):
+                    skipped_num_piece_month += 1
+                    continue
+                seen_num_piece_month.add(np_key)
+
+            Recette.objects.create(
+                auteur=request.user,
+                vehicule=vehicule,
+                chauffeur=chauffeur,
+                cpte_comptable=cpte,
+                numero_fact=numero_fact,
+                Num_piece=num_piece,
+                montant=montant,
+                date_saisie=date_saisie,
+            )
+            created += 1
+
+        if created:
+            messages.success(
+                request,
+                f'{created} recette(s) créée(s) (import sous le compte « {request.user.get_username()} »).',
+            )
+        if updated:
+            messages.success(request, f'{updated} recette(s) mise(s) à jour (montant différent pour la même date et le même véhicule).')
+        if skipped_same:
+            messages.warning(
+                request,
+                f'{skipped_same} ligne(s) ignorée(s) : une recette existe déjà pour cette immatriculation à la même date_saisie avec le même montant.',
+            )
+        if bad_immat:
+            messages.error(
+                request,
+                f'{bad_immat} ligne(s) ignorée(s) : immatriculation inconnue (véhicule absent du parc).',
+            )
+        if bad_rows:
+            messages.error(request, f'{bad_rows} ligne(s) ignorée(s) : données incomplètes ou montant invalide.')
+        if skipped_num_piece_month:
+            messages.error(
+                request,
+                f'{skipped_num_piece_month} ligne(s) ignorée(s) : N° pièce déjà utilisé pour le même mois '
+                '(mois calendaire de la date de saisie — doublon dans le fichier ou en base). '
+                'Sans N° pièce, la ligne n’est pas contrôlée sur ce critère.',
+            )
+        if not any([created, updated, skipped_same, bad_immat, bad_rows, skipped_num_piece_month]):
+            messages.info(request, 'Aucune ligne de données exploitable.')
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        today = dj_timezone.localdate()
+        base_qs = Recette.objects.select_related('vehicule', 'vehicule__category', 'auteur')
+        filtered_qs, selected_period, custom_filter_form, filter_start, filter_end = _apply_recette_excel_filters(
+            self.request, base_qs
+        )
+
+        recettes_today = filtered_qs.order_by('-date', '-id')
+
+        day_labels = []
+        cursor_day = filter_start
+        while cursor_day <= filter_end:
+            day_labels.append(cursor_day)
+            cursor_day += timedelta(days=1)
+
+        cat_totals_map = defaultdict(int)
+        grouped = (
+            filtered_qs
+            .annotate(day=TruncDate('date'))
+            .values('day', 'vehicule__category_id')
+            .annotate(total=Sum('montant'))
+        )
+        for row in grouped:
+            cat_totals_map[(row['day'], row['vehicule__category_id'])] = row['total'] or 0
+
+        palette = [
+            ('#3b82f6', 'rgba(59, 130, 246, 0.12)'),
+            ('#10b981', 'rgba(16, 185, 129, 0.12)'),
+            ('#f59e0b', 'rgba(245, 158, 11, 0.12)'),
+            ('#ef4444', 'rgba(239, 68, 68, 0.12)'),
+            ('#8b5cf6', 'rgba(139, 92, 246, 0.12)'),
+            ('#06b6d4', 'rgba(6, 182, 212, 0.12)'),
+        ]
+        chart_datasets = []
+        categories = CategoVehi.objects.all().order_by('id')
+        for idx, cat in enumerate(categories):
+            border, bg = palette[idx % len(palette)]
+            serie = [cat_totals_map.get((d, cat.id), 0) for d in day_labels]
+            chart_datasets.append({
+                'label': cat.category,
+                'data': serie,
+                'borderColor': border,
+                'backgroundColor': bg,
+                'fill': False,
+                'tension': 0.35,
+                'pointRadius': 3,
+            })
+
+        week_start = today - timedelta(days=today.weekday())
+        recette_jours = base_qs.filter(date__date=today).aggregate(somme=Sum('montant'))['somme'] or 0
+        recette_semaine = base_qs.filter(date__date__range=[week_start, week_start + timedelta(days=6)]).aggregate(somme=Sum('montant'))['somme'] or 0
+        recette_mois = base_qs.filter(date__year=today.year, date__month=today.month).aggregate(somme=Sum('montant'))['somme'] or 0
+        recette_an = base_qs.filter(date__year=today.year).aggregate(somme=Sum('montant'))['somme'] or 0
+
+        ctx['page_info'] = (
+            'Le fichier peut reprendre l’export « Recettes » (Immatriculation, Marque, Catégorie, Chauffeur, Montant, Date saisie). '
+            'Vous pouvez ajouter les colonnes Compte comptable, N° facture, N° pièce. Les doublons ne sont pas basés sur pièce/facture : '
+            'pour un même véhicule et la même date, si le montant change la ligne est mise à jour ; si le montant est identique, la ligne est ignorée. '
+            'Si le N° pièce est renseigné, il doit être unique pour le mois calendaire de la date de saisie (une même pièce peut être réutilisée un autre mois).'
+        )
+        ctx['recettes_today'] = recettes_today
+        ctx['today_date'] = today
+        ctx['selected_period'] = selected_period
+        ctx['period_form'] = custom_filter_form
+        ctx['period_start'] = filter_start
+        ctx['period_end'] = filter_end
+        ctx['export_querystring'] = self.request.GET.urlencode()
+        ctx['recette_jours_format'] = '{:,}'.format(recette_jours).replace(',', ' ')
+        ctx['recette_semaine_format'] = '{:,}'.format(recette_semaine).replace(',', ' ')
+        ctx['recette_mois_format'] = '{:,}'.format(recette_mois).replace(',', ' ')
+        ctx['recette_an_format'] = '{:,}'.format(recette_an).replace(',', ' ')
+        ctx['chart_labels'] = json.dumps([d.strftime('%d/%m') for d in day_labels])
+        ctx['chart_datasets'] = json.dumps(chart_datasets)
+        return ctx
+
+class AddChargeFixExcelView(LoginRequiredMixin, CustomPermissionRequiredMixin, FormView):
+    login_url = 'login'
+    permission_url = 'list_charg_fix'
+    form_class = ChargeFixeExcelImportForm
+    template_name = 'perfect/add_chargfix_excel.html'
+    success_url = reverse_lazy('add_chargfix_excel')
+    timeout_minutes = 500
+
+    def dispatch(self, request, *args, **kwargs):
+        last_activity = request.session.get('last_activity')
+        if last_activity:
+            last_activity = datetime.strptime(last_activity, '%Y-%m-%d %H:%M:%S')
+            if datetime.now() - last_activity > timedelta(minutes=self.timeout_minutes):
+                logout(request)
+                messages.warning(request, 'Vous avez été déconnecté')
+                return redirect('login')
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        self._process_chargefix_excel(form.cleaned_data['fichier'])
+        return redirect(self.success_url)
+
+    def _process_chargefix_excel(self, fichier):
+        request = self.request
+        wb = None
+        try:
+            wb = load_workbook(io.BytesIO(fichier.read()), read_only=True, data_only=True)
+            ws = wb.active
+            rows = list(ws.iter_rows(values_only=True))
+        except Exception as exc:
+            messages.error(request, f'Impossible de lire le fichier Excel : {exc}')
+            return
+        finally:
+            if wb is not None:
+                try:
+                    wb.close()
+                except Exception:
+                    pass
+
+        if not rows:
+            messages.warning(request, 'Le fichier ne contient aucune ligne.')
+            return
+
+        header = rows[0]
+        col_idx = _chargefix_excel_col_index(header)
+        required = ('immatriculation', 'montant', 'date_saisie')
+        missing = [c for c in required if c not in col_idx]
+        if missing:
+            messages.error(
+                request,
+                f'Colonnes obligatoires manquantes : {", ".join(missing)}. '
+                'Attendu : au minimum Immatriculation, Montant, Date saisie (comme l\'export « Charges Fixes »).',
+            )
+            return
+
+        created = updated = skipped_same = bad_rows = bad_immat = skipped_num_piece_month = 0
+        seen_num_piece_month = set()
+
+        for row in rows[1:]:
+            if row is None or not any(cell not in (None, '') for cell in row):
+                continue
+
+            def _cell(field):
+                i = col_idx.get(field)
+                if i is None or i >= len(row):
+                    return None
+                return row[i]
+
+            immat_v = _cell('immatriculation')
+            immat_raw = str(immat_v).strip() if immat_v is not None else ''
+            vehicule = Vehicule.objects.filter(immatriculation__iexact=immat_raw).first()
+            if not vehicule:
+                bad_immat += 1
+                continue
+
+            montant_raw = _cell('montant')
+            try:
+                montant = int(round(float(montant_raw))) if montant_raw is not None and montant_raw != '' else None
+            except (TypeError, ValueError):
+                montant = None
+
+            libelle_v = _cell('libelle')
+            cpte_v = _cell('cpte_comptable')
+            np_v = _cell('Num_piece')
+            nf_v = _cell('Num_fact')
+            libelle = str(libelle_v).strip()[:100] if libelle_v is not None else ''
+            cpte = str(cpte_v).strip()[:100] if cpte_v is not None else ''
+            num_piece = str(np_v).strip()[:100] if np_v is not None else ''
+            num_fact = str(nf_v).strip()[:100] if nf_v is not None else ''
+            date_saisie = _charge_admin_parse_excel_date(_cell('date_saisie'))
+
+            if montant is None or not date_saisie:
+                bad_rows += 1
+                continue
+
+            existing = (
+                ChargeFixe.objects.filter(vehicule=vehicule, date_saisie=date_saisie)
+                .order_by('-id')
+                .first()
+            )
+
+            if existing:
+                if existing.montant != montant:
+                    existing.montant = montant
+                    existing.auteur = request.user
+                    existing.save(update_fields=['montant', 'auteur'])
+                    updated += 1
+                else:
+                    skipped_same += 1
+                continue
+
+            np_key = _excel_import_num_piece_month_key(date_saisie, num_piece)
+            if np_key:
+                if np_key in seen_num_piece_month:
+                    skipped_num_piece_month += 1
+                    continue
+                if _num_piece_already_used_same_month(ChargeFixe, num_piece, date_saisie):
+                    skipped_num_piece_month += 1
+                    continue
+                seen_num_piece_month.add(np_key)
+
+            ChargeFixe.objects.create(
+                auteur=request.user,
+                vehicule=vehicule,
+                libelle=libelle,
+                cpte_comptable=cpte,
+                Num_piece=num_piece,
+                Num_fact=num_fact,
+                montant=montant,
+                date_saisie=date_saisie,
+            )
+            created += 1
+
+        if created:
+            messages.success(request, f'{created} charge(s) fixe(s) créée(s) (import sous le compte « {request.user.get_username()} »).')
+        if updated:
+            messages.success(request, f'{updated} charge(s) fixe(s) mise(s) à jour (montant différent pour la même date et le même véhicule).')
+        if skipped_same:
+            messages.warning(
+                request,
+                f'{skipped_same} ligne(s) ignorée(s) : une charge fixe existe déjà pour cette immatriculation à la même date_saisie avec le même montant.',
+            )
+        if bad_immat:
+            messages.error(request, f'{bad_immat} ligne(s) ignorée(s) : immatriculation inconnue (véhicule absent du parc).')
+        if bad_rows:
+            messages.error(request, f'{bad_rows} ligne(s) ignorée(s) : données incomplètes ou montant invalide.')
+        if skipped_num_piece_month:
+            messages.error(
+                request,
+                f'{skipped_num_piece_month} ligne(s) ignorée(s) : N° pièce déjà utilisé pour le même mois '
+                '(mois calendaire de la date de saisie — doublon dans le fichier ou en base). '
+                'Sans N° pièce, la ligne n’est pas contrôlée sur ce critère.',
+            )
+        if not any([created, updated, skipped_same, bad_immat, bad_rows, skipped_num_piece_month]):
+            messages.info(request, 'Aucune ligne de données exploitable.')
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        today = dj_timezone.localdate()
+        base_qs = ChargeFixe.objects.select_related('vehicule', 'vehicule__category', 'auteur')
+        filtered_qs, selected_period, custom_filter_form, filter_start, filter_end = _apply_recette_excel_filters(
+            self.request, base_qs
+        )
+
+        charges_filtered = filtered_qs.order_by('-date', '-id')
+
+        day_labels = []
+        cursor_day = filter_start
+        while cursor_day <= filter_end:
+            day_labels.append(cursor_day)
+            cursor_day += timedelta(days=1)
+
+        cat_totals_map = defaultdict(int)
+        grouped = (
+            filtered_qs
+            .annotate(day=TruncDate('date'))
+            .values('day', 'vehicule__category_id')
+            .annotate(total=Sum('montant'))
+        )
+        for row in grouped:
+            cat_totals_map[(row['day'], row['vehicule__category_id'])] = row['total'] or 0
+
+        palette = [
+            ('#3b82f6', 'rgba(59, 130, 246, 0.12)'),
+            ('#10b981', 'rgba(16, 185, 129, 0.12)'),
+            ('#f59e0b', 'rgba(245, 158, 11, 0.12)'),
+            ('#ef4444', 'rgba(239, 68, 68, 0.12)'),
+            ('#8b5cf6', 'rgba(139, 92, 246, 0.12)'),
+            ('#06b6d4', 'rgba(6, 182, 212, 0.12)'),
+        ]
+        chart_datasets = []
+        categories = CategoVehi.objects.all().order_by('id')
+        for idx, cat in enumerate(categories):
+            border, bg = palette[idx % len(palette)]
+            serie = [cat_totals_map.get((d, cat.id), 0) for d in day_labels]
+            chart_datasets.append({
+                'label': cat.category,
+                'data': serie,
+                'borderColor': border,
+                'backgroundColor': bg,
+                'fill': False,
+                'tension': 0.35,
+                'pointRadius': 3,
+            })
+
+        week_start = today - timedelta(days=today.weekday())
+        total_jour = base_qs.filter(date__date=today).aggregate(somme=Sum('montant'))['somme'] or 0
+        total_semaine = base_qs.filter(date__date__range=[week_start, week_start + timedelta(days=6)]).aggregate(somme=Sum('montant'))['somme'] or 0
+        total_mois = base_qs.filter(date__year=today.year, date__month=today.month).aggregate(somme=Sum('montant'))['somme'] or 0
+        total_an = base_qs.filter(date__year=today.year).aggregate(somme=Sum('montant'))['somme'] or 0
+
+        ctx['page_info'] = (
+            'Le fichier peut reprendre l\'export « Charges Fixes » (Immatriculation, Libellé, Montant, Date saisie). '
+            'Vous pouvez ajouter Compte comptable, N° facture, N° pièce. '
+            'Pour un même véhicule et la même date_saisie, si le montant change la ligne est mise à jour ; sinon elle est ignorée. '
+            'Si le N° pièce est renseigné, il doit être unique pour le mois calendaire de la date de saisie.'
+        )
+        ctx['charges_fixes_page'] = charges_filtered
+        ctx['today_date'] = today
+        ctx['selected_period'] = selected_period
+        ctx['period_form'] = custom_filter_form
+        ctx['period_start'] = filter_start
+        ctx['period_end'] = filter_end
+        ctx['export_querystring'] = self.request.GET.urlencode()
+        ctx['recette_jours_format'] = '{:,}'.format(total_jour).replace(',', ' ')
+        ctx['recette_semaine_format'] = '{:,}'.format(total_semaine).replace(',', ' ')
+        ctx['recette_mois_format'] = '{:,}'.format(total_mois).replace(',', ' ')
+        ctx['recette_an_format'] = '{:,}'.format(total_an).replace(',', ' ')
+        ctx['chart_labels'] = json.dumps([d.strftime('%d/%m') for d in day_labels])
+        ctx['chart_datasets'] = json.dumps(chart_datasets)
+        return ctx
+
+class AddChargeVarExcelView(LoginRequiredMixin, CustomPermissionRequiredMixin, FormView):
+    login_url = 'login'
+    permission_url = 'list_charg_var'
+    form_class = ChargeVariableExcelImportForm
+    template_name = 'perfect/add_chargvar_excel.html'
+    success_url = reverse_lazy('add_chargvar_excel')
+    timeout_minutes = 500
+
+    def dispatch(self, request, *args, **kwargs):
+        last_activity = request.session.get('last_activity')
+        if last_activity:
+            last_activity = datetime.strptime(last_activity, '%Y-%m-%d %H:%M:%S')
+            if datetime.now() - last_activity > timedelta(minutes=self.timeout_minutes):
+                logout(request)
+                messages.warning(request, 'Vous avez été déconnecté')
+                return redirect('login')
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        self._process_chargevar_excel(form.cleaned_data['fichier'])
+        return redirect(self.success_url)
+
+    def _process_chargevar_excel(self, fichier):
+        request = self.request
+        wb = None
+        try:
+            wb = load_workbook(io.BytesIO(fichier.read()), read_only=True, data_only=True)
+            ws = wb.active
+            rows = list(ws.iter_rows(values_only=True))
+        except Exception as exc:
+            messages.error(request, f'Impossible de lire le fichier Excel : {exc}')
+            return
+        finally:
+            if wb is not None:
+                try:
+                    wb.close()
+                except Exception:
+                    pass
+
+        if not rows:
+            messages.warning(request, 'Le fichier ne contient aucune ligne.')
+            return
+
+        header = rows[0]
+        col_idx = _chargevar_excel_col_index(header)
+        required = ('immatriculation', 'montant', 'date_saisie')
+        missing = [c for c in required if c not in col_idx]
+        if missing:
+            messages.error(
+                request,
+                f'Colonnes obligatoires manquantes : {", ".join(missing)}. '
+                'Attendu : au minimum Immatriculation, Montant, Date saisie (comme l\'export « Charges Variables »).',
+            )
+            return
+
+        created = updated = skipped_same = bad_rows = bad_immat = skipped_num_piece_month = 0
+        seen_num_piece_month = set()
+
+        for row in rows[1:]:
+            if row is None or not any(cell not in (None, '') for cell in row):
+                continue
+
+            def _cell(field):
+                i = col_idx.get(field)
+                if i is None or i >= len(row):
+                    return None
+                return row[i]
+
+            immat_v = _cell('immatriculation')
+            immat_raw = str(immat_v).strip() if immat_v is not None else ''
+            vehicule = Vehicule.objects.filter(immatriculation__iexact=immat_raw).first()
+            if not vehicule:
+                bad_immat += 1
+                continue
+
+            montant_raw = _cell('montant')
+            try:
+                montant = int(round(float(montant_raw))) if montant_raw is not None and montant_raw != '' else None
+            except (TypeError, ValueError):
+                montant = None
+
+            libelle_v = _cell('libelle')
+            cpte_v = _cell('cpte_comptable')
+            np_v = _cell('Num_piece')
+            nf_v = _cell('Num_fact')
+            libelle = str(libelle_v).strip()[:100] if libelle_v is not None else ''
+            cpte = str(cpte_v).strip()[:100] if cpte_v is not None else ''
+            num_piece = str(np_v).strip()[:100] if np_v is not None else ''
+            num_fact = str(nf_v).strip()[:100] if nf_v is not None else ''
+            date_saisie = _charge_admin_parse_excel_date(_cell('date_saisie'))
+
+            if montant is None or not date_saisie:
+                bad_rows += 1
+                continue
+
+            existing = (
+                ChargeVariable.objects.filter(vehicule=vehicule, date_saisie=date_saisie)
+                .order_by('-id')
+                .first()
+            )
+
+            if existing:
+                if existing.montant != montant:
+                    existing.montant = montant
+                    existing.auteur = request.user
+                    existing.save(update_fields=['montant', 'auteur'])
+                    updated += 1
+                else:
+                    skipped_same += 1
+                continue
+
+            np_key = _excel_import_num_piece_month_key(date_saisie, num_piece)
+            if np_key:
+                if np_key in seen_num_piece_month:
+                    skipped_num_piece_month += 1
+                    continue
+                if _num_piece_already_used_same_month(ChargeVariable, num_piece, date_saisie):
+                    skipped_num_piece_month += 1
+                    continue
+                seen_num_piece_month.add(np_key)
+
+            ChargeVariable.objects.create(
+                auteur=request.user,
+                vehicule=vehicule,
+                libelle=libelle,
+                cpte_comptable=cpte,
+                Num_piece=num_piece,
+                Num_fact=num_fact,
+                montant=montant,
+                date_saisie=date_saisie,
+            )
+            created += 1
+
+        if created:
+            messages.success(request, f'{created} charge(s) variable(s) créée(s) (import sous le compte « {request.user.get_username()} »).')
+        if updated:
+            messages.success(request, f'{updated} charge(s) variable(s) mise(s) à jour (montant différent pour la même date et le même véhicule).')
+        if skipped_same:
+            messages.warning(
+                request,
+                f'{skipped_same} ligne(s) ignorée(s) : une charge variable existe déjà pour cette immatriculation à la même date_saisie avec le même montant.',
+            )
+        if bad_immat:
+            messages.error(request, f'{bad_immat} ligne(s) ignorée(s) : immatriculation inconnue (véhicule absent du parc).')
+        if bad_rows:
+            messages.error(request, f'{bad_rows} ligne(s) ignorée(s) : données incomplètes ou montant invalide.')
+        if skipped_num_piece_month:
+            messages.error(
+                request,
+                f'{skipped_num_piece_month} ligne(s) ignorée(s) : N° pièce déjà utilisé pour le même mois '
+                '(mois calendaire de la date de saisie — doublon dans le fichier ou en base). '
+                'Sans N° pièce, la ligne n’est pas contrôlée sur ce critère.',
+            )
+        if not any([created, updated, skipped_same, bad_immat, bad_rows, skipped_num_piece_month]):
+            messages.info(request, 'Aucune ligne de données exploitable.')
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        today = dj_timezone.localdate()
+        base_qs = ChargeVariable.objects.select_related('vehicule', 'vehicule__category', 'auteur')
+        filtered_qs, selected_period, custom_filter_form, filter_start, filter_end = _apply_recette_excel_filters(
+            self.request, base_qs
+        )
+
+        charges_filtered = filtered_qs.order_by('-date', '-id')
+
+        day_labels = []
+        cursor_day = filter_start
+        while cursor_day <= filter_end:
+            day_labels.append(cursor_day)
+            cursor_day += timedelta(days=1)
+
+        cat_totals_map = defaultdict(int)
+        grouped = (
+            filtered_qs
+            .annotate(day=TruncDate('date'))
+            .values('day', 'vehicule__category_id')
+            .annotate(total=Sum('montant'))
+        )
+        for row in grouped:
+            cat_totals_map[(row['day'], row['vehicule__category_id'])] = row['total'] or 0
+
+        palette = [
+            ('#3b82f6', 'rgba(59, 130, 246, 0.12)'),
+            ('#10b981', 'rgba(16, 185, 129, 0.12)'),
+            ('#f59e0b', 'rgba(245, 158, 11, 0.12)'),
+            ('#ef4444', 'rgba(239, 68, 68, 0.12)'),
+            ('#8b5cf6', 'rgba(139, 92, 246, 0.12)'),
+            ('#06b6d4', 'rgba(6, 182, 212, 0.12)'),
+        ]
+        chart_datasets = []
+        categories = CategoVehi.objects.all().order_by('id')
+        for idx, cat in enumerate(categories):
+            border, bg = palette[idx % len(palette)]
+            serie = [cat_totals_map.get((d, cat.id), 0) for d in day_labels]
+            chart_datasets.append({
+                'label': cat.category,
+                'data': serie,
+                'borderColor': border,
+                'backgroundColor': bg,
+                'fill': False,
+                'tension': 0.35,
+                'pointRadius': 3,
+            })
+
+        week_start = today - timedelta(days=today.weekday())
+        total_jour = base_qs.filter(date__date=today).aggregate(somme=Sum('montant'))['somme'] or 0
+        total_semaine = base_qs.filter(date__date__range=[week_start, week_start + timedelta(days=6)]).aggregate(somme=Sum('montant'))['somme'] or 0
+        total_mois = base_qs.filter(date__year=today.year, date__month=today.month).aggregate(somme=Sum('montant'))['somme'] or 0
+        total_an = base_qs.filter(date__year=today.year).aggregate(somme=Sum('montant'))['somme'] or 0
+
+        ctx['page_info'] = (
+            'Le fichier peut reprendre l\'export « Charges Variables » (Immatriculation, Libellé, Montant, Date saisie). '
+            'Vous pouvez ajouter Compte comptable, N° facture, N° pièce. '
+            'Pour un même véhicule et la même date_saisie, si le montant change la ligne est mise à jour ; sinon elle est ignorée. '
+            'Si le N° pièce est renseigné, il doit être unique pour le mois calendaire de la date de saisie.'
+        )
+        ctx['charges_variables_page'] = charges_filtered
+        ctx['today_date'] = today
+        ctx['selected_period'] = selected_period
+        ctx['period_form'] = custom_filter_form
+        ctx['period_start'] = filter_start
+        ctx['period_end'] = filter_end
+        ctx['export_querystring'] = self.request.GET.urlencode()
+        ctx['recette_jours_format'] = '{:,}'.format(total_jour).replace(',', ' ')
+        ctx['recette_semaine_format'] = '{:,}'.format(total_semaine).replace(',', ' ')
+        ctx['recette_mois_format'] = '{:,}'.format(total_mois).replace(',', ' ')
+        ctx['recette_an_format'] = '{:,}'.format(total_an).replace(',', ' ')
+        ctx['chart_labels'] = json.dumps([d.strftime('%d/%m') for d in day_labels])
+        ctx['chart_datasets'] = json.dumps(chart_datasets)
+        return ctx
+
 
 class UpdateRecetView(LoginRequiredMixin, CustomPermissionRequiredMixin, UpdateView):
     login_url = 'login'
@@ -5634,17 +6647,19 @@ class UpdateChargFixView(LoginRequiredMixin, CustomPermissionRequiredMixin, Upda
 class ExportChargeFixeExcelView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         charges = ChargeFixe.objects.all()
-        date_debut = request.GET.get('date_debut')
-        date_fin = request.GET.get('date_fin')
-        immatriculation = request.GET.get('immatriculation')
-        categorie = request.GET.get('categorie')
-        # Appliquer les filtres
-        if date_debut and date_fin:
-            charges = charges.filter(date_saisie__range=[date_debut, date_fin])
-        if immatriculation:
-            charges = charges.filter(vehicule__immatriculation=immatriculation)
-        if categorie:
-            charges = charges.filter(vehicule__category__category=categorie)
+        if request.GET.get('periode'):
+            charges, _, _, _, _ = _apply_recette_excel_filters(request, charges)
+        else:
+            date_debut = request.GET.get('date_debut')
+            date_fin = request.GET.get('date_fin')
+            if date_debut and date_fin:
+                charges = charges.filter(date_saisie__range=[date_debut, date_fin])
+            immatriculation = request.GET.get('immatriculation')
+            if immatriculation:
+                charges = charges.filter(vehicule__immatriculation=immatriculation)
+            categorie = request.GET.get('categorie')
+            if categorie:
+                charges = charges.filter(vehicule__category__category=categorie)
         wb = openpyxl.Workbook()
         ws = wb.active
         ws.title = "Charges Fixes"
@@ -6001,22 +7016,20 @@ class UpdateChargeVarView(LoginRequiredMixin, CustomPermissionRequiredMixin, Upd
 
 class ExportChargeVariableExcelView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
-        # Récupérer toutes les charges variables
         charges = ChargeVariable.objects.all()
-
-        # Récupérer les filtres GET
-        date_debut = request.GET.get('date_debut')
-        date_fin = request.GET.get('date_fin')
-        immatriculation = request.GET.get('immatriculation')
-        categorie = request.GET.get('categorie')
-
-        # Appliquer les filtres
-        if date_debut and date_fin:
-            charges = charges.filter(date_saisie__range=[date_debut, date_fin])
-        if immatriculation:
-            charges = charges.filter(vehicule__immatriculation=immatriculation)
-        if categorie:
-            charges = charges.filter(vehicule__category__category=categorie)
+        if request.GET.get('periode'):
+            charges, _, _, _, _ = _apply_recette_excel_filters(request, charges)
+        else:
+            date_debut = request.GET.get('date_debut')
+            date_fin = request.GET.get('date_fin')
+            if date_debut and date_fin:
+                charges = charges.filter(date_saisie__range=[date_debut, date_fin])
+            immatriculation = request.GET.get('immatriculation')
+            if immatriculation:
+                charges = charges.filter(vehicule__immatriculation=immatriculation)
+            categorie = request.GET.get('categorie')
+            if categorie:
+                charges = charges.filter(vehicule__category__category=categorie)
 
         # Création du fichier Excel
         wb = openpyxl.Workbook()
@@ -6349,6 +7362,83 @@ class ExportHistoriqueChargeVariableExcelView(LoginRequiredMixin, View):
         wb.save(response)
         return response
 
+
+_CHARGE_ADMIN_EXCEL_HEADER_TO_FIELD = {
+    'n facture': 'Num_fact',
+    'libelle': 'libelle',
+    'montant': 'montant',
+    'compte comptable': 'cpte_comptable',
+    'n piece': 'Num_piece',
+    'date saisie': 'date_saisie',
+}
+
+
+def _charge_admin_normalize_excel_header(val):
+    if val is None:
+        return ''
+    t = str(val).strip().lower()
+    for a, b in (('é', 'e'), ('è', 'e'), ('ê', 'e'), ('ë', 'e'), ('°', ' '), ('’', "'")):
+        t = t.replace(a, b)
+    return ' '.join(t.split())
+
+
+def _charge_admin_excel_col_index(header_row):
+    idx = {}
+    for i, cell in enumerate(header_row):
+        norm = _charge_admin_normalize_excel_header(cell)
+        field = _CHARGE_ADMIN_EXCEL_HEADER_TO_FIELD.get(norm)
+        if field and field not in idx:
+            idx[field] = i
+    return idx
+
+
+def _charge_admin_parse_excel_date(val):
+    if val is None or val == '':
+        return None
+    if isinstance(val, datetime):
+        return val.date()
+    if isinstance(val, date):
+        return val
+    if isinstance(val, (int, float)):
+        try:
+            return openpyxl_from_excel(val).date()
+        except Exception:
+            return None
+    s = str(val).strip()
+    for fmt in ('%d-%m-%Y', '%Y-%m-%d', '%d/%m/%Y'):
+        try:
+            return datetime.strptime(s, fmt).date()
+        except ValueError:
+            continue
+    return None
+
+
+_RECETTE_EXCEL_HEADER_TO_FIELD = {
+    'immatriculation': 'immatriculation',
+    'marque': None,
+    'categorie': None,
+    'chauffeur': 'chauffeur',
+    'montant': 'montant',
+    'date saisie': 'date_saisie',
+    'auteur': None,
+    'compte comptable': 'cpte_comptable',
+    'n facture': 'numero_fact',
+    'numero facture': 'numero_fact',
+    'n piece': 'Num_piece',
+    'numero piece': 'Num_piece',
+}
+
+
+def _recette_excel_col_index(header_row):
+    idx = {}
+    for i, cell in enumerate(header_row):
+        norm = _charge_admin_normalize_excel_header(cell)
+        field = _RECETTE_EXCEL_HEADER_TO_FIELD.get(norm)
+        if field and field not in idx:
+            idx[field] = i
+    return idx
+
+
 class AddChargeAdminisView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateView):
     login_url = 'login'
     permission_url = 'add_chargadminist'
@@ -6368,6 +7458,144 @@ class AddChargeAdminisView(LoginRequiredMixin, CustomPermissionRequiredMixin, Cr
                 messages.warning(request, "Vous avez été déconnecté ")
                 return redirect("login")
         return super().dispatch(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('import_charge_excel'):
+            excel_form = ChargeAdminisExcelImportForm(request.POST, request.FILES)
+            if excel_form.is_valid():
+                return self._process_charge_admin_excel(excel_form.cleaned_data['fichier'])
+            for errs in excel_form.errors.values():
+                for e in errs:
+                    messages.error(request, e)
+            return redirect(self.success_url)
+        return super().post(request, *args, **kwargs)
+
+    def _process_charge_admin_excel(self, fichier):
+        request = self.request
+        wb = None
+        try:
+            wb = load_workbook(io.BytesIO(fichier.read()), read_only=True, data_only=True)
+            ws = wb.active
+            rows = list(ws.iter_rows(values_only=True))
+        except Exception as exc:
+            messages.error(request, f'Impossible de lire le fichier Excel : {exc}')
+            return redirect(self.success_url)
+        finally:
+            if wb is not None:
+                try:
+                    wb.close()
+                except Exception:
+                    pass
+
+        if not rows:
+            messages.warning(request, 'Le fichier ne contient aucune ligne.')
+            return redirect(self.success_url)
+
+        header = rows[0]
+        col_idx = _charge_admin_excel_col_index(header)
+        required_cols = ('libelle', 'montant', 'cpte_comptable', 'date_saisie')
+        missing = [c for c in required_cols if c not in col_idx]
+        if missing:
+            labels = ', '.join(missing)
+            messages.error(
+                request,
+                f'Colonnes obligatoires introuvables dans la première ligne : {labels}. '
+                'Utilisez le même en-tête que l’export (Libellé, Montant, Compte Comptable, Date Saisie, etc.).',
+            )
+            return redirect(self.success_url)
+
+        created = 0
+        skipped_dup = 0
+        skipped_samples = []
+        row_errors = []
+
+        for rnum, row in enumerate(rows[1:], start=2):
+            if row is None or not any(cell not in (None, '') for cell in row):
+                continue
+
+            def _cell(field):
+                i = col_idx.get(field)
+                if i is None or i >= len(row):
+                    return None
+                return row[i]
+
+            libelle_v = _cell('libelle')
+            libelle = str(libelle_v).strip() if libelle_v is not None else ''
+
+            montant_raw = _cell('montant')
+            try:
+                montant = int(round(float(montant_raw))) if montant_raw is not None and montant_raw != '' else None
+            except (TypeError, ValueError):
+                montant = None
+
+            cpte_v = _cell('cpte_comptable')
+            cpte = str(cpte_v).strip() if cpte_v is not None else ''
+
+            nf_v = _cell('Num_fact')
+            np_v = _cell('Num_piece')
+            num_fact = str(nf_v).strip() if nf_v is not None else ''
+            num_piece = str(np_v).strip() if np_v is not None else ''
+
+            date_saisie = _charge_admin_parse_excel_date(_cell('date_saisie'))
+
+            if not libelle or montant is None or not cpte or not date_saisie:
+                row_errors.append(rnum)
+                continue
+
+            duplicate = None
+            if num_fact or num_piece:
+                duplicate = ChargeAdminis.objects.filter(Num_fact=num_fact, Num_piece=num_piece).first()
+            else:
+                duplicate = ChargeAdminis.objects.filter(
+                    libelle=libelle, montant=montant, date_saisie=date_saisie
+                ).first()
+
+            if duplicate:
+                skipped_dup += 1
+                if len(skipped_samples) < 12:
+                    ds = duplicate.date_saisie.strftime('%d/%m/%Y') if duplicate.date_saisie else ''
+                    skipped_samples.append(
+                        f"ligne {rnum} (doublon : déjà enregistré le {ds}, fact. {duplicate.Num_fact or '—'}, pièce {duplicate.Num_piece or '—'})"
+                    )
+                continue
+
+            ChargeAdminis.objects.create(
+                auteur=request.user,
+                libelle=libelle,
+                montant=montant,
+                cpte_comptable=cpte,
+                Num_piece=num_piece,
+                Num_fact=num_fact,
+                date_saisie=date_saisie,
+            )
+            created += 1
+
+        user_label = request.user.get_username() if request.user.is_authenticated else 'utilisateur'
+        if created:
+            messages.success(
+                request,
+                f'{created} charge(s) administrative(s) enregistrée(s) sous le compte « {user_label} ».',
+            )
+        if skipped_dup:
+            detail = ' ; '.join(skipped_samples)
+            if skipped_dup > len(skipped_samples):
+                detail += f' … ({skipped_dup} lignes au total ignorées)'
+            messages.warning(
+                request,
+                f'{skipped_dup} ligne(s) non enregistrée(s) : un enregistrement identique existait déjà. {detail}',
+            )
+        if row_errors:
+            preview = ', '.join(str(x) for x in row_errors[:15])
+            more = f' (+{len(row_errors) - 15} autres)' if len(row_errors) > 15 else ''
+            messages.error(
+                request,
+                f'Ligne(s) ignorée(s) (données incomplètes ou montant invalide) : {preview}{more}.',
+            )
+        if not created and not skipped_dup and not row_errors:
+            messages.info(request, 'Aucune ligne de données exploitable dans le fichier.')
+
+        return redirect(self.success_url)
+
     def form_valid(self, form):
         form.instance.auteur = self.request.user
         reponse =  super().form_valid(form)
@@ -6490,6 +7718,7 @@ class AddChargeAdminisView(LoginRequiredMixin, CustomPermissionRequiredMixin, Cr
             'total_chargeadmin_format': total_chargeadmin_mois_format,
             'total_chargeadmin_annuel_format': total_chargeadmin_annuel_format,
             'chargadmin_data': chargadmin_mois_data,
+            'excel_import_form': kwargs.get('excel_import_form') or ChargeAdminisExcelImportForm(),
         }  
         return context   
     

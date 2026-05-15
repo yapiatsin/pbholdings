@@ -1,0 +1,724 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ titre }} — Gestion | P&BEntreprise</title>
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'pb_site_asset/img/logo/icn.png' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --pb-primary: #EC281C; }
+        body { background: #f5f6fa; font-family: 'Segoe UI', sans-serif; }
+        .pb-header { background: #fff; border-bottom: 3px solid var(--pb-primary); padding: 14px 0; }
+        .pb-header h1 { color: var(--pb-primary); font-weight: 700; margin: 0; font-size: 1.4rem; }
+        .pb-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,.05); margin-bottom: 25px; }
+        .pb-card-header { padding: 14px 20px; border-bottom: 1px solid #e5e7eb; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+        .pb-card-header h2 { font-size: 1.1rem; margin: 0; color: #111; font-weight: 600; }
+        .pb-card-body { padding: 20px; }
+        .btn-pb-primary { background: var(--pb-primary); color: #fff; border: none; }
+        .btn-pb-primary:hover { background: #c81f14; color: #fff; }
+        .table thead { background: #f8f9fa; }
+        .table th { font-size: .85rem; text-transform: uppercase; letter-spacing: .3px; color: #555; }
+        .table td { vertical-align: middle; font-size: .9rem; }
+        .action-btns .btn { padding: 4px 10px; font-size: .8rem; }
+        .form-label { font-weight: 600; font-size: .85rem; color: #444; }
+        .badge-state { font-size: .7rem; padding: 4px 8px; }
+        .form-errors { color: #b00020; font-size: .8rem; margin-top: 3px; }
+        .breadcrumb { background: transparent; padding: 0; margin-bottom: 15px; }
+        .breadcrumb a { color: var(--pb-primary); text-decoration: none; }
+        .empty-state { text-align: center; padding: 40px 20px; color: #888; }
+        .empty-state i { font-size: 3rem; color: #ccc; margin-bottom: 15px; }
+        .search-box { max-width: 320px; }
+
+        #crudModal .modal-dialog { max-width: 1100px; width: calc(100% - 24px); margin: 1rem auto; }
+        #crudModal .modal-content { max-height: calc(100vh - 2rem); border-radius: 12px; overflow: hidden; }
+        #crudModal .modal-header { flex-shrink: 0; padding: 14px 20px; }
+        #crudModal .modal-body { overflow-y: auto; overflow-x: hidden; padding: 22px 24px; flex: 1 1 auto; }
+        #crudModal .modal-footer { flex-shrink: 0; padding: 12px 20px; background: #fafbfc; border-top: 1px solid #e5e7eb; gap: 8px; }
+
+        /* Sections des formsets */
+        .pb-formset-section {
+            background: #f9fafb; border: 1px dashed #d1d5db; border-radius: 10px;
+            padding: 16px; margin-top: 18px;
+        }
+        .pb-formset-section h6 { color: var(--pb-primary); font-weight: 700; margin-bottom: 12px; }
+        .pb-inline-form {
+            background: #fff; border: 1px solid #e5e7eb; border-radius: 8px;
+            padding: 12px 36px 12px 12px; margin-bottom: 10px; position: relative;
+        }
+        .pb-inline-form.marked-delete { opacity: .5; background: #fee2e2; }
+        .pb-inline-remove {
+            position: absolute; top: 6px; right: 8px;
+            background: transparent; border: none; color: #b91c1c;
+            font-size: 1rem; cursor: pointer;
+        }
+        .pb-inline-remove:hover { color: #7f1d1d; }
+
+        /* Nested (niveau 2) : Questions sous QuestionPage */
+        .pb-nested-section {
+            background: #fff7ed; border: 1px dashed #fdba74; border-radius: 8px;
+            padding: 12px; margin-top: 10px;
+        }
+        .pb-nested-section h6 {
+            color: #c2410c; font-weight: 700; margin-bottom: 10px;
+            font-size: .9rem;
+        }
+        .pb-nested-form {
+            background: #fff; border: 1px solid #fed7aa; border-radius: 6px;
+            padding: 10px 30px 10px 10px; margin-bottom: 8px; position: relative;
+        }
+        .pb-nested-form.marked-delete { opacity: .5; background: #fecaca; }
+
+        @media (max-width: 767.98px) {
+            #crudModal .modal-dialog { max-width: 100%; width: 100%; height: 100%; margin: 0; }
+            #crudModal .modal-content { max-height: 100vh; height: 100vh; border-radius: 0; }
+            #crudModal .modal-body .row.g-3 > [class*="col-"] { flex: 0 0 100%; max-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<header class="pb-header">
+    <div class="container-fluid px-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <h1><i class="fa-solid fa-layer-group me-2"></i>Gestion site web — {{ titre }}</h1>
+            <a href="{% url 'manage_dashboard' %}" class="btn btn-sm btn-outline-secondary">Tableau de bord</a>
+        </div>
+    </div>
+</header>
+
+<main class="container-fluid py-4 px-4">
+    <nav class="breadcrumb">
+        <a href="{% url 'manage_dashboard' %}">Tableau de bord</a>
+        <span class="mx-2">›</span>
+        <span>{{ titre }}</span>
+    </nav>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if confirm_delete %}
+        <div class="pb-card border-danger">
+            <div class="pb-card-header bg-danger text-white">
+                <h2><i class="fa-solid fa-triangle-exclamation me-2"></i>Confirmer la suppression</h2>
+            </div>
+            <div class="pb-card-body">
+                <p class="mb-3">Voulez-vous vraiment supprimer <strong>"{{ confirm_delete }}"</strong> ?<br>
+                    <small class="text-muted">Les caractéristiques, statistiques, pages de questions et questions associées seront aussi supprimées.</small>
+                </p>
+                <form method="post" action="?delete={{ confirm_delete.pk }}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger"><i class="fa-solid fa-trash me-1"></i> Supprimer définitivement</button>
+                    <a href="{% url url_name %}" class="btn btn-secondary"><i class="fa-solid fa-xmark me-1"></i> Annuler</a>
+                </form>
+            </div>
+        </div>
+    {% else %}
+        <div class="pb-card">
+            <div class="pb-card-header">
+                <h2><i class="fa-solid fa-list me-2"></i>Liste — {{ paginator.count|default:objets|length }} élément(s)</h2>
+                <div class="d-flex gap-2 align-items-center flex-wrap">
+                    <form method="get" class="search-box">
+                        <div class="input-group input-group-sm">
+                            <input type="search" name="q" value="{{ q|default:'' }}" class="form-control" placeholder="Rechercher...">
+                            <button class="btn btn-outline-secondary" type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
+                        </div>
+                    </form>
+                    <button type="button" class="btn btn-pb-primary btn-sm" data-bs-toggle="modal" data-bs-target="#crudModal">
+                        <i class="fa-solid fa-plus me-1"></i> Ajouter
+                    </button>
+                </div>
+            </div>
+            <div class="pb-card-body p-0">
+                {% if objets %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th width="60">ID</th>
+                                    <th>Page</th>
+                                    <th>Titre</th>
+                                    <th class="text-center">Caract.</th>
+                                    <th class="text-center">Stat.</th>
+                                    <th class="text-center">Q-Pages</th>
+                                    <th width="110">État</th>
+                                    <th width="160" class="text-end pe-3">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for obj in objets %}
+                                    <tr {% if edit_obj and edit_obj.pk == obj.pk %}class="table-warning"{% endif %}>
+                                        <td><span class="text-muted">#{{ obj.pk }}</span></td>
+                                        <td><strong>{{ obj.page }}</strong></td>
+                                        <td>{{ obj.titre|truncatechars:40 }}</td>
+                                        <td class="text-center"><span class="badge bg-info">{{ obj.caracteristiques.count }}</span></td>
+                                        <td class="text-center"><span class="badge bg-info">{{ obj.statistiques.count }}</span></td>
+                                        <td class="text-center"><span class="badge bg-info">{{ obj.question.count }}</span></td>
+                                        <td>
+                                            {% if obj.actif %}
+                                                <span class="badge bg-success badge-state">Actif</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary badge-state">Inactif</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="text-end pe-3 action-btns">
+                                            <a href="?edit={{ obj.pk }}" class="btn btn-outline-warning" title="Modifier"><i class="fa-solid fa-pen"></i></a>
+                                            <a href="?delete={{ obj.pk }}" class="btn btn-outline-danger" title="Supprimer"><i class="fa-solid fa-trash"></i></a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {% if paginator.num_pages > 1 %}
+                        <nav class="p-3">
+                            <ul class="pagination pagination-sm mb-0 justify-content-center">
+                                {% if page_obj.has_previous %}
+                                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if q %}&q={{ q }}{% endif %}">‹ Précédent</a></li>
+                                {% endif %}
+                                <li class="page-item active"><span class="page-link">{{ page_obj.number }} / {{ paginator.num_pages }}</span></li>
+                                {% if page_obj.has_next %}
+                                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}{% if q %}&q={{ q }}{% endif %}">Suivant ›</a></li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                    {% endif %}
+                {% else %}
+                    <div class="empty-state">
+                        <i class="fa-solid fa-inbox"></i>
+                        <p class="mb-0">Aucun élément pour le moment.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+</main>
+
+{# ======================= MODAL : AJOUT / ÉDITION ======================= #}
+{% if not confirm_delete %}
+<div class="modal fade" id="crudModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header" style="background: var(--pb-primary); color: #fff;">
+                <h5 class="modal-title">
+                    {% if edit_obj %}
+                        <i class="fa-solid fa-pen-to-square me-2"></i>Modifier : {{ edit_obj }}
+                    {% else %}
+                        <i class="fa-solid fa-plus me-2"></i>Ajouter une catégorie de procédure
+                    {% endif %}
+                </h5>
+                <button type="button" class="btn-close btn-close-white"
+                        {% if edit_obj %}onclick="window.location='{% url url_name %}'"{% else %}data-bs-dismiss="modal"{% endif %}
+                        aria-label="Fermer"></button>
+            </div>
+
+            <form method="post" enctype="multipart/form-data" novalidate>
+                {% csrf_token %}
+                <div class="modal-body">
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                    {% endif %}
+
+                    {# ============= INFOS PRINCIPALES ============= #}
+                    <h6 class="text-uppercase text-muted mb-3" style="font-size:.8rem; letter-spacing:.5px;">
+                        <i class="fa-solid fa-layer-group me-1"></i> Informations de la catégorie
+                    </h6>
+                    <div class="row g-3">
+                        {% for field in form %}
+                            <div class="col-md-4 {% if field.field.widget.input_type == 'textarea' %}col-12{% endif %}">
+                                <label for="{{ field.id_for_label }}" class="form-label">
+                                    {{ field.label }}
+                                    {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+                                </label>
+                                {{ field }}
+                                {% if field.help_text %}<small class="text-muted d-block">{{ field.help_text }}</small>{% endif %}
+                                {% if field.errors %}<div class="form-errors">{{ field.errors|striptags }}</div>{% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    {# ============= 1. CARACTÉRISTIQUES ============= #}
+                    <div class="pb-formset-section">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="mb-0"><i class="fa-solid fa-star me-1"></i> Caractéristiques</h6>
+                            <button type="button" class="btn btn-sm btn-pb-primary" data-pb-add-btn="caracteristiques">
+                                <i class="fa-solid fa-plus me-1"></i> Ajouter
+                            </button>
+                        </div>
+
+                        {{ formset_carac.management_form }}
+                        {% if formset_carac.non_form_errors %}
+                            <div class="alert alert-danger">{{ formset_carac.non_form_errors }}</div>
+                        {% endif %}
+
+                        <div data-pb-container="caracteristiques">
+                            {% for cf in formset_carac.forms %}
+                                <div class="pb-inline-form" data-form-index="{{ forloop.counter0 }}">
+                                    {% for hidden in cf.hidden_fields %}{{ hidden }}{% endfor %}
+                                    <button type="button" class="pb-inline-remove" title="Retirer"><i class="fa-solid fa-xmark"></i></button>
+                                    <div class="row g-2">
+                                        <div class="col-md-8">
+                                            <label class="form-label">{{ cf.texte.label }}</label>
+                                            {{ cf.texte }}
+                                            {% if cf.texte.errors %}<div class="form-errors">{{ cf.texte.errors|striptags }}</div>{% endif %}
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label class="form-label">{{ cf.ordre.label }}</label>
+                                            {{ cf.ordre }}
+                                        </div>
+                                        <div class="col-md-2 d-flex align-items-end">
+                                            <div class="form-check">
+                                                {{ cf.actif }}
+                                                <label class="form-check-label ms-1">{{ cf.actif.label }}</label>
+                                            </div>
+                                        </div>
+                                        {% if cf.DELETE %}<div class="d-none">{{ cf.DELETE }}</div>{% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <template data-pb-template="caracteristiques">
+                            <div class="pb-inline-form" data-form-index="__prefix__">
+                                {% with empty=formset_carac.empty_form %}
+                                    {% for hidden in empty.hidden_fields %}{{ hidden }}{% endfor %}
+                                    <button type="button" class="pb-inline-remove" title="Retirer"><i class="fa-solid fa-xmark"></i></button>
+                                    <div class="row g-2">
+                                        <div class="col-md-8">
+                                            <label class="form-label">{{ empty.texte.label }}</label>
+                                            {{ empty.texte }}
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label class="form-label">{{ empty.ordre.label }}</label>
+                                            {{ empty.ordre }}
+                                        </div>
+                                        <div class="col-md-2 d-flex align-items-end">
+                                            <div class="form-check">
+                                                {{ empty.actif }}
+                                                <label class="form-check-label ms-1">{{ empty.actif.label }}</label>
+                                            </div>
+                                        </div>
+                                        {% if empty.DELETE %}<div class="d-none">{{ empty.DELETE }}</div>{% endif %}
+                                    </div>
+                                {% endwith %}
+                            </div>
+                        </template>
+                    </div>
+
+                    {# ============= 2. STATISTIQUES ============= #}
+                    <div class="pb-formset-section">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="mb-0"><i class="fa-solid fa-chart-column me-1"></i> Statistiques</h6>
+                            <button type="button" class="btn btn-sm btn-pb-primary" data-pb-add-btn="statistiques">
+                                <i class="fa-solid fa-plus me-1"></i> Ajouter
+                            </button>
+                        </div>
+
+                        {{ formset_stat.management_form }}
+                        {% if formset_stat.non_form_errors %}
+                            <div class="alert alert-danger">{{ formset_stat.non_form_errors }}</div>
+                        {% endif %}
+
+                        <div data-pb-container="statistiques">
+                            {% for sf in formset_stat.forms %}
+                                <div class="pb-inline-form" data-form-index="{{ forloop.counter0 }}">
+                                    {% for hidden in sf.hidden_fields %}{{ hidden }}{% endfor %}
+                                    <button type="button" class="pb-inline-remove" title="Retirer"><i class="fa-solid fa-xmark"></i></button>
+                                    <div class="row g-2">
+                                        <div class="col-md-3">
+                                            <label class="form-label">{{ sf.icone.label }}</label>
+                                            {{ sf.icone }}
+                                            {% if sf.icone.errors %}<div class="form-errors">{{ sf.icone.errors|striptags }}</div>{% endif %}
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label">{{ sf.nombre.label }}</label>
+                                            {{ sf.nombre }}
+                                            {% if sf.nombre.errors %}<div class="form-errors">{{ sf.nombre.errors|striptags }}</div>{% endif %}
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label">{{ sf.libelle.label }}</label>
+                                            {{ sf.libelle }}
+                                            {% if sf.libelle.errors %}<div class="form-errors">{{ sf.libelle.errors|striptags }}</div>{% endif %}
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label class="form-label">{{ sf.ordre.label }}</label>
+                                            {{ sf.ordre }}
+                                        </div>
+                                        <div class="col-md-1 d-flex align-items-end">
+                                            <div class="form-check">
+                                                {{ sf.actif }}
+                                            </div>
+                                        </div>
+                                        {% if sf.DELETE %}<div class="d-none">{{ sf.DELETE }}</div>{% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <template data-pb-template="statistiques">
+                            <div class="pb-inline-form" data-form-index="__prefix__">
+                                {% with empty=formset_stat.empty_form %}
+                                    {% for hidden in empty.hidden_fields %}{{ hidden }}{% endfor %}
+                                    <button type="button" class="pb-inline-remove" title="Retirer"><i class="fa-solid fa-xmark"></i></button>
+                                    <div class="row g-2">
+                                        <div class="col-md-3">
+                                            <label class="form-label">{{ empty.icone.label }}</label>
+                                            {{ empty.icone }}
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label">{{ empty.nombre.label }}</label>
+                                            {{ empty.nombre }}
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label">{{ empty.libelle.label }}</label>
+                                            {{ empty.libelle }}
+                                        </div>
+                                        <div class="col-md-2">
+                                            <label class="form-label">{{ empty.ordre.label }}</label>
+                                            {{ empty.ordre }}
+                                        </div>
+                                        <div class="col-md-1 d-flex align-items-end">
+                                            <div class="form-check">
+                                                {{ empty.actif }}
+                                            </div>
+                                        </div>
+                                        {% if empty.DELETE %}<div class="d-none">{{ empty.DELETE }}</div>{% endif %}
+                                    </div>
+                                {% endwith %}
+                            </div>
+                        </template>
+                    </div>
+
+                    {# ============= 3. PAGES DE QUESTIONS (+ Questions imbriquées) ============= #}
+                    <div class="pb-formset-section">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="mb-0"><i class="fa-solid fa-circle-question me-1"></i> Pages de questions</h6>
+                            <button type="button" class="btn btn-sm btn-pb-primary" data-pb-add-qpage-btn>
+                                <i class="fa-solid fa-plus me-1"></i> Ajouter
+                            </button>
+                        </div>
+
+                        {{ formset_qpages.management_form }}
+                        {% if formset_qpages.non_form_errors %}
+                            <div class="alert alert-danger">{{ formset_qpages.non_form_errors }}</div>
+                        {% endif %}
+
+                        <div id="qpages-container">
+                            {% for qp_form, q_formset in qpages_zipped %}
+                                <div class="pb-inline-form qpage-block" data-form-index="{{ forloop.counter0 }}">
+                                    {% for hidden in qp_form.hidden_fields %}{{ hidden }}{% endfor %}
+                                    <button type="button" class="pb-inline-remove" title="Retirer la page"><i class="fa-solid fa-xmark"></i></button>
+
+                                    <div class="row g-2">
+                                        <div class="col-md-5">
+                                            <label class="form-label">{{ qp_form.sous_titre.label }}</label>
+                                            {{ qp_form.sous_titre }}
+                                            {% if qp_form.sous_titre.errors %}<div class="form-errors">{{ qp_form.sous_titre.errors|striptags }}</div>{% endif %}
+                                        </div>
+                                        <div class="col-md-5">
+                                            <label class="form-label">{{ qp_form.titre.label }}</label>
+                                            {{ qp_form.titre }}
+                                            {% if qp_form.titre.errors %}<div class="form-errors">{{ qp_form.titre.errors|striptags }}</div>{% endif %}
+                                        </div>
+                                        <div class="col-md-1">
+                                            <label class="form-label">{{ qp_form.ordre.label }}</label>
+                                            {{ qp_form.ordre }}
+                                        </div>
+                                        <div class="col-md-1 d-flex align-items-end">
+                                            <div class="form-check">
+                                                {{ qp_form.actif }}
+                                            </div>
+                                        </div>
+                                        {% if qp_form.DELETE %}<div class="d-none">{{ qp_form.DELETE }}</div>{% endif %}
+                                    </div>
+
+                                    {# --- Nested: Questions de cette QuestionPage --- #}
+                                    <div class="pb-nested-section">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <h6 class="mb-0"><i class="fa-solid fa-comment-dots me-1"></i> Questions</h6>
+                                            <button type="button" class="btn btn-sm btn-outline-danger"
+                                                    data-pb-add-question-btn="{{ forloop.counter0 }}">
+                                                <i class="fa-solid fa-plus me-1"></i> Ajouter
+                                            </button>
+                                        </div>
+
+                                        {{ q_formset.management_form }}
+
+                                        <div data-pb-questions-container="{{ forloop.counter0 }}">
+                                            {% for qf in q_formset.forms %}
+                                                <div class="pb-nested-form" data-form-index="{{ forloop.counter0 }}">
+                                                    {% for hidden in qf.hidden_fields %}{{ hidden }}{% endfor %}
+                                                    <button type="button" class="pb-inline-remove" title="Retirer"><i class="fa-solid fa-xmark"></i></button>
+                                                    <div class="row g-2">
+                                                        <div class="col-md-5">
+                                                            <label class="form-label">{{ qf.question.label }}</label>
+                                                            {{ qf.question }}
+                                                            {% if qf.question.errors %}<div class="form-errors">{{ qf.question.errors|striptags }}</div>{% endif %}
+                                                        </div>
+                                                        <div class="col-md-5">
+                                                            <label class="form-label">{{ qf.reponse.label }}</label>
+                                                            {{ qf.reponse }}
+                                                            {% if qf.reponse.errors %}<div class="form-errors">{{ qf.reponse.errors|striptags }}</div>{% endif %}
+                                                        </div>
+                                                        <div class="col-md-1">
+                                                            <label class="form-label">{{ qf.ordre.label }}</label>
+                                                            {{ qf.ordre }}
+                                                        </div>
+                                                        <div class="col-md-1 d-flex align-items-end">
+                                                            <div class="form-check">
+                                                                {{ qf.actif }}
+                                                            </div>
+                                                        </div>
+                                                        {% if qf.DELETE %}<div class="d-none">{{ qf.DELETE }}</div>{% endif %}
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        {# Template pour une nouvelle QuestionPage (avec sous-formset vide) #}
+                        <template id="empty-qpage-template">
+                            <div class="pb-inline-form qpage-block" data-form-index="__prefix__">
+                                {% with empty=formset_qpages.empty_form %}
+                                    {% for hidden in empty.hidden_fields %}{{ hidden }}{% endfor %}
+                                    <button type="button" class="pb-inline-remove" title="Retirer la page"><i class="fa-solid fa-xmark"></i></button>
+                                    <div class="row g-2">
+                                        <div class="col-md-5">
+                                            <label class="form-label">{{ empty.sous_titre.label }}</label>
+                                            {{ empty.sous_titre }}
+                                        </div>
+                                        <div class="col-md-5">
+                                            <label class="form-label">{{ empty.titre.label }}</label>
+                                            {{ empty.titre }}
+                                        </div>
+                                        <div class="col-md-1">
+                                            <label class="form-label">{{ empty.ordre.label }}</label>
+                                            {{ empty.ordre }}
+                                        </div>
+                                        <div class="col-md-1 d-flex align-items-end">
+                                            <div class="form-check">
+                                                {{ empty.actif }}
+                                            </div>
+                                        </div>
+                                        {% if empty.DELETE %}<div class="d-none">{{ empty.DELETE }}</div>{% endif %}
+                                    </div>
+                                {% endwith %}
+
+                                {# Sous-section Questions vide pour les nouvelles QuestionPage #}
+                                <div class="pb-nested-section">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <h6 class="mb-0"><i class="fa-solid fa-comment-dots me-1"></i> Questions</h6>
+                                        <button type="button" class="btn btn-sm btn-outline-danger" data-pb-add-question-btn="__prefix__">
+                                            <i class="fa-solid fa-plus me-1"></i> Ajouter
+                                        </button>
+                                    </div>
+
+                                    {# Management form générique pour le nested (sera personnalisé par JS) #}
+                                    <input type="hidden" name="questions-__prefix__-TOTAL_FORMS" value="0" data-pb-questions-total="__prefix__">
+                                    <input type="hidden" name="questions-__prefix__-INITIAL_FORMS" value="0">
+                                    <input type="hidden" name="questions-__prefix__-MIN_NUM_FORMS" value="0">
+                                    <input type="hidden" name="questions-__prefix__-MAX_NUM_FORMS" value="1000">
+
+                                    <div data-pb-questions-container="__prefix__"></div>
+                                </div>
+                            </div>
+                        </template>
+
+                        {# Template pour une nouvelle Question (réutilisé dans toutes les QuestionPages) #}
+                        {# question_empty_form est rendu avec prefix="questions-__qpIndex__"      #}
+                        {# donc les champs ont pour nom "questions-__qpIndex__-__prefix__-<field>" #}
+                        <template id="empty-question-template">
+                            <div class="pb-nested-form" data-form-index="__prefix__">
+                                {% with qempty=question_empty_form %}
+                                    {% for hidden in qempty.hidden_fields %}{{ hidden }}{% endfor %}
+                                    <button type="button" class="pb-inline-remove" title="Retirer"><i class="fa-solid fa-xmark"></i></button>
+                                    <div class="row g-2">
+                                        <div class="col-md-5">
+                                            <label class="form-label">{{ qempty.question.label }}</label>
+                                            {{ qempty.question }}
+                                        </div>
+                                        <div class="col-md-5">
+                                            <label class="form-label">{{ qempty.reponse.label }}</label>
+                                            {{ qempty.reponse }}
+                                        </div>
+                                        <div class="col-md-1">
+                                            <label class="form-label">{{ qempty.ordre.label }}</label>
+                                            {{ qempty.ordre }}
+                                        </div>
+                                        <div class="col-md-1 d-flex align-items-end">
+                                            <div class="form-check">
+                                                {{ qempty.actif }}
+                                            </div>
+                                        </div>
+                                        {% if qempty.DELETE %}<div class="d-none">{{ qempty.DELETE }}</div>{% endif %}
+                                    </div>
+                                {% endwith %}
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <a href="{% url url_name %}" class="btn btn-outline-secondary"><i class="fa-solid fa-xmark me-1"></i> Annuler</a>
+                    <button type="submit" class="btn btn-pb-primary">
+                        {% if edit_obj %}
+                            <i class="fa-solid fa-save me-1"></i> Enregistrer les modifications
+                        {% else %}
+                            <i class="fa-solid fa-plus me-1"></i> Enregistrer
+                        {% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<footer class="text-center text-muted py-4 small">
+    <p class="mb-0">P&BEntreprise — Gestion dynamique du site · {{ model_name }}</p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+(function () {
+    var modalEl = document.getElementById('crudModal');
+    if (!modalEl) return;
+
+    var isEditing = {% if edit_obj %}true{% else %}false{% endif %};
+    var hasErrors = modalEl.querySelectorAll('.form-errors, .alert-danger').length > 0;
+    if (isEditing || hasErrors) {
+        new bootstrap.Modal(modalEl).show();
+    }
+
+    // ------------------------------------------------------------
+    // Utilitaires
+    // ------------------------------------------------------------
+    function attachRemoveHandlers(root) {
+        root.querySelectorAll('.pb-inline-remove').forEach(function (btn) {
+            if (btn.dataset.bound) return;
+            btn.dataset.bound = '1';
+            btn.addEventListener('click', function () {
+                var block = btn.closest('.pb-inline-form, .pb-nested-form');
+                if (!block) return;
+                var deleteInput = block.querySelector('input[type="checkbox"][name$="-DELETE"]');
+                var idInput = block.querySelector('input[name$="-id"]');
+                var totalAttr = block.dataset.totalInput;
+                if (deleteInput && idInput && idInput.value) {
+                    deleteInput.checked = true;
+                    block.classList.add('marked-delete');
+                } else {
+                    // Décrémente le total correspondant
+                    var parent = block.parentElement;
+                    var nestedKey = parent && parent.getAttribute('data-pb-questions-container');
+                    var formsetKey = parent && parent.getAttribute('data-pb-container');
+                    block.remove();
+                    if (nestedKey !== null && nestedKey !== undefined) {
+                        var nestedTotal = document.querySelector('input[name="questions-' + nestedKey + '-TOTAL_FORMS"]');
+                        if (nestedTotal) nestedTotal.value = Math.max(parseInt(nestedTotal.value || '0', 10) - 1, 0);
+                    } else if (formsetKey) {
+                        var total = document.querySelector('input[name="' + formsetKey + '-TOTAL_FORMS"]');
+                        if (total) total.value = Math.max(parseInt(total.value || '0', 10) - 1, 0);
+                    } else if (block.classList.contains('qpage-block')) {
+                        var qpTotal = document.querySelector('input[name="qpages-TOTAL_FORMS"]');
+                        if (qpTotal) qpTotal.value = Math.max(parseInt(qpTotal.value || '0', 10) - 1, 0);
+                    }
+                }
+            });
+        });
+    }
+
+    // ------------------------------------------------------------
+    // 1) Boutons "Ajouter" génériques (caracteristiques, statistiques)
+    // ------------------------------------------------------------
+    document.querySelectorAll('[data-pb-add-btn]').forEach(function (btn) {
+        var prefix = btn.getAttribute('data-pb-add-btn');
+        btn.addEventListener('click', function () {
+            var container = document.querySelector('[data-pb-container="' + prefix + '"]');
+            var tpl = document.querySelector('template[data-pb-template="' + prefix + '"]');
+            var totalInput = document.querySelector('input[name="' + prefix + '-TOTAL_FORMS"]');
+            if (!container || !tpl || !totalInput) return;
+
+            var index = parseInt(totalInput.value || '0', 10);
+            var html = tpl.innerHTML.replace(/__prefix__/g, index);
+            var wrapper = document.createElement('div');
+            wrapper.innerHTML = html.trim();
+            var node = wrapper.firstElementChild;
+            container.appendChild(node);
+            totalInput.value = index + 1;
+            attachRemoveHandlers(node);
+        });
+    });
+
+    // ------------------------------------------------------------
+    // 2) Bouton "Ajouter" pour QuestionPage (inclut sous-formset Question)
+    // ------------------------------------------------------------
+    var addQPageBtn = document.querySelector('[data-pb-add-qpage-btn]');
+    var qpagesContainer = document.getElementById('qpages-container');
+    var qpageTpl = document.getElementById('empty-qpage-template');
+    var qpagesTotal = document.querySelector('input[name="qpages-TOTAL_FORMS"]');
+
+    if (addQPageBtn && qpagesContainer && qpageTpl && qpagesTotal) {
+        addQPageBtn.addEventListener('click', function () {
+            var index = parseInt(qpagesTotal.value || '0', 10);
+            var html = qpageTpl.innerHTML.replace(/__prefix__/g, index);
+            var wrapper = document.createElement('div');
+            wrapper.innerHTML = html.trim();
+            var node = wrapper.firstElementChild;
+            qpagesContainer.appendChild(node);
+            qpagesTotal.value = index + 1;
+            attachRemoveHandlers(node);
+            bindAddQuestionBtn(node);
+        });
+    }
+
+    // ------------------------------------------------------------
+    // 3) Bouton "Ajouter" pour Question (sous une QuestionPage donnée)
+    // ------------------------------------------------------------
+    function bindAddQuestionBtn(root) {
+        (root || document).querySelectorAll('[data-pb-add-question-btn]').forEach(function (btn) {
+            if (btn.dataset.bound) return;
+            btn.dataset.bound = '1';
+            btn.addEventListener('click', function () {
+                var qpIndex = btn.getAttribute('data-pb-add-question-btn');
+                var container = document.querySelector('[data-pb-questions-container="' + qpIndex + '"]');
+                var qTpl = document.getElementById('empty-question-template');
+                var qTotal = document.querySelector('input[name="questions-' + qpIndex + '-TOTAL_FORMS"]');
+                if (!container || !qTpl || !qTotal) return;
+
+                var qIndex = parseInt(qTotal.value || '0', 10);
+                // Le template est rendu avec prefix="questions-__qpIndex__",
+                // donc les champs ont pour nom "questions-__qpIndex__-__prefix__-<field>".
+                // On remplace d'abord __qpIndex__ par l'index QuestionPage,
+                // puis __prefix__ par l'index Question.
+                var html = qTpl.innerHTML
+                    .replace(/__qpIndex__/g, qpIndex)
+                    .replace(/__prefix__/g, qIndex);
+
+                var wrapper = document.createElement('div');
+                wrapper.innerHTML = html.trim();
+                var node = wrapper.firstElementChild;
+                container.appendChild(node);
+                qTotal.value = qIndex + 1;
+                attachRemoveHandlers(node);
+            });
+        });
+    }
+
+    bindAddQuestionBtn(document);
+    attachRemoveHandlers(document);
+})();
+</script>
+</body>
+</html>

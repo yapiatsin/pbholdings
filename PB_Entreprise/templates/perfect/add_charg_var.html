@@ -3,20 +3,20 @@
 {% block title %}Saisie & Etat des recettes  {% endblock title %} 
 {% block page_title %}
 <a href="{% url 'saisi_compta' %}"><img class="profile-user-img" style="border:none; height:25px;width:25px" src="{% static 'retour.png' %}" alt="Retour"></a>
-    <img class="profile-user-img" style="border:none; height:50px;width:55px" src="{% static 'chargvar.png' %}" alt="picture">Saisie & Etat des charges variables du <b class="text-danger"> {{vehicule}}</b> 
+    <img class="profile-user-img" style="border:none; height:50px;width:55px" src="{% static 'chargvar.png' %}" alt="picture">Saisie & Etat des charges variables du <b style="color: #1a1a1a;"> {{vehicule}}</b> 
 {% endblock page_title %}
 {% block page_action %}
-    <button type="button" class="btn btn-default text-primary" style="font-weight:700" data-toggle="modal" data-target="#modal-lg">Saisir <i class='fa fa-plus-square'></i></button>
-    <button type="button" class="btn btn-default text-info" data-toggle="modal" data-target="#modal-sm"><i style="font-size: 20px;" class="fa fa-calendar"></i></button>
-    <a href="{% url 'addcharg_var' vehicule.pk %}" class="btn btn-default text-info"><i class="fa fa-refresh"></i></a>
+    <button type="button" class="btn btn-default" style="font-weight:700; color: #a83232;" data-toggle="modal" data-target="#modal-lg">Saisir <i class='fa fa-plus-square'></i></button>
+    <button type="button" class="btn btn-default" data-toggle="modal" data-target="#modal-sm" style="color: #a83232;"><i style="font-size: 20px; color: rgba(168, 50, 50, 0.75);" class="fa fa-calendar"></i></button>
+    <a href="{% url 'addcharg_var' vehicule.pk %}" class="btn btn-default" style="color: #a83232;"><i style="font-size: 20px; color: rgba(168, 50, 50, 0.75);" class="fas fa-sync"></i></a>
 {% endblock page_action %}
 {% block main_content %}
 
 <div class="modal fade" id="modal-sm">
     <div class="modal-dialog modal-lg">
-        <div class="modal-content" style="border-radius:25px;">
-            <div class="modal-header">
-                <h4 class="modal-title" style="font-weight:700;color: #06497C;">FILTRE</h4>
+        <div class="modal-content" style="border-radius:25px; border: 1px solid rgba(168, 50, 50, 0.2);">
+            <div class="modal-header" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.98)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 25px 25px 0 0;">
+                <h4 class="modal-title" style="font-weight:700;color: #a83232;">FILTRE</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -26,13 +26,13 @@
                     <form id="basic-form" method="get" novalidate>
                         <div class="row clearfix">
                             <div class="col-6">
-                                <label>Date debut </label>
+                                <label style="font-weight:600; color: #a83232;">Date debut </label>
                                 <div class="form-group">                                    
                                     {{ form.date_debut }}
                                 </div>
                             </div>
                             <div class="col-6">
-                                <label>Date fin</label>
+                                <label style="font-weight:600; color: #a83232;">Date fin</label>
                                 <div class="form-group">                                    
                                     {{ form.date_fin }}
                                 </div>
@@ -40,7 +40,7 @@
                         </div>
                         <div class="modal-footer justify-content-between p-2">
                             <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Annuler</button>
-                            <button type="submit" class="btn btn-outline-success" >Afficher</button>
+                            <button type="submit" class="btn" style="border-radius:25px; border: 1px solid #a83232; color: #a83232; background: transparent; font-weight: 600;">Afficher</button>
                         </div>
                     </form>
                 </div>
@@ -51,10 +51,10 @@
 
 <div class="col-12 col-sm-6 col-md-4">
     <div class="info-box" style="border-radius:25px;">
-        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-clock" style="color:rgba(6, 73, 124, 0.54);"></i></span>
+        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-clock" style="color:rgba(168, 50, 50, 0.65);"></i></span>
         <div class="info-box-content">
-            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Aujourd'hui</span>
-            <span class="info-box-number" style="font-size:20px; color: #fa7832">
+            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">Aujourd'hui</span>
+            <span class="info-box-number" style="font-size:20px; color: #1a1a1a">
             {{chargvar_jours_format}}
             <small>frs cfa</small>
             </span>
@@ -64,10 +64,10 @@
 <div class="clearfix hidden-md-up"></div>
 <div class="col-12 col-sm-6 col-md-4">
     <div class="info-box mb-3" style="border-radius:25px;">
-    <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fa fa-calendar" style="color:rgba(6, 73, 124, 0.54);"></i></span>
+    <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fa fa-calendar" style="color:rgba(168, 50, 50, 0.65);"></i></span>
     <div class="info-box-content">
-        <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Mensuelle</span>
-        <span class="info-box-number" style="font-size:20px; color: #fa7832">
+        <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">Mensuelle</span>
+        <span class="info-box-number" style="font-size:20px; color: #1a1a1a">
         {{chargvar_mois_format}}
         <small>frs cfa</small>
         </span>
@@ -77,10 +77,10 @@
 <div class="clearfix hidden-md-up"></div>
 <div class="col-12 col-sm-6 col-md-4" >
     <div class="info-box mb-3" style="border-radius:25px;">
-        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-calendar" style="color:rgba(6, 73, 124, 0.54);"></i></span>
+        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-calendar" style="color:rgba(168, 50, 50, 0.65);"></i></span>
         <div class="info-box-content">
-            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Annuelle</span>
-            <span class="info-box-number" style="font-size:20px; color: #fa7832">
+            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">Annuelle</span>
+            <span class="info-box-number" style="font-size:20px; color: #1a1a1a">
             {{chargvar_an_format}}
             <small>frs cfa</small>
             </span>
@@ -90,9 +90,9 @@
 
 <div class="modal fade" id="modal-lg">
     <div class="modal-dialog modal-lg">
-        <div class="modal-content" style="border-radius:25px;">
-            <div class="modal-header">
-                <h4 class="modal-title" style="font-weight:700;color: #06497C;">Enrégistrer une nouvelle charges variables</h4>
+        <div class="modal-content" style="border-radius:25px; border: 1px solid rgba(168, 50, 50, 0.2);">
+            <div class="modal-header" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.98)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 25px 25px 0 0;">
+                <h4 class="modal-title" style="font-weight:700;color: #a83232;">Enrégistrer une nouvelle charges variables</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -122,7 +122,7 @@
                     </div>
                     <div class="modal-footer justify-content-between">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
-                        <button type="submit" class="btn btn-outline-primary">Enregistrer</button>
+                        <button type="submit" class="btn" style="border-radius:25px; border: 1px solid #a83232; color: #a83232; background: transparent; font-weight: 600;">Enregistrer</button>
                     </div>
                 </form>
             </div>
@@ -138,7 +138,7 @@
                     <div class="row p-0 m-0">
                         <div class="col-md-12 p-0">
                             <div class="card" style="border-radius:25px;">
-                                <div class="card-header col-12 col-sm-12 col-md-12" style="font-size:18px; font-weight: 700; color: #06497C;">
+                                <div class="card-header col-12 col-sm-12 col-md-12" style="font-size:18px; font-weight: 700; color: #a83232;">
                                     <form class="search-form">
                                         <div class="input-group">
                                             <input type="text" name="search" value="{{ search_query }}" class="form-control" placeholder="Saisissez l'immatriculation du véhicule..." style="border-radius: 50px 0 0 50px;">
@@ -251,7 +251,7 @@
                                             {% if liste_chargvar %} 
                                                 {% for u in liste_chargvar %}
                                                     <tr class="text-center">
-                                                        <td><a class="mr-3 text-primary">{{u.vehicule.immatriculation}}</a></td>
+                                                        <td><a class="mr-3" style="color: #a83232;">{{u.vehicule.immatriculation}}</a></td>
                                                         <td>{{u.libelle}}</td>
                                                         <td>{{u.montant}}</td>
                                                         <td>{{u.date_saisie|date:"d/m/Y"}} à {{u.date|date:"H:m:s"}}</td>

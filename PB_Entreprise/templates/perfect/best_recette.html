@@ -9,7 +9,7 @@
 {% block page_action %}
     <form id="quickForm">
         <a class="btn btn-outline-info" data-toggle="modal" data-target="#modal-sm" href="#" style="font-size: 16px;"><i style="font-size: 20px;" class="fa fa-calendar"></i></a>
-        <a class="btn btn-outline-info" href="{% url 'best_recets' %}" style="font-size: 16px;"><i style="font-size: 20px;" class="fa fa-refresh"></i></a>
+        <a class="btn btn-outline-info" href="{% url 'best_recets' %}" style="font-size: 16px;"><i style="font-size: 20px;" class="fas fa-sync"></i></a>
         <a class="btn btn-outline-success" href="{% url 'export_best_recette_excel' %}?date_debut={{ form.date_debut.value }}&date_fin={{ form.date_fin.value }}&categorie={{ form.categorie.value }}">
             Excel <i class="fa fa-file-excel-o"></i>
         </a>
@@ -20,7 +20,7 @@
     <div class="modal-dialog modal-sm">
         <div class="modal-content" style="border-radius:25px;">
             <div class="modal-header">
-                <h4 class="modal-title" style="font-weight:700;color: #06497C; font-size:15px;">FILTRE</h4>
+                <h4 class="modal-title" style="font-weight:700;color: #a83232; font-size:15px;">FILTRE</h4>
                 <button type="button" style="border-radius:25px;" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -61,10 +61,10 @@
 
 <div class="col-12 col-sm-6 col-md-4">
     <div class="info-box" style="border-radius:25px;">
-        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-clock" style="color:rgba(6, 73, 124, 0.54);"></i></span>
+        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-money-bill-wave" style="color:rgba(168, 50, 50, 0.65);"></i></span>
         <div class="info-box-content">
-            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Aujourd'hui</span>
-            <span class="info-box-number" style="font-size:20px; color: #fa7832;">
+            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">Aujourd'hui</span>
+            <span class="info-box-number" style="font-size:20px; color: #1a1a1a;">
             {{recettes_jours_format}}
             <small>frs cfa</small>
             </span>
@@ -74,10 +74,10 @@
 
 <div class="col-12 col-sm-6 col-md-4">
     <div class="info-box mb-3" style="border-radius:25px;">
-    <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fa fa-calendar" style="color:rgba(6, 73, 124, 0.54);"></i></span>
+    <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fa fa-calendar" style="color:rgba(168, 50, 50, 0.65);"></i></span>
     <div class="info-box-content">
-        <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Mensuelle</span>
-        <span class="info-box-number" style="font-size:20px; color: #fa7832;">
+        <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">Mensuelle</span>
+        <span class="info-box-number" style="font-size:20px; color: #1a1a1a;">
         {{recettes_mois_format}}
         <small>frs cfa</small>
         </span>
@@ -88,10 +88,10 @@
 <div class="clearfix hidden-md-up"></div>
 <div class="col-12 col-sm-6 col-md-4" >
     <div class="info-box mb-3" style="border-radius:25px;">
-        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-calendar" style="color:rgba(6, 73, 124, 0.54);"></i></span>
+        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-calendar" style="color:rgba(168, 50, 50, 0.65);"></i></span>
         <div class="info-box-content">
-            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Annuelle</span>
-            <span class="info-box-number" style="font-size:20px; color: #fa7832;">
+            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">Annuelle</span>
+            <span class="info-box-number" style="font-size:20px; color: #1a1a1a;">
             {{recettes_an_format}}
             <small>frs cfa</small>
             </span>

@@ -1,0 +1,283 @@
+{% extends 'pb_site/base.html' %}
+{% load static %}
+{% block title %}P&BEntreprise — Service Details {{ promo.titre }}{% endblock title %}
+
+{% block page_header_background %}{% if promo.image %}{{ promo.image.url }}{% else %}{% static 'pb_site_asset/img/bg-img/blog.jpg' %}{% endif %}{% endblock page_header_background %}
+{% block page_header_title %}{{ promo.titre }}{% endblock page_header_title %}
+{% block page_header_inner %}{{ promo.titre }}{% endblock page_header_inner %}
+{% block content %}
+    <section class="blog-section pt-120 pb-120 fade-wrapper">
+        <div class="container">
+            <div class="row gy-lg-0 gy-5">
+                <div class="col-lg-8 col-md-12">
+                    <div class="post-card post-inner fade-top">
+                        <div class="post-thumb">
+                            {% if promo.image %}
+                                <img src="{{ promo.image.url }}" alt="{{ promo.titre }}">
+                            {% else %}
+                                <img src="{% static 'pb_site_asset/img/bg-img/sieg.webp' %}" alt="post">
+                            {% endif %}
+                        </div>
+                        <div class="post-content-wrap">
+                            <div class="post-content">
+                                <ul class="post-meta">
+                                    <li><i class="fa-regular fa-user"></i>p&bentreprise</li>
+                                </ul>
+                                <h3 class="title"><a href="blog-details.html">{{ promo.titre }}</a></h3>
+                                <p>{{ promo.description }}</p>
+                            </div>
+                            <div class="post-bottom">
+                                <a class="read-more" href="{% url 'home' %}">accueil<i class="fa-solid fa-chevrons-right"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    {% if promo_sections %}
+                        {% for promo in promo_sections %}
+                            <div class="post-card post-inner fade-top">
+                                <div class="post-thumb">
+                                    {% if promo.image %}
+                                        <img src="{{ promo.image.url }}" alt="{{ promo.titre }}">
+                                    {% else %}
+                                        <img src="{% static 'pb_site_asset/img/bg-img/sieg.webp' %}" alt="post">
+                                    {% endif %}
+                                </div>
+                                <div class="post-content-wrap">
+                                    <div class="post-content">
+                                        <ul class="post-meta">
+                                            <li><i class="fa-regular fa-user"></i>p&bentreprise</li>
+                                        </ul>
+                                        <h3 class="title"><a href="{% url 'detail_service' promo.pk %}">{{ promo.titre }}</a></h3>
+                                        <p>{{ promo.description }}</p>
+                                    </div>
+                                    <div class="post-bottom">
+                                        <a class="read-more" href="{% url 'home' %}">accueil<i class="fa-solid fa-chevrons-right"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                    <ul class="pagination-wrap mt-20">
+                        <li><a href="#">1</a></li>
+                        <li><a href="#" class="active">2</a></li>
+                        <li><a href="#">3</a></li>
+                        <li><a href="#"><i class="fa-sharp fa-regular fa-arrow-right"></i></a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-4 col-md-12">
+                    <div class="sidebar-widget">
+                        <div class="search-form">
+                            <form action="https://html.rrdevs.net/bizan/contact.php" class="search-form">
+                                <input type="text" class="form-control" placeholder="Enter Keyword">
+                            </form>
+                            <button class="search-btn" type="button">
+                                <i class="fa-regular fa-magnifying-glass"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="sidebar-widget">
+                        <h3 class="widget-title">Nos autres services</h3>
+                        {% if promo_sections %}
+                            {% for promo in promo_sections %}
+                                <div class="sidebar-post">
+                                    {% if promo.image %}
+                                        <img src="{{ promo.image.url }}" alt="{{ promo.titre }}">
+                                    {% else %}
+                                        <img src="{% static 'pb_site_asset/img/bg-img/sieg.webp' %}" alt="post">
+                                    {% endif %}
+                                    <div class="post-content">
+                                        <ul class="post-meta">
+                                            <li><i class="fa-light fa-circle-user"></i>p&bentreprise</li>
+                                        </ul>
+                                        <h3 class="title"><a href="{% url 'detail_service' promo.pk %}">{{ promo.titre }}</a></h3>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div class="sidebar-widget">
+                        <h3 class="widget-title">Categories</h3>
+                        <ul class="category-list">
+                            <li class="active"><a href="#">Cleaning Services <i class="fa-sharp fa-regular fa-arrow-right"></i></a></li>
+                            <li><a href="#">IT Services <i class="fa-sharp fa-regular fa-arrow-right"></i></a></li>
+                            <li><a href="#">Business Services <i class="fa-sharp fa-regular fa-arrow-right"></i></a></li>
+                            <li><a href="#">Strategic Services <i class="fa-sharp fa-regular fa-arrow-right"></i></a></li>
+                            <li><a href="#">Branding Services <i class="fa-sharp fa-regular fa-arrow-right"></i></a></li>
+                        </ul>
+                    </div>
+
+
+                    <div class="service-widget sticky-widget">
+                        <div class="service-widget-cta">
+                            <div class="bg-item">
+                                <div class="bg-img" data-background="{% static 'pb_site_asset/img/bg-img/sieg.webp' %}" style="background-image: url(&quot;pb_site_asset/img/service/service-cta.html&quot;);"></div>
+                                <div class="overlay"></div>
+                                <div class="shape"><img src="{% static 'pb_site_asset/img/bg-img/sieg.webp' %}" alt="shape"></div>
+                            </div>
+                            <div class="content text-center">
+                                <a class="number" href="tel:9862549215">(986)-2549.215</a>
+                                <span>Mon-Fri: 7:00 am-9:00 pm</span>
+                                <span>24/7 Service Available</span>
+                                <a href="tel:{{ promo.telephone }}" class="bz-primary-btn">Appeler maintenant</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock content %}
+{% block extra_js %}
+    <!-- Animation d'apparition au scroll des panneaux contact -->
+    <script>
+        (function () {
+            var panels = document.querySelectorAll('.contact-panel-anim');
+            if (!panels.length) return;
+            var observer = new IntersectionObserver(function (entries) {
+                entries.forEach(function (entry) {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.15 });
+            panels.forEach(function (panel) { observer.observe(panel); });
+        })();
+    </script>
+
+    <!-- Initialisation de la carte Leaflet -->
+    <script>
+    (function () {
+        var mapEl = document.getElementById('contactLeafletMap');
+        if (!mapEl) return;
+
+        // Créer la carte
+        var map = L.map('contactLeafletMap', {
+            scrollWheelZoom: false,
+            zoomControl: true
+        });
+
+        map.on('click', function () { map.scrollWheelZoom.enable(); });
+        map.on('mouseout', function () { map.scrollWheelZoom.disable(); });
+
+        // Tuiles OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+            maxZoom: 19
+        }).addTo(map);
+
+        // Icône personnalisée rouge
+        function createMarkerIcon() {
+            return L.divIcon({
+                className: 'pb-map-marker',
+                html: '<div class="pb-map-marker__pin"><i class="fa-solid fa-location-dot"></i></div>',
+                iconSize: [36, 46],
+                iconAnchor: [18, 46],
+                popupAnchor: [0, -48]
+            });
+        }
+
+        // Agences
+        var agencies = [
+            {
+                name: 'P&B Entreprise — Bingerville',
+                lat: 5.3617,
+                lng: -3.8866,
+                address: 'Non loin de AB Center, Bingerville',
+                phone: '+225 27 21 73 78 96'
+            },
+            {
+                name: 'P&B Auto Pièces — Koumassi',
+                lat: 5.2922,
+                lng: -3.9580,
+                address: 'En face du cimetière, Koumassi',
+                phone: '+225 01 02 31 91 12'
+            }
+        ];
+
+        var markers = [];
+        agencies.forEach(function (ag) {
+            var popupHtml =
+                '<div class="pb-map-popup">' +
+                    '<h4 class="pb-map-popup__title">' + ag.name + '</h4>' +
+                    '<p class="pb-map-popup__address"><i class="fa-solid fa-location-dot"></i> ' + ag.address + '</p>' +
+                    '<p class="pb-map-popup__phone"><i class="fa-solid fa-phone"></i> ' + ag.phone + '</p>' +
+                    '<button class="pb-map-popup__route-btn" onclick="window.pbGetRoute(' + ag.lat + ',' + ag.lng + ',\'' + ag.name + '\')">' +
+                        '<i class="fa-solid fa-diamond-turn-right"></i> Itinéraire depuis ma position' +
+                    '</button>' +
+                '</div>';
+
+            var marker = L.marker([ag.lat, ag.lng], { icon: createMarkerIcon() })
+                .addTo(map)
+                .bindPopup(popupHtml, { maxWidth: 280, className: 'pb-map-popup-wrap' });
+            markers.push(marker);
+        });
+
+        // Ajuster la vue
+        var group = L.featureGroup(markers);
+        map.fitBounds(group.getBounds().pad(0.3));
+
+        // Routing / Itinéraire
+        var routingControl = null;
+        var userMarker = null;
+
+        window.pbGetRoute = function (destLat, destLng, destName) {
+            if (!navigator.geolocation) {
+                alert('La géolocalisation n\'est pas supportée par votre navigateur.');
+                return;
+            }
+            navigator.geolocation.getCurrentPosition(
+                function (pos) {
+                    var userLat = pos.coords.latitude;
+                    var userLng = pos.coords.longitude;
+
+                    if (routingControl) { map.removeControl(routingControl); routingControl = null; }
+                    if (userMarker) { map.removeLayer(userMarker); userMarker = null; }
+
+                    var userIcon = L.divIcon({
+                        className: 'pb-map-marker pb-map-marker--user',
+                        html: '<div class="pb-map-marker__pin pb-map-marker__pin--user"><i class="fa-solid fa-street-view"></i></div>',
+                        iconSize: [36, 46],
+                        iconAnchor: [18, 46],
+                        popupAnchor: [0, -48]
+                    });
+
+                    userMarker = L.marker([userLat, userLng], { icon: userIcon })
+                        .addTo(map)
+                        .bindPopup('<strong>Votre position</strong>')
+                        .openPopup();
+
+                    routingControl = L.Routing.control({
+                        waypoints: [
+                            L.latLng(userLat, userLng),
+                            L.latLng(destLat, destLng)
+                        ],
+                        router: L.Routing.osrmv1({
+                            serviceUrl: 'https://router.project-osrm.org/route/v1'
+                        }),
+                        lineOptions: {
+                            styles: [{ color: '#E63946', weight: 5, opacity: 0.8 }]
+                        },
+                        show: true,
+                        addWaypoints: false,
+                        draggableWaypoints: false,
+                        fitSelectedRoutes: true,
+                        createMarker: function () { return null; }
+                    }).addTo(map);
+                },
+                function (err) {
+                    alert('Impossible d\'obtenir votre position : ' + err.message);
+                },
+                { enableHighAccuracy: true, timeout: 10000 }
+            );
+        };
+
+        window.pbClearRoute = function () {
+            if (routingControl) { map.removeControl(routingControl); routingControl = null; }
+            if (userMarker) { map.removeLayer(userMarker); userMarker = null; }
+            map.fitBounds(group.getBounds().pad(0.3));
+        };
+    })();
+    </script>
+{% endblock extra_js %}
+
+
