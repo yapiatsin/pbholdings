@@ -129,7 +129,11 @@
                     </div>
                     <div class="header-right-wrap">
                         <div class="header-right">
-                            <a href="#" class="bz-primary-btn">Téléchargez l'appli</a>
+                            {% if pb_section_visible.modal_app %}
+                                <a href="#" class="bz-primary-btn">Téléchargez l'appli</a>
+                            {% else %}
+                                <a href="{% url 'contact' %}" class="bz-primary-btn">Nous Contacter</a>
+                            {% endif %}
                             <div class="sidebar-icon-2">
                                 <button class="sidebar-trigger open">
                                     <span></span>
@@ -299,8 +303,7 @@
                         <div class="widget-header header-2">
                             <h3 class="widget-title">Téléchargez</h3>
                         </div>
-                        <p><a href="#"><img src="{% static 'pb_site_asset/img/logo/googleplay.png' %}" alt="app"></a></p>
-                        <p><a href="#"><img src="{% static 'pb_site_asset/img/logo/appstore.png' %}" alt="app"></a></p>
+                        {% include 'pb_site/partials/liens_application_footer.html' %}
                     </div>
                 </div>
             </div>
@@ -323,20 +326,28 @@
     </footer>
 
     <!-- ================ BARRE TELECHARGEMENT ================ -->
+    {% if pb_section_visible.modal_app %}
         <div class="pb-bottom-bar" id="pb-bottom-bar">
             <div class="pb-bottom-bar__inner">
                 <span class="pb-bottom-bar__text">Téléchargez l'application pour bénéficier de nos offres</span>
                 <div class="pb-bottom-bar__btns">
-                    <a href="#" class="pb-bottom-bar__btn pb-bottom-bar__btn--primary">Téléchargez l'appli</a>
-                    <a href="{% url 'contact' %}" class="pb-bottom-bar__btn pb-bottom-bar__btn--outline">Ouvrir dans le navigateur</a>
+                    {% include 'pb_site/partials/liens_application_bottom_bar.html' %}
                 </div>
             </div>
         </div>
+    {% else %}
+        <div class="pb-bottom-bar" id="pb-bottom-bar">
+            <div class="pb-bottom-bar__inner">
+                <span class="pb-bottom-bar__text">P&BEntreprise vous connecte à tous nos services</span>
+            </div>
+        </div>
+    {% endif %}
 
     <!-- ================ SCROLL PERCENTAGE ================ -->
     <div id="scroll-percentage" style="--bz-color-theme-primary: #EC281C"><span id="scroll-percentage-value"></span></div>
 
     <!-- ================ MODAL TELECHARGEMENT APP ================ -->
+    {% if pb_section_visible.modal_app %}
     <div class="pb-app-modal" id="pbAppModal">
         <div class="pb-app-modal__overlay"></div>
         <div class="pb-app-modal__content">
@@ -356,15 +367,14 @@
                 </div>
                 <div class="pb-app-modal__desc">
                     <p>{% if pb_qrcode_app and pb_qrcode_app.description %}{{ pb_qrcode_app.description|linebreaksbr }}{% else %}Réservez un trajet, louez un véhicule ou commandez une pièce détachée Suzuki en quelques clics depuis votre téléphone. L'application  vous connecte à tous les services P&BEntreprise, 24h/24 à Abidjan.{% endif %}</p>
-                    <div class="pb-app-modal__stores">
-                        <a href="#" class="pb-app-modal__store-btn"><i class="fa-brands fa-google-play"></i> Google Play</a>
-                        <a href="#" class="pb-app-modal__store-btn"><i class="fa-brands fa-apple"></i> App Store</a>
+                    <div class="pb-app-modal__stores pb-app-modal__stores--ordre">
+                        {% include 'pb_site/partials/liens_application_modal_stores.html' %}
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
+    {% endif %}
     <!-- ================ SCRIPTS ================ -->
     <script src="{% static 'pb_site_asset/js/vendor/jquary-3.6.0.min.js' %}"></script>
     <script src="{% static 'pb_site_asset/js/vendor/bootstrap-bundle.js' %}"></script>

@@ -26,9 +26,6 @@
                                 <h3 class="title"><a href="blog-details.html">{{ promo.titre }}</a></h3>
                                 <p>{{ promo.description }}</p>
                             </div>
-                            <div class="post-bottom">
-                                <a class="read-more" href="{% url 'home' %}">accueil<i class="fa-solid fa-chevrons-right"></i></a>
-                            </div>
                         </div>
                     </div>
                     {% if promo_sections %}
@@ -49,31 +46,18 @@
                                         <h3 class="title"><a href="{% url 'detail_service' promo.pk %}">{{ promo.titre }}</a></h3>
                                         <p>{{ promo.description }}</p>
                                     </div>
-                                    <div class="post-bottom">
-                                        <a class="read-more" href="{% url 'home' %}">accueil<i class="fa-solid fa-chevrons-right"></i></a>
-                                    </div>
                                 </div>
                             </div>
                         {% endfor %}
                     {% endif %}
-                    <ul class="pagination-wrap mt-20">
+                    {% comment %} <ul class="pagination-wrap mt-20">
                         <li><a href="#">1</a></li>
                         <li><a href="#" class="active">2</a></li>
                         <li><a href="#">3</a></li>
                         <li><a href="#"><i class="fa-sharp fa-regular fa-arrow-right"></i></a></li>
-                    </ul>
+                    </ul> {% endcomment %}
                 </div>
                 <div class="col-lg-4 col-md-12">
-                    <div class="sidebar-widget">
-                        <div class="search-form">
-                            <form action="https://html.rrdevs.net/bizan/contact.php" class="search-form">
-                                <input type="text" class="form-control" placeholder="Enter Keyword">
-                            </form>
-                            <button class="search-btn" type="button">
-                                <i class="fa-regular fa-magnifying-glass"></i>
-                            </button>
-                        </div>
-                    </div>
                     <div class="sidebar-widget">
                         <h3 class="widget-title">Nos autres services</h3>
                         {% if promo_sections %}
@@ -95,13 +79,18 @@
                         {% endif %}
                     </div>
                     <div class="sidebar-widget">
-                        <h3 class="widget-title">Categories</h3>
+                        <h3 class="widget-title">Catégories d'articles</h3>
                         <ul class="category-list">
-                            <li class="active"><a href="#">Cleaning Services <i class="fa-sharp fa-regular fa-arrow-right"></i></a></li>
-                            <li><a href="#">IT Services <i class="fa-sharp fa-regular fa-arrow-right"></i></a></li>
-                            <li><a href="#">Business Services <i class="fa-sharp fa-regular fa-arrow-right"></i></a></li>
-                            <li><a href="#">Strategic Services <i class="fa-sharp fa-regular fa-arrow-right"></i></a></li>
-                            <li><a href="#">Branding Services <i class="fa-sharp fa-regular fa-arrow-right"></i></a></li>
+                            <li>
+                                <a href="{% url 'blogs' %}">Toutes les catégories <i class="fa-sharp fa-regular fa-arrow-right"></i></a>
+                            </li>
+                            {% for c in categories %}
+                                <li>
+                                    <a href="{% url 'blogs' %}?categorie={{ c.slug|urlencode }}">{{ c.nom }} <i class="fa-sharp fa-regular fa-arrow-right"></i></a>
+                                </li>
+                            {% empty %}
+                                <li class="text-muted small">Aucune catégorie.</li>
+                            {% endfor %}
                         </ul>
                     </div>
 
@@ -109,15 +98,21 @@
                     <div class="service-widget sticky-widget">
                         <div class="service-widget-cta">
                             <div class="bg-item">
-                                <div class="bg-img" data-background="{% static 'pb_site_asset/img/bg-img/sieg.webp' %}" style="background-image: url(&quot;pb_site_asset/img/service/service-cta.html&quot;);"></div>
+                                <div class="bg-img" data-background="{% static 'pb_site_asset/img/bg-img/mtc.jpg' %}" style="background-image: url('{% static 'pb_site_asset/img/bg-img/mtc.jpg' %}');"></div>
                                 <div class="overlay"></div>
-                                <div class="shape"><img src="{% static 'pb_site_asset/img/bg-img/sieg.webp' %}" alt="shape"></div>
                             </div>
                             <div class="content text-center">
-                                <a class="number" href="tel:9862549215">(986)-2549.215</a>
-                                <span>Mon-Fri: 7:00 am-9:00 pm</span>
-                                <span>24/7 Service Available</span>
-                                <a href="tel:{{ promo.telephone }}" class="bz-primary-btn">Appeler maintenant</a>
+                                {% if site_config and site_config.telephone %}
+                                    <a class="number" href="tel:{{ site_config.telephone|cut:' ' }}">{{ site_config.telephone }}</a>
+                                {% else %}
+                                    <a class="number" href="tel:+2252721737896">(+225) 27 21 73 78 96</a>
+                                {% endif %}
+                                {% if site_config and site_config.email_principal %}
+                                    <span><a href="mailto:{{ site_config.email_principal }}">{{ site_config.email_principal }}</a></span>
+                                {% endif %}
+                                <span>Lundi - Vendredi : 08:00 - 18:00</span>
+                                <span>Samedi : 08:00 - 12:00</span>
+                                <a href="tel:{% if site_config and site_config.telephone %}{{ site_config.telephone|cut:' ' }}{% else %}+2252721737896{% endif %}" class="btn primary-btn">Appeler maintenant</a>
                             </div>
                         </div>
                     </div>

@@ -1,0 +1,23 @@
+{% load static pb_links %}
+{% if pb_lien_app_ordre_1 %}
+    <p class="mb-2">
+        <a href="{% if pb_lien_app_ordre_1.lien_store %}{{ pb_lien_app_ordre_1.lien_store }}{% else %}#{% endif %}"
+           class="pb-app-modal__store-btn d-inline-flex"
+           {% if pb_lien_app_ordre_1.lien_store %}target="_blank" rel="noopener noreferrer"{% endif %}>
+            <i class="{% pb_lien_app_icon pb_lien_app_ordre_1.titre %}"></i> {{ pb_lien_app_ordre_1.titre }}
+        </a>
+    </p>
+{% endif %}
+{% if pb_lien_app_ordre_2 %}
+    <p class="mb-2">
+        <a href="{% if pb_lien_app_ordre_2.lien_store %}{{ pb_lien_app_ordre_2.lien_store }}{% else %}#{% endif %}"
+           class="pb-app-modal__store-btn d-inline-flex"
+           {% if pb_lien_app_ordre_2.lien_store %}target="_blank" rel="noopener noreferrer"{% endif %}>
+            <i class="{% pb_lien_app_icon pb_lien_app_ordre_2.titre %}"></i> {{ pb_lien_app_ordre_2.titre }}
+        </a>
+    </p>
+{% endif %}
+{% if not pb_lien_app_ordre_1 and not pb_lien_app_ordre_2 %}
+    <p><a href="#"><img src="{% static 'pb_site_asset/img/logo/googleplay.png' %}" alt="Google Play"></a></p>
+    <p><a href="#"><img src="{% static 'pb_site_asset/img/logo/appstore.png' %}" alt="App Store"></a></p>
+{% endif %}

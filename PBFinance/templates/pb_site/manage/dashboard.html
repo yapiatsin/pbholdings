@@ -11,7 +11,16 @@
     <style>
         :root { --pb-primary: #EC281C; }
         body { background: #f5f6fa; font-family: 'Segoe UI', sans-serif; }
-        .pb-header { background: #fff; border-bottom: 3px solid var(--pb-primary); padding: 14px 0; margin-bottom: 30px; }
+        .pb-header {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 1030;
+            background: #fff; border-bottom: 3px solid var(--pb-primary);
+            padding: 14px 0; margin-bottom: 0;
+            box-shadow: 0 2px 12px rgba(0,0,0,.08);
+        }
+        main.pb-main { padding-top: 6.5rem; }
+        @media (max-width: 575.98px) {
+            main.pb-main { padding-top: 9.5rem; }
+        }
         .pb-header h1 { color: var(--pb-primary); font-weight: 700; margin: 0; font-size: 1.5rem; }
         .pb-header p { margin: 0; color: #666; font-size: .9rem; }
         .section-title {
@@ -46,13 +55,23 @@
 <body>
 
 <header class="pb-header">
-    <div class="container-fluid px-4">
-        <h1><i class="fa-solid fa-chart-high me-2"></i>Tableau de bord de gestion</h1>
-        <p>Gérez dynamiquement le contenu de votre site P&BEntreprise</p>
+    <div class="container-fluid px-4 d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <div>
+            <h1><i class="fa-solid fa-chart-high me-2"></i>Tableau de bord de gestion</h1>
+            <p>Gérez dynamiquement le contenu de votre site P&BEntreprise</p>
+        </div>
+        <div class="d-flex flex-wrap gap-2 align-items-center">
+            <a href="{% url 'dash' %}" class="btn btn-outline-danger btn-sm">
+                <i class="fa-solid fa-gauge-high me-1"></i> Tableau de bord
+            </a>
+            <a href="{% url 'log_out' %}" class="btn btn-danger btn-sm">
+                <i class="fa-solid fa-right-from-bracket me-1"></i> Déconnexion
+            </a>
+        </div>
     </div>
 </header>
 
-<main class="container-fluid px-4 pb-5">
+<main class="container-fluid px-4 pb-5 pb-main">
     {% for section_name, links in sections %}
         <h3 class="section-title">{{ section_name }}</h3>
         <div class="row g-3">

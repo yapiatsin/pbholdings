@@ -51,15 +51,27 @@
         main { position: relative; }
         /* Ne pas mettre z-index sur main : le backdrop du modal est sur body (z-index ~1050)
            et masquerait tout le contenu du main, y compris la boîte de dialogue. */
-        .pb-header, footer { position: relative; z-index: 1; }
+        footer { position: relative; z-index: 1; }
 
         /* ====== HEADER ====== */
         .pb-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1030;
             background: #fff;
             border-bottom: 2px solid var(--pb-maroon-border);
             padding: 14px 0;
-            margin-bottom: 22px;
-            box-shadow: 0 1px 0 rgba(168, 50, 50, 0.08);
+            margin-bottom: 0;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        }
+        main.pb-main { padding-top: 7.5rem; }
+        @media (max-width: 991.98px) {
+            main.pb-main { padding-top: 8.5rem; }
+        }
+        @media (max-width: 575.98px) {
+            main.pb-main { padding-top: 11rem; }
         }
         .pb-header h1 {
             color: var(--pb-maroon);
@@ -595,19 +607,29 @@
 <body>
 
 <header class="pb-header">
-    <div class="container-fluid px-4">
-        <h1><i class="fa-solid fa-chart-line me-2"></i>Statistiques du site</h1>
-        <p>
-            Analyse des visites et interactions sur votre site P&BEntreprise
-            <span class="badge bg-light text-muted border ms-2">
-                <i class="fa-regular fa-clock me-1"></i>
-                1 visite = 1 IP toutes les {{ visit_window_minutes }} min
-            </span>
-        </p>
+    <div class="container-fluid px-4 d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <div>
+            <h1><i class="fa-solid fa-chart-line me-2"></i>Statistiques du site</h1>
+            <p>
+                Analyse des visites et interactions sur votre site P&BEntreprise
+                <span class="badge bg-light text-muted border ms-2">
+                    <i class="fa-regular fa-clock me-1"></i>
+                    1 visite / 1 clic = 1 IP toutes les {{ visit_window_minutes }} min
+                </span>
+            </p>
+        </div>
+        <div class="d-flex flex-wrap gap-2 align-items-center">
+            <a href="{% url 'dash' %}" class="btn btn-outline-danger btn-sm">
+                <i class="fa-solid fa-gauge-high me-1"></i> Tableau de bord
+            </a>
+            <a href="{% url 'log_out' %}" class="btn btn-danger btn-sm">
+                <i class="fa-solid fa-right-from-bracket me-1"></i> Déconnexion
+            </a>
+        </div>
     </div>
 </header>
 
-<main class="container-fluid px-4 pb-5">
+<main class="container-fluid px-4 pb-5 pb-main">
 
     <!-- Breadcrumb -->
     <nav class="breadcrumb">
@@ -677,7 +699,7 @@
                     </span>
                 </div>
                 <p class="stat-card__desc">
-                    Interactions enregistrées (boutons, liens) pour {{ periode_label }}.
+                    Interactions (boutons, liens) pour {{ periode_label }}, dédupliquées par IP ({{ click_window_minutes }} min).
                 </p>
                 <div class="stat-card__progress-wrap">
                     <div class="stat-card__progress">
@@ -814,7 +836,7 @@
     </div>
 
     <!-- ===================== BOTTOM : Top Pages + Daily + Customer-Reviews-like ===================== -->
-    <div class="row g-3 mt-3 pb-stats-bottom-row">
+    <div class="row g-3 mt-1 pb-stats-bottom-row">
         <!-- Évolution journalière (4 cols) — style "Repeat Customer Rate" -->
         <div class="col-xl-8 d-flex">
             <div class="pb-card h-100 w-100">
@@ -895,6 +917,49 @@
             </div>
         </div>
     </div>
+
+    
+    <!-- ===================== Clics par page (IP dédupliquée) ===================== -->
+    <div class="row g-3 mb-2 mt-1">
+        <div class="col-12">
+            <div class="pb-card h-100 w-100">
+                <div class="pb-card-header">
+                    <h2>Clics par page</h2>
+                    <span class="small text-muted">1 clic = 1 IP / {{ click_window_minutes }} min sur la page</span>
+                </div>
+                <div class="pb-card-body">
+                    {% if clics_par_pages %}
+                        <div class="row g-3">
+                            {% for p in clics_par_pages %}
+                            <div class="col-md-6 col-lg-4 col-xl-3">
+                                <div class="border rounded-3 p-3 h-100" style="border-color: rgba(168,50,50,0.2) !important;">
+                                    <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                                        <span class="fw-semibold">{{ p.label }}</span>
+                                        <span class="pill-count flex-shrink-0">{{ p.total }}</span>
+                                    </div>
+                                    <code class="small text-muted d-block text-truncate" title="{{ p.path }}">{{ p.path }}</code>
+                                    {% with first=clics_par_pages.0.total %}
+                                    {% if first %}
+                                    <div class="top-list__bar mt-2">
+                                        <div class="top-list__bar-fill" style="width: {% widthratio p.total first 100 %}%"></div>
+                                    </div>
+                                    {% endif %}
+                                    {% endwith %}
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="empty-state">
+                            <i class="fa-solid fa-hand-pointer"></i>
+                            <p class="mb-0">Aucun clic sur les pages suivies pour cette période.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
 </main>
 
 <!-- Modal hors de <main> : évite que le backdrop Bootstrap (sur body, z-index élevé) recouvre la boîte de dialogue -->

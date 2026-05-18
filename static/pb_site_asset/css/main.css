@@ -22309,6 +22309,19 @@ body.contact-page button[type="submit"] {
     flex-wrap: wrap;
 }
 
+.pb-app-modal__stores--ordre {
+    display: block;
+}
+
+.pb-app-modal__stores--ordre .pb-app-modal__stores-row {
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.pb-app-modal__stores--ordre .pb-app-modal__store-btn {
+    width: 100%;
+}
+
 .pb-app-modal__store-btn {
     display: inline-flex;
     align-items: center;
@@ -22326,6 +22339,25 @@ body.contact-page button[type="submit"] {
 .pb-app-modal__store-btn:hover {
     background: #E63946;
     color: #fff;
+}
+
+.pb-lien-app-footer__img {
+    max-height: 44px;
+    width: auto;
+    display: block;
+}
+
+.pb-lien-app-modal__img {
+    max-height: 28px;
+    width: auto;
+    display: block;
+}
+
+.pb-app-lien__icon-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
 }
 
 /* ── Modal responsive ──────────────────────────────────────────── */

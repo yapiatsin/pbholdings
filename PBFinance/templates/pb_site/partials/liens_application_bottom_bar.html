@@ -1,0 +1,8 @@
+<a href="#" class="pb-bottom-bar__btn pb-bottom-bar__btn--primary">Téléchargez l'appli</a>
+{% if pb_lien_app_ordre_3 %}
+    <a href="{% if pb_lien_app_ordre_3.lien_store %}{{ pb_lien_app_ordre_3.lien_store }}{% else %}#{% endif %}"
+       class="pb-bottom-bar__btn pb-bottom-bar__btn--outline"
+       {% if pb_lien_app_ordre_3.lien_store %}target="_blank" rel="noopener noreferrer"{% endif %}>{{ pb_lien_app_ordre_3.titre }}</a>
+{% else %}
+    <a href="{% url 'contact' %}" class="pb-bottom-bar__btn pb-bottom-bar__btn--outline">Ouvrir dans le navigateur</a>
+{% endif %}

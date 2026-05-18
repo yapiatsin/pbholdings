@@ -68,7 +68,7 @@
                 <div class="col-lg-3 col-md-6 fade-top">
                     <div class="service-process-card">
                         <span class="number">{{ forloop.counter|stringformat:"02d" }}</span>
-                        <h3 class="title">{{ carac.texte }}</h3>
+                        <h3 class="title">{{ carac.texte }} {% if carac.ordre == 1 %}<br><a href="{% url 'contact' %}"><u>Contactez-nous</u></a>{% endif %}</h3>
                     </div>
                 </div>
             {% endfor %}

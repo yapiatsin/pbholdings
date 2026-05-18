@@ -350,6 +350,14 @@
             if (slug) openArticleModal(slug);
         });
     });
+
+    (function initCategoryFromUrl() {
+        var params = new URLSearchParams(window.location.search);
+        var cat = (params.get('categorie') || '').trim();
+        if (cat) {
+            setActiveCategory(cat);
+        }
+    })();
 })();
 </script>
 {% endblock extra_js %}

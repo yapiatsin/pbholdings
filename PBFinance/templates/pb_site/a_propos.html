@@ -54,8 +54,8 @@
             <div class="section-heading white-content mb-40">
                 <h4 class="sub-heading" data-text-animation="fade-in" data-duration="1.5"><span class="left-shape"></span>Pourquoi Nous Choisir</h4>
                 <h2 class="section-title mb-0" data-text-animation data-split="word" data-duration="1">Des services pensés pour votre confort, votre sécurité et votre satisfaction</h2>
-                <h2 class="section-title mb-0" data-text-animation data-split="word" data-duration="1">10 ans d'expérience</h2>
-                <p class="fade-top">10 ans d'expérience dans le transport de personnes et la distribution de pièces détachées Suzuki.</p>
+                <h2 class="section-title mb-0" data-text-animation data-split="word" data-duration="1">{% if site_config and site_config.libelle_annees_experience %}{{ site_config.libelle_annees_experience }}{% else %}10 ans d'expérience{% endif %}</h2>
+                <p class="fade-top">{% if site_config and site_config.libelle_annees_experience %}{{ site_config.libelle_annees_experience|capfirst }} dans le transport de personnes et la distribution de pièces détachées Suzuki.{% else %}10 ans d'expérience dans le transport de personnes et la distribution de pièces détachées Suzuki.{% endif %}</p>
             </div>
         </div>
     </div>
@@ -122,13 +122,50 @@
                             {% endfor %}
                         {% endif %}
                     </div>
+
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-    
+{% if pb_qrcode_app and pb_qrcode_app.qrcode_image %}
+    {% if pb_section_visible.application %}
+    <div class="pb-service-page pt-80 pb-80">
+        <section class="pb-service-qr-section team-details">
+            <div class="container">
+                <div class="pb-service-qr-card fade-wrapper">
+                    <div class="row align-items-center justify-content-between gy-4 gy-lg-0">
+                        <div class="col-lg-7 col-md-12">
+                            <div class="pb-service-qr-card__text">
+                                <div class="section-heading mb-30">
+                                    <h4 class="sub-heading pb-service-qr-card__kicker" data-text-animation="fade-in" data-duration="1.5"><span class="left-shape"></span>Application mobile</h4>
+                                    <h2 class="section-title mb-0 pb-service-qr-card__title" data-text-animation data-split="word" data-duration="1">{{ pb_qrcode_app.titre }}</h2>
+                                </div>
+                                {% if pb_qrcode_app.description %}
+                                    <p class="fade-top pb-service-qr-card__lead">{{ pb_qrcode_app.description|linebreaksbr }}</p>
+                                {% else %}
+                                    <p class="fade-top pb-service-qr-card__lead">Scannez le code pour ouvrir le lien sur votre téléphone (réservation, suivi, offres).</p>
+                                {% endif %}
+                                {% if pb_qrcode_app.lien %}
+                                    <a href="{{ pb_qrcode_app.lien }}" class="bz-primary-btn red-btn fade-top mt-3 d-inline-flex text-uppercase" target="_blank" rel="noopener">Ouvrir le lien <i class="fa-regular fa-arrow-right"></i></a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-12 text-center text-lg-end">
+                            <figure class="pb-service-qr-card__figure mb-0 d-inline-block">
+                                <img src="{{ pb_qrcode_app.qrcode_image.url }}" alt="QR code — {{ pb_qrcode_app.titre|escape }}" class="pb-service-qr-card__qimg">
+                                <figcaption class="pb-service-qr-card__caption mt-3">{{ pb_qrcode_app.titre }}</figcaption>
+                            </figure>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+    {% endif %}
+{% endif %}
+
 {% endblock content %}
 {% block extra_js %}
     <!-- Animation d'apparition au scroll des panneaux contact -->

@@ -325,6 +325,27 @@
                                         {% endif %}
                                     </ul>
                                 </li>
+                            {% elif categorie.categorie == "Site web"%}
+                                <li class="nav-header">SITE WEB</li>
+                                <li class="nav-item has-treeview ">
+                                    <a href="#" class="nav-link ">
+                                        <i class="nav-icon fas fa-globe "></i>
+                                        <p>
+                                            Site web
+                                            <i class="right fas fa-angle-left "></i>
+                                        </p>
+                                    </a>
+                                    <ul class="nav nav-treeview ">
+                                        <li class="nav-item">
+                                            {% for perm in perms %}
+                                                <a href="{% url perm.url %}" class="nav-link ">
+                                                    <i style="font-size: 10px;" class="far fa-circle nav-icon "></i>
+                                                    <p>{{ perm.name }}</p>
+                                                </a>
+                                            {% endfor %}
+                                        </li>
+                                    </ul>
+                                </li>
                             {% endif %}
                         {% endfor %}
                         {% if user.is_staff %}

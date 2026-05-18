@@ -3,11 +3,16 @@
 {% load pb_links %}
 {% block title %}P&BEntreprise — Services{% endblock title %}
 
-{% block page_header_background %}{% static 'pb_site_asset/img/bg-img/blog.jpg' %}{% endblock page_header_background %}
+{% block page_header_background %}{% static 'pb_site_asset/img/bg-img/delivery.webp' %}{% endblock page_header_background %}
 {% block page_header_title %}Services{% endblock page_header_title %}
 {% block page_header_inner %}services{% endblock page_header_inner %}
 
 {% block content %}
+
+    {% if sections_intro %}
+        {% include 'pb_site/partials/sections_intro.html' %}
+    {% endif %}
+
     <div class="pb-service-page">
     {% csrf_token %}
     <div id="pb-service-config"
@@ -171,39 +176,40 @@
     {% endif %}
 
     {% if pb_qrcode_app and pb_qrcode_app.qrcode_image %}
-        <section class="pb-service-qr-section team-details fade-wrapper pt-120 pb-120">
-            <div class="container">
-                <div class="pb-service-qr-card fade-wrapper">
-                    <div class="row align-items-center justify-content-between gy-4 gy-lg-0">
-                        <div class="col-lg-7 col-md-12">
-                            <div class="pb-service-qr-card__text">
-                                <div class="section-heading mb-30">
-                                    <h4 class="sub-heading pb-service-qr-card__kicker" data-text-animation="fade-in" data-duration="1.5"><span class="left-shape"></span>Application mobile</h4>
-                                    <h2 class="section-title mb-0 pb-service-qr-card__title" data-text-animation data-split="word" data-duration="1">{{ pb_qrcode_app.titre }}</h2>
+        {% if pb_section_visible.application %}
+            <section class="pb-service-qr-section team-details">
+                <div class="container">
+                    <div class="pb-service-qr-card fade-wrapper">
+                        <div class="row align-items-center justify-content-between gy-4 gy-lg-0">
+                            <div class="col-lg-7 col-md-12">
+                                <div class="pb-service-qr-card__text">
+                                    <div class="section-heading mb-30">
+                                        <h4 class="sub-heading pb-service-qr-card__kicker" data-text-animation="fade-in" data-duration="1.5"><span class="left-shape"></span>Application mobile</h4>
+                                        <h2 class="section-title mb-0 pb-service-qr-card__title" data-text-animation data-split="word" data-duration="1">{{ pb_qrcode_app.titre }}</h2>
+                                    </div>
+                                    {% if pb_qrcode_app.description %}
+                                        <p class="fade-top pb-service-qr-card__lead">{{ pb_qrcode_app.description|linebreaksbr }}</p>
+                                    {% else %}
+                                        <p class="fade-top pb-service-qr-card__lead">Scannez le code pour ouvrir le lien sur votre téléphone (réservation, suivi, offres).</p>
+                                    {% endif %}
+                                    {% if pb_qrcode_app.lien %}
+                                        <a href="{{ pb_qrcode_app.lien }}" class="bz-primary-btn red-btn fade-top mt-3 d-inline-flex text-uppercase" target="_blank" rel="noopener">Ouvrir le lien <i class="fa-regular fa-arrow-right"></i></a>
+                                    {% endif %}
                                 </div>
-                                {% if pb_qrcode_app.description %}
-                                    <p class="fade-top pb-service-qr-card__lead">{{ pb_qrcode_app.description|linebreaksbr }}</p>
-                                {% else %}
-                                    <p class="fade-top pb-service-qr-card__lead">Scannez le code pour ouvrir le lien sur votre téléphone (réservation, suivi, offres).</p>
-                                {% endif %}
-                                {% if pb_qrcode_app.lien %}
-                                    <a href="{{ pb_qrcode_app.lien }}" class="bz-primary-btn red-btn fade-top mt-3 d-inline-flex text-uppercase" target="_blank" rel="noopener">Ouvrir le lien <i class="fa-regular fa-arrow-right"></i></a>
-                                {% endif %}
                             </div>
-                        </div>
-                        <div class="col-lg-4 col-md-12 text-center text-lg-end">
-                            <figure class="pb-service-qr-card__figure mb-0 d-inline-block">
-                                <img src="{{ pb_qrcode_app.qrcode_image.url }}" alt="QR code — {{ pb_qrcode_app.titre|escape }}" class="pb-service-qr-card__qimg">
-                                <figcaption class="pb-service-qr-card__caption mt-3">{{ pb_qrcode_app.titre }}</figcaption>
-                            </figure>
+                            <div class="col-lg-4 col-md-12 text-center text-lg-end">
+                                <figure class="pb-service-qr-card__figure mb-0 d-inline-block">
+                                    <img src="{{ pb_qrcode_app.qrcode_image.url }}" alt="QR code — {{ pb_qrcode_app.titre|escape }}" class="pb-service-qr-card__qimg">
+                                    <figcaption class="pb-service-qr-card__caption mt-3">{{ pb_qrcode_app.titre }}</figcaption>
+                                </figure>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
+        {% endif %}
     {% endif %}
-
-    <section class="team-details pb-120">
+    <section class="team-details pt-80 pb-80">
         <div class="container">
             <div class="row justify-content-center text-center gy-3 fade-wrapper">
                 <div class="col-md-6 fade-top">

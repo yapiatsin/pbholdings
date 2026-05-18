@@ -121,7 +121,11 @@
                     </div>
                     <div class="header-right-wrap">
                         <div class="header-right">
-                            <a href="#" class="bz-primary-btn">Téléchargez l'appli</a>
+                            {% if pb_section_visible.modal_app %}
+                                <a href="#" class="bz-primary-btn">Téléchargez l'appli</a>
+                            {% else %}
+                                <a href="{% url 'contact' %}" class="bz-primary-btn">Nous Contacter</a>
+                            {% endif %}
                             <div class="sidebar-icon-2">
                                 <button class="sidebar-trigger open">
                                     <span></span>
@@ -306,9 +310,9 @@
                     </div>
                 {% endif %}
             </div>
-            <div class="swiper-pagination hero-swiper-pagination-3"></div>
+            {% comment %} <div class="swiper-pagination hero-swiper-pagination-3"></div> {% endcomment %}
         </div>
-        <div class="pb-hero-glass-panel is-visible" aria-hidden="true"></div>
+        {% comment %} <div class="pb-hero-glass-panel is-visible" aria-hidden="true"></div> {% endcomment %}
     </section>
 
     {% if pb_section_visible.promo %}
@@ -330,43 +334,6 @@
                                 </div>
                             </div>
                         {% endfor %}
-                    {% else %}
-                        <div class="col-lg-4 col-md-6">
-                            <div class="promo-item white-content js-scroll slide-left">
-                                <div class="bg-items">
-                                    <div class="bg-img"><img class="fx-media fx-media--promo-inner" src="{% static 'pb_site_asset/img/bg-img/chauf_vtc.webp' %}" alt="Transport VTC Abidjan"></div>
-                                    <div class="overlay"></div>
-                                    <div class="overlay-2"></div>
-                                </div>
-                                <h3 class="title">Transport VTC & TAXI</h3>
-                                <p>Une expérience de transport haut de gamme pour particuliers et entreprises. Réservez votre chauffeur privé à la demande ou sur abonnement mensuel pour tous vos déplacements à Abidjan et environs.</p>
-                                <a href="#" class="bz-primary-btn red-btn">En savoir plus <i class="fa-regular fa-arrow-right"></i></a>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-md-6">
-                            <div class="promo-item white-content js-scroll slide-left">
-                                <div class="bg-items">
-                                    <div class="bg-img"><img class="fx-media fx-media--promo-inner" src="{% static 'pb_site_asset/img/bg-img/s_carry.png' %}" alt="Taxi Abidjan Koumassi Bingerville"></div>
-                                    <div class="overlay"></div>
-                                    <div class="overlay-2"></div>
-                                </div>
-                                <h3 class="title">Livraison et Location</h3>
-                                <p>Disponible à toute heure, 7 jours sur 7. Nos taxis desservent Koumassi, Bingerville et l'ensemble du Grand Abidjan. Tarifs compétitifs, compteur certifié et chauffeurs agréés pour votre tranquillité.</p>
-                                <a href="#" class="bz-primary-btn red-btn">En savoir plus <i class="fa-regular fa-arrow-right"></i></a>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-md-6">
-                            <div class="promo-item white-content js-scroll slide-left">
-                                <div class="bg-items">
-                                    <div class="bg-img"><img class="fx-media fx-media--promo-inner" src="{% static 'pb_site_asset/img/bg-img/mot.png' %}" alt="Pièces détachées Suzuki Abidjan"></div>
-                                    <div class="overlay"></div>
-                                    <div class="overlay-2"></div>
-                                </div>
-                                <h3 class="title">Pièces Suzuki d'Origine</h3>
-                                <p>Votre spécialiste en pièces détachées Suzuki à Abidjan. Moteur, carrosserie, electricité, freinage — nous proposons des pièces neuves et d'occasion certifiées pour tous modèles Suzuki.</p>
-                                <a href="#" class="bz-primary-btn red-btn">En savoir plus <i class="fa-regular fa-arrow-right"></i></a>
-                            </div>
-                        </div>
                     {% endif %}
                 </div>
             </div>
@@ -971,8 +938,10 @@
                                             <li><i class="fa-regular fa-calendar"></i>{{ blog.date_publication|date:"d F Y" }}</li>
                                             <li><i class="fa-regular fa-user"></i>par P&BEntreprise</li>
                                         </ul>
-                                        <h3 class="title"><a href="{ url 'blog_details' blog.slug %}">{{ blog.titre }}</a></h3>
-                                        <a href="{ url 'blog_details' blog.slug %}" class="blog-btn"><i class="fa-regular fa-arrow-right"></i>Lire l'article</a>
+                                        <h3 class="title">
+                                            <a href="{% url 'blogs' %}{% if blog.categorie %}?categorie={{ blog.categorie.slug|urlencode }}{% endif %}">{{ blog.titre }}</a>
+                                        </h3>
+                                        <a href="{% url 'blogs' %}{% if blog.categorie %}?categorie={{ blog.categorie.slug|urlencode }}{% endif %}" class="blog-btn"><i class="fa-regular fa-arrow-right"></i>Lire l'article</a>
                                     </div>
                                 </div>
                             </div>
@@ -1096,8 +1065,7 @@
                         <div class="widget-header header-2">
                             <h3 class="widget-title">Téléchargez</h3>
                         </div>
-                        <p><a href="#"><img src="{% static 'pb_site_asset/img/logo/googleplay.png' %}" alt="app"></a></p>
-                        <p><a href="#"><img src="{% static 'pb_site_asset/img/logo/appstore.png' %}" alt="app"></a></p>
+                        {% include 'pb_site/partials/liens_application_footer.html' %}
                     </div>
                 </div>
             </div>
@@ -1110,28 +1078,34 @@
                     </div>
                     <div class="col-md-6">
                         <ul class="copy-list">
-                            <li><a href="contact.html">Conditions Générales</a></li>
-                            <li><a href="contact.html">Politique de Confidentialité</a></li>
+                            <li><a href="#">Conditions Générales</a></li>
+                            <li><a href="#">Politique de Confidentialité</a></li>
                         </ul>
                     </div>
                 </div>
             </div>
         </div>
     </footer>
-
-    <div class="pb-bottom-bar" id="pb-bottom-bar">
-        <div class="pb-bottom-bar__inner">
-            <span class="pb-bottom-bar__text">Téléchargez l'application pour bénéficier de nos offres</span>
-            <div class="pb-bottom-bar__btns">
-                <a href="#" class="pb-bottom-bar__btn pb-bottom-bar__btn--primary">Téléchargez l'appli</a>
-                <a href="contact.html" class="pb-bottom-bar__btn pb-bottom-bar__btn--outline">Ouvrir dans le navigateur</a>
+    {% if pb_section_visible.modal_app %}
+        <div class="pb-bottom-bar" id="pb-bottom-bar">
+            <div class="pb-bottom-bar__inner">
+                <span class="pb-bottom-bar__text">Téléchargez l'application pour bénéficier de nos offres</span>
+                <div class="pb-bottom-bar__btns">
+                    {% include 'pb_site/partials/liens_application_bottom_bar.html' %}
+                </div>
             </div>
         </div>
-    </div>
-
+    {% else %}
+        <div class="pb-bottom-bar" id="pb-bottom-bar">
+            <div class="pb-bottom-bar__inner">
+                <span class="pb-bottom-bar__text">P&BEntreprise vous connecte à tous nos services</span>
+            </div>
+        </div>
+    {% endif %}
     <div id="scroll-percentage" style="--bz-color-theme-primary: #EC281C"><span id="scroll-percentage-value"></span></div>
 
     <!-- Modal téléchargement application -->
+    {% if pb_section_visible.modal_app %}
     <div class="pb-app-modal" id="pbAppModal">
         <div class="pb-app-modal__overlay"></div>
         <div class="pb-app-modal__content">
@@ -1151,15 +1125,14 @@
                 </div>
                 <div class="pb-app-modal__desc">
                     <p>{% if pb_qrcode_app and pb_qrcode_app.description %}{{ pb_qrcode_app.description|linebreaksbr }}{% else %}Réservez un trajet, louez un véhicule ou commandez une pièce détachée Suzuki en quelques clics depuis votre téléphone. L'application  vous connecte à tous les services P&BEntreprise, 24h/24 à Abidjan.{% endif %}</p>
-                    <div class="pb-app-modal__stores">
-                        <a href="#" class="pb-app-modal__store-btn"><i class="fa-brands fa-google-play"></i> Google Play</a>
-                        <a href="#" class="pb-app-modal__store-btn"><i class="fa-brands fa-apple"></i> App Store</a>
+                    <div class="pb-app-modal__stores pb-app-modal__stores--ordre">
+                        {% include 'pb_site/partials/liens_application_modal_stores.html' %}
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
+    {% endif %}
     <!-- JS here -->
     <script src="{% static 'pb_site_asset/js/vendor/jquary-3.6.0.min.js' %}"></script>
     <script src="{% static 'pb_site_asset/js/vendor/bootstrap-bundle.js' %}"></script>

@@ -1,0 +1,6 @@
+{% load pb_links %}
+<a href="{% if lien.lien_store %}{{ lien.lien_store }}{% else %}#{% endif %}"
+   class="pb-app-modal__store-btn w-100 justify-content-center"
+   {% if lien.lien_store %}target="_blank" rel="noopener noreferrer"{% endif %}>
+    <i class="{% pb_lien_app_icon lien.titre %}"></i> {{ lien.titre }}
+</a>
