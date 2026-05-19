@@ -1,0 +1,28 @@
+{% with foot=footers|first %}
+<ul class="side-menu-list">
+    {% if foot and foot.localisation_bp %}
+    <li>
+        <i class="fas fa-map-marker-alt"></i>
+        <p>{{ foot.localisation_bp }}</p>
+    </li>
+    {% endif %}
+    {% if foot and foot.contact_1 %}
+    <li>
+        <i class="fas fa-phone"></i>
+        <a href="tel:{{ foot.contact_1|cut:' ' }}">{{ foot.contact_1 }}</a>
+    </li>
+    {% endif %}
+    {% if foot and foot.contact_2 %}
+    <li>
+        <i class="fas fa-phone"></i>
+        <a href="tel:{{ foot.contact_2|cut:' ' }}">{{ foot.contact_2 }}</a>
+    </li>
+    {% endif %}
+    {% if foot and foot.email %}
+    <li>
+        <i class="fas fa-envelope-open-text"></i>
+        <a href="mailto:{{ foot.email }}">{{ foot.email }}</a>
+    </li>
+    {% endif %}
+</ul>
+{% endwith %}

@@ -171,20 +171,7 @@
                 <div class="side-menu-header">
                     <h3>Contactez-Nous</h3>
                 </div>
-                <ul class="side-menu-list">
-                    <li>
-                        <i class="fas fa-map-marker-alt"></i>
-                        <p>Abidjan, Koumassi & Bingerville</p>
-                    </li>
-                    <li>
-                        <i class="fas fa-phone"></i>
-                        <a href="tel:+2252721737896">(+225) 27 21 73 78 96 / 01 02 31 91 12</a>
-                    </li>
-                    <li>
-                        <i class="fas fa-envelope-open-text"></i>
-                        <a href="mailto:pacomebertine@gmail.com">pacomebertine@gmail.com</a>
-                    </li>
-                </ul>
+                {% include 'pb_site/partials/side_menu_contact.html' %}
             </div>
             <ul class="side-menu-social">
                 {% for r in pb_reseaux_sociaux %}
@@ -527,9 +514,9 @@
                         <div class="col-lg-6 col-md-12">
                             <div class="strength-man js-scroll slide-left">
                                 {% if compteurs.image %}
-                                    <img class="men fx-media" src="{{ compteurs.image.url }}" alt="{{ compteurs.titre|default:'Équipe P&BEntreprise' }}">
+                                    <img class="men fx-media" src="{{ compteurs.image.url }}" alt="{{ compteurs.titre|default:'P&BEntreprise'}}">
                                 {% else %}
-                                    <img class="men fx-media" src="{% static 'pb_site_asset/img/bg-img/bm.png' %}" alt="Équipe P&BEntreprise">
+                                    <img class="men fx-media" src="{% static 'pb_site_asset/img/bg-img/bm.png' %}" alt="P&BEntreprise">
                                 {% endif %}
                             </div>
                         </div>
@@ -579,7 +566,7 @@
                         </div>
                         <div class="col-lg-6 col-md-12">
                             <div class="strength-man js-scroll slide-left">
-                                <img class="men fx-media" src="{% static 'pb_site_asset/img/bg-img/bm.png' %}" alt="Équipe P&BEntreprise">
+                                <img class="men fx-media" src="{% static 'pb_site_asset/img/bg-img/bm.png' %}" alt="P&BEntreprise">
                             </div>
                         </div>
                     {% endif %}
@@ -596,11 +583,9 @@
                     <h4 class="sub-heading" data-text-animation="fade-in" data-duration="1.5"><span class="left-shape"></span>Location de voiture</h4>
                     <h2 class="section-title mb-0" data-text-animation data-split="word" data-duration="1">Profitez de notre large gamme de véhicules</h2>
                 </div>
-
                 {% if cars_list %}
                     {# Données JSON consommées par le script plus bas #}
                     {{ cars_json|json_script:"cars-data" }}
-
                     <!-- Onglets véhicules -->
                     <div class="car-hire-tabs">
                         {% for c in cars_list %}
@@ -1040,8 +1025,7 @@
                                     </a>
                                 </li>
                             {% endfor %}
-                        </ul>
-                            
+                        </ul> 
                     </div>
                 </div>
                 {% for categorie in pb_footer_categories %}

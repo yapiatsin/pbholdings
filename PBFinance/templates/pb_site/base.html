@@ -96,10 +96,10 @@
                         <div class="header-logo">
                             <div class="header-logo">
                                 <a href="{% url 'home' %}">
-                                    {% if site_config.logo_principal %}
+                                    {% if site_config and site_config.logo_principal %}
                                         <img class="fx-media fx-media--neutral" src="{{ site_config.logo_principal.url }}" alt="logo {{ site_config.nom_site|default:'P&BEntreprise' }}">
                                     {% else %}
-                                        <img class="fx-media fx-media--neutral" src="{% static 'pb_site_asset/img/logo/logo-5.png' %}" alt="logo P&BEntreprise">
+                                        <img class="fx-media fx-media--neutral" src="{% static 'pb_site_asset/img/logo/new_logo.png' %}" alt="P&BEntreprise">
                                     {% endif %}
                                 </a>
                             </div>
@@ -161,10 +161,10 @@
         <div class="side-menu-content">
             <div class="side-menu-logo">
                 <a href="{% url 'home' %}">
-                    {% if site_config.logo_principal %}
+                    {% if site_config and site_config.logo_principal %}
                         <img class="fx-media fx-media--neutral" src="{{ site_config.logo_principal.url }}" alt="logo {{ site_config.nom_site|default:'P&BEntreprise' }}">
                     {% else %}
-                        <img class="fx-media fx-media--neutral" src="{% static 'pb_site_asset/img/logo/logo-5.png' %}" alt="logo P&BEntreprise">
+                        <img class="fx-media fx-media--neutral" src="{% static 'pb_site_asset/img/logo/new_logo.png' %}" alt="P&BEntreprise">
                     {% endif %}
                 </a>
             </div>
@@ -180,20 +180,7 @@
                 <div class="side-menu-header">
                     <h3>Contactez-Nous</h3>
                 </div>
-                <ul class="side-menu-list">
-                    <li>
-                        <i class="fas fa-map-marker-alt"></i>
-                        <p>Abidjan, Koumassi & Bingerville</p>
-                    </li>
-                    <li>
-                        <i class="fas fa-phone"></i>
-                        <a href="tel:+2252721737896">(+225) 27 21 73 78 96 / 01 02 31 91 12</a>
-                    </li>
-                    <li>
-                        <i class="fas fa-envelope-open-text"></i>
-                        <a href="mailto:pacomebertine@gmail.com">pacomebertine@gmail.com</a>
-                    </li>
-                </ul>
+                {% include 'pb_site/partials/side_menu_contact.html' %}
             </div>
             <ul class="side-menu-social">
                 {% for r in pb_reseaux_sociaux %}
