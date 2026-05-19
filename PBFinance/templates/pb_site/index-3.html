@@ -252,7 +252,7 @@
                                     <p>Voyagez en toute sérénité avec notre flotte de véhicules modernes et climatisés. Chauffeurs professionnels, ponctualité garantie et tarifs transparents pour tous vos déplacements.</p>
                                 </div>
                                 <div class="hero-btn-wrap" style="--bz-color-theme-primary: #EC281C">
-                                    <a href="contact.html" class="bz-primary-btn">Réserver maintenant <i class="fa-regular fa-arrow-right"></i></a>
+                                    <a href="#promo-section" class="bz-primary-btn js-scroll-to-promo">Decouvrir<i class="fa-regular fa-arrow-down"></i></a>
                                 </div>
                             </div>
                         </div>
@@ -271,7 +271,7 @@
                                     <p>De Koumassi à Bingerville, de l'aéroport à votre domicile — P&BEntreprise assure vos trajets quotidiens, transferts aéroport, déplacements d'affaires et sorties événementielles avec excellence.</p>
                                 </div>
                                 <div class="hero-btn-wrap" style="--bz-color-theme-primary: #EC281C">
-                                    <a href="contact.html" class="bz-primary-btn">Nous contacter <i class="fa-regular fa-arrow-right"></i></a>
+                                    <a href="#promo-section" class="bz-primary-btn js-scroll-to-promo">Decouvrir<i class="fa-regular fa-arrow-down"></i></a>
                                 </div>
                             </div>
                         </div>
@@ -290,23 +290,23 @@
                                     <p>Distributeur spécialisé en pièces détachées Suzuki à Abidjan. Stock permanent de pièces authentiques pour l'entretien, la réparation et la performance optimale de vos véhicules Suzuki.</p>
                                 </div>
                                 <div class="hero-btn-wrap" style="--bz-color-theme-primary: #EC281C">
-                                    <a href="contact.html" class="bz-primary-btn">Commander une pièce <i class="fa-regular fa-arrow-right"></i></a>
+                                    <a href="#promo-section" class="bz-primary-btn js-scroll-to-promo">Decouvrir<i class="fa-regular fa-arrow-down"></i></a>
                                 </div>
                             </div>
                         </div>
                     </div>
                 {% endif %}
             </div>
-            {% comment %} <div class="swiper-pagination hero-swiper-pagination-3"></div> {% endcomment %}
+            <div class="swiper-pagination hero-swiper-pagination-3"></div>
         </div>
         {% comment %} <div class="pb-hero-glass-panel is-visible" aria-hidden="true"></div> {% endcomment %}
     </section>
 
     {% if pb_section_visible.promo %}
-        <section id="promo-section" class="promo-section pb-120">
-            <div class="container-2">
-                <div class="row gy-lg-0 gy-4 justify-content-center fade-wrapper">
-                    {% if promo_sections %}
+        {% if promo_sections %}
+            <section id="promo-section" class="promo-section pb-120">
+                <div class="container-2">
+                    <div class="row gy-lg-0 gy-4 justify-content-center fade-wrapper">
                         {% for promo_sect in promo_sections %}
                             <div class="col-lg-4 col-md-6">
                                 <div class="promo-item white-content js-scroll slide-left">
@@ -321,10 +321,10 @@
                                 </div>
                             </div>
                         {% endfor %}
-                    {% endif %}
+                    </div>
                 </div>
-            </div>
-        </section>
+            </section>
+        {% endif %}
     {% endif %}
     
     {% if pb_section_visible.presentation %}
@@ -372,15 +372,15 @@
     {% endif %}
 
     {% if pb_section_visible.nos_services %}
-        <section class="service-section-3 service-section-3--card-3d pt-120 pb-120">
-            <div class="bg-shape"><img class="fx-media fx-media--neutral" src="{% static 'pb_site_asset/img/shapes/service-bg-shape.png' %}" alt="img"></div>
-            <div class="container-2">
-                <div class="section-heading text-center red-content">
-                    <h4 class="sub-heading" data-text-animation="fade-in" data-duration="1.5"><span class="left-shape"></span>Nos Categories de Service mobilité</h4>
-                    <h2 class="section-title mb-0" data-text-animation data-split="word" data-duration="1">Des solutions complètes pour votre mobilité</h2>
-                </div>
-                <div class="row gy-lg-0 gy-4 justify-content-center fade-wrapper pb-cat-grid">
-                    {% if categoservices %}
+        {% if categoservices %}
+            <section class="service-section-3 service-section-3--card-3d pt-120 pb-120">
+                <div class="bg-shape"><img class="fx-media fx-media--neutral" src="{% static 'pb_site_asset/img/shapes/service-bg-shape.png' %}" alt="img"></div>
+                <div class="container-2">
+                    <div class="section-heading text-center red-content">
+                        <h4 class="sub-heading" data-text-animation="fade-in" data-duration="1.5"><span class="left-shape"></span>Nos Categories de Service mobilité</h4>
+                        <h2 class="section-title mb-0" data-text-animation data-split="word" data-duration="1">Des solutions complètes pour votre mobilité</h2>
+                    </div>
+                    <div class="row gy-lg-0 gy-4 justify-content-center fade-wrapper pb-cat-grid">
                         {% for category in categoservices %}
                         <div class="col-lg-3 col-md-6">
                             <div class="pb-cat-card fade-top js-scroll slide-left">
@@ -419,10 +419,10 @@
                             </div>
                         </div>
                         {% endfor %}
-                    {% endif %}
+                    </div>
                 </div>
-            </div>
-        </section>
+            </section>
+        {% endif %}
     {% endif %}
 
     {% if pb_section_visible.nos_offres %}
@@ -444,7 +444,7 @@
                         </div>
                     </div>
                     <div class="cta-btn-wrap">
-                        <a href="contact.html" class="bz-primary-btn red-btn">Contactez-nous<i class="fa-sharp fa-solid fa-play"></i></a>
+                        <a href="{% url 'contact' %}" class="bz-primary-btn red-btn">Contactez-nous<i class="fa-sharp fa-solid fa-play"></i></a>
                     </div>
                 </div>
             </div>
@@ -577,13 +577,13 @@
 
     <!-- CTA Section -->
     {% if pb_section_visible.vehicule_location %}
-        <section class="cta-section-3 service_location_car cta-section-3--index3-stack pb-glass-section">
-            <div class="container-2">
-                <div class="section-heading mb-20 white-content red-content">
-                    <h4 class="sub-heading" data-text-animation="fade-in" data-duration="1.5"><span class="left-shape"></span>Location de voiture</h4>
-                    <h2 class="section-title mb-0" data-text-animation data-split="word" data-duration="1">Profitez de notre large gamme de véhicules</h2>
-                </div>
-                {% if cars_list %}
+        {% if cars_list %}
+            <section class="cta-section-3 service_location_car cta-section-3--index3-stack pb-glass-section">
+                <div class="container-2">
+                    <div class="section-heading mb-20 white-content red-content">
+                        <h4 class="sub-heading" data-text-animation="fade-in" data-duration="1.5"><span class="left-shape"></span>Location de voiture</h4>
+                        <h2 class="section-title mb-0" data-text-animation data-split="word" data-duration="1">Profitez de notre large gamme de véhicules</h2>
+                    </div>
                     {# Données JSON consommées par le script plus bas #}
                     {{ cars_json|json_script:"cars-data" }}
                     <!-- Onglets véhicules -->
@@ -603,27 +603,22 @@
                             <div class="car-hire-panel__info">
                                 <h3 class="car-hire-panel__title">{{ first.title }}</h3>
                                 <p class="car-hire-panel__desc">{{ first.desc }}</p>
-
                                 <ul class="car-hire-panel__features">
                                     {% for f in first.features %}
                                         <li><i class="fa-solid fa-check"></i> {{ f }}</li>
                                     {% endfor %}
                                 </ul>
-
                                 <div class="car-hire-panel__price">
                                     <span class="amount">{{ first.price }} FCFA</span>
                                     <span class="unit">{{ first.unit }}</span>
                                 </div>
-
                                 <a href="{{ first.button_link }}" class="car-hire-panel__btn">{{ first.button_text }}</a>
                             </div>
-
                             <div class="car-hire-panel__image">
                                 {% if first.image %}
                                     <img src="{{ first.image }}" alt="{{ first.title }}">
                                 {% endif %}
                             </div>
-
                             <div class="car-hire-panel__specs">
                                 {% for label, value in first.specs.items %}
                                     <div class="car-hire-panel__spec-row">
@@ -634,13 +629,9 @@
                             </div>
                         </div>
                     {% endwith %}
-                {% else %}
-                    <div class="text-center text-white py-5">
-                        <p class="mb-0">Aucun véhicule de location disponible pour le moment.</p>
-                    </div>
-                {% endif %}
-            </div>
-        </section>
+                </div>
+            </section>
+        {% endif %}
     {% endif %}
 
     {% if pb_section_visible.faites_une_location %}
@@ -669,97 +660,45 @@
     {% endif %}
 
     {% if pb_section_visible.piece_detachee %}
-        <section class="process-section-2 process-section-2--green-cards pt-120 pb-120 pb-glass-section">
-            <div class="pb-glass-decor" aria-hidden="true">
-                <span class="pb-glass-decor__shard"></span>
-                <span class="pb-glass-decor__shard"></span>
-                <span class="pb-glass-decor__shard"></span>
-            </div>
-            <div class="pb-process-bottom-left-shape" aria-hidden="true">
-                <img class="fx-media fx-media--neutral" src="{% static 'pb_site_asset/img/shapes/hero-bg-shap.png' %}" alt="">
-            </div>
-            <div class="container-2">
-                <div class="section-heading text-center red-content">
-                    <h4 class="sub-heading" data-text-animation="fade-in" data-duration="1.5"><span class="left-shape"></span>Nos articles</h4>
-                    <h2 class="section-title mb-0" data-text-animation data-split="word" data-duration="1">Nos qualités de pièces détachées Suzuki</h2>
+        {% if piec_detac %}
+            <section class="process-section-2 process-section-2--green-cards pt-120 pb-120 pb-glass-section">
+                <div class="pb-glass-decor" aria-hidden="true">
+                    <span class="pb-glass-decor__shard"></span>
+                    <span class="pb-glass-decor__shard"></span>
+                    <span class="pb-glass-decor__shard"></span>
                 </div>
-                <div class="row gy-lg-0 gy-4 fade-wrapper">
-                    {% if piec_detac %}
-                    {% for piece in piec_detac %}
-                        <div class="col-lg-4 col-md-6">
-                            <div class="process-item fade-top js-scroll slide-left">
-                                <div class="process-thumb img-reveal">
-                                    <div class="img-overlay overlay-2"></div>
-                                    <img class="fx-media" src="{{ piece.image.url }}" alt="{{ piece.titre }}">
-                                    <span>{{ piece.categorie.nom }}</span>
-                                </div>
-                                <div class="process-content">
-                                    <ul class="process-meta">
-                                        <li><i class="fa-regular fa-gears"></i>{{ piece.meta }}</li>
-                                    </ul>
-                                    <h3 class="title">{{ piece.titre }}</h3>
-                                    <p>{{ piece.description }}</p>
-                                    <a href="{% url 'pieces_detachees' %}?piece={{ piece.pk }}#piece-{{ piece.pk }}" class="process-cta">Voir plus <i class="fa-regular fa-arrow-right"></i></a>
-                                </div>
-                            </div>
-                        </div>
-                    {% endfor %}
-                    {% else %}
-                        <div class="col-lg-4 col-md-6">
-                            <div class="process-item fade-top js-scroll slide-left">
-                                <div class="process-thumb img-reveal">
-                                    <div class="img-overlay overlay-2"></div>
-                                    <img class="fx-media" src="{% static 'pb_site_asset/img/bg-img/gent.png' %}" alt="Pneus Suzuki">
-                                    <span>Pneus</span>
-                                </div>
-                                <div class="process-content">
-                                    <ul class="process-meta">
-                                        <li><i class="fa-regular fa-gears"></i>Pièces d'origine</li>
-                                    </ul>
-                                    <h3 class="title">Pneus Suzuki</h3>
-                                    <p>Des pneus homologués pour votre Suzuki, garantissant adhérence, sécurité et longévité sur toutes les routes.</p>
-                                    <a href="service-details.html" class="process-cta">Voir plus <i class="fa-regular fa-arrow-right"></i></a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-md-6">
-                            <div class="process-item fade-top js-scroll slide-left">
-                                <div class="process-thumb img-reveal">
-                                    <div class="img-overlay overlay-2"></div>
-                                    <img class="fx-media" src="{% static 'pb_site_asset/img/bg-img/frein.png' %}" alt="Freins Suzuki">
-                                    <span>Freins</span>
-                                </div>
-                                <div class="process-content">
-                                    <ul class="process-meta">
-                                        <li><i class="fa-regular fa-gears"></i>Pièces d'origine</li>
-                                    </ul>
-                                    <h3 class="title">Freins Suzuki</h3>
-                                    <p>Des systèmes de freinage certifiés pour une performance optimale et une sécurité maximale au quotidien.</p>
-                                    <a href="service-details.html" class="process-cta">Voir plus <i class="fa-regular fa-arrow-right"></i></a>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-md-6">
-                            <div class="process-item fade-top js-scroll slide-left">
-                                <div class="process-thumb img-reveal">
-                                    <div class="img-overlay overlay-2"></div>
-                                    <img class="fx-media" src="{% static 'pb_site_asset/img/bg-img/phares.png' %}" alt="Phares Suzuki">
-                                    <span>Phares</span>
-                                </div>
-                                <div class="process-content">
-                                    <ul class="process-meta">
-                                        <li><i class="fa-regular fa-gears"></i>Pièces d'origine</li>
-                                    </ul>
-                                    <h3 class="title">Phares Suzuki</h3>
-                                    <p>Des phares d'origine pour une visibilité optimale de nuit comme de jour, adaptés à chaque modèle Suzuki.</p>
-                                    <a href="service-details.html" class="process-cta">Voir plus <i class="fa-regular fa-arrow-right"></i></a>
-                                </div>
-                            </div>
-                        </div>
-                    {% endif %}
+                <div class="pb-process-bottom-left-shape" aria-hidden="true">
+                    <img class="fx-media fx-media--neutral" src="{% static 'pb_site_asset/img/shapes/hero-bg-shap.png' %}" alt="">
                 </div>
-            </div>
-        </section>
+                <div class="container-2">
+                    <div class="section-heading text-center red-content">
+                        <h4 class="sub-heading" data-text-animation="fade-in" data-duration="1.5"><span class="left-shape"></span>Nos articles</h4>
+                        <h2 class="section-title mb-0" data-text-animation data-split="word" data-duration="1">Nos qualités de pièces détachées Suzuki</h2>
+                    </div>
+                    <div class="row gy-lg-0 gy-4 fade-wrapper">
+                        {% for piece in piec_detac %}
+                            <div class="col-lg-4 col-md-6">
+                                <div class="process-item fade-top js-scroll slide-left">
+                                    <div class="process-thumb img-reveal">
+                                        <div class="img-overlay overlay-2"></div>
+                                        <img class="fx-media" src="{{ piece.image.url }}" alt="{{ piece.titre }}">
+                                        <span>{{ piece.categorie.nom }}</span>
+                                    </div>
+                                    <div class="process-content">
+                                        <ul class="process-meta">
+                                            <li><i class="fa-regular fa-gears"></i>{{ piece.meta }}</li>
+                                        </ul>
+                                        <h3 class="title">{{ piece.titre }}</h3>
+                                        <p>{{ piece.description }}</p>
+                                        <a href="{% url 'pieces_detachees' %}?piece={{ piece.pk }}#piece-{{ piece.pk }}" class="process-cta">Voir plus <i class="fa-regular fa-arrow-right"></i></a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </section>
+        {% endif %}
     {% endif %}
 
     {% if pb_section_visible.application %}
@@ -827,88 +766,83 @@
 
     <!-- #Notre Équipe .team-card -->
     {% if pb_section_visible.temoignage %}
-        <section class="testimonial-section-3 testimonial-cube-section testimonial-cube-section--index3-stack overflow-hidden position-relative">
-            <div id="testi-cube-particles" class="testi-cube-particles" aria-hidden="true"></div>
-            <div class="container-2 position-relative" style="z-index: 1">
-                <div class="testi-cube-grid">
-                    <div class="testi-cube-content text-center text-lg-start">
-                        <div class="section-heading white-content mb-0">
-                            {% if temoignages_page %}
+        {% if temoignages_page %}
+            <section class="testimonial-section-3 testimonial-cube-section testimonial-cube-section--index3-stack overflow-hidden position-relative">
+                <div id="testi-cube-particles" class="testi-cube-particles" aria-hidden="true"></div>
+                <div class="container-2 position-relative" style="z-index: 1">
+                    <div class="testi-cube-grid">
+                        <div class="testi-cube-content text-center text-lg-start">
+                            <div class="section-heading white-content mb-0">
                                 <h4 class="sub-heading" data-text-animation="fade-in" data-duration="1.5"><span class="left-shape"></span>{{ temoignages_page.sous_titre|default:"Avis de nos Clients" }}</h4>
                                 <h2 class="section-title mb-0" data-text-animation data-split="word" data-duration="1">{{ temoignages_page.titre|safe }}</h2>
                                 <p class="testi-cube-lead">{{ temoignages_page.description }}</p>
                                 <a href="{{ temoignages_page.bouton_lien|pb_link }}" class="bz-primary-btn red-btn testi-cube-cta">{{ temoignages_page.bouton_texte }} <i class="{{ temoignages_page.bouton_icone|default:'fa-regular fa-arrow-right' }}"></i></a>
-                            {% else %}
-                                <h4 class="sub-heading" data-text-animation="fade-in" data-duration="1.5"><span class="left-shape"></span>Avis de nos Clients</h4>
-                                <h2 class="section-title mb-0" data-text-animation data-split="word" data-duration="1">Ce que disent nos clients sur nos services</h2>
-                                <p class="testi-cube-lead">Chaque jour, des professionnels et des particuliers nous font confiance pour la mobilité et l’entretien Suzuki à Abidjan. Faites défiler le cube pour découvrir leurs retours.</p>
-                                <a href="{% url 'contact' %}" class="bz-primary-btn red-btn testi-cube-cta">Nous contacter <i class="fa-regular fa-arrow-right"></i></a>
-                            {% endif %}
+                            </div>
                         </div>
-                    </div>
-                    <div class="testi-cube-slider-col">
-                        <div class="swiper testi-cube-swiper">
-                            <div class="swiper-wrapper">
-                                {% for temoignage in temoignages|slice:":4" %}
-                                <div class="swiper-slide js-scroll slide-left">
-                                    {% if temoignage.image_fond %}
-                                        <img class="fx-media" src="{{ temoignage.image_fond.url }}" alt="{{ temoignage.nom_client }}">
-                                    {% else %}
-                                        <img class="fx-media" src="{% static 'pb_site_asset/img/bg-img/bg_resev.jpeg' %}" alt="{{ temoignage.nom_client }}">
-                                    {% endif %}
-                                    <div class="testi-cube-profile">
-                                        {% if temoignage.photo %}
-                                            <img src="{{ temoignage.photo.url }}" alt="Profil {{ temoignage.nom_client }}">
+                        <div class="testi-cube-slider-col">
+                            <div class="swiper testi-cube-swiper">
+                                <div class="swiper-wrapper">
+                                    {% for temoignage in temoignages|slice:":4" %}
+                                    <div class="swiper-slide js-scroll slide-left">
+                                        {% if temoignage.image_fond %}
+                                            <img class="fx-media" src="{{ temoignage.image_fond.url }}" alt="{{ temoignage.nom_client }}">
                                         {% else %}
-                                            <img src="{% static 'pb_site_asset/img/user_0.png' %}" alt="Profil client">
+                                            <img class="fx-media" src="{% static 'pb_site_asset/img/bg-img/bg_resev.jpeg' %}" alt="{{ temoignage.nom_client }}">
                                         {% endif %}
-                                    </div>
-                                    <div class="testi-cube-badge{% if forloop.counter|divisibleby:2 %} testi-cube-badge--dark{% endif %}">{{ temoignage.get_badge_display }}</div>
-                                    <div class="testi-cube-overlay">
-                                        <h3 class="testi-cube-overlay__title">{{ temoignage.nom_client }}</h3>
-                                        <p class="testi-cube-overlay__role">{{ temoignage.role }}</p>
-                                        <p class="testi-cube-overlay__text">{{ temoignage.texte }}</p>
-                                        <div class="testi-cube-ratings">
-                                            <div class="testi-cube-stars" aria-hidden="true">
-                                                {% for _ in "12345"|make_list %}
-                                                    {% if forloop.counter <= temoignage.note %}
-                                                        <i class="fa-sharp fa-solid fa-star"></i>
-                                                    {% else %}
-                                                        <i class="fa-sharp fa-regular fa-star"></i>
-                                                    {% endif %}
-                                                {% endfor %}
+                                        <div class="testi-cube-profile">
+                                            {% if temoignage.photo %}
+                                                <img src="{{ temoignage.photo.url }}" alt="Profil {{ temoignage.nom_client }}">
+                                            {% else %}
+                                                <img src="{% static 'pb_site_asset/img/user_0.png' %}" alt="Profil client">
+                                            {% endif %}
+                                        </div>
+                                        <div class="testi-cube-badge{% if forloop.counter|divisibleby:2 %} testi-cube-badge--dark{% endif %}">{{ temoignage.get_badge_display }}</div>
+                                        <div class="testi-cube-overlay">
+                                            <h3 class="testi-cube-overlay__title">{{ temoignage.nom_client }}</h3>
+                                            <p class="testi-cube-overlay__role">{{ temoignage.role }}</p>
+                                            <p class="testi-cube-overlay__text">{{ temoignage.texte }}</p>
+                                            <div class="testi-cube-ratings">
+                                                <div class="testi-cube-stars" aria-hidden="true">
+                                                    {% for _ in "12345"|make_list %}
+                                                        {% if forloop.counter <= temoignage.note %}
+                                                            <i class="fa-sharp fa-solid fa-star"></i>
+                                                        {% else %}
+                                                            <i class="fa-sharp fa-regular fa-star"></i>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </div>
+                                                <span>Notation {{ temoignage.note }}/5 · Avis client</span>
                                             </div>
-                                            <span>Notation {{ temoignage.note }}/5 · Avis client</span>
                                         </div>
                                     </div>
+                                    {% endfor %}
                                 </div>
-                                {% endfor %}
+                                <div class="swiper-pagination testi-cube-pagination"></div>
                             </div>
-                            <div class="swiper-pagination testi-cube-pagination"></div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
+        {% endif %}
     {% endif %}
 
     {% if pb_section_visible.actualites %}
-        <section class="blog-section-3 pt-120 pb-120 blog-section-3--index3-stack pb-glass-section">
-            <div class="pb-glass-decor" aria-hidden="true">
-                <span class="pb-glass-decor__shard"></span>
-                <span class="pb-glass-decor__shard"></span>
-                <span class="pb-glass-decor__shard"></span>
-            </div>
-            <div class="container-2">
-                <div class="blog-top heading-space">
-                    <div class="section-heading red-content mb-0">
-                        <h4 class="sub-heading" data-text-animation="fade-in" data-duration="1.5"><span class="left-shape"></span>Nos Actualités</h4>
-                        <h2 class="section-title mb-0" data-text-animation data-split="word" data-duration="1">Actualités mobilité et nouveautés P&BEntreprise</h2>
-                    </div>
-                    <a href="{% url 'blogs' %}" class="bz-primary-btn red-btn">Accedez <i class="fa-regular fa-arrow-right"></i></a>
+        {% if blog_arti %}
+            <section class="blog-section-3 pt-120 pb-120 blog-section-3--index3-stack pb-glass-section">
+                <div class="pb-glass-decor" aria-hidden="true">
+                    <span class="pb-glass-decor__shard"></span>
+                    <span class="pb-glass-decor__shard"></span>
+                    <span class="pb-glass-decor__shard"></span>
                 </div>
-                <div class="row gy-lg-0 gy-4 fade-wrapper">
-                    {% if blog_arti %}
+                <div class="container-2">
+                    <div class="blog-top heading-space">
+                        <div class="section-heading red-content mb-0">
+                            <h4 class="sub-heading" data-text-animation="fade-in" data-duration="1.5"><span class="left-shape"></span>Nos Actualités</h4>
+                            <h2 class="section-title mb-0" data-text-animation data-split="word" data-duration="1">Actualités mobilité et nouveautés P&BEntreprise</h2>
+                        </div>
+                        <a href="{% url 'blogs' %}" class="bz-primary-btn red-btn">Accedez <i class="fa-regular fa-arrow-right"></i></a>
+                    </div>
+                    <div class="row gy-lg-0 gy-4 fade-wrapper">
                         {% for blog in blog_arti %}
                             <div class="col-md-6">
                                 <div class="post-card-3 fade-top" style="--bz-color-theme-primary: #EC281C">
@@ -931,32 +865,32 @@
                                 </div>
                             </div>
                         {% endfor %}
-                    {% endif %}
+                    </div>
                 </div>
-            </div>
-        </section>
+            </section>
+        {% endif %}
     {% endif %}
 
     {% if pb_section_visible.partenaires %}
-        <div class="sponsor-section pb-120 pb-glass-section">
-            <div class="pb-glass-decor" aria-hidden="true">
-                <span class="pb-glass-decor__shard"></span>
-                <span class="pb-glass-decor__shard"></span>
-                <span class="pb-glass-decor__shard"></span>
-            </div>
-            <div class="container">
-                <div class="section-heading text-center red-content">
-                    <h4 class="sub-heading" data-text-animation="fade-in" data-duration="1.5"><span class="left-shape"></span>Nos Partenaires & Sponsors</h4>
-                    <h2 class="section-title mb-0" data-text-animation data-split="word" data-duration="1">P&B Entreprise à des partenaires et sponsors qui aident à mieux servir nos clients</h2>
+        {% if sponsors %}
+            <div class="sponsor-section pb-120 pb-glass-section">
+                <div class="pb-glass-decor" aria-hidden="true">
+                    <span class="pb-glass-decor__shard"></span>
+                    <span class="pb-glass-decor__shard"></span>
+                    <span class="pb-glass-decor__shard"></span>
                 </div>
-                <h3 class="sponsor-text-wrap">
-                    <span></span>
-                    <span class="sponsor-text">Sponsors & partenaires</span>
-                    <span></span>
-                </h3>
-                <div class="sponsor-carousel swiper">
-                    <div class="swiper-wrapper">
-                        {% if sponsors %}
+                <div class="container">
+                    <div class="section-heading text-center red-content">
+                        <h4 class="sub-heading" data-text-animation="fade-in" data-duration="1.5"><span class="left-shape"></span>Nos Partenaires & Sponsors</h4>
+                        <h2 class="section-title mb-0" data-text-animation data-split="word" data-duration="1">P&B Entreprise à des partenaires et sponsors qui aident à mieux servir nos clients</h2>
+                    </div>
+                    <h3 class="sponsor-text-wrap">
+                        <span></span>
+                        <span class="sponsor-text">Sponsors & partenaires</span>
+                        <span></span>
+                    </h3>
+                    <div class="sponsor-carousel swiper">
+                        <div class="swiper-wrapper">
                             {% for sponsor in sponsors %}
                                 <div class="swiper-slide">
                                     <div class="sponsor-item text-center">
@@ -964,32 +898,11 @@
                                     </div>
                                 </div>
                             {% endfor %}
-                        {% else %}
-                            <div class="swiper-slide">
-                                <div class="sponsor-item text-center">
-                                    <a href="#"><img src="{% static 'pb_site_asset/img/sponsor/cfao.png' %}" alt="partenaire"></a>
-                                </div>
-                            </div>
-                            <div class="swiper-slide">
-                                <div class="sponsor-item text-center">
-                                    <a href="#"><img src="{% static 'pb_site_asset/img/sponsor/suzuki.png' %}" alt="partenaire"></a>
-                                </div>
-                            </div>
-                            <div class="swiper-slide">
-                                <div class="sponsor-item text-center">
-                                    <a href="#"><img src="{% static 'pb_site_asset/img/sponsor/bk_afrika.png' %}" alt="partenaire"></a>
-                                </div>
-                            </div>
-                            <div class="swiper-slide">
-                                <div class="sponsor-item text-center">
-                                    <a href="#"><img src="{% static 'pb_site_asset/img/sponsor/yango.png' %}" alt="partenaire"></a>
-                                </div>
-                            </div>
-                        {% endif %}
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        {% endif %}
     {% endif %}
 
     <footer class="footer-section footer-2 overflow-hidden" style="--bz-color-theme-primary: #EC281C; background-image: url('{% static 'pb_site_asset/img/bg-img/bg_foot0.jpg' %}'); background-size: cover; background-position: center; background-repeat: no-repeat;">
@@ -1025,7 +938,7 @@
                                     </a>
                                 </li>
                             {% endfor %}
-                        </ul> 
+                        </ul>
                     </div>
                 </div>
                 {% for categorie in pb_footer_categories %}
@@ -1086,36 +999,37 @@
             </div>
         </div>
     {% endif %}
+    
     <div id="scroll-percentage" style="--bz-color-theme-primary: #EC281C"><span id="scroll-percentage-value"></span></div>
 
     <!-- Modal téléchargement application -->
     {% if pb_section_visible.modal_app %}
-    <div class="pb-app-modal" id="pbAppModal">
-        <div class="pb-app-modal__overlay"></div>
-        <div class="pb-app-modal__content">
-            <button type="button" class="pb-app-modal__close" aria-label="Fermer">&times;</button>
-            <div class="pb-app-modal__grid">
-                <div class="pb-app-modal__qr">
-                    {% if pb_qrcode_app and pb_qrcode_app.qrcode_image %}
-                        <a href="{{ pb_qrcode_app.lien }}" target="_blank" rel="noopener">
-                            <img src="{{ pb_qrcode_app.qrcode_image.url }}" alt="{{ pb_qrcode_app.titre }}">
-                        </a>
-                    {% else %}
-                        <img src="{% static 'pb_site_asset/img/bg-img/qrcode.png' %}" alt="QR Code">
-                    {% endif %}
-                </div>
-                <div class="pb-app-modal__text">
-                    <h3 class="pb-app-modal__title">{% if pb_qrcode_app %}{{ pb_qrcode_app.titre }}{% else %}Téléchargez l'application qui facilite tout{% endif %}</h3>
-                </div>
-                <div class="pb-app-modal__desc">
-                    <p>{% if pb_qrcode_app and pb_qrcode_app.description %}{{ pb_qrcode_app.description|linebreaksbr }}{% else %}Réservez un trajet, louez un véhicule ou commandez une pièce détachée Suzuki en quelques clics depuis votre téléphone. L'application  vous connecte à tous les services P&BEntreprise, 24h/24 à Abidjan.{% endif %}</p>
-                    <div class="pb-app-modal__stores pb-app-modal__stores--ordre">
-                        {% include 'pb_site/partials/liens_application_modal_stores.html' %}
+        <div class="pb-app-modal" id="pbAppModal">
+            <div class="pb-app-modal__overlay"></div>
+            <div class="pb-app-modal__content">
+                <button type="button" class="pb-app-modal__close" aria-label="Fermer">&times;</button>
+                <div class="pb-app-modal__grid">
+                    <div class="pb-app-modal__qr">
+                        {% if pb_qrcode_app and pb_qrcode_app.qrcode_image %}
+                            <a href="{{ pb_qrcode_app.lien }}" target="_blank" rel="noopener">
+                                <img src="{{ pb_qrcode_app.qrcode_image.url }}" alt="{{ pb_qrcode_app.titre }}">
+                            </a>
+                        {% else %}
+                            <img src="{% static 'pb_site_asset/img/bg-img/qrcode.png' %}" alt="QR Code">
+                        {% endif %}
+                    </div>
+                    <div class="pb-app-modal__text">
+                        <h3 class="pb-app-modal__title">{% if pb_qrcode_app %}{{ pb_qrcode_app.titre }}{% else %}Téléchargez l'application qui facilite tout{% endif %}</h3>
+                    </div>
+                    <div class="pb-app-modal__desc">
+                        <p>{% if pb_qrcode_app and pb_qrcode_app.description %}{{ pb_qrcode_app.description|linebreaksbr }}{% else %}Réservez un trajet, louez un véhicule ou commandez une pièce détachée Suzuki en quelques clics depuis votre téléphone. L'application  vous connecte à tous les services P&BEntreprise, 24h/24 à Abidjan.{% endif %}</p>
+                        <div class="pb-app-modal__stores pb-app-modal__stores--ordre">
+                            {% include 'pb_site/partials/liens_application_modal_stores.html' %}
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
     {% endif %}
     <!-- JS here -->
     <script src="{% static 'pb_site_asset/js/vendor/jquary-3.6.0.min.js' %}"></script>
