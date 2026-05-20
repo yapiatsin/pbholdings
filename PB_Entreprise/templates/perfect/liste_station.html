@@ -21,7 +21,7 @@
             {% if categorie.categorie == 'Exporter' %}
                 {% for perm in perms %}
                     {% if perm.name == "Exporter stationnement" %}
-                        <a href="{% url 'export_stationnement_excel' %}?date_debut={{ request.GET.date_debut }}&date_fin={{ request.GET.date_fin }}&immatriculation={{ request.GET.immatriculation }}&categorie={{ request.GET.categorie }}" class="btn btn-default" style="color: #a83232;">
+                        <a href="{% url 'export_stationnement_excel' %}?periode={{ selected_period }}{% if form.date_debut.value %}&date_debut={{ form.date_debut.value }}{% endif %}{% if form.date_fin.value %}&date_fin={{ form.date_fin.value }}{% endif %}{% if form.immatriculation.value %}&immatriculation={{ form.immatriculation.value }}{% endif %}{% if form.categorie.value %}&categorie={{ form.categorie.value }}{% endif %}" class="btn btn-default" style="color: #a83232;">
                             Excel <i class="fa fa-file-excel-o"></i> 
                         </a>
                     {% endif %}
@@ -43,43 +43,42 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body">
-                <div class="card-body">
-                    <form id="basic-form" method="get" novalidate>
-                        <div class="row clearfix">
-                            <div class="col-12">
-                                <label style="font-weight:600;color: #a83232; font-size:15px;">Date debut </label>
-                                <div class="form-group">                                    
-                                    {{ form.date_debut }}
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <label style="font-weight:600;color: #a83232; font-size:15px;">Date fin</label>
-                                <div class="form-group">                                    
-                                    {{ form.date_fin }}
-                                </div>
-                            </div>
-                            
-                            <div class="col-12">
-                                <label style="font-weight:600;color: #a83232; font-size:15px;">Categorie</label>
-                                <div class="form-group">                                    
-                                    {{ form.categorie }}
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <label style="font-weight:600;color: #a83232; font-size:15px;">Matricule</label>
-                                <div class="form-group">                                    
-                                    {{ form.immatriculation }}
-                                </div>
-                            </div>
+            <form id="basic-form" method="get" novalidate>
+                <div class="modal-body">
+                    <div class="form-group mb-3">
+                        <label style="font-weight:600;color: #a83232; font-size:15px;">Période</label>
+                        <select id="period-select" name="periode" class="form-control">
+                            <option value="today" {% if selected_period == 'today' %}selected{% endif %}>Aujourd'hui</option>
+                            <option value="week" {% if selected_period == 'week' %}selected{% endif %}>Cette semaine</option>
+                            <option value="month" {% if selected_period == 'month' %}selected{% endif %}>Ce mois</option>
+                            <option value="year" {% if selected_period == 'year' %}selected{% endif %}>Cette année</option>
+                            <option value="custom" {% if selected_period == 'custom' %}selected{% endif %}>Personnalisé</option>
+                        </select>
+                    </div>
+                    <div id="custom-period-fields">
+                        <div class="form-group mb-2">
+                            <label style="font-weight:600;color: #a83232; font-size:15px;">Date début</label>
+                            {{ form.date_debut }}
                         </div>
-                        <div class="modal-footer d-flex justify-content-between">
-                            <button type="button" class="btn btn-outline-secondary" style="border-radius:25px;" data-dismiss="modal">Annuler</button>
-                            <button type="submit" class="btn" style="border-radius:25px; border: 1px solid #a83232; color: #a83232; background: transparent; font-weight: 600;">Afficher</button>
+                        <div class="form-group mb-2">
+                            <label style="font-weight:600;color: #a83232; font-size:15px;">Date fin</label>
+                            {{ form.date_fin }}
                         </div>
-                    </form>
+                        <div class="form-group mb-2">
+                            <label style="font-weight:600;color: #a83232; font-size:15px;">Catégorie</label>
+                            {{ form.categorie }}
+                        </div>
+                        <div class="form-group mb-2">
+                            <label style="font-weight:600;color: #a83232; font-size:15px;">Matricule</label>
+                            {{ form.immatriculation }}
+                        </div>
+                    </div>
                 </div>
-            </div>
+                <div class="modal-footer d-flex justify-content-between">
+                    <a href="{% url 'liste_station' %}" class="btn btn-outline-secondary" style="border-radius:25px;">Réinitialiser</a>
+                    <button type="submit" class="btn" style="border-radius:25px; border: 1px solid #a83232; color: #a83232; background: transparent; font-weight: 600;">Appliquer</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -101,7 +100,7 @@
     <div class="info-box mb-3" style="border-radius:25px;">
     <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fa fa-calendar" style="color:rgba(168, 50, 50, 0.65);"></i></span>
     <div class="info-box-content">
-        <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">Mensuelle</span>
+        <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">{{ kpi_labels.periode }}</span>
         <span class="info-box-number" style="font-size:20px; color: #1a1a1a;">
         {{station_mois_format}}
         <small>frs cfa</small>
@@ -115,7 +114,7 @@
     <div class="info-box mb-3" style="border-radius:25px;">
         <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-calendar" style="color:rgba(168, 50, 50, 0.65);"></i></span>
         <div class="info-box-content">
-            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">Annuelle</span>
+            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">{{ kpi_labels.annuelle }}</span>
             <span class="info-box-number" style="font-size:20px; color: #1a1a1a;">
             {{station_an_format}}
             <small>frs cfa</small>
@@ -312,3 +311,19 @@
     });    
 </script>
 {% endblock main_content %}
+
+{% block custom_js %}
+<script>
+(function () {
+    const periodSelect = document.getElementById('period-select');
+    const customFields = document.getElementById('custom-period-fields');
+    if (!periodSelect || !customFields) return;
+
+    function toggleCustomFields() {
+        customFields.style.display = periodSelect.value === 'custom' ? 'block' : 'none';
+    }
+    periodSelect.addEventListener('change', toggleCustomFields);
+    toggleCustomFields();
+})();
+</script>
+{% endblock custom_js %}

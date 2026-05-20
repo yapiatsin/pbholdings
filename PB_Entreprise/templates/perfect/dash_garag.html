@@ -32,43 +32,42 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body">
-                <div class="card-body">
-                    <form id="basic-form" method="get" novalidate>
-                        <div class="row clearfix">
-                            <div class="col-12">
-                                <label style="font-weight:700;color:rgba(152, 152, 152, 0.85); font-size:15px;">Date debut </label>
-                                <div class="form-group">                                    
-                                    {{ form.date_debut }}
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <label style="font-weight:700;color: rgba(152, 152, 152, 0.85); font-size:15px;">Date fin</label>
-                                <div class="form-group">                                    
-                                    {{ form.date_fin }}
-                                </div>
-                            </div>
-                            
-                            <div class="col-12">
-                                <label style="font-weight:700;color: rgba(152, 152, 152, 0.85); font-size:15px;">Categorie</label>
-                                <div class="form-group">                                    
-                                    {{ form.categorie }}
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <label style="font-weight:700;color: rgba(152, 152, 152, 0.85); font-size:15px;">Matricule</label>
-                                <div class="form-group">                                    
-                                    {{ form.immatriculation }}
-                                </div>
-                            </div>
+            <form id="basic-form" method="get" novalidate>
+                <div class="modal-body">
+                    <div class="form-group mb-3">
+                        <label style="font-weight:700;color:rgba(152, 152, 152, 0.85); font-size:15px;">Période</label>
+                        <select id="period-select" name="periode" class="form-control">
+                            <option value="today" {% if selected_period == 'today' %}selected{% endif %}>Aujourd'hui</option>
+                            <option value="week" {% if selected_period == 'week' %}selected{% endif %}>Cette semaine</option>
+                            <option value="month" {% if selected_period == 'month' %}selected{% endif %}>Ce mois</option>
+                            <option value="year" {% if selected_period == 'year' %}selected{% endif %}>Cette année</option>
+                            <option value="custom" {% if selected_period == 'custom' %}selected{% endif %}>Personnalisé</option>
+                        </select>
+                    </div>
+                    <div id="custom-period-fields">
+                        <div class="form-group mb-2">
+                            <label style="font-weight:700;color:rgba(152, 152, 152, 0.85); font-size:15px;">Date début</label>
+                            {{ form.date_debut }}
                         </div>
-                        <div class="modal-footer justify-content-between p-2">
-                            <button type="button" class="btn btn-outline-secondary" style="border-radius:25px;" data-dismiss="modal">Annuler</button>
-                            <button type="submit" class="btn btn-outline-success" style="border-radius:25px;">Afficher</button>
+                        <div class="form-group mb-2">
+                            <label style="font-weight:700;color: rgba(152, 152, 152, 0.85); font-size:15px;">Date fin</label>
+                            {{ form.date_fin }}
                         </div>
-                    </form>
+                        <div class="form-group mb-2">
+                            <label style="font-weight:700;color: rgba(152, 152, 152, 0.85); font-size:15px;">Catégorie</label>
+                            {{ form.categorie }}
+                        </div>
+                        <div class="form-group mb-2">
+                            <label style="font-weight:700;color: rgba(152, 152, 152, 0.85); font-size:15px;">Matricule</label>
+                            {{ form.immatriculation }}
+                        </div>
+                    </div>
                 </div>
-            </div>
+                <div class="modal-footer justify-content-between p-2">
+                    <a href="{% url 'dashgarage' %}" class="btn btn-outline-secondary" style="border-radius:25px;">Réinitialiser</a>
+                    <button type="submit" class="btn btn-outline-success" style="border-radius:25px;">Appliquer</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -521,3 +520,19 @@
     </div>
 </div>
 {% endblock main_content %}
+
+{% block custom_js %}
+<script>
+(function () {
+    const periodSelect = document.getElementById('period-select');
+    const customFields = document.getElementById('custom-period-fields');
+    if (!periodSelect || !customFields) return;
+
+    function toggleCustomFields() {
+        customFields.style.display = periodSelect.value === 'custom' ? 'block' : 'none';
+    }
+    periodSelect.addEventListener('change', toggleCustomFields);
+    toggleCustomFields();
+})();
+</script>
+{% endblock custom_js %}

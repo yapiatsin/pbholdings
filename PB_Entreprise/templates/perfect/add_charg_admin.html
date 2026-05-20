@@ -13,7 +13,7 @@
             Exemplaire <i class="fa fa-download"></i>
         </a>
         <button type="button" class="btn btn-default" data-toggle="modal" data-target="#modal-import-excel" style="color: #a83232;">Import Excel <i class="fa fa-upload"></i></button>
-        <a href="{% url 'export_charge_admin_excel' %}?date_debut={{ form.date_debut.value }}&date_fin={{ form.date_fin.value }}" class="btn btn-default" style="color: #a83232;">
+        <a href="{% url 'export_charge_admin_excel' %}?periode={{ selected_period }}{% if form.date_debut.value %}&date_debut={{ form.date_debut.value }}{% endif %}{% if form.date_fin.value %}&date_fin={{ form.date_fin.value }}{% endif %}" class="btn btn-default" style="color: #a83232;">
         Excel 
         <i class="fa fa-file-excel-o"></i>
         </a>
@@ -107,30 +107,34 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <div class="modal-body">
-                <div class="card-body">
-                    <form id="basic-form" method="get" novalidate>
-                        <div class="row clearfix">
-                            <div class="col-12">
-                                <label style="font-weight:600;color: #a83232; font-size:15px;">Date debut </label>
-                                <div class="form-group">                                    
-                                    {{ form.date_debut }}
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <label style="font-weight:600;color: #a83232; font-size:15px;">Date fin</label>
-                                <div class="form-group">                                    
-                                    {{ form.date_fin }}
-                                </div>
-                            </div>
+            <form id="basic-form" method="get" novalidate>
+                <div class="modal-body">
+                    <div class="form-group mb-3">
+                        <label style="font-weight:600;color: #a83232; font-size:15px;">Période</label>
+                        <select id="period-select" name="periode" class="form-control">
+                            <option value="today" {% if selected_period == 'today' %}selected{% endif %}>Aujourd'hui</option>
+                            <option value="week" {% if selected_period == 'week' %}selected{% endif %}>Cette semaine</option>
+                            <option value="month" {% if selected_period == 'month' %}selected{% endif %}>Ce mois</option>
+                            <option value="year" {% if selected_period == 'year' %}selected{% endif %}>Cette année</option>
+                            <option value="custom" {% if selected_period == 'custom' %}selected{% endif %}>Personnalisé</option>
+                        </select>
+                    </div>
+                    <div id="custom-period-fields">
+                        <div class="form-group mb-2">
+                            <label style="font-weight:600;color: #a83232; font-size:15px;">Date début</label>
+                            {{ form.date_debut }}
                         </div>
-                        <div class="modal-footer justify-content-between p-2">
-                            <button type="button" class="btn btn-outline-secondary" style="border-radius:25px;" data-dismiss="modal">Annuler</button>
-                            <button type="submit" class="btn" style="border-radius:25px; border: 1px solid #a83232; color: #a83232; background: transparent; font-weight: 600;">Afficher</button>
+                        <div class="form-group mb-2">
+                            <label style="font-weight:600;color: #a83232; font-size:15px;">Date fin</label>
+                            {{ form.date_fin }}
                         </div>
-                    </form>
+                    </div>
                 </div>
-            </div>
+                <div class="modal-footer justify-content-between p-2">
+                    <a href="{% url 'add_chargadminist' %}" class="btn btn-outline-secondary" style="border-radius:25px;">Réinitialiser</a>
+                    <button type="submit" class="btn" style="border-radius:25px; border: 1px solid #a83232; color: #a83232; background: transparent; font-weight: 600;">Appliquer</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -139,7 +143,7 @@
     <div class="info-box" style="border-radius:25px;">
         <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-coins" style="color:rgba(168, 50, 50, 0.65);"></i></span>
         <div class="info-box-content">
-            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">Recette annuelle</span>
+            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">{{ kpi_labels.recette }}</span>
             <span class="info-box-number" style="font-size:18px; color: #1a1a1a">
             {{total_recette_annuel_format}}
             <small></small>
@@ -151,7 +155,7 @@
     <div class="info-box" style="border-radius:25px;">
         <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-file-invoice-dollar" style="color:rgba(168, 50, 50, 0.65);"></i></span>
         <div class="info-box-content">
-            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">Marge sur coût direct</span>
+            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">{{ kpi_labels.marge }}</span>
             <span class="info-box-number" style="font-size:18px; color: #1a1a1a">
             {{marge_contribution_annuel_format}}
             <small></small>
@@ -163,7 +167,7 @@
     <div class="info-box" style="border-radius:25px;">
         <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-file-invoice" style="color:rgba(168, 50, 50, 0.65);"></i></span>
         <div class="info-box-content">
-            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">Charge Administrative</span>
+            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">{{ kpi_labels.charge_admin }}</span>
             <span class="info-box-number" style="font-size:18px; color: #1a1a1a">
             {{total_chargeadmin_annuel_format}}
             <small>frs cfa</small>
@@ -175,7 +179,7 @@
     <div class="info-box mb-3" style="border-radius:25px;">
     <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fa fa-calendar" style="color:rgba(168, 50, 50, 0.65);"></i></span>
     <div class="info-box-content">
-        <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">Résultat annuel</span>
+        <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">{{ kpi_labels.resultat }}</span>
         <span class="info-box-number" style="font-size:18px; color: #1a1a1a">
         {{resultat_annuel_format}}
         <small></small>
@@ -188,7 +192,6 @@
     <div class="card" style="border-radius:25px;">
       <div class="card-header">
         <h5 class="card-title">Evolution des charges administratives</h5>
-
         <div class="card-tools">
           <button type="button" class="btn btn-tool" data-card-widget="collapse">
             <i class="fas fa-minus"></i>
@@ -242,7 +245,7 @@
             <div class="col-md-4">
                 <div class="card" style="border-radius: 20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);">
                     <div class="card-header text-center" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.95)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 20px 20px 0 0;">
-                        <strong style="font-size: 1.05rem; color: #a83232;">Statistique mensuelle</strong>
+                        <strong style="font-size: 1.05rem; color: #a83232;">Statistique de la période</strong>
                     </div>
                     <div class="card-body p-3">
                         <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
@@ -262,7 +265,7 @@
                             <span style="font-weight: 700; color: #1a1a1a;">{{total_chargvar_format}}</span>
                         </div>
                         <div class="d-flex justify-content-between align-items-center pt-3">
-                            <span style="font-weight: 600; color: #a83232;">Résultat mensuel</span>
+                            <span style="font-weight: 600; color: #a83232;">Résultat de la période</span>
                             <span style="font-weight: 700; color: #1a1a1a;">{{resultat_format}}</span>
                         </div>
                     </div>
@@ -391,3 +394,19 @@
     });    
 </script>
 {% endblock main_content %}
+
+{% block custom_js %}
+<script>
+(function () {
+    const periodSelect = document.getElementById('period-select');
+    const customFields = document.getElementById('custom-period-fields');
+    if (!periodSelect || !customFields) return;
+
+    function toggleCustomFields() {
+        customFields.style.display = periodSelect.value === 'custom' ? 'block' : 'none';
+    }
+    periodSelect.addEventListener('change', toggleCustomFields);
+    toggleCustomFields();
+})();
+</script>
+{% endblock custom_js %}
