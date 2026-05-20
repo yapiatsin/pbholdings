@@ -208,7 +208,9 @@
         <div class="col-md-4">
             <div class="card" style="border-radius: 20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);">
                 <div class="card-header d-flex justify-content-between align-items-center" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.95)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 20px 20px 0 0;">
-                    <strong style="font-size: 1.05rem; color: #a83232;">Evolution des recettes</strong>
+                    <div>
+                        <strong style="font-size: 1.05rem; color: #a83232;">Evolution des recettes{% if chart_axis_hint %} (<small class="text-muted" style="font-size: 0.75rem; font-weight: normal;">{{ chart_axis_hint }}</small>){% endif %}</strong>
+                    </div>
                 </div>
                 <div class="card-body p-3">
                     <div class="chart">
@@ -238,9 +240,22 @@
                                     ],
                                 },]
                             },
-                            options:{
-                                scales:{
-                                    y:{
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: {
+                                    legend: {
+                                        display: true,
+                                        position: 'bottom',
+                                        labels: {
+                                            usePointStyle: true,
+                                            boxWidth: 8,
+                                            color: '#1a1a1a'
+                                        }
+                                    }
+                                },
+                                scales: {
+                                    y: {
                                         beginAtZero: true,
                                         easing: 'linear',
                                         from: 1,
@@ -256,7 +271,9 @@
         <div class="col-md-4">
             <div class="card" style="border-radius: 20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);">
                 <div class="card-header d-flex justify-content-between align-items-center" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.95)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 20px 20px 0 0;">
-                    <strong style="font-size: 1.05rem; color: #a83232;">Evolution des taux</strong>
+                    <div>
+                        <strong style="font-size: 1.05rem; color: #a83232;">Evolution des taux{% if chart_axis_hint %} (<small class="text-muted" style="font-size: 0.75rem; font-weight: normal;">{{ chart_axis_hint }}</small>){% endif %}</strong>
+                    </div>
                 </div>
                 <div class="card-body p-3">
                     <div class="chart">
@@ -287,6 +304,19 @@
                                 },]
                             },
                             options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: {
+                                    legend: {
+                                        display: true,
+                                        position: 'bottom',
+                                        labels: {
+                                            usePointStyle: true,
+                                            boxWidth: 8,
+                                            color: '#1a1a1a'
+                                        }
+                                    }
+                                },
                                 scales: {
                                     y: {
                                         beginAtZero: true
@@ -303,10 +333,7 @@
             <div class="card" style="border-radius: 20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);">
                 <div class="card-header d-flex justify-content-between align-items-center" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.95)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 20px 20px 0 0;">
                     <div>
-                        <strong style="font-size: 1.05rem; color: #a83232;">Recettes par catégorie</strong>
-                        {% if not radar_follows_filter %}
-                        <small class="d-block text-muted" style="font-size: 0.75rem;">Semaine en cours — change avec « Cette semaine » ou « Personnalisé »</small>
-                        {% endif %}
+                        <strong style="font-size: 1.05rem; color: #a83232;">Recettes par catégorie ({% if selected_period == 'week' or radar_custom_week %}<small class="text-muted" style="font-size: 0.75rem; font-weight: normal;">Par jour — période de la semaine sélectionnée · </small>{% elif selected_period == 'custom' and not radar_follows_filter %}<small class="text-muted" style="font-size: 0.75rem; font-weight: normal;">Période personnalisée &gt; 7 jours — semaine en cours · </small>{% elif not radar_follows_filter %}<small class="text-muted" style="font-size: 0.75rem; font-weight: normal;">Semaine en cours · </small>{% endif %})</strong>
                     </div>
                 </div>
                 <div class="card-body p-3">
@@ -333,7 +360,6 @@
                             };
                         });
                         const labels = {{ jours_semaine|safe }};
-
                         const ventesChart = new Chart(ctx, {
                             type: 'radar',
                             data: {
@@ -346,11 +372,12 @@
                                 plugins: {
                                     legend: {
                                         display: true,
-                                        position: 'bottom',
+                                        position: 'right',
                                         labels: {
                                             usePointStyle: true,
                                             boxWidth: 8,
-                                            color: '#1a1a1a'
+                                            color: '#1a1a1a',
+                                            padding: 10
                                         }
                                     },
                                     tooltip: {
@@ -387,7 +414,9 @@
         <div class="col-md-4">
             <div class="card" style="border-radius: 20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);">
                 <div class="card-header d-flex justify-content-between align-items-center" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.95)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 20px 20px 0 0;">
-                    <strong style="font-size: 1.05rem; color: #a83232;">Evolution des charges</strong>
+                    <div>
+                        <strong style="font-size: 1.05rem; color: #a83232;">Evolution des charges{% if chart_axis_hint %} (<small class="text-muted" style="font-size: 0.75rem; font-weight: normal;">{{ chart_axis_hint }}</small>){% endif %}</strong>
+                    </div>
                 </div>
                 <div class="card-body p-3">
                     <div class="chart">
@@ -401,7 +430,7 @@
                             data: {
                                 labels: {{labels|safe}},
                                 datasets: [{
-                                    label: 'fixes',
+                                    label: 'Charges fixes',
                                     data: {{chargfix_mois_data}},
                                     borderWidth: 1,
                                     borderColor: 'rgba(168, 50, 50, 0.9)',
@@ -411,7 +440,7 @@
                                     barThickness: 22,
                                 },
                                 {
-                                    label: 'variables',
+                                    label: 'Charges variables',
                                     data: {{chargvar_mois_data}},
                                     borderWidth: 1,
                                     borderColor: 'rgba(26, 26, 26, 0.9)',
@@ -428,7 +457,13 @@
                                 maintainAspectRatio: false,
                                 plugins: {
                                     legend: {
-                                        display: false
+                                        display: true,
+                                        position: 'bottom',
+                                        labels: {
+                                            usePointStyle: true,
+                                            boxWidth: 8,
+                                            color: '#1a1a1a'
+                                        }
                                     }
                                 },
                                 scales: {
@@ -460,7 +495,9 @@
         <div class="col-md-4">
             <div class="card" style="border-radius: 20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);">
                 <div class="card-header d-flex justify-content-between align-items-center" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.95)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 20px 20px 0 0;">
-                    <strong style="font-size: 1.05rem; color: #a83232;">Evolution des Pièces</strong>
+                    <div>
+                        <strong style="font-size: 1.05rem; color: #a83232;">Evolution des Pièces{% if chart_axis_hint %} (<small class="text-muted" style="font-size: 0.75rem; font-weight: normal;">{{ chart_axis_hint }}</small>){% endif %}</strong>
+                    </div>
                 </div>
                 <div class="card-body p-3">
                     <div class="chart">
@@ -503,7 +540,13 @@
                                 maintainAspectRatio: false,
                                 plugins: {
                                     legend: {
-                                        display: false
+                                        display: true,
+                                        position: 'bottom',
+                                        labels: {
+                                            usePointStyle: true,
+                                            boxWidth: 8,
+                                            color: '#1a1a1a'
+                                        }
                                     }
                                 },
                                 scales: {
@@ -571,9 +614,18 @@
                             }]
                         },
                         options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
                             plugins: {
                                 legend: {
+                                    display: true,
                                     position: 'right',
+                                    labels: {
+                                        usePointStyle: true,
+                                        boxWidth: 8,
+                                        color: '#1a1a1a',
+                                        padding: 10
+                                    }
                                 }
                             }
                         }
@@ -651,7 +703,7 @@
                         {% for c in top_reparations %}
                             <li class="item" style="font-size:15px;">
                                 <div class="product-img">
-                                    <a href="javascript:void(0)" class="product-title text-secondary">{{c.vehicule__immatriculation}}</a>
+                                    <a href="javascript:void(0)" class="product-title text-secondary" style="font-size:15px;">{{c.vehicule__immatriculation}}</a>
                                 </div>
                                 <div class="product-info">
                                     <a href="javascript:void(0)" class="product-title">

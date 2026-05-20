@@ -17,8 +17,8 @@
 {% endblock page_title %} 
 {% block page_action %}
     <form id="quickForm">
-        <a class="btn btn-default text-info" data-toggle="modal" data-target="#modal-sm" href="#" style="font-size: 16px;"> <i style="font-size: 20px;" class="fa fa-calendar"></i></a>
-        <a class="btn btn-default text-info" href="{% url 'dashgarage' %}" style="font-size: 16px;"><i style="font-size: 20px;" class="fas fa-sync"></i></a>
+        <a class="btn btn-default text-info" data-toggle="modal" data-target="#modal-sm" href="#" style="font-size: 16px;"> <i style="font-size: 20px; color: var(--pb-primary)" class="fa fa-calendar"></i></a>
+        <a class="btn btn-default text-info" href="{% url 'dashgarage' %}" style="font-size: 16px;"><i style="font-size: 20px; color: var(--pb-primary)" class="fas fa-sync"></i></a>
     </form>
 {% endblock page_action %}
 {% block main_content%}
@@ -227,7 +227,10 @@
         <div class="col-md-4">
             <div class="card mb-3" style="border-radius: 20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);">
                 <div class="card-header d-flex justify-content-between align-items-center" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.95)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 20px 20px 0 0;">
-                    <strong style="font-size: 1.05rem; color: #a83232;">Evolution des réparations</strong>
+                    <div>
+                        <strong style="font-size: 1.05rem; color: #a83232;">Evolution des réparations</strong>
+                        {% if chart_axis_hint %}<small class="d-block text-muted" style="font-size: 0.75rem;">{{ chart_axis_hint }}</small>{% endif %}
+                    </div>
                 </div>
                 <div class="card-body p-3">
                     <div class="chart">
@@ -259,6 +262,19 @@
                                 ]
                             },
                             options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: {
+                                    legend: {
+                                        display: true,
+                                        position: 'bottom',
+                                        labels: {
+                                            usePointStyle: true,
+                                            boxWidth: 8,
+                                            color: '#1a1a1a'
+                                        }
+                                    }
+                                },
                                 scales: {
                                     y: {
                                         beginAtZero: true,
@@ -274,7 +290,10 @@
             
             <div class="card" style="border-radius: 20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);">
                 <div class="card-header d-flex justify-content-between align-items-center" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.95)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 20px 20px 0 0;">
-                    <strong style="font-size: 1.05rem; color: #a83232;">Evolution pièces réparation garage</strong>
+                    <div>
+                        <strong style="font-size: 1.05rem; color: #a83232;">Evolution pièces réparation garage</strong>
+                        {% if chart_axis_hint %}<small class="d-block text-muted" style="font-size: 0.75rem;">{{ chart_axis_hint }}</small>{% endif %}
+                    </div>
                 </div>
                 <div class="card-body p-3">
                     <div class="chart">
@@ -289,7 +308,7 @@
                                 labels: {{labels | safe}},
                                 datasets: [
                                 {
-                                        label: 'changées',
+                                        label: 'Pièces changées',
                                         data: {{piec_mois_data}},
                                         borderWidth: 1,
                                         borderColor: 'rgba(168, 50, 50, 0.9)',
@@ -305,7 +324,13 @@
                                 maintainAspectRatio: false,
                                 plugins: {
                                     legend: {
-                                        display: false
+                                        display: true,
+                                        position: 'bottom',
+                                        labels: {
+                                            usePointStyle: true,
+                                            boxWidth: 8,
+                                            color: '#1a1a1a'
+                                        }
                                     }
                                 },
                                 scales: {
@@ -337,7 +362,10 @@
         <div class="col-md-4">
             <div class="card mb-3" style="border-radius: 20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);">
                 <div class="card-header d-flex justify-content-between align-items-center" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.95)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 20px 20px 0 0;">
-                    <strong style="font-size: 1.05rem; color: #a83232;">Evolution Entretien</strong>
+                    <div>
+                        <strong style="font-size: 1.05rem; color: #a83232;">Evolution Entretien</strong>
+                        {% if chart_axis_hint %}<small class="d-block text-muted" style="font-size: 0.75rem;">{{ chart_axis_hint }}</small>{% endif %}
+                    </div>
                 </div>
                 <div class="card-body p-3">
                     <div class="chart">
@@ -369,6 +397,19 @@
                                 ]
                             },
                             options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: {
+                                    legend: {
+                                        display: true,
+                                        position: 'bottom',
+                                        labels: {
+                                            usePointStyle: true,
+                                            boxWidth: 8,
+                                            color: '#1a1a1a'
+                                        }
+                                    }
+                                },
                                 scales: {
                                     y: {
                                         beginAtZero: true
@@ -381,7 +422,10 @@
             </div>
             <div class="card" style="border-radius: 20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);">
                 <div class="card-header d-flex justify-content-between align-items-center" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.95)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 20px 20px 0 0;">
-                    <strong style="font-size: 1.05rem; color: #a83232;">Evolution pièces réparation rapide</strong>
+                    <div>
+                        <strong style="font-size: 1.05rem; color: #a83232;">Evolution pièces réparation rapide</strong>
+                        {% if chart_axis_hint %}<small class="d-block text-muted" style="font-size: 0.75rem;">{{ chart_axis_hint }}</small>{% endif %}
+                    </div>
                 </div>
                 <div class="card-body p-3">
                     <div class="chart">
@@ -396,7 +440,7 @@
                                 labels: {{labels | safe}},
                                 datasets: [
                                     {
-                                        label: 'changées',
+                                        label: 'Pièces changées',
                                         data: {{piecha_mois_data}},
                                         borderWidth: 1,
                                         borderColor: 'rgba(26, 26, 26, 0.9)',
@@ -412,7 +456,13 @@
                                 maintainAspectRatio: false,
                                 plugins: {
                                     legend: {
-                                        display: false
+                                        display: true,
+                                        position: 'bottom',
+                                        labels: {
+                                            usePointStyle: true,
+                                            boxWidth: 8,
+                                            color: '#1a1a1a'
+                                        }
                                     }
                                 },
                                 scales: {
@@ -444,7 +494,10 @@
         <div class="col-md-4">
             <div class="card mb-3" style="border-radius: 20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);">
                 <div class="card-header d-flex justify-content-between align-items-center" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.95)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 20px 20px 0 0;">
-                    <strong style="font-size: 1.05rem; color: #a83232;">Repartition des temps d'arrêt</strong>
+                    <div>
+                        <strong style="font-size: 1.05rem; color: #a83232;">Repartition des temps d'arrêt</strong>
+                        {% if chart_axis_hint %}<small class="d-block text-muted" style="font-size: 0.75rem;">{{ chart_axis_hint }}</small>{% endif %}
+                    </div>
                 </div>
                 <div class="card-body p-3">
                     <div class="chart">
@@ -480,9 +533,18 @@
                                 }]
                             },
                             options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
                                 plugins: {
                                     legend: {
+                                        display: true,
                                         position: 'right',
+                                        labels: {
+                                            usePointStyle: true,
+                                            boxWidth: 8,
+                                            color: '#1a1a1a',
+                                            padding: 10
+                                        }
                                     }
                                 }
                             }

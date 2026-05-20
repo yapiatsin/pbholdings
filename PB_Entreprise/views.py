@@ -1498,6 +1498,35 @@ class ExportRecetteMensuelleExcelView(LoginRequiredMixin, View):
         return response
 
 
+def _dashboard_custom_chart_granularity(date_debut, date_fin):
+    """Personnalisé : jours si même mois calendaire, sinon mois (comme « Cette année »)."""
+    if date_debut.year == date_fin.year and date_debut.month == date_fin.month:
+        return 'day'
+    return 'month'
+
+
+def _dashboard_chart_axis_hint(selected_period, chart_granularity):
+    """Sous-titre des graphiques d'évolution en mode personnalisé."""
+    if selected_period != 'custom':
+        return ''
+    if chart_granularity == 'day':
+        return 'Axe : jours (période sur un mois)'
+    return 'Axe : mois (période sur plusieurs mois)'
+
+
+def _dashboard_months_in_range(start, end):
+    """Liste ordonnée (année, mois) entre start et end (inclus)."""
+    months = []
+    year, month = start.year, start.month
+    while (year, month) <= (end.year, end.month):
+        months.append((year, month))
+        if month == 12:
+            year, month = year + 1, 1
+        else:
+            month += 1
+    return months
+
+
 def _dashboard_get_period_bounds(request, form=None):
     """Retourne (date_debut, date_fin, periode_selectionnee, granularite_graphique)."""
     today = date.today()
@@ -1520,26 +1549,32 @@ def _dashboard_get_period_bounds(request, form=None):
         if date_debut and date_fin:
             if date_debut > date_fin:
                 date_debut, date_fin = date_fin, date_debut
-            return date_debut, date_fin, 'custom', 'day'
+            granularity = _dashboard_custom_chart_granularity(date_debut, date_fin)
+            return date_debut, date_fin, 'custom', granularity
 
     start = today.replace(day=1)
     last_day = monthrange(today.year, today.month)[1]
     return start, today.replace(day=last_day), 'month', 'day'
-
 
 def _dashboard_chart_date_range(start, end):
     return [start + timedelta(days=i) for i in range((end - start).days + 1)]
 
 def _dashboard_aggregate_montant(queryset, date_field, start, end, granularity='day'):
     if granularity == 'month':
-        data_map = {month: 0 for month in range(1, 13)}
-        for obj in queryset.filter(**{f'{date_field}__year': start.year}):
+        months_in_range = _dashboard_months_in_range(start, end)
+        data_map = {key: 0 for key in months_in_range}
+        for obj in queryset.filter(**{f'{date_field}__range': [start, end]}):
             obj_date = getattr(obj, date_field)
             if isinstance(obj_date, datetime):
                 obj_date = obj_date.date()
-            data_map[obj_date.month] += obj.montant or 0
-        labels = [calendar.month_name[month][:1] for month in range(1, 13)]
-        return labels, [data_map[month] for month in range(1, 13)]
+            key = (obj_date.year, obj_date.month)
+            if key in data_map:
+                data_map[key] += obj.montant or 0
+        labels = [
+            calendar.month_name[month][:1] if len(months_in_range) <= 12 else f'{month:02d}/{str(year)[-2:]}'
+            for year, month in months_in_range
+        ]
+        return labels, [data_map[key] for key in months_in_range]
 
     chart_dates = _dashboard_chart_date_range(start, end)
     data_map = {jour: 0 for jour in chart_dates}
@@ -1553,7 +1588,7 @@ def _dashboard_aggregate_montant(queryset, date_field, start, end, granularity='
     return labels, [data_map[jour] for jour in chart_dates]
 
 def _dashboard_radar_period_bounds(selected_period, form, date_debut, date_fin):
-    """Plage du radar « Recettes par catégorie » : semaine en cours ou période personnalisée."""
+    """Plage du radar « Recettes par catégorie » : semaine en cours ou période ≤ 7 jours."""
     today = date.today()
     week_start = today - timedelta(days=today.weekday())
     week_end = week_start + timedelta(days=6)
@@ -1564,7 +1599,10 @@ def _dashboard_radar_period_bounds(selected_period, form, date_debut, date_fin):
         if custom_debut and custom_fin:
             if custom_debut > custom_fin:
                 custom_debut, custom_fin = custom_fin, custom_debut
-            return custom_debut, custom_fin, True
+            span_days = (custom_fin - custom_debut).days + 1
+            if span_days <= 7:
+                return custom_debut, custom_fin, True
+            return week_start, week_end, False
     if selected_period == 'week':
         return week_start, week_end, True
 
@@ -1760,6 +1798,11 @@ class DashboardView(CustomPermissionRequiredMixin,LoginRequiredMixin,TemplateVie
         radar_start, radar_end, radar_follows_filter = _dashboard_radar_period_bounds(
             selected_period, form, date_debut, date_fin
         )
+        radar_custom_week = (
+            selected_period == 'custom'
+            and radar_follows_filter
+            and (date_fin - date_debut).days + 1 <= 7
+        )
         radar_recette_qs = Recette.objects.all()
         if form.is_valid():
             immat_radar = form.cleaned_data.get('immatriculation')
@@ -1812,8 +1855,11 @@ class DashboardView(CustomPermissionRequiredMixin,LoginRequiredMixin,TemplateVie
             'selected_period': selected_period,
             'chart_granularity': chart_granularity,
             'radar_follows_filter': radar_follows_filter,
+            'radar_custom_week': radar_custom_week,
+            'chart_axis_hint': _dashboard_chart_axis_hint(selected_period, chart_granularity),
         }
         return context
+
 
 class DashboardGaragView(LoginRequiredMixin, CustomPermissionRequiredMixin, TemplateView):
     login_url = 'login'
@@ -2004,6 +2050,7 @@ class DashboardGaragView(LoginRequiredMixin, CustomPermissionRequiredMixin, Temp
             'datacat': json.dumps(datacat),
             'selected_period': selected_period,
             'chart_granularity': chart_granularity,
+            'chart_axis_hint': _dashboard_chart_axis_hint(selected_period, chart_granularity),
         })
         return context
 
