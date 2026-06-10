@@ -159,7 +159,7 @@ EMAIL_PORT = config('EMAIL_PORT')
 EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 EMAIL_USE_TLS = config('EMAIL_USE_TLS')
-
+FRONTEND_URL = config('FRONTEND_URL', default='https://pbholdingsite.com').rstrip('/')
 ########################---o---#######################---o---######################---o---###################
 JAZZMIN_SETTINGS = {
     "site_header": "P&BEntrepprise",

@@ -4,10 +4,10 @@ from typing import Any
 from urllib import request
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse_lazy
-from .utils import send_email_with_html_body
+from .utils import send_account_created_email, send_password_reset_otp_email, send_activation_resend_email, get_client_ip
 from django.http import HttpResponse, JsonResponse
 from django.template.loader import render_to_string
-from userauths.forms import EditUserProfileForm, CustomUserCreationForm, PasswordChangingForm, CreateUserProfileForm
+from userauths.forms import EditUserProfileForm, PasswordChangingForm, CreateUserProfileForm
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from django.conf import settings 
@@ -21,21 +21,23 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 #User = settings.AUTH_USER_MODEL
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
-from .models import UserProfile
 from .models import *
 from userauths.forms import *
 from .models import CustomUser
-from PB_Entreprise.models import Gerant
+from PB_Entreprise.models import UserProfile
+from userauths.profile_helpers import (
+    build_profile_page_context,
+    ensure_admin_profile,
+    get_user_profile,
+    save_user_profile,
+    apply_profile_edit_form,
+    USER_TYPE_EMAIL_SUBJECTS,
+)
 # Create your views here.
 # from .utils import generate_greeting, generate_goodbye
-from django.core.mail import send_mail
-# from .utils import send_email_with_html_body
-from django.core.mail import EmailMessage
-from django.template.loader import render_to_string
 from django.contrib.auth.hashers import make_password
-from django.core.mail import EmailMultiAlternatives
 from django.contrib.auth import get_user_model
-# Vue pour vérifier l'OTP envoyé par email
+from django.db import transaction
 from django.utils import timezone
 from .forms import ChangePasswordForm
 
@@ -45,12 +47,79 @@ from openpyxl.utils import get_column_letter
 from openpyxl.styles import Font, PatternFill, Alignment
 from django.http import HttpResponse
 import pandas as pd
+
 CustomUser = get_user_model()
+
+def _accounts_queryset():
+    return (
+        CustomUser.objects.filter(is_superuser=False)
+        .select_related('profile')
+        .prefetch_related('profile__gerant_voiture', 'custom_permissions')
+        .order_by('-created_at')
+    )
+
+
+def _form_errors_messages(request, form, prefix=''):
+    for field, errors in form.errors.items():
+        for error in errors:
+            label = prefix or field
+            messages.error(request, f"Erreur dans {label}: {error}")
+
+@login_required(login_url='/login/')
+def register(request):
+    """Page unique : création et gestion de tous les types de comptes."""
+    actor = request.user
+    form = UserProfileForm()
+
+    if request.method == 'POST':
+        form = UserProfileForm(request.POST)
+        user_type = request.POST.get('user_type', '')
+        if user_type in ('2', '3', '4') and actor.user_type != '1':
+            messages.error(request, "Seuls les administrateurs peuvent créer ce type de compte.")
+            return redirect('register')
+
+        if user_type in ('2', '3', '4'):
+            ensure_admin_profile(actor)
+
+        if form.is_valid():
+            try:
+                with transaction.atomic():
+                    new_user = CustomUser(
+                        username=form.cleaned_data['username'],
+                        email=form.cleaned_data['email'],
+                        gender=form.cleaned_data['gender'],
+                    )
+                    password = generate_random_password()
+                    ut = form.cleaned_data['user_type']
+                    _create_user_with_password(new_user, password, ut)
+                    create_by = actor if ut != '1' else None
+                    save_user_profile(new_user, form, create_by=create_by)
+                    new_user.custom_permissions.set(form.cleaned_data.get('permissions', []))
+
+                    has_send = send_account_created_email(
+                        user=new_user,
+                        password=password,
+                        subject=USER_TYPE_EMAIL_SUBJECTS.get(ut, 'Création de compte — P&BENTREPRISE'),
+                    )
+                if has_send:
+                    messages.success(request, 'Compte créé avec succès. Un email a été envoyé.')
+                else:
+                    messages.warning(request, 'Compte créé avec succès, mais l\'email n\'a pas pu être envoyé.')
+                return redirect('register')
+            except Exception as e:
+                messages.error(request, f"Erreur: {str(e)}")
+        else:
+            _form_errors_messages(request, form)
+
+    return render(request, 'register.html', {
+        'form': form,
+        'accounts': _accounts_queryset(),
+    })
 
 
 def list_users(request):
-    users = CustomUser.objects.filter(is_superuser=False)
-    return render(request, 'liste_compte.html', {'users': users})
+    return register(request)
+
 
 @login_required
 def edit_user_permissions(request, user_id):
@@ -91,559 +160,68 @@ def generate_random_password(length=8):
     characters = string.ascii_letters + string.digits 
     return ''.join(random.choice(characters) for i in range(length))
 
-@login_required(login_url='/login/')
-def add_administrateur(request):
-    cxt = {}
-    adm = Administ.objects.all()
-    if request.method == 'POST':
-        userform = CustomUserCreationForm(request.POST)
-        adminform = AdministForm(request.POST)
-        permission_form = UserPermissionForm(request.POST)
-        if userform.is_valid() and adminform.is_valid() and permission_form.is_valid():
-            try:
-                user = userform.save(commit=False)
-                password = generate_random_password()
-                user.set_password(password)
-                user.user_type = "1"
-                user.save()
-                adminst = adminform.save(commit=False)
-                adminst.user = user
-                adminst.save()
 
-                permissions = permission_form.cleaned_data['permissions']
-                user.custom_permissions.set(permissions)
-                
-                subjet = 'Création de Compte Administrateur'
-                receivers = [user.email]
-                template = 'compte_success.html'
-                context = {
-                    'username': user.username,
-                    'password': password,
-                    'date': datetime.today().date,
-                    'user_email':user.email
-                }
-                has_send=send_email_with_html_body(
-                    subjet=subjet, 
-                    receivers= receivers, 
-                    template= template, 
-                    context=context
-                )
-                if has_send:
-                    messages.success(request, 'Compte créé avec succès. Un email a été envoyé.')
-                else:
-                    messages.error(request, 'Centre de santé enregistré avec succès, mais l\'email n\'a pas pu être envoyé.')
-                return redirect('addadministrateur')
+@login_required(login_url='/login/')
+def edit_account(request, user_id):
+    """Édition d'un compte (tous rôles) via modal AJAX."""
+    user_obj = get_object_or_404(CustomUser, id=user_id, is_superuser=False)
+    try:
+        profile = user_obj.profile
+    except UserProfile.DoesNotExist:
+        profile, _ = UserProfile.objects.get_or_create(user=user_obj)
+
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+
+    if request.method == 'POST':
+        form = UserProfileEditForm(request.POST, instance=profile)
+        if form.is_valid():
+            try:
+                apply_profile_edit_form(user_obj, profile, form)
+                if is_ajax:
+                    return JsonResponse({'success': True, 'message': 'Compte modifié avec succès.'})
+                messages.success(request, 'Compte modifié avec succès.')
+                return redirect('register')
             except Exception as e:
+                if is_ajax:
+                    return JsonResponse({'success': False, 'message': f"Erreur: {str(e)}"})
                 messages.error(request, f"Erreur: {str(e)}")
-        else:
-            for field, errors in userform.errors.items():
-                for error in errors:
-                    messages.error(request, f"Erreur dans {field}: {error}")
-            for field, errors in adminform.errors.items():
-                for error in errors:
-                    messages.error(request, f"Erreur dans {field}: {error}")
+        elif is_ajax:
+            html = render_to_string('edit_account_modal.html', {
+                'form': form, 'account_user': user_obj, 'profile': profile,
+            }, request=request)
+            return JsonResponse({'html': html})
     else:
-        userform = CustomUserCreationForm()
-        adminform = AdministForm()
-        permission_form = UserPermissionForm()
-    return render(request, 'add_admin.html', {
-        'user_form': userform,
-        'admin_form': adminform,
-        'cxt': cxt,
-        'admins': adm,
-        'permission_form': permission_form,
+        form = UserProfileEditForm(instance=profile)
+
+    if is_ajax:
+        html = render_to_string('edit_account_modal.html', {
+            'form': form, 'account_user': user_obj, 'profile': profile,
+        }, request=request)
+        return JsonResponse({'html': html})
+
+    return render(request, 'edit_account.html', {
+        'form': form, 'account_user': user_obj, 'profile': profile,
     })
 
-def delete_admin(request, pk):
-    try:
-        admin = get_object_or_404(Administ, id=pk)
-        user = admin.user  
-        admin.delete()
-        user.delete()
-        messages.success(request, f"le compte administrateur de {admin.user.username} et le profile associé ont été supprimés avec succès.")
-    except Exception as e:
-        messages.error(request, f"Erreur lors de la suppression : {str(e)}")
-    return redirect('addadministrateur')
 
 @login_required(login_url='/login/')
-def add_chefexploit(request):
-    user=request.user
-    # Vérifier que l'utilisateur connecté est un administrateur
-    if user.user_type != "1":
-        messages.error(request, "Seuls les administrateurs peuvent créer des comptes de chef d'exploitation.")
-        return redirect('home')
-    
-    # S'assurer que l'utilisateur connecté a un profil Administ
-    # Si le profil n'existe pas, le créer avec des valeurs par défaut
-    admin_profile, created = Administ.objects.get_or_create(
-        user=user,
-        defaults={
-            'nom': user.username,
-            'prenom': '',
-            'commune': '',
-        }
-    )
-    if created:
-        messages.info(request, f"Votre profil administrateur a été créé automatiquement. Veuillez le compléter dans votre profil.")
-    
+def delete_account(request, user_id):
     try:
-        chefexp = Chefexploitation.objects.all()
-    except Administ.DoesNotExist:
-        chefexp = Chefexploitation.objects.none()
-    cxt = {}
-    employ = CustomUser.objects.all()
-    if request.method == 'POST':
-        userform = CustomUserCreationForm(request.POST)
-        chefexploitform = ChefexploitationForm(request.POST)
-        permission_form = UserPermissionForm(request.POST)
-        if userform.is_valid() and chefexploitform.is_valid() and permission_form.is_valid():
-            try:
-                user = userform.save(commit=False)
-                password = generate_random_password()
-                user.set_password(password)
-                user.user_type = "2" 
-                user.save()
-                
-                chefexploitation = chefexploitform.save(commit=False)
-                chefexploitation.user = user
-                
-                # Utiliser le profil Administ de l'utilisateur connecté
-                chefexploitation.create_by = admin_profile
-                chefexploitation.save()
-
-                ################ Ajouter des permissions #################
-                permissions = permission_form.cleaned_data['permissions']
-                user.custom_permissions.set(permissions)
-                
-                subjet = "Création de Compte de chef d'exploitation"
-                receivers = [user.email]
-                template = 'compte_success.html'
-                context = {
-                    'username': user.username,
-                    'password': password,
-                    'date': datetime.today().date,
-                    'user_email':user.email
-                }
-                has_send=send_email_with_html_body(
-                    subjet=subjet, 
-                    receivers= receivers, 
-                    template= template, 
-                    context=context
-                )
-                if has_send:
-                    messages.success(request, 'Compte créé avec succès. Un email a été envoyé.')
-                else:
-                    messages.error(request, 'Centre de santé enregistré avec succès, mais l\'email n\'a pas pu être envoyé.')
-                return redirect('addchefexploit')
-            except Exception as e:
-                messages.error(request, f"Erreur: {str(e)}")
-        else:
-            for field, errors in userform.errors.items():
-                for error in errors:
-                    messages.error(request, f"Erreur dans {field}: {error}")
-            for field, errors in chefexploitform.errors.items():
-                for error in errors:
-                    messages.error(request, f"Erreur dans {field}: {error}")
-    else:
-        userform = CustomUserCreationForm()
-        chefexploitform = AdministForm()
-        permission_form = UserPermissionForm()
-    return render(request, 'add_chef_exploitation.html', {
-        'user_form': userform,
-        'chefexp_form': chefexploitform,
-        'permission_form': permission_form,
-        'cxt': cxt,
-        'employes': employ,
-        'list_chefexp': chefexp,
-    })
-
-def delete_chefexploit(request, pk):
-    try:
-        chefexploit = get_object_or_404(Chefexploitation, id=pk)
-        user = chefexploit.user  
-        chefexploit.delete()
-        user.delete()
-        messages.success(request, f"le compte Chef exploitation de {chefexploit.user.username} et le profile associé ont été supprimés avec succès.")
-    except Exception as e:
-        messages.error(request, f"Erreur lors de la suppression : {str(e)}")
-    return redirect('addchefexploit')
-
-@login_required(login_url='/login/')
-def add_comptable(request):
-    user=request.user
-    # Vérifier que l'utilisateur connecté est un administrateur
-    if user.user_type != "1":
-        messages.error(request, "Seuls les administrateurs peuvent créer des comptes comptable.")
-        return redirect('home')
-    admin_profile, created = Administ.objects.get_or_create(
-        user=user,
-        defaults={
-            'nom': user.username,
-            'prenom': '',
-            'commune': '',
-        }
-    )
-    if created:
-        messages.info(request, f"Votre profil administrateur a été créé automatiquement. Veuillez le compléter dans votre profil.")
-    
-    try:
-        # admins = Administ.objects.get(user=user)
-        compt = Comptable.objects.all()
-    except Administ.DoesNotExist:
-        compt = Comptable.objects.none()
-    cxt = {}
-    employ = CustomUser.objects.all()
-    if request.method == 'POST':
-        userform = CustomUserCreationForm(request.POST)
-        comptableform = ComptableForm(request.POST)
-        permission_form = UserPermissionForm(request.POST)
-        if userform.is_valid() and comptableform.is_valid()and permission_form.is_valid():
-            try:
-                user = userform.save(commit=False)
-                password = generate_random_password()
-                user.set_password(password)
-                user.user_type = "3"  
-                user.save()
-                
-                comptable = comptableform.save(commit=False)
-                comptable.user = user
-                
-                # Utiliser le profil Administ de l'utilisateur connecté
-                comptable.create_by = admin_profile
-                comptable.save()
-                permissions = permission_form.cleaned_data['permissions']
-                user.custom_permissions.set(permissions)
-                
-                subjet = 'Création de Compte Comptable'
-                receivers = [user.email]
-                template = 'compte_success.html'
-                context = {
-                    'username': user.username,
-                    'password': password,
-                    'date': datetime.today().date,
-                    'user_email':user.email
-                }
-                has_send=send_email_with_html_body(
-                    subjet=subjet, 
-                    receivers= receivers, 
-                    template= template, 
-                    context=context
-                )
-                if has_send:
-                    messages.success(request, 'Compte créé avec succès. Un email a été envoyé.')
-                else:
-                    messages.error(request, 'Centre de santé enregistré avec succès, mais l\'email n\'a pas pu être envoyé.')
-                return redirect('addcomptable')
-            except Exception as e:
-                messages.error(request, f"Erreur: {str(e)}")
-        else:
-            for field, errors in userform.errors.items():
-                for error in errors:
-                    messages.error(request, f"Erreur dans {field}: {error}")
-            for field, errors in comptableform.errors.items():
-                for error in errors:
-                    messages.error(request, f"Erreur dans {field}: {error}")
-    else:
-        userform = CustomUserCreationForm()
-        comptableform = AdministForm()
-        permission_form = UserPermissionForm()
-    return render(request, 'add_comptable.html', {
-        'user_form': userform,
-        'comptable_form': comptableform,
-        'cxt': cxt,
-        'employes': employ,
-        'list_compt': compt,
-        'permission_form': permission_form,
-    })
-
-def delete_comptable(request, pk):
-    try:
-        comptable = get_object_or_404(Comptable, id=pk)
-        user = comptable.user  
-        comptable.delete()
-        user.delete()
-        messages.success(request, f"le compte comptable de {comptable.user.username} et le profile associé ont été supprimés avec succès.")
-    except Exception as e:
-        messages.error(request, f"Erreur lors de la suppression : {str(e)}")
-    return redirect('addcomptable')
-
-@login_required(login_url='/login/')
-def add_gerant(request):
-    user=request.user
-    # Vérifier que l'utilisateur connecté est un administrateur
-    if user.user_type != "1":
-        messages.error(request, "Seuls les administrateurs peuvent créer des comptes de gérant.")
-        return redirect('home')
-    # S'assurer que l'utilisateur connecté a un profil Administ
-    # Si le profil n'existe pas, le créer avec des valeurs par défaut
-    admin_profile, created = Administ.objects.get_or_create(
-        user=user,
-        defaults={
-            'nom': user.username,
-            'prenom': '',
-            'commune': '',
-        }
-    )
-    if created:
-        messages.info(request, f"Votre profil administrateur a été créé automatiquement. Veuillez le compléter dans votre profil.")
-    
-    try:
-        list_gerant = Gerant.objects.all()
-    except Administ.DoesNotExist:
-        list_gerant = Gerant.objects.none()
-    cxt = {}
-    employ = CustomUser.objects.all()
-    if request.method == 'POST':
-        userform = CustomUserCreationForm(request.POST)
-        gerantform = GerantForm(request.POST)
-        permission_form = UserPermissionForm(request.POST)
-        if userform.is_valid() and gerantform.is_valid() and permission_form.is_valid():
-            try:
-                user = userform.save(commit=False)
-                password = generate_random_password()
-                user.set_password(password)
-                user.user_type = "4"  
-                user.save()
-                gerant = gerantform.save(commit=False)
-                gerant.user = user
-                # Utiliser le profil Administ de l'utilisateur connecté
-                gerant.create_by = admin_profile
-                gerant.save()
-                # Enregistrer les catégories de véhicules (ManyToMany)
-                categories_vehicules = gerantform.cleaned_data.get('gerant_voiture', [])
-                gerant.gerant_voiture.set(categories_vehicules)
-                permissions = permission_form.cleaned_data['permissions']
-                user.custom_permissions.set(permissions)
-                
-                subjet = 'Création de Compte de Gérante'
-                receivers = [user.email]
-                template = 'compte_success.html'
-                context = {
-                    'username': user.username,
-                    'password': password,
-                    'date': datetime.today().date,
-                    'user_email':user.email
-                }
-                has_send=send_email_with_html_body(
-                    subjet=subjet, 
-                    receivers= receivers, 
-                    template= template, 
-                    context=context
-                )
-                if has_send:
-                    messages.success(request, 'Compte créé avec succès. Un email a été envoyé.')
-                else:
-                    messages.error(request, 'Centre de santé enregistré avec succès, mais l\'email n\'a pas pu être envoyé.')
-                return redirect('addgerant')
-            except Exception as e:
-                messages.error(request, f"Erreur: {str(e)}")
-        else:
-            for field, errors in userform.errors.items():
-                for error in errors:
-                    messages.error(request, f"Erreur dans {field}: {error}")
-            for field, errors in gerantform.errors.items():
-                for error in errors:
-                    messages.error(request, f"Erreur dans {field}: {error}")
-    else:
-        userform = CustomUserCreationForm()
-        gerantform = GerantForm()
-        permission_form = UserPermissionForm()
-    return render(request, 'add_gerant.html', {
-        'user_form': userform,
-        'gerantform_form': gerantform,
-        'cxt': cxt,
-        'employes': employ,
-        'list_gerant': list_gerant,
-        'permission_form': permission_form,
-    })
-
-def delete_gerant(request, pk):
-    try:
-        gerant = get_object_or_404(Gerant, id=pk)
-        user = gerant.user  
-        gerant.delete()
-        user.delete()
-        messages.success(request, f"Le gérant {user.username} été supprimés avec succès.")
-    except Exception as e:
-        messages.error(request, f"Erreur lors de la suppression : {str(e)}")
-    return redirect('addgerant')
-
-@login_required(login_url='/login/')
-def edit_gerant(request, pk):
-    """Vue pour charger le formulaire d'édition d'un gérant dans un modal"""
-    try:
-        gerant = get_object_or_404(Gerant, id=pk)
-        user = gerant.user
-        is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
-        
-        if request.method == 'POST':
-            form = GerantEditForm(request.POST, instance=gerant)
-            if form.is_valid():
-                try:
-                    # Mettre à jour CustomUser
-                    user.username = form.cleaned_data['username']
-                    user.email = form.cleaned_data['email']
-                    user.gender = form.cleaned_data['gender']
-                    user.save()
-                    
-                    # Mettre à jour Gerant
-                    gerant.nom = form.cleaned_data['nom']
-                    gerant.prenom = form.cleaned_data['prenom']
-                    gerant.commune = form.cleaned_data['commune']
-                    gerant.tel1 = form.cleaned_data['tel1']
-                    gerant.tel2 = form.cleaned_data['tel2']
-                    gerant.save()
-                    
-                    # Mettre à jour les catégories de véhicules (ManyToMany)
-                    categories_vehicules = form.cleaned_data.get('gerant_voiture', [])
-                    gerant.gerant_voiture.set(categories_vehicules)
-                    
-                    if is_ajax:
-                        return JsonResponse({
-                            'success': True,
-                            'message': 'Compte gérant modifié avec succès.'
-                        })
-                    messages.success(request, 'Compte gérant modifié avec succès.')
-                    return redirect('addgerant')
-                except Exception as e:
-                    if is_ajax:
-                        return JsonResponse({
-                            'success': False,
-                            'message': f"Erreur: {str(e)}"
-                        })
-                    messages.error(request, f"Erreur: {str(e)}")
-        else:
-            form = GerantEditForm(instance=gerant)
-        
-        # Si c'est une requête AJAX, retourner seulement le contenu de la modal
-        if is_ajax:
-            try:
-                html = render_to_string('edit_gerant_modal.html', {
-                    'form': form,
-                    'gerant': gerant,
-                    'user': user
-                }, request=request)
-                return JsonResponse({'html': html})
-            except Exception as e:
-                import traceback
-                error_detail = traceback.format_exc()
-                return JsonResponse({
-                    'html': f'<div class="alert alert-danger">Erreur lors du rendu du formulaire: {str(e)}<br><small>{error_detail}</small></div>'
-                }, status=500)
-        
-        return render(request, 'edit_gerant.html', {
-            'form': form,
-            'gerant': gerant,
-            'user': user
-        })
-    except Exception as e:
-        import traceback
-        error_detail = traceback.format_exc()
-        is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
-        if is_ajax:
-            return JsonResponse({
-                'html': f'<div class="alert alert-danger">Erreur lors du chargement: {str(e)}<br><small>{error_detail}</small></div>'
-            }, status=500)
-        messages.error(request, f"Erreur: {str(e)}")
-        return redirect('addgerant')
-
-@login_required(login_url='/login/')
-def edit_gerant_by_user(request, user_id):
-    """Vue pour charger le formulaire d'édition d'un gérant à partir de son user_id (pour liste_compte.html)"""
-    try:
-        user = get_object_or_404(CustomUser, id=user_id)
-        if user.user_type != "4":
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({
-                    'success': False,
-                    'message': 'Cet utilisateur n\'est pas un gérant.'
-                })
-            messages.error(request, "Cet utilisateur n'est pas un gérant.")
-            return redirect('compte')
-        
+        user_obj = get_object_or_404(CustomUser, id=user_id, is_superuser=False)
+        if user_obj == request.user:
+            messages.error(request, "Vous ne pouvez pas supprimer votre propre compte.")
+            return redirect('register')
+        label = user_obj.username
         try:
-            gerant = user.gerants.get()
-        except Gerant.DoesNotExist:
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({
-                    'success': False,
-                    'message': 'Profil gérant introuvable.'
-                })
-            messages.error(request, "Profil gérant introuvable.")
-            return redirect('compte')
-        
-        is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
-        
-        if request.method == 'POST':
-            form = GerantEditForm(request.POST, instance=gerant)
-            if form.is_valid():
-                try:
-                    # Mettre à jour CustomUser
-                    user.username = form.cleaned_data['username']
-                    user.email = form.cleaned_data['email']
-                    user.gender = form.cleaned_data['gender']
-                    user.save()
-                    
-                    # Mettre à jour Gerant
-                    gerant.nom = form.cleaned_data['nom']
-                    gerant.prenom = form.cleaned_data['prenom']
-                    gerant.commune = form.cleaned_data['commune']
-                    gerant.tel1 = form.cleaned_data['tel1']
-                    gerant.tel2 = form.cleaned_data['tel2']
-                    gerant.save()
-                    
-                    # Mettre à jour les catégories de véhicules (ManyToMany)
-                    categories_vehicules = form.cleaned_data.get('gerant_voiture', [])
-                    gerant.gerant_voiture.set(categories_vehicules)
-                    
-                    if is_ajax:
-                        return JsonResponse({
-                            'success': True,
-                            'message': 'Compte gérant modifié avec succès.'
-                        })
-                    messages.success(request, 'Compte gérant modifié avec succès.')
-                    return redirect('compte')
-                except Exception as e:
-                    if is_ajax:
-                        return JsonResponse({
-                            'success': False,
-                            'message': f"Erreur: {str(e)}"
-                        })
-                    messages.error(request, f"Erreur: {str(e)}")
-        else:
-            form = GerantEditForm(instance=gerant)
-        
-        # Si c'est une requête AJAX, retourner seulement le contenu de la modal
-        if is_ajax:
-            try:
-                html = render_to_string('edit_gerant_by_user_modal.html', {
-                    'form': form,
-                    'gerant': gerant,
-                    'user': user
-                }, request=request)
-                return JsonResponse({'html': html})
-            except Exception as e:
-                import traceback
-                error_detail = traceback.format_exc()
-                return JsonResponse({
-                    'html': f'<div class="alert alert-danger">Erreur lors du rendu du formulaire: {str(e)}<br><small>{error_detail}</small></div>'
-                }, status=500)
-        
-        return render(request, 'edit_gerant.html', {
-            'form': form,
-            'gerant': gerant,
-            'user': user
-        })
+            user_obj.profile.delete()
+        except UserProfile.DoesNotExist:
+            pass
+        user_obj.delete()
+        messages.success(request, f"Le compte {label} a été supprimé avec succès.")
     except Exception as e:
-        import traceback
-        error_detail = traceback.format_exc()
-        is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
-        if is_ajax:
-            return JsonResponse({
-                'html': f'<div class="alert alert-danger">Erreur lors du chargement: {str(e)}<br><small>{error_detail}</small></div>'
-            }, status=500)
-        messages.error(request, f"Erreur: {str(e)}")
-        return redirect('compte')
+        messages.error(request, f"Erreur lors de la suppression : {str(e)}")
+    return redirect('register')
+
 
 def password_success(request):
     return render(request,'userauths/success.html')
@@ -653,6 +231,82 @@ def pb_home(request):
     # return render(request,'perfect/pb_home.html')
     
 MAX_LOGIN_ATTEMPTS = 3  # nombre d'échecs autorisés avant blocage automatique
+
+
+def _create_user_with_password(user, password, user_type):
+    user.user_type = user_type
+    user.email_verified = False
+    user.is_active = False
+    user.set_password(password)
+    user.save()
+    PasswordHistory.objects.create(user=user, password_hash=user.password)
+
+
+def _record_login_history(request, user, *, successful, failure_reason=''):
+    ip = get_client_ip(request) or '127.0.0.1'
+    LoginHistory.objects.create(
+        user=user,
+        ip_address=ip,
+        user_agent=(request.META.get('HTTP_USER_AGENT') or '')[:500],
+        login_successful=successful,
+        failure_reason=failure_reason,
+    )
+
+
+def verify_email_view(request, token):
+    try:
+        token_obj = EmailVerificationToken.objects.select_related('user').get(token=token, used=False)
+    except EmailVerificationToken.DoesNotExist:
+        messages.error(request, "Lien d'activation invalide ou déjà utilisé.")
+        return redirect('login')
+
+    if not token_obj.is_valid():
+        messages.error(request, "Le lien d'activation a expiré. Contactez l'administrateur pour en recevoir un nouveau.")
+        return redirect('login')
+
+    user = token_obj.user
+    now = timezone.now()
+    user.email_verified = True
+    user.email_verified_at = now
+    user.is_active = True
+    user.save(update_fields=['email_verified', 'email_verified_at', 'is_active'])
+
+    token_obj.used = True
+    token_obj.used_at = now
+    token_obj.save(update_fields=['used', 'used_at'])
+    EmailVerificationToken.objects.filter(user=user, used=False).exclude(id=token_obj.id).update(
+        used=True, used_at=now,
+    )
+
+    messages.success(request, "Votre compte a été activé avec succès. Vous pouvez maintenant vous connecter.")
+    return redirect('login')
+
+
+class ResendActivationView(View):
+    def get(self, request):
+        return render(request, 'perfect/resend_activation.html')
+
+    def post(self, request):
+        email = (request.POST.get('email') or '').strip()
+        try:
+            user = CustomUser.objects.get(email=email)
+        except CustomUser.DoesNotExist:
+            messages.error(request, "Aucun compte trouvé avec cette adresse email.")
+            return render(request, 'perfect/resend_activation.html')
+
+        if user.email_verified:
+            messages.info(request, "Ce compte est déjà activé. Vous pouvez vous connecter.")
+            return redirect('login')
+
+        if send_activation_resend_email(user):
+            messages.success(
+                request,
+                f"Un nouveau lien d'activation a été envoyé à {user.email}. Vérifiez votre boîte de réception.",
+            )
+            return redirect('login')
+
+        messages.error(request, "L'email d'activation n'a pas pu être envoyé. Réessayez plus tard.")
+        return render(request, 'perfect/resend_activation.html')
 
 
 def loginview(request):
@@ -670,15 +324,35 @@ def loginview(request):
         except CustomUser.DoesNotExist:
             existing_user = None
 
-        # 2) Si le compte existe mais est déjà bloqué → message dédié, on ne tente pas l'auth.
+        # 2) Compte non activé par email.
+        if existing_user is not None and not existing_user.email_verified:
+            _record_login_history(
+                request,
+                existing_user,
+                successful=False,
+                failure_reason="Compte non activé par email",
+            )
+            messages.error(
+                request,
+                "Votre compte n'est pas encore activé. Veuillez cliquer sur le lien reçu par email.",
+            )
+            return render(request, "perfect/logins.html")
+
+        # 3) Compte bloqué (administrateur ou tentatives infructueuses).
         if existing_user is not None and not existing_user.is_active:
+            _record_login_history(
+                request,
+                existing_user,
+                successful=False,
+                failure_reason="Compte bloqué",
+            )
             messages.error(
                 request,
                 "Votre compte est bloqué. Veuillez contacter l'administrateur de l'application.",
             )
             return render(request, "perfect/logins.html")
 
-        # 3) Authentification.
+        # 4) Authentification.
         user = authenticate(request, email=email, password=password) if existing_user else None
 
         if user is not None:
@@ -688,6 +362,9 @@ def loginview(request):
                     failed_login_attempts=0,
                     date_blocage=None,
                 )
+            user.last_activity = timezone.now()
+            user.save(update_fields=['last_activity'])
+            _record_login_history(request, user, successful=True)
             login(request, user)
             user_type = user.user_type
             if user_type == '1':
@@ -704,8 +381,7 @@ def loginview(request):
                 return redirect('dashgarage')
             else:
                 return redirect('login')
-
-        # 4) Échec d'authentification.
+        # 5) Échec d'authentification.
         if existing_user is not None:
             # Le compte existe → on incrémente le compteur d'échecs.
             existing_user.failed_login_attempts = (existing_user.failed_login_attempts or 0) + 1
@@ -716,6 +392,12 @@ def loginview(request):
                 existing_user.save(update_fields=[
                     'failed_login_attempts', 'is_active', 'date_blocage',
                 ])
+                _record_login_history(
+                    request,
+                    existing_user,
+                    successful=False,
+                    failure_reason="Blocage après 3 tentatives infructueuses",
+                )
                 messages.error(
                     request,
                     "Votre compte est bloqué après 3 tentatives infructueuses. "
@@ -723,6 +405,12 @@ def loginview(request):
                 )
             else:
                 existing_user.save(update_fields=['failed_login_attempts'])
+                _record_login_history(
+                    request,
+                    existing_user,
+                    successful=False,
+                    failure_reason="Identifiants invalides",
+                )
                 restant = MAX_LOGIN_ATTEMPTS - existing_user.failed_login_attempts
                 messages.error(
                     request,
@@ -739,7 +427,7 @@ def logout_view(request):
     user=request.user
     logout(request)
     messages.success(request, f"Vous êtes deconnecté {user.username}")
-    return redirect("home")
+    return redirect("login")
 
 @require_POST
 @login_required(login_url="login")
@@ -759,107 +447,157 @@ class ForgotPasswordView(View):
 
 class RequestEmailView(View):
     def post(self, request):
-        email = request.POST.get('email')
+        email = request.POST.get('email', '').strip()
         try:
             user = CustomUser.objects.get(email=email)
-            otp = ''.join(random.choices('0123456789', k=4))
-            PWD_FORGET.objects.create(user_id=user, otp=otp, status='0')
 
-            subject = 'Votre OTP de réinitialisation de mot de passe'
-            from_email = settings.EMAIL_HOST_USER
-            to = [email]
+            PasswordResetOTP.objects.filter(
+                user=user,
+                used=False,
+            ).update(used=True, used_at=timezone.now())
 
-            # HTML message
-            html_content = f'''
-           <!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset="UTF-8">
-                <title>Réinitialisation du mot de passe</title>
-            </head>
-            <body style="font-family: Arial, sans-serif; line-height: 1.6;">
-                <div style="max-width: 100%; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
-                    <h2 style="text-align: center; color: #333;">REINITIALISATION DE MOT DE PASSE</h2>
-                    <p>Bonjour cher {user.username},</p>
-                    <p>Vous avez demandé à réinitialiser votre mot de passe. Veuillez utiliser le code OTP ci-dessous pour compléter cette action :</p>
-                    
-                    <div style="text-align: center; margin: 20px 0;">
-                        <p style="font-size: 20px; font-weight: bold; color: #2c3e50;">Votre code OTP : <span style="color: #e74c3c;">{otp}</span></p>
-                    </div>
-                    
-                    <p style="color: #555;">Ce code est valable pour une durée limitée. Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer cet e-mail. Pour toute assistance, veuillez nous contacter immédiatement.</p>
-            
-                    <p>Merci de votre confiance.</p>
-            
-                    <p>Cordialement,<br>L'équipe support</p>
-            
-                    <footer style="margin-top: 20px; text-align: center; font-size: 12px; color: #999;">
-                        &copy; 2024-2025 P&BEntreprise - Thrive One. Tous droits réservés.
-                    </footer>
-                </div>
-            </body>
-            </html>
-            '''
-            # Create email message with HTML content
-            email_message = EmailMultiAlternatives(subject, 'Votre OTP est {otp}', from_email, to)
-            email_message.attach_alternative(html_content, 'text/html')
-            email_message.send()
+            otp_obj = PasswordResetOTP.objects.create(
+                user=user,
+                ip_address=get_client_ip(request),
+            )
+
+            if not send_password_reset_otp_email(user, otp_obj.otp):
+                messages.error(request, "L'email de réinitialisation n'a pas pu être envoyé.")
+                return render(request, "perfect/forgot_password.html")
+
+            for key in ('password_reset_otp_id', 'password_reset_email', 'password_reset_otp_verified'):
+                request.session.pop(key, None)
+            request.session['password_reset_email'] = email
+            request.session.modified = True
+
+            messages.success(
+                request,
+                f"Un code de vérification a été envoyé à {user.email}. Il est valide pendant 5 minutes.",
+            )
             return redirect("otp")
         except CustomUser.DoesNotExist:
             messages.error(request, "Utilisateur non trouvé.")
-            return  render(request, "perfect/forgot_password.html")
+            return render(request, "perfect/forgot_password.html")
 
-# Vue pour vérifier l'OTP envoyé par email
-CustomUser = get_user_model()
-from django.utils import timezone
+
+def _clear_password_reset_session(request):
+    for key in ('password_reset_otp_id', 'password_reset_email', 'password_reset_otp_verified'):
+        request.session.pop(key, None)
+    request.session.modified = True
+
+
 class VerifyOtpView(View):
     def get(self, request):
+        if not request.session.get('password_reset_otp_verified'):
+            messages.error(request, "Veuillez d'abord vérifier votre code OTP.")
+            return redirect('otp')
         return render(request, 'perfect/reinitialise.html')
+
     def post(self, request):
-        otp = request.session.get('otp')
+        if not request.session.get('password_reset_otp_verified'):
+            messages.error(request, "Veuillez d'abord vérifier votre code OTP.")
+            return redirect('otp')
+
         new_password = request.POST.get('new_password')
         confirm_password = request.POST.get('confirm_password')
+        email = request.session.get('password_reset_email')
+        otp_id = request.session.get('password_reset_otp_id')
 
-        if not otp or not new_password or not confirm_password:
-            return JsonResponse({'error': 'Tous les champs sont obligatoires.'}, status=400)
-        
+        if not new_password or not confirm_password:
+            messages.error(request, "Tous les champs sont obligatoires.")
+            return render(request, "perfect/reinitialise.html")
+
         if new_password != confirm_password:
             messages.error(request, "Les mots de passe ne correspondent pas.")
-            return  render(request, "perfect/reinitialise.html")
-        try:
-            reset_request = PWD_FORGET.objects.get(otp=otp, status='0')
-            # Vérifiez si l'OTP à expirer
-            if (timezone.now() - reset_request.creat_at).total_seconds() > 300:  # 2 minutes
-                messages.error(request, "OTP expiré")
-                return redirect('otp')
-            # Marquer l'OTP comme utilisé
-            reset_request.status = '1'
-            reset_request.save()
+            return render(request, "perfect/reinitialise.html")
 
-            # Réinitialiser le mot de passe
-            user = reset_request.user_id
+        if not email or not otp_id:
+            messages.error(request, "Session expirée. Veuillez recommencer le processus.")
+            _clear_password_reset_session(request)
+            return redirect('mot_passe_oublie')
+
+        try:
+            user = CustomUser.objects.get(email=email)
+            otp_obj = PasswordResetOTP.objects.get(id=otp_id, user=user, used=False)
+        except (CustomUser.DoesNotExist, PasswordResetOTP.DoesNotExist):
+            messages.error(request, "Code OTP invalide. Veuillez recommencer le processus.")
+            _clear_password_reset_session(request)
+            return redirect('mot_passe_oublie')
+
+        if not otp_obj.is_valid():
+            messages.error(request, "Le code OTP a expiré. Veuillez demander un nouveau code.")
+            _clear_password_reset_session(request)
+            return redirect('mot_passe_oublie')
+
+        with transaction.atomic():
             user.password = make_password(new_password)
-            user.save()
-            messages.success(request, 'Mot de passe réinitialisé avec succès.')
-            return redirect('login')
-        
-        except PWD_FORGET.DoesNotExist:
-            messages.error(request, 'OTP non valide.')
-            return  render(request, "perfect/otp.html")
+            user.save(update_fields=['password'])
+            PasswordHistory.objects.create(user=user, password_hash=user.password)
+            otp_obj.used = True
+            otp_obj.used_at = timezone.now()
+            otp_obj.save(update_fields=['used', 'used_at'])
+            PasswordResetOTP.objects.filter(
+                user=user,
+                used=False,
+            ).exclude(id=otp_obj.id).update(used=True, used_at=timezone.now())
+
+        _clear_password_reset_session(request)
+        messages.success(request, 'Mot de passe réinitialisé avec succès.')
+        return redirect('login')
+
 
 class OptValid(View):
     def get(self, request):
-        return render(request, 'perfect/otp.html')
+        email = request.session.get('password_reset_email')
+        if not email:
+            messages.error(request, "Veuillez d'abord saisir votre adresse email.")
+            return redirect('mot_passe_oublie')
+        return render(request, 'perfect/otp.html', {'email': email})
+
     def post(self, request):
-        otp = request.POST.get('otp')
-        try :
-            reset_request = PWD_FORGET.objects.get(otp=otp, status='0')
-            request.session['otp'] = otp
-            if reset_request :
-                return redirect("verify_otp")
-        except PWD_FORGET.DoesNotExist:
-                 messages.error(request, "OTP non valide.")
-                 return  render(request, "perfect/otp.html")
+        email = request.session.get('password_reset_email')
+        if not email:
+            messages.error(request, "Session expirée. Veuillez recommencer le processus.")
+            return redirect('mot_passe_oublie')
+
+        otp = request.POST.get('otp', '').strip()
+        if len(otp) != 6 or not otp.isdigit():
+            messages.error(request, "Le code OTP doit contenir 6 chiffres.")
+            return render(request, 'perfect/otp.html', {'email': email})
+
+        try:
+            user = CustomUser.objects.get(email=email)
+            otp_obj = PasswordResetOTP.objects.filter(
+                user=user,
+                otp=otp,
+                used=False,
+            ).order_by('-created_at').first()
+
+            if not otp_obj:
+                messages.error(request, "Code OTP invalide. Veuillez vérifier et réessayer.")
+                return render(request, 'perfect/otp.html', {'email': email})
+
+            if not otp_obj.is_valid():
+                otp_obj.increment_attempts()
+                if otp_obj.attempts >= 5:
+                    messages.error(request, "Trop de tentatives échouées. Veuillez demander un nouveau code.")
+                    return redirect('mot_passe_oublie')
+                if timezone.now() >= otp_obj.expires_at:
+                    messages.error(request, "Le code OTP a expiré. Veuillez demander un nouveau code.")
+                else:
+                    messages.error(request, "Code OTP invalide ou expiré.")
+                return render(request, 'perfect/otp.html', {'email': email})
+
+            request.session['password_reset_otp_id'] = otp_obj.id
+            request.session['password_reset_otp_verified'] = True
+            request.session.modified = True
+            messages.success(request, "Code OTP vérifié avec succès. Définissez votre nouveau mot de passe.")
+            return redirect("verify_otp")
+
+        except CustomUser.DoesNotExist:
+            messages.error(request, "Utilisateur non trouvé.")
+            _clear_password_reset_session(request)
+            return redirect('mot_passe_oublie')
                      
 class PasswordChangeView(PasswordChangeView):
     form_class = ChangePasswordForm
@@ -878,174 +616,21 @@ class PasswordChangeView(PasswordChangeView):
     def get(self, request, *args, **kwargs):
         form = self.get_form()
         user = get_object_or_404(CustomUser, id=request.user.id)
-        admin_profil = None
-        chefexploit_profil = None
-        comptable_profil = None
-        gerant_profil = None
-        
-        if user.user_type == "1":
-            try:
-                admin_profil = Administ.objects.get(user=user)
-            except Administ.DoesNotExist:
-                admin_profil = None
-        elif user.user_type == "2":
-            try:
-                chefexploit_profil = Chefexploitation.objects.get(user=user)
-            except Chefexploitation.DoesNotExist:
-                chefexploit_profil = None
-                
-        elif user.user_type == "3":
-            try:
-                comptable_profil = Comptable.objects.get(user=user)
-            except Comptable.DoesNotExist:
-                comptable_profil = None
-        
-        elif user.user_type == "4":
-            try:
-                gerant_profil = Gerant.objects.get(user=user)
-            except Gerant.DoesNotExist:
-                gerant_profil = None
-        else: 
-            print()
-
-        # Récupérer les permissions personnalisées de l'utilisateur
-        from userauths.models import TypeCustomPermission
-        grouped_permissions = {}
-        for category in TypeCustomPermission.objects.all():
-            perms = category.cat_permis.filter(users=user)
-            if perms.exists():
-                grouped_permissions[category] = perms
-        
-        # Récupérer toutes les permissions personnalisées (sans groupement)
-        custom_permissions = user.custom_permissions.all()
-        
-        # Récupérer les permissions système (Django permissions)
-        system_permissions = user.user_permissions.all()
-
-        # Passer les informations récupérées au contexte
-        context = {
-            'form': form,
-            'user': user,
-            'admin_profil': admin_profil,
-            'chefexploit_profil': chefexploit_profil,
-            'comptable_profil': comptable_profil,
-            'gerant_profil': gerant_profil,
-            'grouped_permissions': grouped_permissions,
-            'custom_permissions': custom_permissions,
-            'system_permissions': system_permissions,
-        }
+        context = {'form': form, **build_profile_page_context(user)}
         return render(request, self.template_name, context)
-    
+
     def post(self, request, *args, **kwargs):
         form = self.get_form()
         user = get_object_or_404(CustomUser, id=request.user.id)
-        admin_profil = None
-        chefexploit_profil = None
-        comptable_profil = None
-        gerant_profil = None
-        
-        if user.user_type == "1":
-            try:
-                admin_profil = Administ.objects.get(user=user)
-            except Administ.DoesNotExist:
-                admin_profil = None
-        elif user.user_type == "2":
-            try:
-                chefexploit_profil = Chefexploitation.objects.get(user=user)
-            except Chefexploitation.DoesNotExist:
-                chefexploit_profil = None
-        elif user.user_type == "3":
-            try:
-                comptable_profil = Comptable.objects.get(user=user)
-            except Comptable.DoesNotExist:
-                comptable_profil = None
-        elif user.user_type == "4":
-            try:
-                gerant_profil = Gerant.objects.get(user=user)
-            except Gerant.DoesNotExist:
-                gerant_profil = None
-        # Récupérer les permissions personnalisées de l'utilisateur
-        from userauths.models import TypeCustomPermission
-        grouped_permissions = {}
-        for category in TypeCustomPermission.objects.all():
-            perms = category.cat_permis.filter(users=user)
-            if perms.exists():
-                grouped_permissions[category] = perms
-        # Récupérer toutes les permissions personnalisées (sans groupement)
-        custom_permissions = user.custom_permissions.all()
-        # Récupérer les permissions système (Django permissions)
-        system_permissions = user.user_permissions.all()
-
         if form.is_valid():
             return self.form_valid(form)
-        else:
-            # Ajouter le contexte pour afficher les erreurs
-            context = {
-                'form': form,
-                'user': user,
-                'admin_profil': admin_profil,
-                'chefexploit_profil': chefexploit_profil,
-                'comptable_profil': comptable_profil,
-                'gerant_profil': gerant_profil,
-                'grouped_permissions': grouped_permissions,
-                'custom_permissions': custom_permissions,
-                'system_permissions': system_permissions,
-            }
-            return self.render_to_response(context)
-    
+        context = {'form': form, **build_profile_page_context(user)}
+        return self.render_to_response(context)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = get_object_or_404(CustomUser, id=self.request.user.id)
-        admin_profil = None
-        chefexploit_profil = None
-        comptable_profil = None
-        gerant_profil = None
-        
-        if user.user_type == "1":
-            try:
-                admin_profil = Administ.objects.get(user=user)
-            except Administ.DoesNotExist:
-                admin_profil = None
-        elif user.user_type == "2":
-            try:
-                chefexploit_profil = Chefexploitation.objects.get(user=user)
-            except Chefexploitation.DoesNotExist:
-                chefexploit_profil = None
-        elif user.user_type == "3":
-            try:
-                comptable_profil = Comptable.objects.get(user=user)
-            except Comptable.DoesNotExist:
-                comptable_profil = None
-        elif user.user_type == "4":
-            try:
-                gerant_profil = Gerant.objects.get(user=user)
-            except Gerant.DoesNotExist:
-                gerant_profil = None
-
-        # Récupérer les permissions personnalisées de l'utilisateur
-        from userauths.models import TypeCustomPermission
-        grouped_permissions = {}
-        for category in TypeCustomPermission.objects.all():
-            perms = category.cat_permis.filter(users=user)
-            if perms.exists():
-                grouped_permissions[category] = perms
-        
-        # Récupérer toutes les permissions personnalisées (sans groupement)
-        custom_permissions = user.custom_permissions.all()
-        
-        # Récupérer les permissions système (Django permissions)
-        system_permissions = user.user_permissions.all()
-
-        context.update({
-            'user': user,
-            'admin_profil': admin_profil,
-            'chefexploit_profil': chefexploit_profil,
-            'comptable_profil': comptable_profil,
-            'gerant_profil': gerant_profil,
-            'grouped_permissions': grouped_permissions,
-            'custom_permissions': custom_permissions,
-            'system_permissions': system_permissions,
-        })
+        context.update(build_profile_page_context(user))
         return context
 
 class PasswordChangeDoneView(View):

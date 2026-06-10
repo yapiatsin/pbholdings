@@ -1,0 +1,149 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="{% static 'icn.png' %}" rel="icon">
+    <title>Erreur 404 – Page introuvable</title>
+    <link rel="stylesheet" href="{% static 'pb/plugins/fontawesome-free/css/all.min.css' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: 'Montserrat', 'Segoe UI', sans-serif;
+        }
+
+        .page-404 {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1.25rem;
+            background-color: #ffffff;
+            background-image:
+                radial-gradient(circle at 15% 15%, rgba(245, 176, 65, 0.07) 0, transparent 40%),
+                radial-gradient(circle at 85% 85%, rgba(170, 183, 184, 0.1) 0, transparent 42%);
+        }
+
+        .page-404__content {
+            width: min(760px, 100%);
+            text-align: center;
+        }
+
+        .page-404__illustration {
+            width: min(680px, 100%);
+            height: auto;
+            display: block;
+            margin: 0 auto 1.5rem;
+        }
+
+        .page-404__title {
+            margin: 0 0 0.75rem;
+            color: #f5a623;
+            font-size: clamp(1.15rem, 2.8vw, 1.65rem);
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        .page-404__subtitle {
+            margin: 0 auto 1.5rem;
+            max-width: 520px;
+            color: #95a5a6;
+            font-size: clamp(0.95rem, 2.2vw, 1.1rem);
+            font-weight: 400;
+            line-height: 1.6;
+        }
+
+        .page-404__path {
+            margin: 0 auto 1.75rem;
+            color: #b0bec5;
+            font-size: 0.85rem;
+            word-break: break-all;
+        }
+
+        .page-404__actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            justify-content: center;
+        }
+
+        .page-404__btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.8rem 1.35rem;
+            border-radius: 999px;
+            border: 1px solid rgba(168, 50, 50, 0.35);
+            background: rgba(255, 255, 255, 0.92);
+            color: #a83232;
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+        }
+
+        .page-404__btn:hover {
+            background: #a83232;
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+
+        .page-404__btn--primary {
+            background: #f5a623;
+            border-color: #f5a623;
+            color: #ffffff;
+        }
+
+        .page-404__btn--primary:hover {
+            background: #e09412;
+            border-color: #e09412;
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+    <section class="page-404">
+        <div class="page-404__content">
+            <img
+                src="{% static 'pb/img/page-404.png' %}"
+                alt="Illustration 404 - page introuvable"
+                class="page-404__illustration"
+            >
+            <h1 class="page-404__title">Erreur 404 – Page introuvable</h1>
+            <p class="page-404__subtitle">La page que vous avez demandée est introuvable ou a été déplacée.</p>
+            {% if request.path %}
+                <p class="page-404__path">{{ request.path }}</p>
+            {% endif %}
+            <div class="page-404__actions">
+                <a href="{% url 'home' %}" class="page-404__btn page-404__btn--primary">
+                    <i class="fas fa-home"></i> Retour à l'accueil
+                </a>
+                {% if user.is_authenticated %}
+                    {% for categorie, perms in grouped_permissions.items %}
+                        {% if categorie.categorie == "bord" %}
+                            {% for perm in perms %}
+                                <a href="{% url perm.url %}" class="page-404__btn">
+                                    <i class="fas fa-tachometer-alt"></i> {{ perm.name }}
+                                </a>
+                            {% endfor %}
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    <a href="{% url 'login' %}" class="page-404__btn">
+                        <i class="fas fa-sign-in-alt"></i> Se connecter
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+</body>
+</html>

@@ -3,8 +3,7 @@ from shortuuid.django_fields import ShortUUIDField
 from django.utils.html import mark_safe 
 from django.utils import timezone
 from userauths.models import CustomUser
-from simple_history.models import HistoricalRecords 
-from userauths.models import Administ
+from simple_history.models import HistoricalRecords
 #-------------------------categorie de vehicule-----------------------------#
 class CategoVehi(models.Model):
     cid = ShortUUIDField(unique=True, length=6, prefix='AT', alphabet="abcd1234")
@@ -361,16 +360,40 @@ class Assurance(models.Model):
         jours_assu_restant = (self.date_proch - timezone.now().date()).days
         return jours_assu_restant
 
-class Gerant(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE,related_name='gerants')
-    create_by = models.ForeignKey(Administ, on_delete=models.CASCADE, related_name="admingerants")
-    gerant_voiture = models.ManyToManyField(CategoVehi, blank=True, related_name="gerants")
-    nom = models.CharField(max_length=255,)
-    prenom = models.CharField(max_length=30,)
-    commune = models.CharField(max_length=255, null=True, blank=True)
-    tel1 = models.CharField(max_length=255, null=True, blank=True)
-    tel2 = models.CharField(max_length=255, null=True, blank=True)
-    date_creation=models.DateField(auto_now_add=True)
-    objects = models.Manager()
+class UserProfile(models.Model):
+    """Profil unifié (admin, chef exploitation, comptable, gérant)."""
+    user = models.OneToOneField(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name='profile',
+        verbose_name="Utilisateur",
+    )
+    nom = models.CharField(max_length=255, blank=True, verbose_name="Nom")
+    prenom = models.CharField(max_length=100, blank=True, verbose_name="Prénom")
+    commune = models.CharField(max_length=255, null=True, blank=True, verbose_name="Commune")
+    tel1 = models.CharField(max_length=255, null=True, blank=True, verbose_name="Téléphone 1")
+    tel2 = models.CharField(max_length=255, null=True, blank=True, verbose_name="Téléphone 2")
+    profession = models.CharField(max_length=50, null=True, blank=True, verbose_name="Profession")
+    create_by = models.ForeignKey(
+        CustomUser,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='profiles_created',
+        verbose_name="Créé par",
+    )
+    gerant_voiture = models.ManyToManyField(
+        CategoVehi,
+        blank=True,
+        related_name='gerant_profiles',
+        verbose_name="Catégories gérées (gérant)",
+    )
+    date_creation = models.DateField(auto_now_add=True, verbose_name="Date de création")
+
+    class Meta:
+        verbose_name = "Profil utilisateur"
+        verbose_name_plural = "Profils utilisateurs"
+        ordering = ['-date_creation']
+
     def __str__(self):
-        return '%s - %s - %s ' %(self.nom, self.user.user_type, self.user.username)
+        return f'{self.user.email} - {self.nom or self.user.username}'

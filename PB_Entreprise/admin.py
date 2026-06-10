@@ -96,6 +96,10 @@ class SoldeJourAdmin(admin.ModelAdmin):
     list_display = ['montant', 'date', 'date_saisie', 'auteur']
     list_filter = ['montant', 'date']
 
+class UserProfileAdmin(admin.ModelAdmin):
+    list_display = ['user', 'nom', 'prenom', 'commune', 'tel1', 'date_creation']
+    list_filter = ['user__user_type', 'date_creation']
+
 admin.site.register(Autrarret, AutrarretAdmin)
 admin.site.register(SoldeJour, SoldeJourAdmin)
 admin.site.register(Billetage, BilletageAdmin)
@@ -118,4 +122,4 @@ admin.site.register(CategoVehi, CategoVehiAdmin)
 admin.site.register(ChargeFixe, ChargeFixeAdmin)
 admin.site.register(Assurance, AssuranceAdmin)
 admin.site.register(ChargeVariable, ChargeVariableAdmin)
-admin.site.register(Gerant)
+admin.site.register(UserProfile, UserProfileAdmin)

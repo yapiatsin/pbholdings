@@ -51,7 +51,7 @@ def permission_denied_view(request, exception):
     return render(request, 'no_acces.html',status=403)
 
 def custom_404_view(request, exception):
-    return render(request, 'no_acces.html',status=404)
+    return render(request, 'perfect/page_404.html', status=404)
 
 def temp_arr(request):
     # return render(request, 'perfect/dashboard.html')
@@ -402,13 +402,13 @@ class TableaustopView(CustomPermissionRequiredMixin,TemplateView):
         user = self.request.user
         if user.user_type == "4":
             try:
-                gerant = user.gerants.get()
+                gerant = user.profile
                 categories_gerant = gerant.gerant_voiture.all()
                 if categories_gerant.exists():  
                     vehicules = Vehicule.objects.filter(category__in=categories_gerant, car_statut=True)
                 else:
                     vehicules = Vehicule.objects.none()
-            except Gerant.DoesNotExist:
+            except UserProfile.DoesNotExist:
                 vehicules = Vehicule.objects.none()
         else:
             vehicules = Vehicule.objects.filter(car_statut=True)
@@ -438,13 +438,13 @@ class TableaustopView(CustomPermissionRequiredMixin,TemplateView):
                 )
                 if user.user_type == "4":
                     try:
-                        gerant = user.gerants.get()
+                        gerant = user.profile
                         categories_gerant = gerant.gerant_voiture.all()
                         if categories_gerant.exists():
                             count = count.filter(vehicule__category__in=categories_gerant)
                         else:
                             count = count.none()
-                    except Gerant.DoesNotExist:
+                    except UserProfile.DoesNotExist:
                         count = count.none()
                 if selected_categorie_id:
                     count = count.filter(vehicule__category_id=selected_categorie_id)
@@ -582,13 +582,13 @@ class ExportTempsArretExcelView(LoginRequiredMixin, View):
         user = request.user
         if user.user_type == "4":
             try:
-                gerant = user.gerants.get()
+                gerant = user.profile
                 categories_gerant = gerant.gerant_voiture.all()
                 if categories_gerant.exists():  
                     vehicules = Vehicule.objects.filter(category__in=categories_gerant)
                 else:
                     vehicules = Vehicule.objects.none()
-            except Gerant.DoesNotExist:
+            except UserProfile.DoesNotExist:
                 vehicules = Vehicule.objects.none()
         else:
             vehicules = Vehicule.objects.all()
@@ -1885,13 +1885,13 @@ class DashboardGaragView(LoginRequiredMixin, CustomPermissionRequiredMixin, Temp
 
         if user.user_type == "4":
             try:
-                gerant = user.gerants.get()
+                gerant = user.profile
                 categories_gerant = gerant.gerant_voiture.all()
                 if categories_gerant.exists():
                     vehicules = Vehicule.objects.filter(category__in=categories_gerant)
                 else:
                     vehicules = Vehicule.objects.none()
-            except Gerant.DoesNotExist:
+            except UserProfile.DoesNotExist:
                 vehicules = Vehicule.objects.none()
         else:
             vehicules = Vehicule.objects.all()
@@ -2872,13 +2872,13 @@ class GestionalerteView(LoginRequiredMixin, CustomPermissionRequiredMixin, Templ
         user = self.request.user
         if user.user_type == "4":
             try:
-                gerant = user.gerants.get()
+                gerant = user.profile
                 categories_gerant = gerant.gerant_voiture.all()
                 if categories_gerant.exists():  
                     vehicules = Vehicule.objects.filter(category__in=categories_gerant, car_statut=True)
                 else:
                     vehicules = Vehicule.objects.none()
-            except Gerant.DoesNotExist:
+            except UserProfile.DoesNotExist:
                 vehicules = Vehicule.objects.none()
         else:
             vehicules = Vehicule.objects.filter(car_statut=True)
@@ -3195,13 +3195,13 @@ class AllVehiculeView(LoginRequiredMixin, CustomPermissionRequiredMixin, View):
         user = request.user
         if user.user_type == "4":
             try:
-                gerant = Gerant.objects.get(user=user)
+                gerant = UserProfile.objects.get(user=user)
                 categories_gerant = gerant.gerant_voiture.all()
                 if categories_gerant.exists():
                     cars = Vehicule.objects.filter(category__in=categories_gerant, car_statut=True)
                 else:
                     cars = Vehicule.objects.none()
-            except Gerant.DoesNotExist:
+            except UserProfile.DoesNotExist:
                 cars = Vehicule.objects.none()
         else:
             cars = Vehicule.objects.filter(car_statut=True)
@@ -3221,13 +3221,13 @@ class AllVehiculeView(LoginRequiredMixin, CustomPermissionRequiredMixin, View):
         cars_hors_parc = Vehicule.objects.filter(car_statut=False)
         if user.user_type == "4":
             try:
-                gerant = Gerant.objects.get(user=user)
+                gerant = UserProfile.objects.get(user=user)
                 categories_gerant = gerant.gerant_voiture.all()
                 if categories_gerant.exists():
                     cars_hors_parc = cars_hors_parc.filter(category__in=categories_gerant)
                 else:
                     cars_hors_parc = cars_hors_parc.none()
-            except Gerant.DoesNotExist:
+            except UserProfile.DoesNotExist:
                 cars_hors_parc = cars_hors_parc.none()
         if pk and categorie:
             cars_hors_parc = cars_hors_parc.filter(category=categorie)
@@ -3250,13 +3250,13 @@ class AllVehiculeHorsParrcView(LoginRequiredMixin, CustomPermissionRequiredMixin
         # Vue « hors parc » : n’afficher que les véhicules avec car_statut=False
         if user.user_type == "4":
             try:
-                gerant = Gerant.objects.get(user=user)
+                gerant = UserProfile.objects.get(user=user)
                 categories_gerant = gerant.gerant_voiture.all()
                 if categories_gerant.exists():
                     cars = Vehicule.objects.filter(category__in=categories_gerant, car_statut=False)
                 else:
                     cars = Vehicule.objects.none()
-            except Gerant.DoesNotExist:
+            except UserProfile.DoesNotExist:
                 cars = Vehicule.objects.none()
         else:
             cars = Vehicule.objects.filter(car_statut=False)
@@ -3275,13 +3275,13 @@ class AllVehiculeHorsParrcView(LoginRequiredMixin, CustomPermissionRequiredMixin
         cars_in_parc = Vehicule.objects.filter(car_statut=True)
         if user.user_type == "4":
             try:
-                gerant = Gerant.objects.get(user=user)
+                gerant = UserProfile.objects.get(user=user)
                 categories_gerant = gerant.gerant_voiture.all()
                 if categories_gerant.exists():
                     cars_in_parc = cars_in_parc.filter(category__in=categories_gerant)
                 else:
                     cars_in_parc = cars_in_parc.none()
-            except Gerant.DoesNotExist:
+            except UserProfile.DoesNotExist:
                 cars_in_parc = cars_in_parc.none()
         if pk and categorie:
             cars_in_parc = cars_in_parc.filter(category=categorie)
@@ -3408,13 +3408,13 @@ class ExportVehiculeExcelView(LoginRequiredMixin, View):
         # Gestion des permissions pour les gérants
         if user.user_type == "4":
             try:
-                gerant = Gerant.objects.get(user=user)
+                gerant = UserProfile.objects.get(user=user)
                 categories_gerant = gerant.gerant_voiture.all()
                 if categories_gerant.exists():
                     cars = Vehicule.objects.filter(category__in=categories_gerant, car_statut=True)
                 else:
                     cars = Vehicule.objects.none()
-            except Gerant.DoesNotExist:
+            except UserProfile.DoesNotExist:
                 cars = Vehicule.objects.none()
         else:
             cars = Vehicule.objects.filter(car_statut=True)
@@ -3487,13 +3487,13 @@ class ExportVehiculeHorsParcExcelView(LoginRequiredMixin, View):
         # Gestion des permissions pour les gérants
         if user.user_type == "4":
             try:
-                gerant = Gerant.objects.get(user=user)
+                gerant = UserProfile.objects.get(user=user)
                 categories_gerant = gerant.gerant_voiture.all()
                 if categories_gerant.exists():
                     cars = Vehicule.objects.filter(category__in=categories_gerant, car_statut=False)
                 else:
                     cars = Vehicule.objects.none()
-            except Gerant.DoesNotExist:
+            except UserProfile.DoesNotExist:
                 cars = Vehicule.objects.none()
         else:
             cars = Vehicule.objects.filter(car_statut=False)
@@ -3939,13 +3939,13 @@ class CarFinanceView(LoginRequiredMixin, CustomPermissionRequiredMixin,TemplateV
         user = self.request.user
         if user.user_type == "4":
             try:
-                gerant = user.gerants.get()
+                gerant = user.profile
                 categories_gerant = gerant.gerant_voiture.all()
                 if categories_gerant.exists():  
                     vehicules = Vehicule.objects.filter(category__in=categories_gerant)
                 else:
                     vehicules = Vehicule.objects.none() 
-            except Gerant.DoesNotExist:
+            except UserProfile.DoesNotExist:
                 vehicules = Vehicule.objects.none()
         else:
             vehicules = Vehicule.objects.all()
@@ -4144,13 +4144,13 @@ class SaisieGaragView(LoginRequiredMixin, CustomPermissionRequiredMixin, Templat
         user = self.request.user
         if user.user_type == "4":
             try:
-                gerant = user.gerants.get()
+                gerant = user.profile
                 categories_gerant = gerant.gerant_voiture.all()
                 if categories_gerant.exists():  
                     vehicules = Vehicule.objects.filter(category__in=categories_gerant)
                 else:
                     vehicules = Vehicule.objects.none() 
-            except Gerant.DoesNotExist:
+            except UserProfile.DoesNotExist:
                 vehicules = Vehicule.objects.none()
         else:
             vehicules = Vehicule.objects.all()
@@ -4262,13 +4262,13 @@ class TempsArretsView(LoginRequiredMixin, CustomPermissionRequiredMixin, Templat
 
         if user.user_type == "4":
             try:
-                gerant = user.gerants.get()
+                gerant = user.profile
                 categories_gerant = gerant.gerant_voiture.all()
                 if categories_gerant.exists():  
                     vehicules = Vehicule.objects.filter(category__in=categories_gerant)
                 else:
                     vehicules = Vehicule.objects.none() 
-            except Gerant.DoesNotExist:
+            except UserProfile.DoesNotExist:
                 vehicules = Vehicule.objects.none()
         else:
             vehicules = Vehicule.objects.all()
@@ -4356,13 +4356,13 @@ class SaisiComptaView(LoginRequiredMixin, CustomPermissionRequiredMixin,Template
         user = self.request.user
         if user.user_type == "4":
             try:
-                gerant = user.gerants.get()
+                gerant = user.profile
                 categories_gerant = gerant.gerant_voiture.all()
                 if categories_gerant.exists():  
                     vehicules = Vehicule.objects.filter(category__in=categories_gerant)
                 else:
                     vehicules = Vehicule.objects.none()
-            except Gerant.DoesNotExist:
+            except UserProfile.DoesNotExist:
                 vehicules = Vehicule.objects.none()
         else:
             vehicules = Vehicule.objects.all()
@@ -6004,13 +6004,13 @@ class AddAutrarretView(LoginRequiredMixin, CustomPermissionRequiredMixin, Create
         user = self.request.user
         if user.user_type == "4":
             try:
-                gerant = user.gerants.get()
+                gerant = user.profile
                 categories_gerant = gerant.gerant_voiture.all()
                 if categories_gerant.exists():  
                     vehicules = Vehicule.objects.filter(category__in=categories_gerant)
                 else:
                     vehicules = Vehicule.objects.none() 
-            except Gerant.DoesNotExist:
+            except UserProfile.DoesNotExist:
                 vehicules = Vehicule.objects.none()
         else:
             vehicules = Vehicule.objects.all()
@@ -6499,13 +6499,13 @@ class AddChargeFixView(LoginRequiredMixin, CustomPermissionRequiredMixin, Create
         date_debut = date_fin = None
         if user.user_type == "4":
             try:
-                gerant = user.gerants.get()
+                gerant = user.profile
                 categories_gerant = gerant.gerant_voiture.all()
                 if categories_gerant.exists():  
                     vehicules = Vehicule.objects.filter(category__in=categories_gerant)
                 else:
                     vehicules = Vehicule.objects.none() 
-            except Gerant.DoesNotExist:
+            except UserProfile.DoesNotExist:
                 vehicules = Vehicule.objects.none()
         else:
             vehicules = Vehicule.objects.all()
@@ -6872,13 +6872,13 @@ class AddChargeVarView(LoginRequiredMixin, CustomPermissionRequiredMixin, Create
         date_debut = date_fin = None
         if user.user_type == "4":
             try:
-                gerant = user.gerants.get()
+                gerant = user.profile
                 categories_gerant = gerant.gerant_voiture.all()
                 if categories_gerant.filter(category="VTC").exists():
                     vehicules = Vehicule.objects.filter(category__category="VTC")
                 else:
                     vehicules = Vehicule.objects.filter(category__category="TAXI")
-            except Gerant.DoesNotExist:
+            except UserProfile.DoesNotExist:
                 vehicules = Vehicule.objects.none()  
                 # No vehicles if no Gerant linked
         elif user:
@@ -7856,13 +7856,13 @@ class AddCartStationnementView(LoginRequiredMixin, CustomPermissionRequiredMixin
 
         if user.user_type == "4":
             try:
-                gerant = user.gerants.get()
+                gerant = user.profile
                 categories_gerant = gerant.gerant_voiture.all()
                 if categories_gerant.exists():
                     vehicules = Vehicule.objects.filter(category__in=categories_gerant)
                 else:
                     vehicules = Vehicule.objects.none()
-            except Gerant.DoesNotExist:
+            except UserProfile.DoesNotExist:
                 vehicules = Vehicule.objects.none()
         else:
             vehicules = Vehicule.objects.all()
@@ -8124,13 +8124,13 @@ class AddPatenteView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateVi
 
         if user.user_type == "4":
             try:
-                gerant = user.gerants.get()
+                gerant = user.profile
                 categories_gerant = gerant.gerant_voiture.all()
                 if categories_gerant.exists():  
                     vehicules = Vehicule.objects.filter(category__in=categories_gerant)
                 else:
                     vehicules = Vehicule.objects.none() 
-            except Gerant.DoesNotExist:
+            except UserProfile.DoesNotExist:
                 vehicules = Vehicule.objects.none()
         else:
             vehicules = Vehicule.objects.all()
@@ -8373,13 +8373,13 @@ class AddVignetteView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateV
 
         if user.user_type == "4":
             try:
-                gerant = user.gerants.get()
+                gerant = user.profile
                 categories_gerant = gerant.gerant_voiture.all()
                 if categories_gerant.exists():  
                     vehicules = Vehicule.objects.filter(category__in=categories_gerant)
                 else:
                     vehicules = Vehicule.objects.none() 
-            except Gerant.DoesNotExist:
+            except UserProfile.DoesNotExist:
                 vehicules = Vehicule.objects.none()
         else:
             vehicules = Vehicule.objects.all()
@@ -8641,13 +8641,13 @@ class AddVisitView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateView
         date_debut = date_fin = None
         if user.user_type == "4":
             try:
-                gerant = user.gerants.get()
+                gerant = user.profile
                 categories_gerant = gerant.gerant_voiture.all()
                 if categories_gerant.filter(category="VTC").exists():
                     vehicules = Vehicule.objects.filter(category__category="VTC")
                 else:
                     vehicules = Vehicule.objects.filter(category__category="TAXI")
-            except Gerant.DoesNotExist:
+            except UserProfile.DoesNotExist:
                 vehicules = Vehicule.objects.none()  
                 # No vehicles if no Gerant linked
         elif user:
@@ -8904,13 +8904,13 @@ class AddAssuranceView(LoginRequiredMixin, CustomPermissionRequiredMixin, Create
 
         if user.user_type == "4":
             try:
-                gerant = user.gerants.get()  
+                gerant = user.profile  
                 categories_gerant = gerant.gerant_voiture.all()
                 if categories_gerant.exists():  
                     vehicules = Vehicule.objects.filter(category__in=categories_gerant)
                 else:
                     vehicules = Vehicule.objects.none() 
-            except Gerant.DoesNotExist:
+            except UserProfile.DoesNotExist:
                 vehicules = Vehicule.objects.none()
         else:
             vehicules = Vehicule.objects.all()
@@ -9159,13 +9159,13 @@ class AddReparationView(LoginRequiredMixin, CustomPermissionRequiredMixin, Creat
         user = self.request.user
         if user.user_type == "4":
             try:
-                gerant = user.gerants.get()  
+                gerant = user.profile  
                 categories_gerant = gerant.gerant_voiture.all()
                 if categories_gerant.exists():  
                     vehicules = Vehicule.objects.filter(category__in=categories_gerant)
                 else:
                     vehicules = Vehicule.objects.none() 
-            except Gerant.DoesNotExist:
+            except UserProfile.DoesNotExist:
                 vehicules = Vehicule.objects.none()
         else:
             vehicules = Vehicule.objects.all()
@@ -9427,13 +9427,13 @@ class AddPiecEchangeView(LoginRequiredMixin, CustomPermissionRequiredMixin, Crea
         # 🔹 Gestion des véhicules par rôle
         if user.user_type == "4":
             try:
-                gerant = user.gerants.get()  
+                gerant = user.profile  
                 categories_gerant = gerant.gerant_voiture.all()
                 if categories_gerant.exists():  
                     vehicules = Vehicule.objects.filter(category__in=categories_gerant)
                 else:
                     vehicules = Vehicule.objects.none() 
-            except Gerant.DoesNotExist:
+            except UserProfile.DoesNotExist:
                 vehicules = Vehicule.objects.none()
         else:
             vehicules = Vehicule.objects.all()
@@ -9547,13 +9547,13 @@ class DetailReparatView(LoginRequiredMixin, CustomPermissionRequiredMixin, Detai
         user = self.request.user
         if user.user_type == "4":
             try:
-                gerant = user.gerants.get()  
+                gerant = user.profile  
                 categories_gerant = gerant.gerant_voiture.all()
                 if categories_gerant.exists():  
                     vehicules = Vehicule.objects.filter(category__in=categories_gerant)
                 else:
                     vehicules = Vehicule.objects.none() 
-            except Gerant.DoesNotExist:
+            except UserProfile.DoesNotExist:
                 vehicules = Vehicule.objects.none()
         else:
             vehicules = Vehicule.objects.all()
@@ -10438,13 +10438,13 @@ class AddEntretienView(LoginRequiredMixin, CustomPermissionRequiredMixin, Create
 
         if user.user_type == "4":
             try:
-                gerant = user.gerants.get()
+                gerant = user.profile
                 categories_gerant = gerant.gerant_voiture.all()
                 if categories_gerant.filter(category="VTC").exists():
                     vehicules = Vehicule.objects.filter(category__category="VTC")
                 else:
                     vehicules = Vehicule.objects.filter(category__category="TAXI")
-            except Gerant.DoesNotExist:
+            except UserProfile.DoesNotExist:
                 vehicules = Vehicule.objects.none()  
                 # No vehicles if no Gerant linked
         elif user:

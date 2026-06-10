@@ -1,0 +1,323 @@
+{% extends 'perfect/base.html' %}
+{% load static %}
+{% block title %}Gestion des comptes{% endblock title %}
+{% block navbar_nav %}{% endblock navbar_nav %}
+{% block page_title %}
+<img class="profile-user-img" style="border:none; height:55px;width:55px" src="{% static 'add-user.png' %}" alt="User profile picture">Gestion des comptes
+{% endblock page_title %}
+{% block page_action %}
+    <button type="button" class="btn btn-default text-primary" data-toggle="modal" data-target="#createAccountModal">
+        Créer un compte <i class="fa fa-plus-circle"></i>
+    </button>
+{% endblock page_action %}
+
+{% block main_content %}
+<!-- Modal création de compte -->
+<div class="modal fade" id="createAccountModal" tabindex="-1" role="dialog" aria-labelledby="createAccountModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" style="border-radius:20px">
+            <div class="modal-header">
+                <h4 class="modal-title" style="font-weight:700;color:#06497C;font-size:15px;" id="createAccountModalLabel">
+                    Créer un compte utilisateur
+                </h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" id="create-account-form">
+                    {% csrf_token %}
+                    <div class="row card-body">
+                        <div class="col-md-12 form-group">
+                            <input type="text" value="INFORMATION DE CONNEXION" class="form-control text-center" disabled readonly>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label>RÔLE</label>
+                            {{ form.user_type }}
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label>USERNAME</label>
+                            {{ form.username }}
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label>EMAIL</label>
+                            {{ form.email }}
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label>GENDER</label>
+                            {{ form.gender }}
+                        </div>
+                        <div class="col-md-12 form-group">
+                            <input type="text" value="INFORMATION DU PROFIL" class="form-control text-center" disabled readonly>
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label>NOM</label>
+                            {{ form.nom }}
+                        </div>
+                        <div class="col-md-6 form-group">
+                            <label>PRENOMS</label>
+                            {{ form.prenom }}
+                        </div>
+                        <div class="col-md-4 form-group">
+                            <label>COMMUNE</label>
+                            {{ form.commune }}
+                        </div>
+                        <div class="col-md-4 form-group">
+                            <label>TEL 1</label>
+                            {{ form.tel1 }}
+                        </div>
+                        <div class="col-md-4 form-group">
+                            <label>TEL 2</label>
+                            {{ form.tel2 }}
+                        </div>
+                        <div class="col-md-12 form-group" id="gerant-voiture-section" style="display:none;">
+                            <label>VÉHICULES GÉRÉS</label>
+                            <div class="form-check-group" style="display:flex;flex-wrap:wrap;gap:15px;padding:10px;border:1px solid #ddd;border-radius:5px;max-height:180px;overflow-y:auto;">
+                                {% for checkbox in form.gerant_voiture %}
+                                    <div class="form-check" style="min-width:150px;">
+                                        {{ checkbox.tag }}
+                                        <label class="form-check-label" for="{{ checkbox.id_for_label }}">{{ checkbox.choice_label }}</label>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="col-md-12 form-group">
+                            <input type="text" value="LES PERMISSIONS" class="form-control text-center" disabled readonly>
+                        </div>
+                        {% for permission in form.permissions %}
+                            <div class="col-md-4 form-group">
+                                <div class="form-check">
+                                    {{ permission.tag }}
+                                    <label class="form-check-label" for="{{ permission.id_for_label }}">{{ permission.choice_label }}</label>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="modal-footer justify-content-between">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-primary">Enregistrer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Liste des comptes -->
+<div class="col-md-12">
+    <div class="card" style="border-radius:25px">
+        <div class="card-header">
+            <h3 class="card-title">Comptes enregistrés</h3>
+            <div class="card-tools">
+                <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+            </div>
+        </div>
+        <div class="card-body table-responsive p-2" style="border-radius:20px;height: 100%;">
+            <table id="example1" class="table table-bordered table-striped">
+                <thead>
+                    <tr class="text-center text-danger">
+                        <th>LOGIN</th>
+                        <th>EMAIL</th>
+                        <th>NOM</th>
+                        <th>PRENOM</th>
+                        <th>ROLE</th>
+                        <th>CONTACT</th>
+                        <th>VÉHICULES</th>
+                        <th>ACTIONS</th>
+                        <th>ACTIF</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in accounts %}
+                        <tr class="text-center">
+                            <td>{{ u.username }}</td>
+                            <td>{{ u.email }}</td>
+                            <td>{% if u.profile %}{{ u.profile.nom|default:"-" }}{% else %}-{% endif %}</td>
+                            <td>{% if u.profile %}{{ u.profile.prenom|default:"-" }}{% else %}-{% endif %}</td>
+                            <td>{{ u.get_user_type_display }}</td>
+                            <td>{% if u.profile %}{{ u.profile.tel1|default:"-" }}{% else %}-{% endif %}</td>
+                            <td>
+                                {% if u.user_type == "4" and u.profile %}
+                                    {% for cat in u.profile.gerant_voiture.all %}
+                                        <span class="badge badge-info">{{ cat }}</span>
+                                    {% empty %}
+                                        <span class="text-muted">—</span>
+                                    {% endfor %}
+                                {% else %}
+                                    <span class="text-muted">—</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-nowrap">
+                                <a href="#" class="mr-2 text-primary edit-account-btn" data-user-id="{{ u.id }}" data-username="{{ u.username }}" data-toggle="modal" data-target="#editAccountModal" title="Modifier">
+                                    <i style="font-size:18px;" class="fa fa-edit"></i>
+                                </a>
+                                <a href="#" class="mr-2 text-warning edit-permissions-btn" data-user-id="{{ u.id }}" data-username="{{ u.username }}" data-toggle="modal" data-target="#permissionModal" title="Permissions">
+                                    <i style="font-size:18px;" class="fa fa-lock"></i>
+                                </a>
+                                <a href="{% url 'delete_account' u.id %}" class="text-danger" title="Supprimer" onclick="return confirm('Supprimer le compte {{ u.username|escapejs }} ? Toutes les données associées seront perdues.')">
+                                    <i style="font-size:18px;" class="fa fa-trash"></i>
+                                </a>
+                            </td>
+                            <td>
+                                <div class="custom-control custom-switch custom-switch-off-danger custom-switch-on-success">
+                                    <input type="checkbox" class="custom-control-input toggle-active" id="switch-{{ u.id }}" data-url="{% url 'toggle_active_user' u.id %}" {% if u.is_active %}checked{% endif %}>
+                                    <label class="custom-control-label" for="switch-{{ u.id }}"></label>
+                                </div>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="9" class="text-center text-muted">Aucun compte enregistré.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal édition compte -->
+<div class="modal fade" id="editAccountModal" tabindex="-1" role="dialog" aria-labelledby="editAccountModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" style="border-radius:20px">
+            <div class="modal-header">
+                <h4 class="modal-title" style="font-weight:700;color:#06497C;font-size:15px;" id="editAccountModalLabel">
+                    <img class="profile-user-img" style="border:none;height:35px;width:35px" src="{% static 'add-user.png' %}" alt=""> Modifier le compte
+                </h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body" id="edit-account-modal-body">
+                <div class="text-center"><div class="spinner-border" role="status"><span class="sr-only">Chargement...</span></div></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal permissions -->
+<div class="modal fade" id="permissionModal" tabindex="-1" role="dialog" aria-labelledby="permissionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" style="border-radius:20px">
+            <div class="modal-header">
+                <h4 class="modal-title" style="font-weight:700;color:#06497C;font-size:15px;" id="permissionModalLabel">
+                    <img class="profile-user-img" style="border:none;height:35px;width:35px" src="{% static 'add-user.png' %}" alt=""> Modifier les permissions
+                </h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            </div>
+            <div class="modal-body" id="permission-modal-body">
+                <div class="text-center"><div class="spinner-border" role="status"><span class="sr-only">Chargement...</span></div></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+(function() {
+    function toggleGerantSection() {
+        var isGerant = $('#id_user_type').val() === '4';
+        $('#gerant-voiture-section').toggle(isGerant);
+        if (!isGerant) {
+            $('#gerant-voiture-section input[type=checkbox]').prop('checked', false);
+        }
+    }
+    $('#id_user_type').on('change', toggleGerantSection);
+    toggleGerantSection();
+
+    {% if form.errors %}
+    $('#createAccountModal').modal('show');
+    {% endif %}
+
+    $(document).on('change', '.toggle-active', function() {
+        var checkbox = $(this);
+        $.ajax({
+            url: checkbox.data('url'),
+            type: 'POST',
+            data: { csrfmiddlewaretoken: '{{ csrf_token }}' },
+            success: function(response) {
+                if (response.success) {
+                    const Toast = Swal.mixin({ toast: true, position: 'top', showConfirmButton: false, timer: 4000 });
+                    Toast.fire({
+                        type: response.is_active ? 'success' : 'error',
+                        title: response.is_active ? 'Compte activé avec succès.' : 'Compte désactivé avec succès.'
+                    });
+                }
+            },
+            error: function() {
+                alert('Erreur lors de la mise à jour du compte.');
+                checkbox.prop('checked', !checkbox.prop('checked'));
+            }
+        });
+    });
+
+    $(document).on('click', '.edit-permissions-btn', function(e) {
+        e.preventDefault();
+        var userId = $(this).data('user-id');
+        var username = $(this).data('username');
+        var url = "{% url 'edit_user_permissions' 0 %}".replace('0', userId);
+        $('#permissionModalLabel').html(
+            '<img class="profile-user-img" style="border:none;height:35px;width:35px" src="{% static "add-user.png" %}" alt=""> Modifier les permissions — ' + username
+        );
+        $('#permission-modal-body').html('<div class="text-center"><div class="spinner-border"></div></div>');
+        $.ajax({
+            url: url, type: 'GET',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            success: function(r) { $('#permission-modal-body').html(r.html || '<div class="alert alert-danger">Erreur.</div>'); },
+            error: function() { $('#permission-modal-body').html('<div class="alert alert-danger">Erreur de chargement.</div>'); }
+        });
+    });
+
+    $(document).on('submit', '#permission-form-modal', function(e) {
+        e.preventDefault();
+        var form = $(this), btn = form.find('button[type=submit]'), orig = btn.html();
+        btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Enregistrement...');
+        $.ajax({
+            url: form.attr('action'), type: 'POST', data: form.serialize(),
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            success: function(r) {
+                if (r.success) { $('#permissionModal').modal('hide'); window.location.reload(); }
+                else { Swal.fire({ icon: 'error', title: 'Erreur', text: r.message || 'Erreur permissions.' }); btn.prop('disabled', false).html(orig); }
+            },
+            error: function() { Swal.fire({ icon: 'error', title: 'Erreur', text: 'Erreur permissions.' }); btn.prop('disabled', false).html(orig); }
+        });
+    });
+
+    $(document).on('click', '.edit-account-btn', function(e) {
+        e.preventDefault();
+        var userId = $(this).data('user-id'), username = $(this).data('username');
+        var url = "{% url 'edit_account' 0 %}".replace('0', userId);
+        $('#editAccountModalLabel').html(
+            '<img class="profile-user-img" style="border:none;height:35px;width:35px" src="{% static "add-user.png" %}" alt=""> Modifier — ' + username
+        );
+        $('#edit-account-modal-body').html('<div class="text-center"><div class="spinner-border"></div></div>');
+        $.ajax({
+            url: url, type: 'GET',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            success: function(r) { $('#edit-account-modal-body').html(r.html || '<div class="alert alert-danger">Erreur.</div>'); },
+            error: function(xhr) {
+                var html = (xhr.responseJSON && xhr.responseJSON.html) ? xhr.responseJSON.html : '<div class="alert alert-danger">Erreur de chargement.</div>';
+                $('#edit-account-modal-body').html(html);
+            }
+        });
+    });
+
+    $(document).on('submit', '#account-edit-form-modal', function(e) {
+        e.preventDefault();
+        var form = $(this), btn = form.find('button[type=submit]'), orig = btn.html();
+        btn.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Enregistrement...');
+        $.ajax({
+            url: form.attr('action'), type: 'POST', data: form.serialize(),
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            success: function(r) {
+                if (r.success) { $('#editAccountModal').modal('hide'); window.location.reload(); }
+                else { Swal.fire({ icon: 'error', title: 'Erreur', text: r.message || 'Erreur mise à jour.' }); btn.prop('disabled', false).html(orig); }
+            },
+            error: function(xhr) {
+                if (xhr.responseJSON && xhr.responseJSON.html) { $('#edit-account-modal-body').html(xhr.responseJSON.html); }
+                else { Swal.fire({ icon: 'error', title: 'Erreur', text: 'Erreur mise à jour.' }); }
+                btn.prop('disabled', false).html(orig);
+            }
+        });
+    });
+
+    $('#permissionModal, #editAccountModal').on('hidden.bs.modal', function() {
+        $(this).find('.modal-body').html('<div class="text-center"><div class="spinner-border"></div></div>');
+    });
+})();
+</script>
+{% endblock main_content %}

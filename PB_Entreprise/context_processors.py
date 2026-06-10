@@ -1,6 +1,6 @@
 #context_processors.py
 from userauths.models import TypeCustomPermission
-from PB_Entreprise.models import Vehicule, VisiteTechnique, Entretien, Assurance, Vignette, Patente, Stationnement, Gerant
+from PB_Entreprise.models import Vehicule, VisiteTechnique, Entretien, Assurance, Vignette, Patente, Stationnement, UserProfile
 from django.utils import timezone
 from datetime import date
 
@@ -31,13 +31,13 @@ def alertes_count(request):
         # Filtrer les véhicules selon le type d'utilisateur - TOUJOURS filtrer par car_statut=True
         if user.user_type == "4":
             try:
-                gerant = Gerant.objects.get(user=user)
+                gerant = user.profile
                 categories_gerant = gerant.gerant_voiture.all()
                 if categories_gerant.exists():
                     vehicules = Vehicule.objects.filter(category__in=categories_gerant, car_statut=True)
                 else:
                     vehicules = Vehicule.objects.none()
-            except (Gerant.DoesNotExist, Exception):
+            except (UserProfile.DoesNotExist, Exception):
                 vehicules = Vehicule.objects.none()
         else:
             # Filtrer aussi par car_statut=True pour tous les utilisateurs

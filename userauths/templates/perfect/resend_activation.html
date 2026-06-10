@@ -1,0 +1,31 @@
+{% extends 'perfect/bacompt.html' %}
+{% load static %}
+{% block title %}Renvoyer le lien d'activation{% endblock title %}
+{% block content %}
+    <div class="login-box">
+        <div class="auth-card">
+            <div class="auth-card-body">
+                <div class="auth-logo">
+                    <img src="{% static 'pb_site_asset/img/logo/new_logo.png' %}" alt="P&BENTREPRISE">
+                </div>
+                <h1 class="auth-title">Compte non activé ?</h1>
+                <p class="auth-msg">Saisissez votre adresse email pour recevoir un nouveau lien d'activation.</p>
+                <form action="{% url 'resend_activation' %}" method="post" id="loginForm">
+                    {% csrf_token %}
+                    <div class="auth-field">
+                        <span class="auth-field-icon fas fa-envelope"></span>
+                        <input type="email" name="email" class="auth-field-input" placeholder="Email" required>
+                    </div>
+                    <button type="submit" class="auth-btn" id="loginButton">
+                        <span id="buttonText">Renvoyer le lien</span>
+                        <span id="spinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                    </button>
+                </form>
+                <p class="auth-link">
+                    <a href="{% url 'login' %}">Retour à la connexion</a>
+                </p>
+                <p class="auth-tagline">A tes résolutions repondra le succès</p>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

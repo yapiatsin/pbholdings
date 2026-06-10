@@ -3,120 +3,114 @@
 {% block title %}OTP{% endblock title %}
  
 {% block content %}
-    <style>
-        .otp-container {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin-top: 5px;
-        }
-        .otp-input {
-            width: 45px; 
-            height: 45px;
-            text-align: center;
-            font-size: 18px;
-            border-radius: 50px;
-            border: 1px solid rgba(168, 50, 50, 0.35);
-            padding: 0;
-            box-sizing: border-box; 
-        }
-        .otp-input:focus {
-            outline: none;
-            border-color: rgba(168, 50, 50, 0.65);
-            box-shadow: 0 0 0 2px rgba(168, 50, 50, 0.15);
-        }
-        .label-container {
-            display: flex;
-            justify-content: center; 
-            margin-bottom: 10px;
-        }
-        .form-label {
-            margin: 0;
-            font-size: 16px;
-            font-weight: 600;
-        }
-        .text-center {
-            text-align: center;
-        }
-    </style>
-    
     <div class="login-box">
-        <div class="login-logo" style="font-size: 30px">
-            <a href="#" class="text" style="color: #a83232;"><b>P&BENTREPRISE</b></a>
-        </div>
-        <div class="card" style="background-color:rgba(255, 255, 255, 0.12); border-radius: 20px; border: 1px solid rgba(168, 50, 50, 0.25); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08); background-image: linear-gradient(145deg, rgba(251, 237, 237, 0.45) 0%, rgba(255, 255, 255, 0.12) 100%);">
-            <div class="card-body login-card-body" style="background-color:transparent;border-radius: 20px;">
-                <h3 class="text-center"><img src="{% static 'security.png' %}" alt="" srcset=""></h3>
-                <h3 class="text-center" style="font-size:18px; font-weight: 600; color: #a83232;">Vérification OTP</h3>
-                <p class="login-box-msg" style="color: #1a1a1a;">Veuillez entrer l'OTP reçu par e-mail pour vérifier votre identité..</p>
-                <form method="post" id="otp-form" name="loginForm" class="text-center">
-                  {% csrf_token %}
-                    <div class="otp-container">
-                        <input class="otp-input" style="background-color:rgba(255, 255, 255, 0.15); color: #1a1a1a;" type="text" id="otp1" maxlength="1" required />
-                        <input class="otp-input" style="background-color:rgba(255, 255, 255, 0.15); color: #1a1a1a;" type="text" id="otp2" maxlength="1" required />
-                        <input class="otp-input" style="background-color:rgba(255, 255, 255, 0.15); color: #1a1a1a;" type="text" id="otp3" maxlength="1" required />
-                        <input class="otp-input" style="background-color:rgba(255, 255, 255, 0.15); color: #1a1a1a;" type="text" id="otp4" maxlength="1" required />
+        <div class="auth-card">
+            <div class="auth-card-body">
+                <div class="auth-logo">
+                    <img src="{% static 'pb_site_asset/img/logo/new_logo.png' %}" alt="P&BENTREPRISE">
+                </div>
+                <h1 class="auth-title">Vérification OTP</h1>
+                <p class="auth-msg">
+                    Entrez le code reçu à l'adresse
+                    {% if email %}<strong>{{ email }}</strong>{% else %}votre email{% endif %}.
+                </p>
+                <form method="post" id="otp-form" class="text-center">
+                    {% csrf_token %}
+                    <div class="otp-container" role="group" aria-label="Code OTP à 6 chiffres">
+                        <input class="otp-input" type="text" id="otp1" maxlength="1" inputmode="numeric" autocomplete="one-time-code" required />
+                        <input class="otp-input" type="text" id="otp2" maxlength="1" inputmode="numeric" required />
+                        <input class="otp-input" type="text" id="otp3" maxlength="1" inputmode="numeric" required />
+                        <input class="otp-input" type="text" id="otp4" maxlength="1" inputmode="numeric" required />
+                        <input class="otp-input" type="text" id="otp5" maxlength="1" inputmode="numeric" required />
+                        <input class="otp-input" type="text" id="otp6" maxlength="1" inputmode="numeric" required />
                     </div>
                     <input type="hidden" id="otp" name="otp" />
-                    <br>
-                    <div class="d-grid text-center">
-                        <button type="submit" class="btn w-100" id="loginButton" style="border-radius: 50px; border: 1px solid #a83232; background: transparent; color: #a83232; font-weight: 600;">
-                            <span id="buttonText">Vérifier</span>
-                            <span id="spinner" class="spinner-border spinner-border-sm d-none" style="color: #a83232;" role="status" aria-hidden="true"></span>
-                        </button>
-                    </div>
+                    <p class="otp-hint">Le code est valide pendant 5 minutes.</p>
+                    <button type="submit" class="auth-btn" id="loginButton">
+                        <span id="buttonText">Vérifier le code</span>
+                        <span id="spinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                    </button>
                 </form>
-                <p class="mt-2 mb-1 text-center">
-                    <a href="{% url 'login' %}" class="text" style="color: #a83232; font-weight: 600;">Se connecter</a>
+                <p class="auth-link">
+                    Code non reçu ? <a href="{% url 'mot_passe_oublie' %}">Demander un nouveau code</a>
                 </p>
-                <p class="mt-2 mb-1 text-center" style="font-size: 14px; font-weight: 500; color: rgba(26, 26, 26, 0.65); font-style: italic; letter-spacing: 0.3px;">A tes résolutions repondra le succès</p>
+                <p class="auth-link">
+                    <a href="{% url 'login' %}">Retour à la connexion</a>
+                </p>
+                <p class="auth-tagline">A tes résolutions repondra le succès</p>
             </div>
-       </div>
+        </div>
     </div>
     <script>
-        // Script pour la navigation automatique entre les champs OTP //
-        document.querySelectorAll('.otp-input').forEach((input, index, inputs) => {
-            input.addEventListener('input', () => {
-                if (input.value.length === 1 && index < inputs.length - 1) {
-                    inputs[index + 1].focus();
-                }
-            });
-            input.addEventListener('keydown', (e) => {
-                if (e.key === 'Backspace' && index > 0 && input.value === '') {
-                    inputs[index - 1].focus();
-                }
-            });
-        });
-        // Script pour combiner les valeurs des champs OTP en un seul champ caché avant la soumission du formulaire
-        document.getElementById('otp-form').addEventListener('submit', (e) => {
-            e.preventDefault(); // Empêcher la soumission normale
-            let otpValue = '';
-            document.querySelectorAll('.otp-input').forEach(input => {
-                otpValue += input.value;
-            });
-            document.getElementById('otp').value = otpValue;
-            document.getElementById('otp-form').submit(); // Soumettre le formulaire après avoir mis à jour le champ caché
-        });
+        document.addEventListener('DOMContentLoaded', function () {
+            var inputs = Array.from(document.querySelectorAll('#otp-form .otp-input'));
 
-        // Script pour masquer le message après 3 secondes
-        setTimeout(function() {
-            const message = document.getElementById('message');
-            if (message) {
-                message.style.display = 'none';
-            }
-        }, 3000);
-    </script>
-    <script>
-        document.getElementById("otp-form").addEventListener("submit", function(event) {
-            event.preventDefault(); 
-            let button = document.getElementById("loginButton");
-            let buttonText = document.getElementById("buttonText");
-            let spinner = document.getElementById("spinner");
-            buttonText.classList.add("d-none");
-            spinner.classList.remove("d-none");
-            setTimeout(() => {
-                this.submit();
-            }, 500);
+            inputs.forEach(function (input, index) {
+                if (index === 0) {
+                    input.focus();
+                }
+
+                input.addEventListener('input', function () {
+                    this.value = this.value.replace(/[^0-9]/g, '').slice(0, 1);
+                    this.classList.remove('error');
+                    if (this.value && index < inputs.length - 1) {
+                        inputs[index + 1].focus();
+                    }
+                });
+
+                input.addEventListener('keydown', function (e) {
+                    if (e.key === 'Backspace' && !this.value && index > 0) {
+                        inputs[index - 1].focus();
+                    }
+                    if (e.key === 'ArrowLeft' && index > 0) {
+                        inputs[index - 1].focus();
+                    }
+                    if (e.key === 'ArrowRight' && index < inputs.length - 1) {
+                        inputs[index + 1].focus();
+                    }
+                });
+
+                input.addEventListener('paste', function (e) {
+                    e.preventDefault();
+                    var pasted = (e.clipboardData || window.clipboardData).getData('text').replace(/[^0-9]/g, '').slice(0, 6);
+                    pasted.split('').forEach(function (num, i) {
+                        if (inputs[index + i]) {
+                            inputs[index + i].value = num;
+                        }
+                    });
+                    var nextIndex = Math.min(index + pasted.length, inputs.length - 1);
+                    inputs[nextIndex].focus();
+                });
+            });
+
+            document.getElementById('otp-form').addEventListener('submit', function (event) {
+                event.preventDefault();
+
+                var allFilled = inputs.every(function (input) { return input.value; });
+                if (!allFilled) {
+                    inputs.forEach(function (input) {
+                        if (!input.value) {
+                            input.classList.add('error');
+                            setTimeout(function () {
+                                input.classList.remove('error');
+                            }, 500);
+                        }
+                    });
+                    return;
+                }
+
+                var otpValue = inputs.map(function (input) { return input.value; }).join('');
+                document.getElementById('otp').value = otpValue;
+
+                var buttonText = document.getElementById('buttonText');
+                var spinner = document.getElementById('spinner');
+                buttonText.classList.add('d-none');
+                spinner.classList.remove('d-none');
+
+                setTimeout(function () {
+                    document.getElementById('otp-form').submit();
+                }, 500);
+            });
         });
     </script>
 {% endblock content %}

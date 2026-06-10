@@ -25,9 +25,7 @@
     <!-- Ionicons -->
     <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
     <!-- SweetAlert2 -->
-    <link rel="stylesheet" href="{% static 'pb/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css' %}">
-    <!-- Toastr -->
-    <link rel="stylesheet" href="{% static 'pb/plugins/toastr/toastr.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/vendors/sweetalert2/sweetalert2.min.css' %}">
     <!-- Theme style -->
     <link rel="stylesheet" href="{% static 'pb/dists/css/adminlte.min.css' %}">
     <style>
@@ -55,100 +53,6 @@
             font-size: 50px;
             backdrop-filter: blur(10px);
         }
-        .circles{
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-        }
-        .circles li{
-            position: absolute;
-            display: block;
-            list-style: none;
-            width: 40px;
-            height: 40px;
-            animation: animate 25s linear infinite;
-            bottom: -150px;
-        }
-        .circles li:nth-child(1){
-            left: 25%;
-            width: 50px;
-            height: 50px;
-            animation-delay: 20s;
-        }
-        .circles li:nth-child(2){
-            left: 10%;
-            width: 60px;
-            height: 60px;
-            animation-delay: 2s;
-            animation-duration: 12s;
-        }
-        .circles li:nth-child(3){
-            left: 70%;
-            width: 40px;
-            height: 40px;
-            animation-delay: 8s;
-        }
-        .circles li:nth-child(4){
-            left: 40%;
-            width: 50px;
-            height: 50px;
-            animation-delay: 4s;
-            animation-duration: 15s;
-        }
-        .circles li:nth-child(5){
-            left: 65%;
-            width: 30px;
-            height: 30px;
-            animation-delay: 4s;
-        }
-        .circles li:nth-child(6){
-            left: 75%;
-            width: 65px;
-            height: 65px;
-            animation-delay: 5s;
-        }
-        .circles li:nth-child(7){
-            left: 35%;
-            width: 70px;
-            height: 70px;
-            animation-delay: 25s;
-        }
-        .circles li:nth-child(8){
-            left: 50%;
-            width: 25px;
-            height: 25px;
-            animation-delay: 5s;
-            animation-duration: 20s;
-        }
-        .circles li:nth-child(9){
-            left: 20%;
-            width: 35px;
-            height: 35px;
-            animation-delay: 2s;
-            animation-duration: 15s;
-        }
-        .circles li:nth-child(10){
-            left: 85%;
-            width: 40px;
-            height: 40px;
-            animation-delay: 4s;
-            animation-duration: 14s;
-        }
-        @keyframes animate {
-            0%{
-                transform: translateY(0) rotate(0deg);
-                opacity: 1;
-                border-radius: 0;
-            }
-            100%{
-                transform: translateY(-1000px) rotate(720deg);
-                opacity: 0;
-                border-radius: 50%;
-            }
-        }
         .video-background {
             position: fixed;
             top: 0;
@@ -160,74 +64,336 @@
         }
         
         .login-box {
-            position: relative;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             z-index: 1;
+            width: 420px;
+            max-width: calc(100% - 32px);
         }
-        
-        body {
+
+        .auth-card {
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.14);
             overflow: hidden;
+            width: 100%;
+        }
+
+        .auth-card-body {
+            padding: 32px 28px 28px;
+        }
+
+        .auth-logo {
+            text-align: center;
+            margin-bottom: 14px;
+        }
+
+        .auth-logo img {
+            display: inline-block;
+            max-width: 110px;
+            width: 110px;
+            height: auto;
+        }
+
+        .auth-title {
+            text-align: center;
+            font-size: 22px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin: 0 0 24px;
+        }
+
+        .auth-msg {
+            text-align: center;
+            color: #6b7280;
+            font-size: 14px;
+            line-height: 1.55;
+            margin: -12px 0 20px;
+        }
+
+        .auth-field {
+            position: relative;
+            margin-bottom: 14px;
+        }
+
+        .auth-field-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            font-size: 15px;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .auth-field-input {
+            width: 100%;
+            padding: 12px 14px 12px 42px;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 14px;
+            color: #1a1a1a;
+            background: #ffffff;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            box-sizing: border-box;
+        }
+
+        .auth-field-input:focus {
+            border-color: #a83232;
+            box-shadow: 0 0 0 3px rgba(168, 50, 50, 0.12);
+        }
+
+        .auth-field-input.has-toggle {
+            padding-right: 44px;
+        }
+
+        .auth-toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            cursor: pointer;
+            background: none;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            padding: 4px;
+            line-height: 1;
+            box-sizing: border-box;
+            outline: none;
+            box-shadow: none;
+            -webkit-tap-highlight-color: transparent;
+            transition: color 0.2s;
+        }
+
+        .auth-toggle-password:hover {
+            color: #a83232;
+        }
+
+        .auth-toggle-password:focus,
+        .auth-toggle-password:active,
+        .auth-toggle-password:focus-visible {
+            outline: none;
+            box-shadow: none;
+            border-color: transparent;
+        }
+
+        .auth-options {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin: 4px 0 20px;
+        }
+
+        .auth-remember {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0;
+            font-size: 13px;
+            color: #6b7280;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .auth-remember input {
+            width: 15px;
+            height: 15px;
+            accent-color: #a83232;
+            cursor: pointer;
+        }
+
+        .auth-forgot a,
+        .auth-options > a {
+            color: #6b7280;
+            font-size: 13px;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .auth-forgot a:hover,
+        .auth-options > a:hover {
+            color: #a83232;
+        }
+
+        .auth-footer-links {
+            margin-top: 22px;
+            text-align: center;
+        }
+
+        .auth-footer-line {
+            margin: 0 0 14px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .auth-footer-muted {
+            color: #6b7280;
+        }
+
+        .auth-footer-line a,
+        .auth-footer-action a {
+            color: #a83232;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .auth-footer-line a:hover,
+        .auth-footer-action a:hover {
+            color: #8b2929;
+            text-decoration: underline;
+        }
+
+        .auth-footer-label {
+            margin: 0 0 8px;
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .auth-footer-action {
+            margin: 0;
+            font-size: 14px;
+        }
+
+        .auth-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 12px 20px;
+            border: 1px solid transparent;
+            border-radius: 10px;
+            background: #a83232;
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            box-sizing: border-box;
+            outline: none;
+            box-shadow: none;
+            -webkit-tap-highlight-color: transparent;
+            transition: background-color 0.2s;
+        }
+
+        .auth-btn:hover {
+            background: #8b2929;
+            color: #ffffff;
+        }
+
+        .auth-btn:focus,
+        .auth-btn:active,
+        .auth-btn:focus-visible {
+            outline: none;
+            box-shadow: none;
+            border-color: transparent;
+        }
+
+        .auth-btn:disabled {
+            opacity: 0.75;
+            cursor: not-allowed;
+        }
+
+        .auth-link {
+            text-align: center;
+            margin-top: 18px;
+        }
+
+        .auth-link a {
+            color: #a83232;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .auth-tagline {
+            margin-top: 16px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 500;
+            color: #9ca3af;
+            font-style: italic;
+            letter-spacing: 0.3px;
+        }
+
+        .otp-container {
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 8px;
+            justify-content: center;
+            margin: 8px 0 12px;
+        }
+
+        .otp-input {
+            width: 46px;
+            min-width: 46px;
+            height: 52px;
+            text-align: center;
+            font-size: 22px;
+            font-weight: 700;
+            border-radius: 10px;
+            border: 2px solid #e5e7eb;
+            padding: 0;
+            box-sizing: border-box;
+            color: #1a1a1a;
+            background: #ffffff;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .otp-input:focus {
+            outline: none;
+            border-color: #a83232;
+            box-shadow: 0 0 0 3px rgba(168, 50, 50, 0.12);
+        }
+
+        .otp-input.error {
+            border-color: #dc3545;
+            animation: otp-shake 0.5s;
+        }
+
+        @keyframes otp-shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-6px); }
+            75% { transform: translateX(6px); }
+        }
+
+        .otp-hint {
+            text-align: center;
+            font-size: 13px;
+            color: #6b7280;
+            margin: 0 0 18px;
+        }
+
+        @media (max-width: 420px) {
+            .otp-container {
+                gap: 5px;
+            }
+
+            .otp-input {
+                width: 40px;
+                min-width: 40px;
+                height: 46px;
+                font-size: 18px;
+            }
+        }
+
+        body.login-page {
+            overflow: hidden;
+            height: 100vh !important;
+        }
+
+        body.login-page.swal2-shown {
+            padding-right: 0 !important;
         }
     </style>
 </head>
-<body class="hold-transition login-page" style="background-image: url('{% static "birdcus.png" %}');
-background-size: cover;
-background-position: center;
-background-repeat: no-repeat;
-opacity:1">
-    <div class="area">
-        <ul class="circles">
-            <li style="background-image: url('{% static "bird_amico.png" %}');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    opacity: .95"></li>
-            <li style="background-image: url('{% static "bird_amico.png" %}');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    opacity: .95"></li>
-            <li style="background-image: url('{% static "bird_amico.png" %}');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    opacity: .95"></li>
-            <li style="background-image: url('{% static "bird_amico.png" %}');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    opacity: .95"></li>
-            <li style="background-image: url('{% static "bird_amico.png" %}');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    opacity: .95"></li>
-            <li style="background-image: url('{% static "bird_amico.png" %}');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    opacity: .95"></li>
-            <li style="background-image: url('{% static "bird_amico.png" %}');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    opacity: .95"></li>
-            <li style="background-image: url('{% static "bird_amico.png" %}');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    opacity: .95"></li>
-            <li style="background-image: url('{% static "bird_amico.png" %}');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    opacity: .95"></li>
-            <li style="background-image: url('{% static "bird_amico.png" %}');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    opacity: .95"></li>
-        </ul>  
-    </div>
+<body class="hold-transition login-page" style="background-image: url('{% static "bg4.jpg" %}');
+background-size: cover; background-position: center; background-repeat: no-repeat; opacity:1">
     {% block content %}
 
     {% endblock content %}
@@ -296,9 +462,8 @@ opacity:1">
     <script src="{% static 'pb/plugins/jsgrid/jsgrid.min.js' %} "></script>
     <script src="{% static 'pb/plugins/datatables/jquery.dataTables.js' %} "></script>
     <script src="{% static 'pb/plugins/datatables-bs4/js/dataTables.bootstrap4.js' %} "></script>
-    <script src="{% static 'pb/plugins/sweetalert2/sweetalert2.min.js' %} "></script>
-    <!-- Toastr -->
-    <script src="{% static 'pb/plugins/toastr/toastr.min.js' %} "></script>
+    <!-- SweetAlert2 -->
+    <script src="{% static 'assets/vendors/sweetalert2/sweetalert2.min.js' %}"></script>
     <script>
         $(function() {
             $("#example1").DataTable();
@@ -314,31 +479,20 @@ opacity:1">
     </script>
 
     <script type="text/javascript">
-        $(function() {
-            const Toast = Swal.mixin({
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 2000
-            });
+        document.addEventListener('DOMContentLoaded', function() {
             {% if messages %}
+            (async function() {
                 {% for msg in messages %}
-                    {% if msg.tags == "error" %}
-                        toastr.error('{{ msg|escapejs }}', '', {
-                            timeOut: 5000,
-                            progressBar: true,
-                            closeButton: false,
-                            positionClass: 'toast-top-center'
-                        });
-                    {% else %}
-                        toastr.success('{{ msg|escapejs }}', '', {
-                            timeOut: 5000,
-                            progressBar: true,
-                            closeButton: false,
-                            positionClass: 'toast-top-center'
-                        });
-                    {% endif %}
+                await Swal.fire({
+                    icon: {% if msg.tags == "error" %}'error'{% elif msg.tags == "warning" %}'warning'{% else %}'success'{% endif %},
+                    title: {% if msg.tags == "error" %}'Erreur'{% elif msg.tags == "warning" %}'Attention'{% else %}'Succès'{% endif %},
+                    text: '{{ msg|escapejs }}',
+                    confirmButtonColor: '#a83232',
+                    heightAuto: false,
+                    scrollbarPadding: false
+                });
                 {% endfor %}
+            })();
             {% endif %}
         });
     </script>
