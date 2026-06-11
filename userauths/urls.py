@@ -13,24 +13,10 @@ urlpatterns = [
     path("deconnexion", logout_view, name="log_out"),
     path("pb", pb_home, name="pb_holdind"),
 
-    path('register/', register, name='register'),
-    path("liste des comptes", register, name="compte"),
+    path("Compte-utilisateur", register, name="compte"),
     path('compte/<int:user_id>/modifier/', edit_account, name='edit_account'),
     path('compte/<int:user_id>/supprimer/', delete_account, name='delete_account'),
     path('Utilisateur/<int:user_id>/permissions/', edit_user_permissions, name='edit_user_permissions'),
-
-    # Redirections anciennes URLs
-    path('Créer admin', RedirectView.as_view(pattern_name='register', permanent=False), name="addadministrateur"),
-    path('Créer chef exploitation', RedirectView.as_view(pattern_name='register', permanent=False), name="addchefexploit"),
-    path('Créer comptable', RedirectView.as_view(pattern_name='register', permanent=False), name="addcomptable"),
-    path('Créer gerant', RedirectView.as_view(pattern_name='register', permanent=False), name="addgerant"),
-    path('modifier gerant/<int:pk>/', RedirectView.as_view(pattern_name='register', permanent=False), name="edit_gerant"),
-    path('modifier gerant par user/<int:user_id>/', edit_account, name="edit_gerant_by_user"),
-    path('supprimer compte gerant/<int:pk>/delete', RedirectView.as_view(pattern_name='register', permanent=False), name="del_gernt"),
-    path('supprimer compte comptable/<int:pk>/delete', RedirectView.as_view(pattern_name='register', permanent=False), name="del_comptable"),
-    path('supprimer compte chefexploit/<int:pk>/delete', RedirectView.as_view(pattern_name='register', permanent=False), name="del_chef_exploit"),
-    path('supprimer compte admin/<int:pk>/delete', RedirectView.as_view(pattern_name='register', permanent=False), name="del_admins"),
-    
     path('mot de passe oublié', ForgotPasswordView.as_view(), name="mot_passe_oublie"),
     
     path('otp/', OptValid.as_view(), name='otp'),
