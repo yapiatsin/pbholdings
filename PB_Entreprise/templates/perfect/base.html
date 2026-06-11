@@ -9,7 +9,7 @@
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <link href="{% static 'icn.png' %}" rel="icon">
     <title>
-        {% block title %} P&BENTREPRISE {% endblock title %}
+        {% block title %} P&BEntreprise -  {% endblock title %}
     </title>
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="{% static 'pb/plugins/fontawesome-free/css/all.min.css' %}">
@@ -26,9 +26,7 @@
     <!-- Ionicons -->
     <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
     <!-- SweetAlert2 -->
-    <link rel="stylesheet" href="{% static 'pb/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css' %}">
-    <!-- Toastr -->
-    <link rel="stylesheet" href="{% static 'pb/plugins/toastr/toastr.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/vendors/sweetalert2/sweetalert2.min.css' %}">
     <!-- Theme style -->
     <link rel="stylesheet" href="{% static 'pb/dists/css/adminlte.min.css' %}">
     <style>{% block style %}{% endblock style %}</style>
@@ -517,9 +515,7 @@
     </script>
 
     <!-- SweetAlert2 -->
-    <script src="{% static 'pb/plugins/sweetalert2/sweetalert2.min.js' %} "></script>
-    <!-- Toastr -->
-    <script src="{% static 'pb/plugins/toastr/toastr.min.js' %} "></script>
+    <script src="{% static 'assets/vendors/sweetalert2/sweetalert2.min.js' %}"></script>
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
@@ -532,38 +528,22 @@
     </script>
 
     <script type="text/javascript">
-        $(function() {
-            const Toast = Swal.mixin({
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 2000
-            });
-
+        document.addEventListener('DOMContentLoaded', function() {
             {% if messages %}
+            (async function() {
                 {% for msg in messages %}
-                    {% if msg.tags == "error" %}
-                        toastr.error('{{ msg|escapejs }}', '', {
-                            timeOut: 2000,
-                            progressBar: true,
-                            closeButton: false,
-                            positionClass: 'toast-top-center'
-                        });
-                    {% else %}
-                        toastr.success('{{ msg|escapejs }}', '', {
-                            timeOut: 2000,
-                            progressBar: true,
-                            closeButton: false,
-                            positionClass: 'toast-top-center'
-                        });
-                    {% endif %}
+                await Swal.fire({
+                    icon: {% if msg.tags == "error" %}'error'{% elif msg.tags == "warning" %}'warning'{% else %}'success'{% endif %},
+                    title: {% if msg.tags == "error" %}'Erreur'{% elif msg.tags == "warning" %}'Attention'{% else %}'Succès'{% endif %},
+                    text: '{{ msg|escapejs }}',
+                    confirmButtonColor: '#a83232'
+                });
                 {% endfor %}
+            })();
             {% endif %}
         });
     </script>
 </body>
-
-</html>
 
 </html>
 

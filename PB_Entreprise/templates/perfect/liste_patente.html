@@ -143,9 +143,9 @@
                                         </div>
                                     </div>
                                     <div class="card-body">
-                                        <div id="example1_wrapper" class="dataTables_wrapper dt-bootstrap4">
-                                            <table id="example1" class="table table-bordered table-hover table-striped dataTable" role="grid" aria-describedby="example1_info">
-                                                <thead>
+                                        <div class="card-body table-responsive p-2" style="border-radius:20px;height: 100%;">
+                                            <table id="example1" class="table table-bordered table-striped table-hover table-sm" style="border:none; border-bottom: 2px solid rgba(168, 50, 50, 0.12);">
+                                                <thead style="font-weight: 700; background-color:#a83232; font-size: 14px;">
                                                     <tr class="text-center text-danger">
                                                         <th>
                                                             {% for categorie, perms in grouped_permissions.items %}
