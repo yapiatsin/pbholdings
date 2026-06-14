@@ -18,7 +18,7 @@ from django.contrib.auth import logout
 from django.db.models import Count
 from django.db.models import Sum, F, Value
 import calendar
-from django.db.models.functions import ExtractMonth, TruncDate
+from django.db.models.functions import ExtractMonth, TruncDate, TruncMonth
 from django.db.models.functions import Coalesce
 from django.db import transaction
 # Create your views here.
@@ -4645,7 +4645,7 @@ class ExportRecetteExcelView(LoginRequiredMixin, View):
 
 def _apply_recette_excel_filters(request, queryset):
     today = dj_timezone.localdate()
-    selected_period = request.GET.get('periode', 'today')
+    selected_period = request.GET.get('periode', 'week')
     custom_filter_form = DateFormAnalytique(request.GET or None)
 
     filter_start = today
@@ -4689,6 +4689,70 @@ def _apply_recette_excel_filters(request, queryset):
         filter_start, filter_end = filter_end, filter_start
 
     return filtered_qs, selected_period, custom_filter_form, filter_start, filter_end
+
+
+_EXCEL_CHART_PALETTE = [
+    ('#3b82f6', 'rgba(59, 130, 246, 0.12)'),
+    ('#10b981', 'rgba(16, 185, 129, 0.12)'),
+    ('#f59e0b', 'rgba(245, 158, 11, 0.12)'),
+    ('#ef4444', 'rgba(239, 68, 68, 0.12)'),
+    ('#8b5cf6', 'rgba(139, 92, 246, 0.12)'),
+    ('#06b6d4', 'rgba(6, 182, 212, 0.12)'),
+]
+
+_EXCEL_MOIS_LABELS = ('', 'Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc')
+
+
+def _build_excel_category_chart_data(filtered_qs, selected_period, filter_start, filter_end):
+    """Construit labels et séries du graphique par catégorie (jour ou mois selon la période)."""
+    categories = CategoVehi.objects.all().order_by('id')
+    cat_totals_map = defaultdict(int)
+
+    if selected_period == 'year':
+        period_keys = [(filter_start.year, month) for month in range(1, 13)]
+        grouped = (
+            filtered_qs
+            .annotate(month=TruncMonth('date'))
+            .values('month', 'vehicule__category_id')
+            .annotate(total=Sum('montant'))
+        )
+        for row in grouped:
+            month_dt = row['month']
+            if month_dt:
+                key = (month_dt.year, month_dt.month)
+                cat_totals_map[(key, row['vehicule__category_id'])] = row['total'] or 0
+        axis_labels = [_EXCEL_MOIS_LABELS[month] for _, month in period_keys]
+    else:
+        period_keys = []
+        cursor_day = filter_start
+        while cursor_day <= filter_end:
+            period_keys.append(cursor_day)
+            cursor_day += timedelta(days=1)
+        grouped = (
+            filtered_qs
+            .annotate(day=TruncDate('date'))
+            .values('day', 'vehicule__category_id')
+            .annotate(total=Sum('montant'))
+        )
+        for row in grouped:
+            cat_totals_map[(row['day'], row['vehicule__category_id'])] = row['total'] or 0
+        axis_labels = [d.strftime('%d/%m') for d in period_keys]
+
+    chart_datasets = []
+    for idx, cat in enumerate(categories):
+        border, bg = _EXCEL_CHART_PALETTE[idx % len(_EXCEL_CHART_PALETTE)]
+        serie = [cat_totals_map.get((key, cat.id), 0) for key in period_keys]
+        chart_datasets.append({
+            'label': cat.category,
+            'data': serie,
+            'borderColor': border,
+            'backgroundColor': bg,
+            'fill': False,
+            'tension': 0.35,
+            'pointRadius': 3,
+        })
+
+    return axis_labels, chart_datasets
 
 
 _CHARGEFIX_EXCEL_HEADER_TO_FIELD = {
@@ -4909,23 +4973,59 @@ def _recette_import_row_is_identical(existing, chauffeur, cpte, numero_fact, num
     )
 
 
-def _excel_import_num_piece_month_key(date_saisie, num_piece):
-    """(année, mois, n° pièce) si le n° est renseigné ; sinon None (aucune contrainte d'unicité)."""
-    piece = (num_piece or '').strip()
-    if not piece:
-        return None
-    return (date_saisie.year, date_saisie.month, piece)
+def _excel_import_num_piece_strip(num_piece):
+    return (num_piece or '').strip()
 
 
 def _num_piece_already_used_same_month(model_cls, num_piece, date_saisie, exclude_pk=None):
+    """N° pièce unique par mois, sauf plusieurs saisies à la même date_saisie."""
+    piece = _excel_import_num_piece_strip(num_piece)
+    if not piece:
+        return False
     qs = model_cls.objects.filter(
-        Num_piece=num_piece,
+        Num_piece=piece,
         date_saisie__year=date_saisie.year,
         date_saisie__month=date_saisie.month,
-    )
+    ).exclude(date_saisie=date_saisie)
     if exclude_pk is not None:
         qs = qs.exclude(pk=exclude_pk)
     return qs.exists()
+
+
+def _excel_import_num_piece_file_conflict(seen_dates_by_month_piece, date_saisie, num_piece):
+    piece = _excel_import_num_piece_strip(num_piece)
+    if not piece:
+        return False
+    key = (date_saisie.year, date_saisie.month, piece)
+    dates_seen = seen_dates_by_month_piece.get(key)
+    if not dates_seen:
+        return False
+    return any(d != date_saisie for d in dates_seen)
+
+
+def _excel_import_num_piece_file_register(seen_dates_by_month_piece, date_saisie, num_piece):
+    piece = _excel_import_num_piece_strip(num_piece)
+    if not piece:
+        return
+    key = (date_saisie.year, date_saisie.month, piece)
+    seen_dates_by_month_piece.setdefault(key, set()).add(date_saisie)
+
+
+_NUM_PIECE_SKIP_MSG = (
+    'ligne(s) ignorée(s) : N° pièce déjà utilisé pour le même mois sur une autre date '
+    '(plusieurs lignes à la même date avec le même N° pièce sont autorisées). '
+    'Sans N° pièce, la ligne n’est pas contrôlée sur ce critère.'
+)
+
+
+def _build_list_export_querystring(request, default_period='month'):
+    """Export Excel : mois en cours par défaut, sinon les critères du filtre actif."""
+    params = request.GET.copy()
+    if not params:
+        params['periode'] = default_period
+    elif 'periode' not in params and not (params.get('date_debut') and params.get('date_fin')):
+        params['periode'] = default_period
+    return params.urlencode()
 
 
 class AddRecetteExcelView(LoginRequiredMixin, CustomPermissionRequiredMixin, FormView):
@@ -4984,7 +5084,7 @@ class AddRecetteExcelView(LoginRequiredMixin, CustomPermissionRequiredMixin, For
             return
 
         created = updated = skipped_same = bad_rows = bad_immat = skipped_num_piece_month = 0
-        seen_num_piece_month = set()
+        seen_num_piece_month_dates = {}
 
         for rnum, row in enumerate(rows[1:], start=2):
             if row is None or not any(cell not in (None, '') for cell in row):
@@ -5044,15 +5144,14 @@ class AddRecetteExcelView(LoginRequiredMixin, CustomPermissionRequiredMixin, For
                     skipped_same += 1
                 continue
 
-            np_key = _excel_import_num_piece_month_key(date_saisie, num_piece)
-            if np_key:
-                if np_key in seen_num_piece_month:
+            if _excel_import_num_piece_strip(num_piece):
+                if _excel_import_num_piece_file_conflict(seen_num_piece_month_dates, date_saisie, num_piece):
                     skipped_num_piece_month += 1
                     continue
                 if _num_piece_already_used_same_month(Recette, num_piece, date_saisie):
                     skipped_num_piece_month += 1
                     continue
-                seen_num_piece_month.add(np_key)
+                _excel_import_num_piece_file_register(seen_num_piece_month_dates, date_saisie, num_piece)
 
             Recette.objects.create(
                 auteur=request.user,
@@ -5088,9 +5187,7 @@ class AddRecetteExcelView(LoginRequiredMixin, CustomPermissionRequiredMixin, For
         if skipped_num_piece_month:
             messages.error(
                 request,
-                f'{skipped_num_piece_month} ligne(s) ignorée(s) : N° pièce déjà utilisé pour le même mois '
-                '(mois calendaire de la date de saisie — doublon dans le fichier ou en base). '
-                'Sans N° pièce, la ligne n’est pas contrôlée sur ce critère.',
+                f'{skipped_num_piece_month} {_NUM_PIECE_SKIP_MSG}',
             )
         if not any([created, updated, skipped_same, bad_immat, bad_rows, skipped_num_piece_month]):
             messages.info(request, 'Aucune ligne de données exploitable.')
@@ -5105,44 +5202,9 @@ class AddRecetteExcelView(LoginRequiredMixin, CustomPermissionRequiredMixin, For
 
         recettes_today = filtered_qs.order_by('-date', '-id')
 
-        day_labels = []
-        cursor_day = filter_start
-        while cursor_day <= filter_end:
-            day_labels.append(cursor_day)
-            cursor_day += timedelta(days=1)
-
-        cat_totals_map = defaultdict(int)
-        grouped = (
-            filtered_qs
-            .annotate(day=TruncDate('date'))
-            .values('day', 'vehicule__category_id')
-            .annotate(total=Sum('montant'))
+        chart_labels, chart_datasets = _build_excel_category_chart_data(
+            filtered_qs, selected_period, filter_start, filter_end
         )
-        for row in grouped:
-            cat_totals_map[(row['day'], row['vehicule__category_id'])] = row['total'] or 0
-
-        palette = [
-            ('#3b82f6', 'rgba(59, 130, 246, 0.12)'),
-            ('#10b981', 'rgba(16, 185, 129, 0.12)'),
-            ('#f59e0b', 'rgba(245, 158, 11, 0.12)'),
-            ('#ef4444', 'rgba(239, 68, 68, 0.12)'),
-            ('#8b5cf6', 'rgba(139, 92, 246, 0.12)'),
-            ('#06b6d4', 'rgba(6, 182, 212, 0.12)'),
-        ]
-        chart_datasets = []
-        categories = CategoVehi.objects.all().order_by('id')
-        for idx, cat in enumerate(categories):
-            border, bg = palette[idx % len(palette)]
-            serie = [cat_totals_map.get((d, cat.id), 0) for d in day_labels]
-            chart_datasets.append({
-                'label': cat.category,
-                'data': serie,
-                'borderColor': border,
-                'backgroundColor': bg,
-                'fill': False,
-                'tension': 0.35,
-                'pointRadius': 3,
-            })
 
         week_start = today - timedelta(days=today.weekday())
         recette_jours = base_qs.filter(date__date=today).aggregate(somme=Sum('montant'))['somme'] or 0
@@ -5154,7 +5216,7 @@ class AddRecetteExcelView(LoginRequiredMixin, CustomPermissionRequiredMixin, For
             'Le fichier peut reprendre l’export « Recettes » (Immatriculation, Marque, Catégorie, Chauffeur, Montant, Date saisie). '
             'Vous pouvez ajouter les colonnes Compte comptable, N° facture, N° pièce. Les doublons ne sont pas basés sur pièce/facture : '
             'pour un même véhicule et la même date, si le montant change la ligne est mise à jour ; si le montant est identique, la ligne est ignorée. '
-            'Si le N° pièce est renseigné, il doit être unique pour le mois calendaire de la date de saisie (une même pièce peut être réutilisée un autre mois).'
+            'Si le N° pièce est renseigné, il doit être unique pour le mois calendaire de la date de saisie (plusieurs lignes à la même date peuvent partager le même N° pièce ; une réutilisation sur une autre date du même mois est refusée).'
         )
         ctx['recettes_today'] = recettes_today
         ctx['today_date'] = today
@@ -5162,14 +5224,15 @@ class AddRecetteExcelView(LoginRequiredMixin, CustomPermissionRequiredMixin, For
         ctx['period_form'] = custom_filter_form
         ctx['period_start'] = filter_start
         ctx['period_end'] = filter_end
-        ctx['export_querystring'] = self.request.GET.urlencode()
+        ctx['export_querystring'] = _build_list_export_querystring(self.request)
         ctx['recette_jours_format'] = '{:,}'.format(recette_jours).replace(',', ' ')
         ctx['recette_semaine_format'] = '{:,}'.format(recette_semaine).replace(',', ' ')
         ctx['recette_mois_format'] = '{:,}'.format(recette_mois).replace(',', ' ')
         ctx['recette_an_format'] = '{:,}'.format(recette_an).replace(',', ' ')
-        ctx['chart_labels'] = json.dumps([d.strftime('%d/%m') for d in day_labels])
+        ctx['chart_labels'] = json.dumps(chart_labels)
         ctx['chart_datasets'] = json.dumps(chart_datasets)
         return ctx
+
 
 class AddChargeFixExcelView(LoginRequiredMixin, CustomPermissionRequiredMixin, FormView):
     login_url = 'login'
@@ -5227,7 +5290,7 @@ class AddChargeFixExcelView(LoginRequiredMixin, CustomPermissionRequiredMixin, F
             return
 
         created = updated = skipped_same = bad_rows = bad_immat = skipped_num_piece_month = 0
-        seen_num_piece_month = set()
+        seen_num_piece_month_dates = {}
 
         for row in rows[1:]:
             if row is None or not any(cell not in (None, '') for cell in row):
@@ -5282,15 +5345,14 @@ class AddChargeFixExcelView(LoginRequiredMixin, CustomPermissionRequiredMixin, F
                     skipped_same += 1
                 continue
 
-            np_key = _excel_import_num_piece_month_key(date_saisie, num_piece)
-            if np_key:
-                if np_key in seen_num_piece_month:
+            if _excel_import_num_piece_strip(num_piece):
+                if _excel_import_num_piece_file_conflict(seen_num_piece_month_dates, date_saisie, num_piece):
                     skipped_num_piece_month += 1
                     continue
                 if _num_piece_already_used_same_month(ChargeFixe, num_piece, date_saisie):
                     skipped_num_piece_month += 1
                     continue
-                seen_num_piece_month.add(np_key)
+                _excel_import_num_piece_file_register(seen_num_piece_month_dates, date_saisie, num_piece)
 
             ChargeFixe.objects.create(
                 auteur=request.user,
@@ -5320,9 +5382,7 @@ class AddChargeFixExcelView(LoginRequiredMixin, CustomPermissionRequiredMixin, F
         if skipped_num_piece_month:
             messages.error(
                 request,
-                f'{skipped_num_piece_month} ligne(s) ignorée(s) : N° pièce déjà utilisé pour le même mois '
-                '(mois calendaire de la date de saisie — doublon dans le fichier ou en base). '
-                'Sans N° pièce, la ligne n’est pas contrôlée sur ce critère.',
+                f'{skipped_num_piece_month} {_NUM_PIECE_SKIP_MSG}',
             )
         if not any([created, updated, skipped_same, bad_immat, bad_rows, skipped_num_piece_month]):
             messages.info(request, 'Aucune ligne de données exploitable.')
@@ -5337,44 +5397,9 @@ class AddChargeFixExcelView(LoginRequiredMixin, CustomPermissionRequiredMixin, F
 
         charges_filtered = filtered_qs.order_by('-date', '-id')
 
-        day_labels = []
-        cursor_day = filter_start
-        while cursor_day <= filter_end:
-            day_labels.append(cursor_day)
-            cursor_day += timedelta(days=1)
-
-        cat_totals_map = defaultdict(int)
-        grouped = (
-            filtered_qs
-            .annotate(day=TruncDate('date'))
-            .values('day', 'vehicule__category_id')
-            .annotate(total=Sum('montant'))
+        chart_labels, chart_datasets = _build_excel_category_chart_data(
+            filtered_qs, selected_period, filter_start, filter_end
         )
-        for row in grouped:
-            cat_totals_map[(row['day'], row['vehicule__category_id'])] = row['total'] or 0
-
-        palette = [
-            ('#3b82f6', 'rgba(59, 130, 246, 0.12)'),
-            ('#10b981', 'rgba(16, 185, 129, 0.12)'),
-            ('#f59e0b', 'rgba(245, 158, 11, 0.12)'),
-            ('#ef4444', 'rgba(239, 68, 68, 0.12)'),
-            ('#8b5cf6', 'rgba(139, 92, 246, 0.12)'),
-            ('#06b6d4', 'rgba(6, 182, 212, 0.12)'),
-        ]
-        chart_datasets = []
-        categories = CategoVehi.objects.all().order_by('id')
-        for idx, cat in enumerate(categories):
-            border, bg = palette[idx % len(palette)]
-            serie = [cat_totals_map.get((d, cat.id), 0) for d in day_labels]
-            chart_datasets.append({
-                'label': cat.category,
-                'data': serie,
-                'borderColor': border,
-                'backgroundColor': bg,
-                'fill': False,
-                'tension': 0.35,
-                'pointRadius': 3,
-            })
 
         week_start = today - timedelta(days=today.weekday())
         total_jour = base_qs.filter(date__date=today).aggregate(somme=Sum('montant'))['somme'] or 0
@@ -5386,7 +5411,7 @@ class AddChargeFixExcelView(LoginRequiredMixin, CustomPermissionRequiredMixin, F
             'Le fichier peut reprendre l\'export « Charges Fixes » (Immatriculation, Libellé, Montant, Date saisie). '
             'Vous pouvez ajouter Compte comptable, N° facture, N° pièce. '
             'Pour un même véhicule et la même date_saisie, si le montant change la ligne est mise à jour ; sinon elle est ignorée. '
-            'Si le N° pièce est renseigné, il doit être unique pour le mois calendaire de la date de saisie.'
+            'Si le N° pièce est renseigné, il doit être unique pour le mois calendaire de la date de saisie (plusieurs lignes à la même date peuvent partager le même N° pièce).'
         )
         ctx['charges_fixes_page'] = charges_filtered
         ctx['today_date'] = today
@@ -5394,12 +5419,12 @@ class AddChargeFixExcelView(LoginRequiredMixin, CustomPermissionRequiredMixin, F
         ctx['period_form'] = custom_filter_form
         ctx['period_start'] = filter_start
         ctx['period_end'] = filter_end
-        ctx['export_querystring'] = self.request.GET.urlencode()
+        ctx['export_querystring'] = _build_list_export_querystring(self.request)
         ctx['recette_jours_format'] = '{:,}'.format(total_jour).replace(',', ' ')
         ctx['recette_semaine_format'] = '{:,}'.format(total_semaine).replace(',', ' ')
         ctx['recette_mois_format'] = '{:,}'.format(total_mois).replace(',', ' ')
         ctx['recette_an_format'] = '{:,}'.format(total_an).replace(',', ' ')
-        ctx['chart_labels'] = json.dumps([d.strftime('%d/%m') for d in day_labels])
+        ctx['chart_labels'] = json.dumps(chart_labels)
         ctx['chart_datasets'] = json.dumps(chart_datasets)
         return ctx
 
@@ -5459,7 +5484,7 @@ class AddChargeVarExcelView(LoginRequiredMixin, CustomPermissionRequiredMixin, F
             return
 
         created = updated = skipped_same = bad_rows = bad_immat = skipped_num_piece_month = 0
-        seen_num_piece_month = set()
+        seen_num_piece_month_dates = {}
 
         for row in rows[1:]:
             if row is None or not any(cell not in (None, '') for cell in row):
@@ -5514,15 +5539,14 @@ class AddChargeVarExcelView(LoginRequiredMixin, CustomPermissionRequiredMixin, F
                     skipped_same += 1
                 continue
 
-            np_key = _excel_import_num_piece_month_key(date_saisie, num_piece)
-            if np_key:
-                if np_key in seen_num_piece_month:
+            if _excel_import_num_piece_strip(num_piece):
+                if _excel_import_num_piece_file_conflict(seen_num_piece_month_dates, date_saisie, num_piece):
                     skipped_num_piece_month += 1
                     continue
                 if _num_piece_already_used_same_month(ChargeVariable, num_piece, date_saisie):
                     skipped_num_piece_month += 1
                     continue
-                seen_num_piece_month.add(np_key)
+                _excel_import_num_piece_file_register(seen_num_piece_month_dates, date_saisie, num_piece)
 
             ChargeVariable.objects.create(
                 auteur=request.user,
@@ -5552,9 +5576,7 @@ class AddChargeVarExcelView(LoginRequiredMixin, CustomPermissionRequiredMixin, F
         if skipped_num_piece_month:
             messages.error(
                 request,
-                f'{skipped_num_piece_month} ligne(s) ignorée(s) : N° pièce déjà utilisé pour le même mois '
-                '(mois calendaire de la date de saisie — doublon dans le fichier ou en base). '
-                'Sans N° pièce, la ligne n’est pas contrôlée sur ce critère.',
+                f'{skipped_num_piece_month} {_NUM_PIECE_SKIP_MSG}',
             )
         if not any([created, updated, skipped_same, bad_immat, bad_rows, skipped_num_piece_month]):
             messages.info(request, 'Aucune ligne de données exploitable.')
@@ -5569,44 +5591,9 @@ class AddChargeVarExcelView(LoginRequiredMixin, CustomPermissionRequiredMixin, F
 
         charges_filtered = filtered_qs.order_by('-date', '-id')
 
-        day_labels = []
-        cursor_day = filter_start
-        while cursor_day <= filter_end:
-            day_labels.append(cursor_day)
-            cursor_day += timedelta(days=1)
-
-        cat_totals_map = defaultdict(int)
-        grouped = (
-            filtered_qs
-            .annotate(day=TruncDate('date'))
-            .values('day', 'vehicule__category_id')
-            .annotate(total=Sum('montant'))
+        chart_labels, chart_datasets = _build_excel_category_chart_data(
+            filtered_qs, selected_period, filter_start, filter_end
         )
-        for row in grouped:
-            cat_totals_map[(row['day'], row['vehicule__category_id'])] = row['total'] or 0
-
-        palette = [
-            ('#3b82f6', 'rgba(59, 130, 246, 0.12)'),
-            ('#10b981', 'rgba(16, 185, 129, 0.12)'),
-            ('#f59e0b', 'rgba(245, 158, 11, 0.12)'),
-            ('#ef4444', 'rgba(239, 68, 68, 0.12)'),
-            ('#8b5cf6', 'rgba(139, 92, 246, 0.12)'),
-            ('#06b6d4', 'rgba(6, 182, 212, 0.12)'),
-        ]
-        chart_datasets = []
-        categories = CategoVehi.objects.all().order_by('id')
-        for idx, cat in enumerate(categories):
-            border, bg = palette[idx % len(palette)]
-            serie = [cat_totals_map.get((d, cat.id), 0) for d in day_labels]
-            chart_datasets.append({
-                'label': cat.category,
-                'data': serie,
-                'borderColor': border,
-                'backgroundColor': bg,
-                'fill': False,
-                'tension': 0.35,
-                'pointRadius': 3,
-            })
 
         week_start = today - timedelta(days=today.weekday())
         total_jour = base_qs.filter(date__date=today).aggregate(somme=Sum('montant'))['somme'] or 0
@@ -5618,7 +5605,7 @@ class AddChargeVarExcelView(LoginRequiredMixin, CustomPermissionRequiredMixin, F
             'Le fichier peut reprendre l\'export « Charges Variables » (Immatriculation, Libellé, Montant, Date saisie). '
             'Vous pouvez ajouter Compte comptable, N° facture, N° pièce. '
             'Pour un même véhicule et la même date_saisie, si le montant change la ligne est mise à jour ; sinon elle est ignorée. '
-            'Si le N° pièce est renseigné, il doit être unique pour le mois calendaire de la date de saisie.'
+            'Si le N° pièce est renseigné, il doit être unique pour le mois calendaire de la date de saisie (plusieurs lignes à la même date peuvent partager le même N° pièce).'
         )
         ctx['charges_variables_page'] = charges_filtered
         ctx['today_date'] = today
@@ -5626,12 +5613,12 @@ class AddChargeVarExcelView(LoginRequiredMixin, CustomPermissionRequiredMixin, F
         ctx['period_form'] = custom_filter_form
         ctx['period_start'] = filter_start
         ctx['period_end'] = filter_end
-        ctx['export_querystring'] = self.request.GET.urlencode()
+        ctx['export_querystring'] = _build_list_export_querystring(self.request)
         ctx['recette_jours_format'] = '{:,}'.format(total_jour).replace(',', ' ')
         ctx['recette_semaine_format'] = '{:,}'.format(total_semaine).replace(',', ' ')
         ctx['recette_mois_format'] = '{:,}'.format(total_mois).replace(',', ' ')
         ctx['recette_an_format'] = '{:,}'.format(total_an).replace(',', ' ')
-        ctx['chart_labels'] = json.dumps([d.strftime('%d/%m') for d in day_labels])
+        ctx['chart_labels'] = json.dumps(chart_labels)
         ctx['chart_datasets'] = json.dumps(chart_datasets)
         return ctx
 
@@ -9075,23 +9062,31 @@ class UpdateAssuranceView(LoginRequiredMixin, CustomPermissionRequiredMixin, Upd
 
 class ExportAssuranceExcelView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
-        # assurances = Assurance.objects.all().select_related('vehicule', 'auteur')
+        today = date.today()
         assurances = Assurance.objects.all()
-        date_debut = request.GET.get('date_debut')
-        date_fin = request.GET.get('date_fin')
-        immatriculation = request.GET.get('immatriculation')
-        categorie = request.GET.get('categorie')
-        if date_debut and date_fin:
-            try:
-                date_debut_obj = datetime.strptime(date_debut, "%Y-%m-%d").date()
-                date_fin_obj = datetime.strptime(date_fin, "%Y-%m-%d").date()
-                assurances = assurances.filter(date_saisie__range=[date_debut_obj, date_fin_obj])
-            except ValueError:
-                pass
-        if immatriculation:
-            assurances = assurances.filter(vehicule__immatriculation__icontains=immatriculation)
-        if categorie:
-            assurances = assurances.filter(vehicule__category__category__icontains=categorie)
+        form = DateFormMJR(request.GET)
+        if form.is_valid():
+            categorie_filter = form.cleaned_data.get('categorie')
+            date_debut = form.cleaned_data.get('date_debut')
+            date_fin = form.cleaned_data.get('date_fin')
+            immatriculation = form.cleaned_data.get('immatriculation')
+
+            if categorie_filter:
+                assurances = assurances.filter(vehicule__category__category=categorie_filter)
+            if immatriculation:
+                assurances = assurances.filter(vehicule__immatriculation__icontains=immatriculation)
+            if date_debut and date_fin:
+                assurances = assurances.filter(date_saisie__range=[date_debut, date_fin])
+            else:
+                assurances = assurances.filter(
+                    date_saisie__month=today.month,
+                    date_saisie__year=today.year,
+                )
+        else:
+            assurances = assurances.filter(
+                date_saisie__month=today.month,
+                date_saisie__year=today.year,
+            )
 
         wb = openpyxl.Workbook()
         ws = wb.active
