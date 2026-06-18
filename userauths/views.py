@@ -31,6 +31,7 @@ from userauths.profile_helpers import (
     get_user_profile,
     save_user_profile,
     apply_profile_edit_form,
+    save_my_profile,
     USER_TYPE_EMAIL_SUBJECTS,
 )
 # Create your views here.
@@ -600,37 +601,71 @@ class OptValid(View):
             return redirect('mot_passe_oublie')
                      
 class PasswordChangeView(PasswordChangeView):
-    form_class = ChangePasswordForm
+    form_class = PasswordChangingForm
     template_name = 'profil.html'
     success_message = "Mot de passe réinitialisé avec succès👍✓✓"
     error_message = "Erreur de saisie ✘✘"
+    profile_success_message = "Profil mis à jour avec succès."
     success_url = reverse_lazy('change_password')
+
+    def _get_user_and_profile(self, request):
+        user = get_object_or_404(CustomUser, id=request.user.id)
+        profile = get_user_profile(user)
+        if profile is None:
+            profile, _ = UserProfile.objects.get_or_create(user=user)
+        return user, profile
+
+    def _build_context(self, request, password_form=None, profile_form=None):
+        user, profile = self._get_user_and_profile(request)
+        if password_form is None:
+            password_form = self.get_form()
+        if profile_form is None:
+            profile_form = MyProfileEditForm(user=user, profile=profile)
+        return {
+            'form': password_form,
+            'profile_form': profile_form,
+            **build_profile_page_context(user),
+        }
+
     def form_valid(self, form):
         reponse = super().form_valid(form)
         messages.success(self.request, self.success_message)
         return reponse
+
     def form_invalid(self, form):
         reponse = super().form_invalid(form)
         messages.error(self.request, self.error_message)
-        return reponse 
+        return reponse
+
     def get(self, request, *args, **kwargs):
-        form = self.get_form()
-        user = get_object_or_404(CustomUser, id=request.user.id)
-        context = {'form': form, **build_profile_page_context(user)}
+        context = self._build_context(request)
         return render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
+        user, profile = self._get_user_and_profile(request)
+        if request.POST.get('form_type') == 'profile':
+            profile_form = MyProfileEditForm(
+                request.POST, request.FILES, user=user, profile=profile,
+            )
+            if profile_form.is_valid():
+                save_my_profile(user, profile, profile_form)
+                messages.success(request, self.profile_success_message)
+                return redirect('change_password')
+            context = self._build_context(request, profile_form=profile_form)
+            return render(request, self.template_name, context)
+
         form = self.get_form()
-        user = get_object_or_404(CustomUser, id=request.user.id)
         if form.is_valid():
             return self.form_valid(form)
-        context = {'form': form, **build_profile_page_context(user)}
-        return self.render_to_response(context)
+        context = self._build_context(request, password_form=form)
+        return render(request, self.template_name, context)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = get_object_or_404(CustomUser, id=self.request.user.id)
         context.update(build_profile_page_context(user))
+        profile = get_user_profile(user)
+        context['profile_form'] = MyProfileEditForm(user=user, profile=profile)
         return context
 
 class PasswordChangeDoneView(View):

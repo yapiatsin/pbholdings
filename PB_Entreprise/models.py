@@ -360,8 +360,15 @@ class Assurance(models.Model):
         jours_assu_restant = (self.date_proch - timezone.now().date()).days
         return jours_assu_restant
 
+LANGUE_CHOICES = (
+    ('fr', 'Français'),
+    ('en', 'English'),
+)
+
+
 class UserProfile(models.Model):
     """Profil unifié (admin, chef exploitation, comptable, gérant)."""
+    avatar = models.ImageField(upload_to='avatars/', blank=True, null=True, verbose_name="Avatar")
     user = models.OneToOneField(
         CustomUser,
         on_delete=models.CASCADE,
@@ -374,6 +381,8 @@ class UserProfile(models.Model):
     tel1 = models.CharField(max_length=255, null=True, blank=True, verbose_name="Téléphone 1")
     tel2 = models.CharField(max_length=255, null=True, blank=True, verbose_name="Téléphone 2")
     profession = models.CharField(max_length=50, null=True, blank=True, verbose_name="Profession")
+    bio = models.TextField(blank=True, verbose_name="Biographie")
+    date_naissance = models.DateField(null=True, blank=True, verbose_name="Date de naissance")
     create_by = models.ForeignKey(
         CustomUser,
         on_delete=models.SET_NULL,
@@ -389,6 +398,11 @@ class UserProfile(models.Model):
         verbose_name="Catégories gérées (gérant)",
     )
     date_creation = models.DateField(auto_now_add=True, verbose_name="Date de création")
+    langue = models.CharField(
+        max_length=5, choices=LANGUE_CHOICES, default='fr', verbose_name="Langue",
+    )
+    notif_email = models.BooleanField(default=True, verbose_name="Notifications par e-mail")
+    notif_site = models.BooleanField(default=True, verbose_name="Notifications sur le site")
 
     class Meta:
         verbose_name = "Profil utilisateur"

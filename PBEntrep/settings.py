@@ -85,6 +85,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'PB_Entreprise.context_processors.grouped_user_permissions',
                 'PB_Entreprise.context_processors.alertes_count',
+                'PB_Entreprise.context_processors.navbar_user',
                 'PBFinance.context_processors.pb_navigation',
                 'PBFinance.context_processors.pb_reseaux_sociaux',
                 'PBFinance.context_processors.pb_footer_links',
@@ -92,6 +93,7 @@ TEMPLATES = [
                 'PBFinance.context_processors.pb_site_config',
                 'PBFinance.context_processors.pb_langues',
                 'PBFinance.context_processors.pb_qrcode_app',
+                'PBFinance.context_processors.pb_liens_application',
                 'PBFinance.context_processors.pb_sections_visibility',
             ],
         },
@@ -158,6 +160,22 @@ STORAGES = {
         "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
     },
 }
+
+# Jazzmin 3.x + AdminLTE 4
+JAZZMIN_UI_TWEAKS = {
+    'theme': 'default',
+    'navbar': 'navbar-white navbar-light',
+    'sidebar': 'sidebar-dark-primary',
+    'brand_colour': 'navbar-primary',
+    'accent': 'accent-primary',
+    'navbar_fixed': True,
+    'sidebar_fixed': True,
+    'footer_fixed': False,
+    'sidebar_nav_flat_style': True,
+    'sidebar_nav_child_indent': True,
+    'sidebar_nav_compact_style': False,
+    'body_small_text': False,
+}
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
@@ -171,15 +189,22 @@ EMAIL_USE_TLS = config('EMAIL_USE_TLS')
 FRONTEND_URL = config('FRONTEND_URL', default='https://pbholdingsite.com').rstrip('/')
 ########################---o---#######################---o---######################---o---###################
 JAZZMIN_SETTINGS = {
-    "site_header": "P&BEntrepprise",
-    "site_brand": "P&BEntreprise",
-    #"site_logo": "assetts/img/icon.png",
-    "copyright" : "P&BEntreprise", 
-    "topmenu_links": [
-        # Url that gets reversed (Permissions can be added)
-        {"name": "Tableau de bord", "url": "dash", "permissions": ["userauths.User"]},
-        # model admin to link to (Permissions checked against model)
-        {"model": "userauths.User"},
+    'site_title': 'P&B Entreprise',
+    'site_header': 'P&B Entreprise',
+    'site_brand': 'P&B Entreprise',
+    'site_logo': 'vendor/adminlte/img/AdminLTELogo.png',
+    'site_logo_classes': 'img-circle elevation-3',
+    'site_icon': 'vendor/adminlte/img/AdminLTELogo.png',
+    'welcome_sign': 'Bienvenue',
+    'copyright': 'P&B Entreprise 2025',
+    'show_sidebar': True,
+    'navigation_expanded': True,
+    'show_ui_builder': False,
+    'use_google_fonts_cdn': True,
+    'custom_css': 'admin/css/pb_jazzmin_fix.css',
+    'topmenu_links': [
+        {'name': 'Tableau de bord', 'url': 'dash', 'permissions': ['userauths.User']},
+        {'model': 'userauths.User'},
     ],
 }
 AUTH_USER_MODEL = 'userauths.CustomUser'

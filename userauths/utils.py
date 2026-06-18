@@ -33,7 +33,7 @@ def _site_base_url():
     return (
         getattr(settings, 'FRONTEND_URL', None)
         or getattr(settings, 'SITE_URL', None)
-        or 'https://pbholdingsite.com'
+        or 'http://127.0.0.1:8004'
     ).rstrip('/')
 
 
@@ -201,6 +201,7 @@ def send_email_with_html_body(subjet: str, receivers: list, template: str, conte
     except Exception as e:
         logger.error(f"Erreur lors de l'envoi de l'email: {e}")
         return False
+
 
 def search_vehicules(queryset, search_query):
     """

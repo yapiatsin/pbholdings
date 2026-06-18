@@ -88,11 +88,27 @@ def build_profile_page_context(user):
     from userauths.models import TypeCustomPermission
 
     user_profile = get_user_profile(user)
+    if user_profile is None:
+        user_profile, _ = UserProfile.objects.get_or_create(user=user)
     grouped_permissions = {}
     for category in TypeCustomPermission.objects.all():
         perms = category.cat_permis.filter(users=user)
         if perms.exists():
             grouped_permissions[category] = perms
+
+    role_labels = {
+        '1': 'ESPACE ADMINISTRATEUR',
+        '2': 'ESPACE CHEF EXPLOITATION',
+        '3': 'ESPACE COMPTABLE',
+        '4': 'ESPACE GÉRANT',
+    }
+    role_display = {
+        '1': 'Administrateur',
+        '2': 'Chef Exploitation',
+        '3': 'Comptable',
+        '4': 'Gérant',
+    }
+
     return {
         'user': user,
         'user_profile': user_profile,
@@ -103,7 +119,35 @@ def build_profile_page_context(user):
         'grouped_permissions': grouped_permissions,
         'custom_permissions': user.custom_permissions.all(),
         'system_permissions': user.user_permissions.all(),
+        'role_badge': role_labels.get(str(user.user_type), 'ESPACE UTILISATEUR'),
+        'role_display': role_display.get(str(user.user_type), user.user_type),
+        'display_name': user.nom_complet,
+        'user_ref': f"#{user.username[:3].upper()}-{user.id:04d}" if user.username else f"#{user.id:04d}",
     }
+
+
+def save_my_profile(user, profile, form):
+    cleaned = form.cleaned_data
+    user.prenom = cleaned['prenom']
+    user.nom = cleaned['nom']
+    user.telephone = cleaned.get('telephone') or ''
+    user.gender = cleaned['gender']
+    user.date_naissance = cleaned.get('date_naissance')
+    user.adresse = cleaned.get('adresse') or ''
+    user.save(update_fields=['prenom', 'nom', 'telephone', 'gender', 'date_naissance', 'adresse'])
+
+    profile.prenom = cleaned['prenom']
+    profile.nom = cleaned['nom']
+    profile.tel1 = cleaned.get('telephone') or ''
+    profile.date_naissance = cleaned.get('date_naissance')
+    profile.bio = cleaned.get('bio') or ''
+    profile.langue = cleaned.get('langue') or 'fr'
+    profile.notif_email = cleaned.get('notif_email', True)
+    profile.notif_site = cleaned.get('notif_site', True)
+    if cleaned.get('avatar'):
+        profile.avatar = cleaned['avatar']
+    profile.save()
+    return profile
 
 
 def vehicules_for_user(user, queryset=None):

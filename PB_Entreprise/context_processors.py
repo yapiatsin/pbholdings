@@ -147,3 +147,29 @@ def alertes_count(request):
     except Exception:
         # En cas d'erreur générale, retourner des valeurs par défaut
         return {'total_alertes': 0, 'alertes_list': []}
+
+
+ROLE_NAVBAR_LABELS = {
+    '1': 'Admin',
+    '2': 'Chef exploit.',
+    '3': 'Comptable',
+    '4': 'Gérant',
+}
+
+
+def navbar_user(request):
+    """Avatar, rôle et lien tableau de bord pour la barre de navigation."""
+    if not request.user.is_authenticated:
+        return {}
+    user = request.user
+    avatar_url = None
+    try:
+        profile = user.profile
+        if profile.avatar:
+            avatar_url = profile.avatar.url
+    except UserProfile.DoesNotExist:
+        pass
+    return {
+        'navbar_role_label': ROLE_NAVBAR_LABELS.get(str(user.user_type), 'Utilisateur'),
+        'navbar_avatar_url': avatar_url,
+    }

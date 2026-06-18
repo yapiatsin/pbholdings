@@ -1,0 +1,139 @@
+<style>
+.pb-navbar-modern {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    padding: 8px 16px;
+    min-height: 58px;
+}
+.pb-navbar-modern .pb-search-form {
+    position: relative;
+    max-width: 520px;
+    width: 100%;
+}
+.pb-navbar-modern .pb-search-form .search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+    font-size: 0.9rem;
+    pointer-events: none;
+}
+.pb-navbar-modern .pb-search-form input {
+    width: 100%;
+    border: none;
+    background: #eef2f6;
+    border-radius: 999px;
+    padding: 10px 16px 10px 40px;
+    font-size: 0.92rem;
+    color: #374151;
+    outline: none;
+}
+.pb-navbar-modern .pb-search-form input:focus {
+    background: #e8edf3;
+    box-shadow: 0 0 0 2px rgba(26, 92, 56, 0.12);
+}
+.pb-navbar-modern .pb-search-form input::placeholder { color: #9ca3af; }
+.pb-navbar-modern .pb-role-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #f3f4f6;
+    border-radius: 999px;
+    padding: 8px 14px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #374151;
+    white-space: nowrap;
+    border: none;
+    cursor: default;
+}
+.pb-navbar-modern .pb-role-pill .role-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #22c55e;
+    flex-shrink: 0;
+}
+.pb-navbar-modern .pb-nav-icon-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #4b5563;
+    font-size: 1.1rem;
+    position: relative;
+}
+.pb-navbar-modern .pb-nav-icon-btn:hover { color: #111827; background: #f3f4f6; border-radius: 50%; }
+.pb-navbar-modern .pb-nav-avatar-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 6px 4px 4px;
+    border-radius: 999px;
+}
+.pb-navbar-modern .pb-nav-avatar-btn:hover { background: #f3f4f6; }
+.pb-navbar-modern .pb-nav-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #e5e7eb;
+}
+.pb-navbar-modern .pb-nav-avatar-btn .fa-chevron-down {
+    font-size: 0.7rem;
+    color: #9ca3af;
+}
+.pb-navbar-modern .pb-user-menu {
+    border: none;
+    border-radius: 14px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+    padding: 8px 0;
+    min-width: 260px;
+    margin-top: 10px;
+}
+.pb-navbar-modern .pb-user-menu .dropdown-header {
+    padding: 12px 16px 10px;
+    white-space: normal;
+}
+.pb-navbar-modern .pb-user-menu .dropdown-header small {
+    display: block;
+    font-size: 0.78rem;
+    color: #9ca3af;
+    margin-bottom: 4px;
+}
+.pb-navbar-modern .pb-user-menu .dropdown-header .user-email {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: #111827;
+    max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.pb-navbar-modern .pb-user-menu .dropdown-item {
+    padding: 10px 16px;
+    font-size: 0.92rem;
+    font-weight: 500;
+    color: #374151;
+}
+.pb-navbar-modern .pb-user-menu .dropdown-item i {
+    width: 20px;
+    margin-right: 10px;
+    color: #6b7280;
+}
+.pb-navbar-modern .pb-user-menu .dropdown-item.text-danger i { color: #dc2626; }
+.pb-navbar-modern .pb-user-menu .dropdown-item:hover {
+    background: #f9fafb;
+}
+.pb-navbar-modern .navbar-right-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+@media (max-width: 767.98px) {
+    .pb-navbar-modern .pb-role-pill span.role-text { display: none; }
+    .pb-navbar-modern .pb-search-form { max-width: 100%; }
+}
+</style>

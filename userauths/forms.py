@@ -1,8 +1,12 @@
 from django import forms
 from django.contrib.auth.forms import PasswordChangeForm
+from django.core.files.uploadedfile import InMemoryUploadedFile
+from io import BytesIO
+import os
+from PIL import Image, UnidentifiedImageError
 from userauths.models import *
 from .models import GENDER_SELECTION, USER
-from PB_Entreprise.models import UserProfile, CategoVehi
+from PB_Entreprise.models import UserProfile, CategoVehi, LANGUE_CHOICES
 
 PROFILE_FIELDS = ('nom', 'prenom', 'commune', 'tel1', 'tel2', 'profession', 'gerant_voiture')
 
@@ -178,6 +182,121 @@ class UserProfileEditForm(forms.Form):
         if self.user and CustomUser.objects.filter(email__iexact=email).exclude(pk=self.user.pk).exists():
             raise forms.ValidationError("Un autre compte utilise déjà cet email.")
         return email
+
+
+PROFILE_INPUT = {'class': 'form-control', 'style': 'border-radius: 10px;'}
+PROFILE_SELECT = {'class': 'form-control', 'style': 'border-radius: 10px;'}
+PROFILE_TEXTAREA = {'class': 'form-control', 'rows': 4, 'style': 'border-radius: 10px;'}
+PROFILE_DATE = {'class': 'form-control', 'type': 'date', 'style': 'border-radius: 10px;'}
+
+
+class OptionalImageFileField(forms.FileField):
+    """Accepte l'absence de fichier ou un fichier vide (pas de changement d'avatar)."""
+
+    def to_python(self, data):
+        if data in (None, '', False):
+            return None
+        if getattr(data, 'size', 0) == 0:
+            return None
+        return super().to_python(data)
+
+
+class MyProfileEditForm(forms.Form):
+    """Formulaire d'édition du profil connecté."""
+    prenom = forms.CharField(label="Prénom", widget=forms.TextInput(attrs=PROFILE_INPUT))
+    nom = forms.CharField(label="Nom", widget=forms.TextInput(attrs=PROFILE_INPUT))
+    telephone = forms.CharField(
+        label="Téléphone", required=False,
+        widget=forms.TextInput(attrs={**PROFILE_INPUT, 'placeholder': '+2250700000000'}),
+    )
+    gender = forms.ChoiceField(label="Sexe", choices=GENDER_SELECTION, widget=forms.Select(attrs=PROFILE_SELECT))
+    date_naissance = forms.DateField(
+        label="Date de naissance", required=False,
+        widget=forms.DateInput(attrs=PROFILE_DATE),
+    )
+    adresse = forms.CharField(
+        label="Adresse", required=False,
+        widget=forms.TextInput(attrs=PROFILE_INPUT),
+    )
+    avatar = OptionalImageFileField(
+        label="Photo de profil", required=False,
+        widget=forms.FileInput(attrs={
+            'class': 'form-control-file',
+            'accept': 'image/jpeg,image/png,image/gif,image/webp,.jpg,.jpeg,.png,.gif,.webp',
+        }),
+    )
+    bio = forms.CharField(
+        label="Biographie", required=False,
+        widget=forms.Textarea(attrs=PROFILE_TEXTAREA),
+    )
+    langue = forms.ChoiceField(
+        label="Langue", choices=LANGUE_CHOICES, widget=forms.Select(attrs=PROFILE_SELECT),
+    )
+    notif_email = forms.BooleanField(
+        label="Notifications par e-mail", required=False,
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+    )
+    notif_site = forms.BooleanField(
+        label="Notifications sur le site", required=False,
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+    )
+
+    def __init__(self, *args, user=None, profile=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.user = user
+        self.profile = profile
+        if user:
+            self.fields['prenom'].initial = user.prenom or (profile.prenom if profile else '')
+            self.fields['nom'].initial = user.nom or (profile.nom if profile else '')
+            self.fields['telephone'].initial = user.telephone or (profile.tel1 if profile else '')
+            self.fields['gender'].initial = user.gender
+            self.fields['date_naissance'].initial = user.date_naissance or (profile.date_naissance if profile else None)
+            self.fields['adresse'].initial = user.adresse or ''
+        if profile:
+            self.fields['bio'].initial = profile.bio or ''
+            self.fields['langue'].initial = profile.langue or 'fr'
+            self.fields['notif_email'].initial = profile.notif_email
+            self.fields['notif_site'].initial = profile.notif_site
+
+    def clean_telephone(self):
+        telephone = (self.cleaned_data.get('telephone') or '').strip()
+        if not telephone:
+            return ''
+        import re
+        if not re.match(r'^\+\d{9,15}$', telephone):
+            raise forms.ValidationError(PHONE_INVALID_MESSAGE)
+        return telephone
+
+    def clean_avatar(self):
+        avatar = self.cleaned_data.get('avatar')
+        if not avatar:
+            return None
+        if getattr(avatar, 'size', 0) == 0:
+            return None
+
+        try:
+            avatar.seek(0)
+            with Image.open(avatar) as img:
+                img.load()
+                if getattr(img, 'is_animated', False):
+                    img.seek(0)
+                if img.mode in ('RGBA', 'LA', 'P'):
+                    img = img.convert('RGB')
+                elif img.mode != 'RGB':
+                    img = img.convert('RGB')
+                buffer = BytesIO()
+                img.save(buffer, format='JPEG', quality=90, optimize=True)
+        except (UnidentifiedImageError, OSError, ValueError):
+            raise forms.ValidationError(
+                "Image invalide ou format non pris en charge. "
+                "Utilisez une photo JPG, PNG, GIF ou WebP (évitez les fichiers HEIC/iPhone)."
+            )
+
+        buffer.seek(0)
+        base_name = os.path.splitext(os.path.basename(avatar.name))[0] or 'avatar'
+        return InMemoryUploadedFile(
+            buffer, 'ImageField', f'{base_name}.jpg', 'image/jpeg', buffer.getbuffer().nbytes, None,
+        )
 
 
 class PasswordChangingForm(PasswordChangeForm):
