@@ -368,13 +368,10 @@ LANGUE_CHOICES = (
 
 class UserProfile(models.Model):
     """Profil unifié (admin, chef exploitation, comptable, gérant)."""
-<<<<<<< HEAD
-=======
     LANGUE_CHOICES = (
         ('fr', 'Français'),
         ('en', 'English'),
     )
->>>>>>> e295670b8 (Modification et des ajouts 21-06-26 02:36)
     avatar = models.ImageField(upload_to='avatars/', blank=True, null=True, verbose_name="Avatar")
     user = models.OneToOneField(
         CustomUser,

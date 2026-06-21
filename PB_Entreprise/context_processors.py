@@ -76,4 +76,3 @@ def alertes_count(request):
         }
     except Exception:
         return empty
->>>>>>> e295670b8 (Modification et des ajouts 21-06-26 02:36)

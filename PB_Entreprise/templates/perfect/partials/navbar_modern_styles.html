@@ -2,7 +2,7 @@
 .pb-navbar-modern {
     background: #fff !important;
     border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-    padding: 8px 16px;
+    box-shadow: 0 1px 8px rgba(0, 0, 0, 0.04);
     min-height: 58px;
     padding: 0.45rem 0.85rem;
 }
@@ -16,6 +16,7 @@
 .pb-navbar-search-form {
     max-width: 720px;
     width: 100%;
+    margin: 0 auto;
 }
 .pb-navbar-search {
     display: flex;
@@ -35,7 +36,7 @@
 .pb-navbar-search__icon {
     color: #94a3b8;
     font-size: 0.9rem;
-    pointer-events: none;
+    flex-shrink: 0;
 }
 .pb-navbar-search__input {
     flex: 1;
@@ -44,15 +45,12 @@
     background: transparent;
     outline: none;
     font-size: 0.92rem;
-    color: #374151;
-    outline: none;
+    color: #1e293b;
 }
 .pb-navbar-search__input::placeholder {
     color: #94a3b8;
 }
-.pb-navbar-modern .pb-search-form input::placeholder { color: #9ca3af; }
-.pb-navbar-modern .pb-role-pill {
-    display: inline-flex;
+.pb-navbar-actions {
     align-items: center;
     gap: 0.15rem;
 }
@@ -65,18 +63,19 @@
     gap: 0.45rem;
     background: #eef1f5;
     border-radius: 999px;
-    padding: 8px 14px;
-    font-size: 0.88rem;
+    padding: 0.45rem 0.85rem !important;
+    font-size: 0.86rem;
     font-weight: 600;
-    color: #374151;
+    color: #334155 !important;
     white-space: nowrap;
 }
-.pb-navbar-modern .pb-role-pill .role-dot {
+.pb-navbar-role__dot {
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: #22c55e;
+    background:rgb(85, 207, 4);
     flex-shrink: 0;
+    box-shadow: 0 0 0 2px rgba(30, 255, 0, 0.36);
 }
 .pb-navbar-role__toggle .fa-chevron-down {
     font-size: 0.65rem;
