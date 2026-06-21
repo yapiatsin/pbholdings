@@ -1,0 +1,16 @@
+{% load static %}
+<div class="pb-sidebar-profile">
+    <a href="{% url 'change_password' %}" class="pb-sidebar-profile-link" title="Mon profil">
+        {% if navbar_profile.avatar %}
+            <img src="{{ navbar_profile.avatar.url }}" alt="" class="pb-sidebar-avatar">
+        {% elif user.gender == 'Homme' %}
+            <img src="{% static 'agent.png' %}" alt="" class="pb-sidebar-avatar">
+        {% else %}
+            <img src="{% static 'agente.png' %}" alt="" class="pb-sidebar-avatar">
+        {% endif %}
+        <span class="pb-sidebar-user-meta">
+            <span class="pb-sidebar-user-name">{{ user.prenom|default:user.username }} {{ user.nom }}</span>
+            <span class="pb-sidebar-user-role">{{ navbar_role_label }}</span>
+        </span>
+    </a>
+</div>

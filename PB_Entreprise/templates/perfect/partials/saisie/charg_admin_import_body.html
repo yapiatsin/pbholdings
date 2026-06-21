@@ -1,0 +1,9 @@
+<input type="hidden" name="import_charge_excel" value="1">
+<p class="text-muted pb-modal-hint">Fichier <strong>.xlsx</strong> avec la même ligne d'en-tête que l'export (N° Facture, Libellé, Montant, Compte Comptable, N° Pièce, Date Saisie). Les lignes déjà présentes (même N° facture et N° pièce) ne seront pas dupliquées.</p>
+<div class="pb-modal-field">
+    <label class="pb-modal-field__label" for="{{ excel_import_form.fichier.id_for_label }}">Fichier</label>
+    {{ excel_import_form.fichier }}
+    {% if excel_import_form.fichier.errors %}
+        <div class="text-danger small">{{ excel_import_form.fichier.errors }}</div>
+    {% endif %}
+</div>

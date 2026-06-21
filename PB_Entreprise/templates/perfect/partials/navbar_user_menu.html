@@ -1,71 +1,52 @@
 {% load static %}
-<ul class="navbar-nav navbar-right-actions ml-auto align-items-center">
-    <li class="nav-item d-none d-md-flex align-items-center mr-1">
-        <span class="pb-role-pill" title="Rôle actuel">
-            <span class="role-dot"></span>
-            <span class="role-text">Rôle : {{ navbar_role_label }}</span>
-            <i class="fas fa-chevron-down" style="font-size:0.65rem;color:#9ca3af;"></i>
-        </span>
-    </li>
-    <li class="nav-item dropdown">
-        <a class="nav-link pb-nav-icon-btn" data-toggle="dropdown" href="#" aria-label="Alertes">
-            <i class="far fa-bell"></i>
-            {% if total_alertes > 0 %}
-                <span class="badge badge-danger navbar-badge">{{ total_alertes }}</span>
-            {% endif %}
+<ul class="navbar-nav pb-navbar-actions ml-auto flex-shrink-0">
+    <li class="nav-item dropdown pb-navbar-role">
+        <a class="nav-link pb-navbar-role__toggle" href="#" data-toggle="dropdown" aria-expanded="false">
+            <span class="pb-navbar-role__dot" aria-hidden="true"></span>
+            <span class="pb-navbar-role__label">Rôle : {{ navbar_role_label }}</span>
+            <i class="fas fa-chevron-down" aria-hidden="true"></i>
         </a>
-        <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-            <span class="dropdown-item dropdown-header">
-                {% if total_alertes > 0 %}
-                    {{ total_alertes }} Alerte{{ total_alertes|pluralize }}
-                {% else %}
-                    Aucune alerte
-                {% endif %}
-            </span>
+        <div class="dropdown-menu dropdown-menu-right pb-navbar-dropdown">
+            <span class="dropdown-item-text text-muted small">Connecté en tant que</span>
+            <span class="dropdown-item-text font-weight-bold">{{ user.prenom|default:user.username }} {{ user.nom }}</span>
             <div class="dropdown-divider"></div>
-            {% if alertes_list %}
-                {% for alerte in alertes_list %}
-                    <a href="{% url 'alerte' %}" class="dropdown-item">
-                        <i class="fas fa-exclamation-triangle mr-2 text-danger"></i>
-                        {{ alerte.type }} - {{ alerte.vehicule }}
-                        <span class="float-right text-muted text-sm">{{ alerte.jours }} jour{{ alerte.jours|pluralize }}</span>
-                    </a>
-                    <div class="dropdown-divider"></div>
-                {% endfor %}
-            {% else %}
-                <span class="dropdown-item text-muted">
-                    <i class="fas fa-check-circle mr-2 text-success"></i> Aucune alerte critique
-                </span>
-                <div class="dropdown-divider"></div>
-            {% endif %}
-            <a href="{% url 'alerte' %}" class="dropdown-item dropdown-footer text-center">Voir toutes les alertes</a>
-        </div>
-    </li>
-    <li class="nav-item dropdown">
-        <a class="nav-link pb-nav-avatar-btn" data-toggle="dropdown" href="#" aria-label="Menu utilisateur">
-            {% if navbar_avatar_url %}
-                <img src="{{ navbar_avatar_url }}" alt="{{ user.username }}" class="pb-nav-avatar">
-            {% elif user.user_type == '4' %}
-                <img src="{% static 'agear.png' %}" alt="{{ user.username }}" class="pb-nav-avatar">
-            {% elif user.gender == 'Femme' %}
-                <img src="{% static 'agente.png' %}" alt="{{ user.username }}" class="pb-nav-avatar">
-            {% else %}
-                <img src="{% static 'agent.png' %}" alt="{{ user.username }}" class="pb-nav-avatar">
-            {% endif %}
-            <i class="fas fa-chevron-down d-none d-sm-inline"></i>
-        </a>
-        <div class="dropdown-menu dropdown-menu-right pb-user-menu">
-            <div class="dropdown-header">
-                <small>Identifié en tant que</small>
-                <div class="user-email" title="{{ user.email }}">{{ user.email }}</div>
-            </div>
+            <span class="dropdown-item-text">
+                <i class="fas fa-user-tag mr-2"></i>{{ navbar_role_label }}
+            </span>
+            <span class="dropdown-item-text text-muted small">{{ user.email }}</span>
             <div class="dropdown-divider"></div>
             <a href="{% url 'change_password' %}" class="dropdown-item">
-                <i class="fas fa-user"></i> Mon profil
+                <i class="fas fa-user-edit mr-2"></i> Mon profil
+            </a>
+        </div>
+    </li>
+
+    {% include 'perfect/partials/navbar_notifications.html' %}
+
+    <li class="nav-item dropdown pb-navbar-user">
+        <a class="nav-link pb-navbar-user__toggle" href="#" data-toggle="dropdown" aria-expanded="false">
+            {% if navbar_profile.avatar %}
+                <img src="{{ navbar_profile.avatar.url }}" alt="" class="pb-navbar-user__avatar">
+            {% elif user.gender == 'Homme' %}
+                <img src="{% static 'agent.png' %}" alt="" class="pb-navbar-user__avatar">
+            {% else %}
+                <img src="{% static 'agente.png' %}" alt="" class="pb-navbar-user__avatar">
+            {% endif %}
+            <i class="fas fa-chevron-down" aria-hidden="true"></i>
+        </a>
+        <div class="dropdown-menu dropdown-menu-right pb-navbar-dropdown">
+            <span class="dropdown-item-text font-weight-bold">{{ user.prenom|default:user.username }} {{ user.nom }}</span>
+            <span class="dropdown-item-text text-muted small">{{ user.email }}</span>
+            <div class="dropdown-divider"></div>
+            <a href="{% url 'change_password' %}" class="dropdown-item">
+                <i class="fas fa-id-card mr-2"></i> Profil &amp; mot de passe
+            </a>
+            <a href="{% url 'dash' %}" class="dropdown-item">
+                <i class="fas fa-tachometer-alt mr-2"></i> Tableau de bord
             </a>
             <div class="dropdown-divider"></div>
             <a href="{% url 'log_out' %}" class="dropdown-item text-danger">
-                <i class="fas fa-sign-out-alt"></i> Déconnexion
+                <i class="fas fa-sign-out-alt mr-2"></i> Déconnexion
             </a>
         </div>
     </li>

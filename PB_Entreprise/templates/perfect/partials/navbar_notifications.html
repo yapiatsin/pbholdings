@@ -1,0 +1,47 @@
+    <li class="nav-item dropdown" id="pb-notifications-root"
+        data-list-url="{% url 'notifications_list' %}"
+        data-read-url-template="{% url 'notification_mark_read' 0 %}"
+        data-read-all-url="{% url 'notifications_mark_all_read' %}"
+        data-alerts-url="{% url 'alerte' %}">
+        <a class="nav-link pb-navbar-bell" href="#" data-toggle="dropdown" aria-expanded="false" aria-label="Notifications" id="pb-notifications-toggle">
+            <i class="fas fa-bell"></i>
+            <span class="badge badge-danger navbar-badge{% if total_alertes|default:0 <= 0 %} d-none{% endif %}" id="pb-notifications-badge">{{ total_alertes|default:0 }}</span>
+        </a>
+        <div class="dropdown-menu dropdown-menu-right pb-notifications-card">
+            <div class="pb-notifications-card__header">
+                <span class="pb-notifications-card__title">Notifications</span>
+                <button type="button"
+                        class="pb-notifications-card__mark-all{% if total_alertes|default:0 <= 0 %} d-none{% endif %}"
+                        id="pb-notifications-mark-all"
+                        title="Tout marquer comme lu">
+                    Tout lu
+                </button>
+            </div>
+            <div class="pb-notifications-card__body" id="pb-notifications-list">
+                {% if alertes_list %}
+                    {% for alerte in alertes_list %}
+                        <a href="{{ alerte.lien|default:'#' }}"
+                           class="pb-notification-item{% if not alerte.lu %} pb-notification-item--unread{% endif %}"
+                           data-notification-id="{{ alerte.id }}">
+                            <div class="pb-notification-item__title">
+                                {% if alerte.vehicule %}
+                                    {{ alerte.type }} — {{ alerte.vehicule }}
+                                {% else %}
+                                    {{ alerte.titre }}
+                                {% endif %}
+                            </div>
+                            <div class="pb-notification-item__message">{{ alerte.message }}</div>
+                            <div class="pb-notification-item__time">{{ alerte.created_at }}</div>
+                        </a>
+                    {% endfor %}
+                {% else %}
+                    <div class="pb-notification-empty" id="pb-notifications-empty">
+                        Aucune notification pour le moment.
+                    </div>
+                {% endif %}
+            </div>
+            <div class="pb-notifications-card__footer">
+                <a href="{% url 'alerte' %}" id="pb-notifications-footer">Voir tout →</a>
+            </div>
+        </div>
+    </li>

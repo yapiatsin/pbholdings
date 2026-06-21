@@ -8,8 +8,8 @@
 {% endblock page_title %}
 
 {% block page_action %}
-    <button type="button" class="btn btn-default" style="font-weight:700; color: #a83232;" data-toggle="modal" data-target="#modal-lg">Saisir <i class='fa fa-plus-square'></i></button>  
-    <button type="button" class="btn btn-default" data-toggle="modal" data-target="#modal-sm" style="color: #a83232;"><i style="font-size: 20px; color: rgba(168, 50, 50, 0.75);" class="fa fa-calendar"></i></button>
+    {% include 'perfect/partials/modal_saisie_trigger.html' with label='Saisir' icon='fa-plus-square' %}  
+    {% include 'perfect/partials/modal_filter_trigger.html' %}
     <a href="{% url 'add_recettes' vehicule.pk %}" class="btn btn-default" style="color: #a83232; border: 1px solid rgba(168, 50, 50, 0.35);"><i style="color: rgba(168, 50, 50, 0.75);" class="fas fa-sync"></i></a>
 {% endblock page_action %}
 
@@ -54,85 +54,8 @@
     </div>
 </div>
 
-<div class="modal fade" id="modal-sm">
-    <div class="modal-dialog modal-sm">
-        <div class="modal-content" style="border-radius:25px; border: 1px solid rgba(168, 50, 50, 0.2);">
-            <div class="modal-header" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.98)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 25px 25px 0 0;">
-                <h4 class="modal-title" style="font-weight:700;color: #a83232;">FILTRE</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="card-body">
-                    <form id="basic-form" method="get" novalidate>
-                        <div class="row clearfix">
-                            <div class="col-12">
-                                <label style="font-weight:600; color: #a83232;">Date debut </label>
-                                <div class="form-group">                                    
-                                    {{ form.date_debut }}
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <label style="font-weight:600; color: #a83232;">Date fin</label>
-                                <div class="form-group">                                    
-                                    {{ form.date_fin }}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="modal-footer justify-content-between p-2">
-                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Annuler</button>
-                            <button type="submit" class="btn" style="border-radius:25px; border: 1px solid #a83232; color: #a83232; background: transparent; font-weight: 600;">Afficher</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="modal-lg">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content" style="border-radius:25px; border: 1px solid rgba(168, 50, 50, 0.2);">
-            <div class="modal-header" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.98)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 25px 25px 0 0;">
-                <h4 class="modal-title" style="font-weight:700;color: #a83232;">Enrégistrer une nouvelle recette</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div class="modal-body">
-                <form method='post' role="form" id="quickForm" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <div class="row card-body text-secondary">
-                        <div class="col-md-6 col-sm-6  form-group">
-                            <label for="fullname"><b>Chauffeur</b></label> {{forms.chauffeur}}
-                        </div>
-                        <div class="col-md-6 col-sm-6 form-group">
-                            <label for="fullname"><b>Cpte comptable</b></label> {{forms.cpte_comptable}}
-                        </div>
-                        <div class="col-md-6 col-sm-6 form-group">
-                            <label for="fullname"><b>N°pièce</b></label> {{forms.Num_piece}}
-                        </div>
-                        <div class="col-md-6 col-sm-6 form-group">
-                            <label for="fullname"><b>N°facture</b></label> {{forms.numero_fact}}
-                        </div>
-                        <div class="col-md-6 col-sm-6 form-group">
-                            <label for="fullname"><b>Date</b></label> {{forms.date_saisie}}
-                        </div>
-                        <div class="col-md-6 col-sm-6 form-group">
-                            <label for="fullname"><b>Montant</b></label> {{forms.montant}}
-                        </div>
-                    </div>
-                    <div class="modal-footer justify-content-between">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
-                        <button type="submit" class="btn" style="border-radius:25px; border: 1px solid #a83232; color: #a83232; background: transparent; font-weight: 600;">Enregistrer</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
+{% include 'perfect/partials/modal_default.html' with modal_id='modal-sm' modal_title='Filtre' form=form submit_label='Afficher' %}
+{% include 'perfect/partials/modal_default.html' with modal_id='modal-lg' modal_size='lg' modal_title='Enrégistrer une nouvelle recette' form_method='post' form_id='quickForm' enctype='multipart/form-data' body_template='perfect/partials/saisie/recette_body.html' submit_label='Enregistrer' %}
 <div class="col-md-12">
     <div class="row">
         <div class="col-md-12">

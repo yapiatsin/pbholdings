@@ -1,0 +1,24 @@
+<div class="col-12" id="{{ section_id|default:'gerant-voiture-section' }}"{% if initial_hidden %} style="display:none;"{% endif %}>
+    <div class="pb-modal-field pb-modal-field--last">
+        <label class="pb-modal-field__label">Véhicules gérés</label>
+        <div class="card pb-modal-permissions-scroll-card pb-modal-vehicles-scroll-card mb-0">
+            <div class="card-body pb-modal-permissions-card pb-modal-vehicles-card">
+                <div class="row pb-modal-vehicles">
+                    {% for checkbox in gerant_voiture %}
+                        <div class="col-md-4 pb-modal-vehicles__item">
+                            <label class="pb-modal-permissions__toggle" for="{{ checkbox.id_for_label }}">
+                                {{ checkbox.tag }}
+                                <span class="pb-modal-permissions__text">{{ checkbox.choice_label }}</span>
+                            </label>
+                        </div>
+                    {% empty %}
+                        <div class="col-12">
+                            <p class="pb-modal-permissions__empty text-muted mb-0">Aucune catégorie disponible.</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% if errors %}<div class="text-danger small mt-1">{{ errors }}</div>{% endif %}
+    </div>
+</div>

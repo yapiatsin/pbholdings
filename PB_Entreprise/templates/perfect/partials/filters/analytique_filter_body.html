@@ -1,0 +1,18 @@
+<input type="hidden" name="month" id="form-month" value="{{ month }}">
+<input type="hidden" name="year" id="form-year" value="{{ year }}">
+<div class="pb-modal-field">
+    <label class="pb-modal-field__label" for="{{ form.date_debut.id_for_label }}">Date début</label>
+    {{ form.date_debut }}
+</div>
+<div class="pb-modal-field">
+    <label class="pb-modal-field__label" for="{{ form.date_fin.id_for_label }}">Date fin</label>
+    {{ form.date_fin }}
+</div>
+<div class="pb-modal-field">
+    <label class="pb-modal-field__label" for="{{ form.categorie.id_for_label }}">Catégorie</label>
+    {{ form.categorie }}
+</div>
+<div class="pb-modal-field">
+    <label class="pb-modal-field__label" for="{{ form.immatriculation.id_for_label }}">Immatriculation</label>
+    {{ form.immatriculation }}
+</div>

@@ -29,6 +29,10 @@ urlpatterns = [
     path('password_success/',password_success, name="password_success"),
 
     path('toggle-active/<int:pk>/', toggle_active_user, name='toggle_active_user'),
+
+    path('notifications/', notifications_list_api, name='notifications_list'),
+    path('notifications/<int:pk>/read/', notification_mark_read_api, name='notification_mark_read'),
+    path('notifications/read-all/', notification_mark_all_read_api, name='notifications_mark_all_read'),
     
     # ==================== GESTION DES PERMISSIONS ====================
     path('permissions/', PermissionListView.as_view(), name='list_permissions'),

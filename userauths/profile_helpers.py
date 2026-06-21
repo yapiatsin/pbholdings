@@ -8,6 +8,19 @@ def get_user_profile(user):
         return None
 
 
+def ensure_user_profile(user):
+    profile = get_user_profile(user)
+    if profile is None:
+        profile, _ = UserProfile.objects.get_or_create(
+            user=user,
+            defaults={
+                'nom': user.nom or '',
+                'prenom': user.prenom or '',
+            },
+        )
+    return profile
+
+
 def profiles_for_user_type(user_type):
     return UserProfile.objects.filter(user__user_type=str(user_type)).select_related('user')
 
@@ -66,6 +79,33 @@ def gerant_categories_for_user(user):
     return profile.gerant_voiture.all()
 
 
+def apply_my_profile_form(user, profile, form):
+    cleaned = form.cleaned_data
+    user.prenom = cleaned['prenom']
+    user.nom = cleaned['nom']
+    user.telephone = cleaned.get('telephone') or ''
+    user.gender = cleaned['gender']
+    user.date_naissance = cleaned.get('date_naissance')
+    user.adresse = cleaned.get('adresse') or ''
+    user.save(update_fields=['prenom', 'nom', 'telephone', 'gender', 'date_naissance', 'adresse'])
+
+    profile.prenom = cleaned['prenom']
+    profile.nom = cleaned['nom']
+    profile.commune = cleaned.get('commune') or ''
+    profile.tel1 = cleaned.get('telephone') or ''
+    profile.tel2 = cleaned.get('tel2') or ''
+    profile.profession = cleaned.get('profession') or ''
+    profile.bio = cleaned.get('bio') or ''
+    profile.date_naissance = cleaned.get('date_naissance')
+    profile.langue = cleaned.get('langue') or 'fr'
+    profile.notif_email = cleaned.get('notif_email', True)
+    profile.notif_site = cleaned.get('notif_site', True)
+    if cleaned.get('avatar'):
+        profile.avatar = cleaned['avatar']
+    profile.save()
+    return profile
+
+
 def apply_profile_edit_form(user, profile, form):
     user.username = form.cleaned_data['username']
     user.email = form.cleaned_data['email']
@@ -84,12 +124,22 @@ def apply_profile_edit_form(user, profile, form):
     return profile
 
 
+def all_permission_groups():
+    """Regroupe toutes les permissions par catégorie (ordre alphabétique)."""
+    from userauths.models import TypeCustomPermission
+
+    groups = []
+    for category in TypeCustomPermission.objects.order_by('categorie'):
+        permissions = list(category.cat_permis.all().order_by('name'))
+        if permissions:
+            groups.append({'category': category, 'permissions': permissions})
+    return groups
+
+
 def build_profile_page_context(user):
     from userauths.models import TypeCustomPermission
 
-    user_profile = get_user_profile(user)
-    if user_profile is None:
-        user_profile, _ = UserProfile.objects.get_or_create(user=user)
+    user_profile = ensure_user_profile(user)
     grouped_permissions = {}
     for category in TypeCustomPermission.objects.all():
         perms = category.cat_permis.filter(users=user)

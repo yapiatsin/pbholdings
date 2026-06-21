@@ -1,0 +1,11 @@
+<a class="btn btn-default pb-modal-trigger"
+   data-toggle="modal"
+   data-target="#{{ modal_id|default:'modal-sm' }}"
+   href="#"
+   aria-label="{{ label|default:'Ouvrir les filtres' }}"
+   title="{{ label|default:'Filtres' }}">
+    {% if label %}
+        {{ label }}
+    {% endif %}
+    <i class="fa {{ icon|default:'fa-calendar' }}" aria-hidden="true"></i>
+</a>

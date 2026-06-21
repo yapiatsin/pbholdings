@@ -210,3 +210,80 @@ class PasswordHistory(models.Model):
     def __str__(self):
         return f"Mot de passe de {self.user.email} - {self.created_at}"
 
+
+class Notification(models.Model):
+    """Notification in-app pour un utilisateur (hors superadmin)."""
+
+    TYPE_CHOICES = (
+        ('info', 'Information'),
+        ('alert', 'Alerte véhicule'),
+        ('compte', 'Compte'),
+        ('system', 'Système'),
+    )
+
+    CATEGORIE_CHOICES = (
+        ('visite', 'Visite technique'),
+        ('entretien', 'Entretien'),
+        ('assurance', 'Assurance'),
+        ('vignette', 'Vignette'),
+        ('patente', 'Patente'),
+        ('stationnement', 'Stationnement'),
+        ('compte_bloque', 'Compte bloqué'),
+        ('compte_reset', 'Réinitialisation compte'),
+        ('compte_actif', 'Compte activé'),
+        ('autre', 'Autre'),
+    )
+
+    user = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name='notifications',
+        verbose_name='Destinataire',
+    )
+    titre = models.CharField(max_length=200, verbose_name='Titre')
+    message = models.TextField(verbose_name='Message')
+    lien = models.CharField(max_length=500, blank=True, verbose_name='Lien')
+    type_notif = models.CharField(
+        max_length=20,
+        choices=TYPE_CHOICES,
+        default='info',
+        verbose_name='Type',
+    )
+    categorie = models.CharField(
+        max_length=30,
+        choices=CATEGORIE_CHOICES,
+        default='autre',
+        blank=True,
+        verbose_name='Catégorie',
+    )
+    dedupe_key = models.CharField(max_length=120, blank=True, verbose_name='Clé unique')
+    metadata = models.JSONField(default=dict, blank=True, verbose_name='Métadonnées')
+    lu = models.BooleanField(default=False, verbose_name='Lu')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Créée le')
+
+    class Meta:
+        verbose_name = 'Notification'
+        verbose_name_plural = 'Notifications'
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['user', 'lu', '-created_at']),
+            models.Index(fields=['user', 'dedupe_key']),
+        ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'dedupe_key'],
+                condition=models.Q(dedupe_key__gt=''),
+                name='unique_user_notification_dedupe',
+            ),
+        ]
+
+    def __str__(self):
+        return f'{self.titre} → {self.user.email}'
+
+    @property
+    def jours_label(self):
+        jours = (self.metadata or {}).get('jours')
+        if jours is None:
+            return ''
+        return f'{jours} j'
+

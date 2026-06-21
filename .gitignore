@@ -7,4 +7,4 @@ db.sqlite3
 # Virtual env
 env/
 venv/
-static/pb/node_modules/
+static/pb/node_modules/staticfiles/

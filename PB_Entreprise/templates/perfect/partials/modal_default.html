@@ -1,0 +1,55 @@
+<div class="modal fade pb-modal-default{% if modal_size == 'lg' %} pb-modal-default--lg{% elif modal_size == 'md' %} pb-modal-default--md{% endif %}"
+     id="{{ modal_id|default:'modal-sm' }}"
+     tabindex="-1"
+     role="dialog"
+     aria-labelledby="{{ modal_id|default:'modal-sm' }}-title"
+     aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered{% if modal_size == 'lg' %} modal-lg{% elif modal_size == 'md' %} modal-md{% else %} modal-sm{% endif %}" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="{{ modal_id|default:'modal-sm' }}-title">
+                    {% if modal_title_html %}
+                        {{ modal_title_html|safe }}
+                    {% else %}
+                        {{ modal_title|default:'Filtre' }}
+                    {% endif %}
+                </h4>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form class="pb-modal-default__form"
+                  id="{{ form_id|default:'basic-form' }}"
+                  method="{{ form_method|default:'get' }}"
+                  {% if form_action %}action="{{ form_action }}"{% endif %}
+                  {% if enctype %}enctype="{{ enctype }}"{% endif %}
+                  novalidate>
+                {% if form_method|default:'get' == 'post' %}{% csrf_token %}{% endif %}
+                <div class="modal-body{% if scrollable_body %} pb-modal-body--scroll{% endif %}">
+                    {% if body_template %}
+                        {% include body_template %}
+                    {% elif form %}
+                        {% include 'perfect/partials/modal_default_fields.html' with form=form only %}
+                    {% endif %}
+                </div>
+                {% if show_footer|default:True %}
+                    <div class="modal-footer">
+                    <div class="pb-modal-default__footer-left">
+                        <button type="button" class="btn pb-modal-default__btn-cancel" data-dismiss="modal">
+                            {{ cancel_label|default:'Annuler' }}
+                        </button>
+                        {% if reset_url %}
+                            <a href="{{ reset_url }}" class="pb-modal-default__btn-reset">{{ reset_label|default:'Réinitialiser' }}</a>
+                        {% endif %}
+                    </div>
+                    <div class="pb-modal-default__footer-actions">
+                        <button type="submit" class="btn pb-modal-default__btn-submit">
+                            {{ submit_label|default:'Appliquer' }}
+                        </button>
+                    </div>
+                </div>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+</div>

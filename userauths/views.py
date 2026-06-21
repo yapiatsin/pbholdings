@@ -7,7 +7,7 @@ from django.urls import reverse_lazy
 from .utils import send_account_created_email, send_password_reset_otp_email, send_activation_resend_email, get_client_ip
 from django.http import HttpResponse, JsonResponse
 from django.template.loader import render_to_string
-from userauths.forms import EditUserProfileForm, PasswordChangingForm, CreateUserProfileForm
+from userauths.forms import EditUserProfileForm, PasswordChangingForm, CreateUserProfileForm, MyProfileForm
 from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from django.conf import settings 
@@ -26,12 +26,13 @@ from userauths.forms import *
 from .models import CustomUser
 from PB_Entreprise.models import UserProfile
 from userauths.profile_helpers import (
+    all_permission_groups,
     build_profile_page_context,
     ensure_admin_profile,
     get_user_profile,
     save_user_profile,
     apply_profile_edit_form,
-    save_my_profile,
+    apply_my_profile_form,
     USER_TYPE_EMAIL_SUBJECTS,
 )
 # Create your views here.
@@ -112,9 +113,16 @@ def register(request):
         else:
             _form_errors_messages(request, form)
 
+    selected_permission_ids = set()
+    raw_permissions = form['permissions'].value()
+    if raw_permissions:
+        selected_permission_ids = {int(v) for v in raw_permissions}
+
     return render(request, 'register.html', {
         'form': form,
         'accounts': _accounts_queryset(),
+        'permission_groups': all_permission_groups(),
+        'selected_permission_ids': selected_permission_ids,
     })
 
 
@@ -143,19 +151,26 @@ def edit_user_permissions(request, user_id):
         form = UserPermissionForm(initial={
             'permissions': user.custom_permissions.all()
         })
-    
+
+    raw_permissions = form['permissions'].value()
+    if raw_permissions:
+        selected_permission_ids = {int(v) for v in raw_permissions}
+    else:
+        selected_permission_ids = set(user.custom_permissions.values_list('pk', flat=True))
+
+    perm_context = {
+        'form': form,
+        'user': user,
+        'permission_groups': all_permission_groups(),
+        'selected_permission_ids': selected_permission_ids,
+    }
+
     # Si c'est une requête AJAX, retourner seulement le contenu de la modal
     if is_ajax:
-        html = render_to_string('modif_user_perm_modal.html', {
-            'form': form,
-            'user': user
-        }, request=request)
+        html = render_to_string('modif_user_perm_modal.html', perm_context, request=request)
         return JsonResponse({'html': html})
-    
-    return render(request, 'modif_user_perm.html', {
-        'form': form,
-        'user': user
-    })
+
+    return render(request, 'modif_user_perm.html', perm_context)
 
 def generate_random_password(length=8):
     characters = string.ascii_letters + string.digits 
@@ -393,6 +408,8 @@ def loginview(request):
                 existing_user.save(update_fields=[
                     'failed_login_attempts', 'is_active', 'date_blocage',
                 ])
+                from userauths.notification_utils import notify_account_blocked
+                notify_account_blocked(existing_user, reason='auto')
                 _record_login_history(
                     request,
                     existing_user,
@@ -433,9 +450,23 @@ def logout_view(request):
 @require_POST
 @login_required(login_url="login")
 def toggle_active_user(request, pk):
+    from userauths.notification_utils import notify_account_blocked, clear_account_blocked_notification
+
     user = get_object_or_404(CustomUser, id=pk)
     user.is_active = not user.is_active
-    user.save()
+    update_fields = ['is_active']
+    if not user.is_active:
+        user.date_blocage = timezone.now()
+        update_fields.append('date_blocage')
+    else:
+        user.failed_login_attempts = 0
+        user.date_blocage = None
+        update_fields.extend(['failed_login_attempts', 'date_blocage'])
+    user.save(update_fields=update_fields)
+    if not user.is_active:
+        notify_account_blocked(user, reason='admin')
+    else:
+        clear_account_blocked_notification(user)
     return JsonResponse({"success": True, "is_active": user.is_active})    
 
 def interneView(request):
@@ -542,11 +573,36 @@ class VerifyOtpView(View):
                 used=False,
             ).exclude(id=otp_obj.id).update(used=True, used_at=timezone.now())
 
+        from userauths.notification_utils import notify_account_password_reset
+        notify_account_password_reset(user)
+
         _clear_password_reset_session(request)
         messages.success(request, 'Mot de passe réinitialisé avec succès.')
         return redirect('login')
 
 
+@login_required(login_url='login')
+def notifications_list_api(request):
+    from userauths.notification_utils import notifications_payload
+    return JsonResponse(notifications_payload(request.user))
+
+
+@login_required(login_url='login')
+@require_POST
+def notification_mark_read_api(request, pk):
+    from userauths.notification_utils import mark_notification_read, notifications_payload
+    mark_notification_read(request.user, pk)
+    payload = notifications_payload(request.user)
+    return JsonResponse({'success': True, 'unread_count': payload['unread_count']})
+
+
+@login_required(login_url='login')
+@require_POST
+def notification_mark_all_read_api(request):
+    from userauths.notification_utils import mark_all_notifications_read, notifications_payload
+    mark_all_notifications_read(request.user)
+    payload = notifications_payload(request.user)
+    return JsonResponse({'success': True, 'unread_count': payload['unread_count']})
 class OptValid(View):
     def get(self, request):
         email = request.session.get('password_reset_email')
@@ -608,21 +664,19 @@ class PasswordChangeView(PasswordChangeView):
     profile_success_message = "Profil mis à jour avec succès."
     success_url = reverse_lazy('change_password')
 
-    def _get_user_and_profile(self, request):
-        user = get_object_or_404(CustomUser, id=request.user.id)
+    def _get_profile(self, user):
         profile = get_user_profile(user)
         if profile is None:
             profile, _ = UserProfile.objects.get_or_create(user=user)
-        return user, profile
+        return profile
 
-    def _build_context(self, request, password_form=None, profile_form=None):
-        user, profile = self._get_user_and_profile(request)
-        if password_form is None:
-            password_form = self.get_form()
+    def _build_context(self, user, form=None, profile_form=None):
+        if form is None:
+            form = self.get_form()
         if profile_form is None:
-            profile_form = MyProfileEditForm(user=user, profile=profile)
+            profile_form = MyProfileForm(user=user, profile=self._get_profile(user))
         return {
-            'form': password_form,
+            'form': form,
             'profile_form': profile_form,
             **build_profile_page_context(user),
         }
@@ -638,34 +692,32 @@ class PasswordChangeView(PasswordChangeView):
         return reponse
 
     def get(self, request, *args, **kwargs):
-        context = self._build_context(request)
-        return render(request, self.template_name, context)
+        user = get_object_or_404(CustomUser, id=request.user.id)
+        return render(request, self.template_name, self._build_context(user))
 
     def post(self, request, *args, **kwargs):
-        user, profile = self._get_user_and_profile(request)
-        if request.POST.get('form_type') == 'profile':
-            profile_form = MyProfileEditForm(
-                request.POST, request.FILES, user=user, profile=profile,
-            )
+        user = get_object_or_404(CustomUser, id=request.user.id)
+        profile = self._get_profile(user)
+
+        if 'save_profile' in request.POST:
+            profile_form = MyProfileForm(request.POST, request.FILES, user=user, profile=profile)
             if profile_form.is_valid():
-                save_my_profile(user, profile, profile_form)
-                messages.success(request, self.profile_success_message)
+                apply_my_profile_form(user, profile, profile_form)
+                messages.success(request, "Profil mis à jour avec succès.")
                 return redirect('change_password')
-            context = self._build_context(request, profile_form=profile_form)
+            context = self._build_context(user, profile_form=profile_form)
             return render(request, self.template_name, context)
 
         form = self.get_form()
         if form.is_valid():
             return self.form_valid(form)
-        context = self._build_context(request, password_form=form)
+        context = self._build_context(user, form=form)
         return render(request, self.template_name, context)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = get_object_or_404(CustomUser, id=self.request.user.id)
-        context.update(build_profile_page_context(user))
-        profile = get_user_profile(user)
-        context['profile_form'] = MyProfileEditForm(user=user, profile=profile)
+        context.update(self._build_context(user))
         return context
 
 class PasswordChangeDoneView(View):
@@ -695,6 +747,14 @@ class PermissionListView(LoginRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         context['categories'] = TypeCustomPermission.objects.all()
         context['form'] = CustomPermissionForm()
+        permissions = list(context['permissions'])
+        for perm in permissions:
+            edit_form = CustomPermissionForm(instance=perm)
+            edit_form.fields['name'].widget.attrs['id'] = f'id_name_{perm.pk}'
+            edit_form.fields['categorie'].widget.attrs['id'] = f'id_categorie_{perm.pk}'
+            edit_form.fields['url'].widget.attrs['id'] = f'id_url_{perm.pk}'
+            perm.edit_form = edit_form
+        context['permissions'] = permissions
         return context
 
 class PermissionCreateView(LoginRequiredMixin, CreateView):
@@ -840,6 +900,12 @@ class CategorieListView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['form'] = TypeCustomPermissionForm()
+        categories = list(context['categories'])
+        for cat in categories:
+            edit_form = TypeCustomPermissionForm(instance=cat)
+            edit_form.fields['categorie'].widget.attrs['id'] = f'id_categorie_{cat.pk}'
+            cat.edit_form = edit_form
+        context['categories'] = categories
         return context
 
 class CategorieCreateView(LoginRequiredMixin, View):

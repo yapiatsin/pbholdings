@@ -1,0 +1,51 @@
+<div class="pb-modal-permissions-search mb-3">
+    <div class="input-group">
+        <div class="input-group-prepend">
+            <span class="input-group-text"><i class="fa fa-search"></i></span>
+        </div>
+        <input type="text"
+               id="{{ permission_search_id }}"
+               class="form-control"
+               placeholder="Rechercher une permission..."
+               autocomplete="off">
+        <div class="input-group-append">
+            <button type="button"
+                    class="btn btn-outline-secondary"
+                    id="{{ permission_clear_id }}"
+                    style="display: none;"
+                    aria-label="Effacer la recherche">
+                <i class="fa fa-times"></i>
+            </button>
+        </div>
+    </div>
+</div>
+<div class="card pb-modal-permissions-scroll-card mb-0">
+    <div class="card-body pb-modal-permissions-card pb-modal-permissions-card--scroll" id="{{ permission_container_id }}">
+        {% for group in permission_groups %}
+            <div class="pb-modal-permissions__group" data-permission-group>
+                <div class="pb-modal-permissions__group-title">{{ group.category.categorie }}</div>
+                <div class="row pb-modal-permissions">
+                    {% for perm in group.permissions %}
+                        <div class="col-md-4 pb-modal-permissions__item {{ permission_item_class }}"
+                             data-permission-text="{{ perm.name|lower }}">
+                            <label class="pb-modal-permissions__toggle" for="id_{{ checkbox_id_prefix }}_{{ perm.pk }}">
+                                <input type="checkbox"
+                                       name="permissions"
+                                       value="{{ perm.pk }}"
+                                       id="id_{{ checkbox_id_prefix }}_{{ perm.pk }}"
+                                       class="pb-modal-permissions__checkbox"
+                                       {% if perm.pk in selected_permission_ids %}checked{% endif %}>
+                                <span class="pb-modal-permissions__text">{{ perm.name }}</span>
+                            </label>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% empty %}
+            <p class="pb-modal-permissions__empty text-muted mb-0">Aucune permission disponible.</p>
+        {% endfor %}
+    </div>
+</div>
+<div id="{{ permission_no_results_id }}" class="alert alert-info mt-2 mb-0" style="display: none;">
+    <i class="fa fa-info-circle"></i> Aucune permission trouvée pour votre recherche.
+</div>

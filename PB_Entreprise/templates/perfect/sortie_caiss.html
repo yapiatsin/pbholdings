@@ -1,119 +1,30 @@
 {% extends 'perfect/base.html' %} 
 {% load static %} 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'pb/css/reparation-form.css' %}?v=2">
+{% endblock extra_css %}
 {% block title %} Sortie de caisse {% endblock title %} 
 {% block page_title %}
-    <a href="{% url 'billetage' %}"><img class="profile-user-img" style="border:none; height:25px;width:25px" src="{% static 'retour.png' %}" alt="Retour"></a>
+    {% url 'billetage' as billetage_back_url %}
+    {% include 'perfect/partials/page_back_link.html' with back_url=billetage_back_url %}
     <img class="profile-user-img" style="border:none; height:45px;width:45px" src="{% static 'depenses.png' %}" alt="User profile picture">Saisie une sortie de caisse 
 {% endblock page_title %} 
 {% block page_action %}
-    <form id="quickForm">
-        <button type="button" class="btn btn-default text-primary" data-toggle="modal" data-target="#modal-lg">Saisie <i class="fa fa-plus-circle"></i></button>
-        <a href="{% url 'export_decaissements' %}?date_debut={{ form.date_debut.value }}&date_fin={{ form.date_fin.value }}&immatriculation={{ form.immatriculation.value }}&categorie={{ form.categorie.value }}" class="btn btn-default text-success">
+    <form id="quickFormTrigger">
+        {% include 'perfect/partials/modal_saisie_trigger.html' with label='Saisie' icon='fa-plus-circle' %}
+        <a href="{% url 'export_decaissements' %}?date_debut={{ form.date_debut.value }}&date_fin={{ form.date_fin.value }}&immatriculation={{ form.immatriculation.value }}&categorie={{ form.categorie.value }}" class="btn btn-default pb-modal-trigger">
             Excel <i class="fa fa-file-excel-o"></i> 
         </a>
-        <a class="btn btn-default text-info" data-toggle="modal" data-target="#modal-sm" href="#" style="font-size: 16px;"> <i style="font-size: 20px;" class="fa fa-calendar"></i></a>
-        <a class="btn btn-default text-info" href="{% url 'add_decaisse' %}" style="font-size: 16px;"><i style="font-size: 20px;" class="fas fa-sync"></i></a>
+        {% include 'perfect/partials/modal_filter_trigger.html' %}
+        <a class="btn btn-default pb-modal-trigger" href="{% url 'add_decaisse' %}"><i style="font-size: 20px;" class="fas fa-sync"></i></a>
     </form>
 {% endblock page_action %}
-
+{% block navbar_nav %}
+{% endblock navbar_nav %}
 {% block active_page %} Sortie de caisse {% endblock active_page%}
 {% block main_content %}
-
-<div class="modal fade" id="modal-lg">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content" style="border-radius:25px">
-            <div class="modal-header">
-                <h4 class="modal-title" style="font-weight:700;color: #a83232; font-size:16px;">
-                    Enrégistrer une sortie de caisse du <b class="text-danger">{{ dates|date:"d/m/y" }}</b>
-                </h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form method="post" role="form" id="quickForm">
-                    {% csrf_token %}
-                    <div class="row card-body">
-                        <div class="col-md-12">
-                            <div class="text-right mb-3">
-                                <button type="button" class="btn btn-primary" id="add-encaissement"
-                                        style="position:absolute;right: -80px; top: 100px; z-index:1; border-radius: 50px;">
-                                    <i class="fa fa-plus"></i> Ajouter
-                                </button>
-                            </div>
-                            <div id="encaissement-formset-container">
-                                {{ formset.management_form }}
-                                {% for form in formset %}
-                                    <div class="ligne-encaissement border p-3 mb-2 bg-light rounded">
-                                        <div class="row">
-                                            <div class="col-md-4">
-                                                {{ form.Num_piece.label_tag }}
-                                                {{ form.Num_piece }}
-                                            </div>
-                                            <div class="col-md-4">
-                                                {{ form.libelle.label_tag }}
-                                                {{ form.libelle }}
-                                            </div>
-                                            <div class="col-md-3">
-                                                {{ form.montant.label_tag }}
-                                                {{ form.montant }}
-                                            </div>
-                                            <div class="col-md-1 d-flex align-items-end">
-                                                <button type="button" class="btn btn-outline-danger btn-sm remove-encaissement">🗑</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                {% endfor %}
-                            </div>
-                        </div>
-                        <hr class="col-md-12">
-                    </div>
-                    <div class="modal-footer justify-content-between">
-                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal" aria-label="Close">Annuler</button>
-                        <button type="submit" class="btn btn-outline-primary">Enregistrer</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="modal-sm">
-    <div class="modal-dialog modal-sm">
-        <div class="modal-content" style="border-radius:25px;">
-            <div class="modal-header">
-                <h4 class="modal-title" style="font-weight:700;color: #a83232; font-size:15px;">FILTRE</h4>
-                <button type="button" style="border-radius:25px;" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="card-body">
-                    <form id="basic-form" method="get" novalidate>
-                        <div class="row clearfix">
-                            <div class="col-12">
-                                <label style="font-weight:700;color:rgba(152, 152, 152, 0.85); font-size:15px;">Date debut </label>
-                                <div class="form-group">                                    
-                                    {{ form.date_debut }}
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <label style="font-weight:700;color: rgba(152, 152, 152, 0.85); font-size:15px;">Date fin</label>
-                                <div class="form-group">                                    
-                                    {{ form.date_fin }}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="modal-footer justify-content-between">
-                            <button type="button" class="btn btn-outline-secondary" style="border-radius:25px;" data-dismiss="modal">Annuler</button>
-                            <button type="submit" class="btn btn-outline-success" style="border-radius:25px;">Afficher</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+{% include 'perfect/partials/modal_default.html' with modal_id='modal-sm' modal_title='Filtre' form=form submit_label='Afficher' %}
+{% include 'perfect/partials/modal_default.html' with modal_id='modal-lg' modal_size='lg' modal_title='Enregistrer une sortie de caisse' form_method='post' form_id='quickForm' body_template='perfect/partials/saisie/caisse_formset_body.html' submit_label='Enregistrer' scrollable_body=True section_title="Lignes de sortie de caisse" %}
 
 <div class="col-12 col-sm-6 col-md-4">
     <div class="info-box" style="border-radius:25px;">
@@ -153,7 +64,6 @@
         </div>
     </div>
 </div>
-
 <div class="col-md-12">
     <div class="row">
         <div class="col-md-12">
@@ -231,21 +141,20 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content" style="border-radius:20px;">
             <div class="modal-body" id="modalBodyContent">
-
             </div>
         </div>
     </div>
 </div>
-
+{% endblock main_content %}
 {% block custom_js %}
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const formsetContainer = document.getElementById('encaissement-formset-container');
             const addButton = document.getElementById('add-encaissement');
             const totalForms = document.querySelector('#id_form-TOTAL_FORMS');
+            if (!formsetContainer || !addButton || !totalForms) return;
             const initialRow = formsetContainer.querySelector('.ligne-encaissement');
             const rowTemplate = initialRow ? initialRow.cloneNode(true) : null;
-
             function reindexDecaissementRow(fromEl, newIndex) {
                 fromEl.querySelectorAll('input, select, textarea').forEach(function (input) {
                     if (input.name) {
@@ -256,7 +165,6 @@
                     }
                 });
             }
-
             addButton.addEventListener('click', function () {
                 const currentFormCount = parseInt(totalForms.value, 10) || 0;
                 const sourceRow = formsetContainer.querySelector('.ligne-encaissement');
@@ -267,7 +175,6 @@
                     newForm = rowTemplate.cloneNode(true);
                 }
                 if (!newForm) return;
-
                 newForm.querySelectorAll('input, select, textarea').forEach(function (input) {
                     if (input.type === 'checkbox' || input.type === 'radio') {
                         input.checked = false;
@@ -275,12 +182,10 @@
                         input.value = '';
                     }
                 });
-
                 reindexDecaissementRow(newForm, currentFormCount);
                 totalForms.value = currentFormCount + 1;
                 formsetContainer.appendChild(newForm);
             });
-
             formsetContainer.addEventListener('click', function (e) {
                 const btn = e.target.closest('.remove-encaissement');
                 if (!btn) return;
@@ -289,7 +194,6 @@
                 ligne.remove();
                 updateFormIndexes();
             });
-
             function updateFormIndexes() {
                 const forms = formsetContainer.querySelectorAll('.ligne-encaissement');
                 forms.forEach(function (formEl, index) {
@@ -298,52 +202,50 @@
                 totalForms.value = forms.length;
             }
         });
+        $(document).on("click", ".edit-sortie-btn", function(e) {
+            e.preventDefault();
+            let url = $(this).data("url");
+            $.get(url, function(data) {
+                $("#modalBodyContent").html(data);
+                $("#editSortieModal").modal("show");
+            });
+        });
+        $(document).on("submit", "#decaisUpdateForm", function(e) {
+            e.preventDefault();
+            let form = $(this);
+            let url = form.attr("action");
+            let formData = new FormData(this);
+            $.ajax({
+                url: url,
+                type: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(data) {
+                    if (data.success) {
+                        $("#editSortieModal").modal("hide");
+                        const Toast = Swal.mixin({
+                            toast: true,
+                            position: 'top',
+                            showConfirmButton: false,
+                            timer: 4000,
+                            timerProgressBar: true
+                        });
+                        Toast.fire({
+                            type: 'success',
+                            title: data.message
+                        });
+                        setTimeout(function() {
+                            location.reload();
+                        }, 500);
+
+                    } else {
+                        $("#modalBodyContent").html(data);
+                    }
+                }
+            });
+        });
     </script>
 {% endblock custom_js %}
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-    $(document).on("click", ".edit-sortie-btn", function(e) {
-        e.preventDefault();
-        let url = $(this).data("url");
-        $.get(url, function(data) {
-            $("#modalBodyContent").html(data);
-            $("#editSortieModal").modal("show");
-        });
-    });
-    $(document).on("submit", "#decaisUpdateForm", function(e) {
-        e.preventDefault();
-        let form = $(this);
-        let url = form.attr("action");
-        let formData = new FormData(this);
-        $.ajax({
-            url: url,
-            type: "POST",
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function(data) {
-                if (data.success) {
-                    $("#editSortieModal").modal("hide");
-                    const Toast = Swal.mixin({
-                        toast: true,
-                        position: 'top',
-                        showConfirmButton: false,
-                        timer: 4000,
-                        timerProgressBar: true
-                    });
-                    Toast.fire({
-                        type: 'success',
-                        title: data.message
-                    });
-                    setTimeout(function() {
-                        location.reload();
-                    }, 500);
-                } else {
-                    $("#modalBodyContent").html(data);
-                }
-            }
-        });
-    });    
-</script>
-{% endblock main_content %}
+

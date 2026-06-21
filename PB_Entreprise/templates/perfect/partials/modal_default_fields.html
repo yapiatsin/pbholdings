@@ -1,0 +1,26 @@
+{% for field in form %}
+    {% if field.is_hidden %}
+        {{ field }}
+    {% else %}
+        <div class="pb-modal-field{% if field.field.widget.input_type == 'checkbox' %} pb-modal-field--checkbox{% endif %}">
+            {% if field.field.widget.input_type == 'checkbox' %}
+                <div class="form-check">
+                    {{ field }}
+                    <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                </div>
+            {% else %}
+                <label class="pb-modal-field__label" for="{{ field.id_for_label }}">
+                    {{ field.label|upper }}
+                    {% if field.field.required %}<span class="pb-modal-field__required">*</span>{% endif %}
+                </label>
+                {{ field }}
+            {% endif %}
+            {% if field.errors %}
+                <div class="text-danger small">{{ field.errors|striptags }}</div>
+            {% endif %}
+            {% if field.help_text %}
+                <small class="form-text text-muted">{{ field.help_text }}</small>
+            {% endif %}
+        </div>
+    {% endif %}
+{% endfor %}

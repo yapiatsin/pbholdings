@@ -1,0 +1,8 @@
+<button type="button"
+        class="btn btn-default pb-modal-trigger pb-modal-trigger--saisie"
+        data-toggle="modal"
+        data-target="#{{ modal_id|default:'modal-lg' }}"
+        style="{% if font_weight %}font-weight:{{ font_weight }};{% endif %}">
+    {{ label|default:'Saisir' }}
+    <i class="fa {{ icon|default:'fa-plus-square' }}" aria-hidden="true"></i>
+</button>

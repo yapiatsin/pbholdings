@@ -1,0 +1,106 @@
+<div class="row pb-modal-grid pb-modal-saisie-layout">
+    <div class="col-12">
+        <div class="pb-modal-panel">
+            <div class="pb-modal-panel__title">Réparation</div>
+            <div class="row">
+                <div class="col-md-6 col-lg-3">
+                    <div class="pb-modal-field">
+                        <label class="pb-modal-field__label" for="{{ forms.motif.id_for_label }}">Motif de réparation</label>
+                        {{ forms.motif }}
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="pb-modal-field">
+                        <label class="pb-modal-field__label" for="{{ forms.num_fich.id_for_label }}">N° facture</label>
+                        {{ forms.num_fich }}
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="pb-modal-field">
+                        <label class="pb-modal-field__label" for="{{ forms.date_entree.id_for_label }}">Heure d'entrée</label>
+                        {{ forms.date_entree }}
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="pb-modal-field">
+                        <label class="pb-modal-field__label" for="{{ forms.date_sortie.id_for_label }}">Heure de sortie</label>
+                        {{ forms.date_sortie }}
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="pb-modal-field">
+                        <label class="pb-modal-field__label" for="{{ forms.image.id_for_label }}">Reçu</label>
+                        {{ forms.image }}
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="pb-modal-field pb-modal-field--last">
+                        <label class="pb-modal-field__label" for="{{ forms.description.id_for_label }}">Description de la réparation</label>
+                        {{ forms.description }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 pb-modal-table-section">
+        <div class="pb-modal-table-section__title">Les pièces de réparation</div>
+
+        <div class="pb-modal-table">
+            <div class="pb-modal-table__head row no-gutters">
+                <div class="col-md-4 col-6">Libellé</div>
+                <div class="col-md-3 col-6">Lieu</div>
+                <div class="col-md-2 col-4">Quantité</div>
+                <div class="col-md-2 col-4">Montant</div>
+                <div class="col-md-1 col-4 text-center d-none d-md-block"></div>
+            </div>
+
+            {{ piece_formset.management_form }}
+            <div id="piece-formset-container" class="pb-modal-table__body">
+                {% for form in piece_formset %}
+                    <div class="ligne-piece pb-modal-table__row">
+                        <div class="row align-items-center">
+                            <div class="col-md-4 col-sm-6">
+                                <div class="pb-modal-field pb-modal-field--compact">
+                                    <label class="sr-only" for="{{ form.libelle.id_for_label }}">{{ form.libelle.label }}</label>
+                                    {{ form.libelle }}
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-sm-6">
+                                <div class="pb-modal-field pb-modal-field--compact">
+                                    <label class="sr-only" for="{{ form.lieu.id_for_label }}">{{ form.lieu.label }}</label>
+                                    {{ form.lieu }}
+                                </div>
+                            </div>
+                            <div class="col-md-2 col-sm-6">
+                                <div class="pb-modal-field pb-modal-field--compact">
+                                    <label class="sr-only" for="{{ form.quantite.id_for_label }}">{{ form.quantite.label }}</label>
+                                    {{ form.quantite }}
+                                </div>
+                            </div>
+                            <div class="col-md-2 col-sm-6">
+                                <div class="pb-modal-field pb-modal-field--compact">
+                                    <label class="sr-only" for="{{ form.montant.id_for_label }}">{{ form.montant.label }}</label>
+                                    {{ form.montant }}
+                                </div>
+                            </div>
+                            <div class="col-md-1 col-sm-6 d-flex align-items-center justify-content-center pb-modal-table__actions">
+                                <button type="button" class="btn btn-sm pb-modal-formset__remove remove-piece" title="Supprimer">🗑</button>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <button type="button" class="pb-modal-formset__add pb-modal-formset__add--outline" id="add-piece" title="Ajouter une ligne de pièce">
+            <span class="pb-modal-formset__add-icon" aria-hidden="true"><i class="fa fa-plus"></i></span>
+            <span class="pb-modal-formset__add-label">Ajouter une ligne</span>
+        </button>
+
+        <div class="pb-modal-field pb-modal-field--last pb-modal-table-section__prestation">
+            <label class="pb-modal-field__label" for="{{ forms.prestation.id_for_label }}">Coût de prestation</label>
+            {{ forms.prestation }}
+        </div>
+    </div>
+</div>

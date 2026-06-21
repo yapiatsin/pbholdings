@@ -1,0 +1,13 @@
+{% if page_info %}
+    <p class="text-muted pb-modal-hint">{{ page_info }}</p>
+{% endif %}
+{% if import_hint %}
+    <p class="text-muted pb-modal-hint">{{ import_hint }}</p>
+{% endif %}
+<div class="pb-modal-field">
+    <label class="pb-modal-field__label" for="{{ form.fichier.id_for_label }}">{{ form.fichier.label }}</label>
+    {{ form.fichier }}
+    {% if form.fichier.errors %}
+        <div class="text-danger small">{{ form.fichier.errors }}</div>
+    {% endif %}
+</div>

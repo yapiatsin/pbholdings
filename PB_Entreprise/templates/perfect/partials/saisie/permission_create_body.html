@@ -1,0 +1,27 @@
+<div class="row pb-modal-grid pb-modal-saisie-layout">
+    <div class="col-12">
+        <div class="pb-modal-panel">
+            <div class="pb-modal-panel__title">Informations de la permission</div>
+            <div class="row">
+                <div class="col-12">
+                    <div class="pb-modal-field">
+                        <label class="pb-modal-field__label" for="{{ form.name.id_for_label }}">Nom de la permission</label>
+                        {{ form.name }}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="pb-modal-field">
+                        <label class="pb-modal-field__label" for="{{ form.categorie.id_for_label }}">Catégorie</label>
+                        {{ form.categorie }}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="pb-modal-field pb-modal-field--last">
+                        <label class="pb-modal-field__label" for="{{ form.url.id_for_label }}">URL</label>
+                        {{ form.url }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

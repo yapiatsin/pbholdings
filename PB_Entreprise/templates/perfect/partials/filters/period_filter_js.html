@@ -1,0 +1,12 @@
+<script>
+(function () {
+    const periodSelect = document.getElementById('period-select');
+    const customFields = document.getElementById('custom-period-fields');
+    if (!periodSelect || !customFields) return;
+    function toggleCustomFields() {
+        customFields.style.display = periodSelect.value === 'custom' ? 'block' : 'none';
+    }
+    periodSelect.addEventListener('change', toggleCustomFields);
+    toggleCustomFields();
+})();
+</script>

@@ -1,47 +1,88 @@
-<form method="post" id="CarUpdateForm" action="{% url 'updat_car' object.id %}" enctype="multipart/form-data">
+<form method="post" id="CarUpdateForm" class="pb-modal-default__form" action="{% url 'updat_car' object.id %}" enctype="multipart/form-data">
     {% csrf_token %}
     <div class="modal-header">
-        <h5 class="modal-title">
-            Modifier le véhicule de {{ object.vehicule.immatriculation }}
-        </h5>
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Modifier le véhicule {{ object.immatriculation }}</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Fermer">
+            <span aria-hidden="true">&times;</span>
+        </button>
     </div>
-
-    <div class="modal-body row">
-        <div class="col-md-4 col-sm-6 form-group">
-            <label for="fullname"><b>Immatriculation</b></label> {{form.immatriculation}}
-        </div>
-        <div class="col-md-3 col-sm-6 form-group">
-            <label for="fullname"><b>Marque</b></label> {{form.marque}}
-        </div>
-        <div class="col-md-3 col-sm-6 form-group">
-            <label for="fullname"><b>Categorie</b></label> {{form.category}}
-        </div>
-        <div class="col-md-2 col-sm-6 form-group">
-            <label for="fullname"><b>Durée</b></label> {{form.duree}}
-        </div>
-        <div class="col-md-4 col-sm-6 form-group">
-            <label for="fullname"><b>Cout d'Acquisition</b></label> {{form.cout_acquisition}}
-        </div>
-        <div class="col-md-4 col-sm-6 form-group">
-            <label for="fullname"><b>Numero chassis</b></label> {{form.num_Chassis}}
-        </div>
-        <div class="col-md-4 col-sm-6 form-group">
-            <label for="fullname"><b>Numero Carte Grise</b></label> {{form.num_cart_grise}}
-        </div>
-        <div class="col-md-4 col-sm-6 form-group">
-            <label for="fullname"><b>Date d'Acquisition</b></label> {{form.date_acquisition}}
-        </div>
-        <div class="col-md-4 col-sm-6 form-group">
-            <label for="fullname"><b>Date Edit Carte Grise</b></label> {{form.dat_edit_carte_grise}}
-        </div>
-        <div class="col-md-4 col-sm-6 form-group">
-            <label for="fullname"><b>Date Mise en Service</b></label> {{form.date_mis_service}}
+    <div class="modal-body">
+        <div class="row pb-modal-grid pb-modal-saisie-layout">
+            <div class="col-12">
+                <div class="pb-modal-panel">
+                    <div class="pb-modal-panel__title">Informations du véhicule</div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="pb-modal-field">
+                                <label class="pb-modal-field__label" for="{{ form.immatriculation.id_for_label }}">Immatriculation</label>
+                                {{ form.immatriculation }}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="pb-modal-field">
+                                <label class="pb-modal-field__label" for="{{ form.marque.id_for_label }}">Marque</label>
+                                {{ form.marque }}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="pb-modal-field">
+                                <label class="pb-modal-field__label" for="{{ form.category.id_for_label }}">Catégorie</label>
+                                {{ form.category }}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="pb-modal-field">
+                                <label class="pb-modal-field__label" for="{{ form.duree.id_for_label }}">Durée</label>
+                                {{ form.duree }}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="pb-modal-field">
+                                <label class="pb-modal-field__label" for="{{ form.cout_acquisition.id_for_label }}">Coût d'acquisition</label>
+                                {{ form.cout_acquisition }}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="pb-modal-field">
+                                <label class="pb-modal-field__label" for="{{ form.num_Chassis.id_for_label }}">Numéro chassis</label>
+                                {{ form.num_Chassis }}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="pb-modal-field">
+                                <label class="pb-modal-field__label" for="{{ form.num_cart_grise.id_for_label }}">Numéro carte grise</label>
+                                {{ form.num_cart_grise }}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="pb-modal-field">
+                                <label class="pb-modal-field__label" for="{{ form.date_acquisition.id_for_label }}">Date d'acquisition</label>
+                                {{ form.date_acquisition }}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="pb-modal-field">
+                                <label class="pb-modal-field__label" for="{{ form.dat_edit_carte_grise.id_for_label }}">Date édit. carte grise</label>
+                                {{ form.dat_edit_carte_grise }}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="pb-modal-field pb-modal-field--last">
+                                <label class="pb-modal-field__label" for="{{ form.date_mis_service.id_for_label }}">Date mise en service</label>
+                                {{ form.date_mis_service }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-
-    <div class="modal-footer justify-content-between">
-        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Annuler</button>
-        <button type="submit" class="btn btn-outline-success">Enregistrer</button>
+    <div class="modal-footer">
+        <div class="pb-modal-default__footer-left">
+            <button type="button" class="btn pb-modal-default__btn-cancel" data-dismiss="modal">Annuler</button>
+        </div>
+        <div class="pb-modal-default__footer-actions">
+            <button type="submit" class="btn pb-modal-default__btn-submit">Enregistrer</button>
+        </div>
     </div>
 </form>

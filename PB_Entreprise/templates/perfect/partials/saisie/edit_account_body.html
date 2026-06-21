@@ -1,0 +1,76 @@
+<div class="row pb-modal-grid pb-modal-saisie-layout">
+    <div class="col-12">
+        <div class="pb-modal-panel">
+            <div class="pb-modal-panel__title">Information de connexion</div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="pb-modal-field">
+                        <label class="pb-modal-field__label" for="{{ form.username.id_for_label }}">Username</label>
+                        {{ form.username }}
+                        {% if form.username.errors %}<div class="text-danger small mt-1">{{ form.username.errors }}</div>{% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="pb-modal-field">
+                        <label class="pb-modal-field__label" for="{{ form.email.id_for_label }}">Email</label>
+                        {{ form.email }}
+                        {% if form.email.errors %}<div class="text-danger small mt-1">{{ form.email.errors }}</div>{% endif %}
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="pb-modal-field pb-modal-field--last">
+                        <label class="pb-modal-field__label" for="{{ form.gender.id_for_label }}">Genre</label>
+                        {{ form.gender }}
+                        {% if form.gender.errors %}<div class="text-danger small mt-1">{{ form.gender.errors }}</div>{% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12">
+        <div class="pb-modal-panel">
+            <div class="pb-modal-panel__title">Information du profil</div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="pb-modal-field">
+                        <label class="pb-modal-field__label" for="{{ form.nom.id_for_label }}">Nom</label>
+                        {{ form.nom }}
+                        {% if form.nom.errors %}<div class="text-danger small mt-1">{{ form.nom.errors }}</div>{% endif %}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="pb-modal-field">
+                        <label class="pb-modal-field__label" for="{{ form.prenom.id_for_label }}">Prénoms</label>
+                        {{ form.prenom }}
+                        {% if form.prenom.errors %}<div class="text-danger small mt-1">{{ form.prenom.errors }}</div>{% endif %}
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="pb-modal-field">
+                        <label class="pb-modal-field__label" for="{{ form.commune.id_for_label }}">Commune</label>
+                        {{ form.commune }}
+                        {% if form.commune.errors %}<div class="text-danger small mt-1">{{ form.commune.errors }}</div>{% endif %}
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="pb-modal-field">
+                        <label class="pb-modal-field__label" for="{{ form.tel1.id_for_label }}">Tel 1</label>
+                        {{ form.tel1 }}
+                        {% if form.tel1.errors %}<div class="text-danger small mt-1">{{ form.tel1.errors }}</div>{% endif %}
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="pb-modal-field">
+                        <label class="pb-modal-field__label" for="{{ form.tel2.id_for_label }}">Tel 2</label>
+                        {{ form.tel2 }}
+                        {% if form.tel2.errors %}<div class="text-danger small mt-1">{{ form.tel2.errors }}</div>{% endif %}
+                    </div>
+                </div>
+                {% if account_user.user_type == "4" %}
+                {% include 'perfect/partials/saisie/gerant_voiture_picker.html' with gerant_voiture=form.gerant_voiture section_id='edit-gerant-voiture-section' errors=form.gerant_voiture.errors %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>

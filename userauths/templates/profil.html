@@ -2,237 +2,127 @@
 {% load static %}
 
 {% block search_form %}{% endblock search_form %}
-{% block page_title %}{% endblock page_title %}
+{% block page_title %}Mon Profil{% endblock page_title %}
 {% block page_title_info %}{% endblock page_title_info %}
 {% block active_page %}Profile{% endblock active_page %}
 
-{% block style %}
-.profile-page { --pf-green:rgb(12, 153, 76); --pf-green-light: #22a06b; --pf-green-soft: rgba(34, 160, 107, 0.12); --pf-accent:rgb(232, 44, 44); }
-.profile-hero {
-    background: linear-gradient(135deg,rgba(255, 184, 184, 0.66) 0%,rgb(255, 234, 234) 55%,rgb(255, 232, 232) 100%);
-    border-radius: 20px;
-    padding: 28px 32px;
-    color: #fff;
-    box-shadow: 0 12px 32px rgba(15, 61, 36, 0.25);
-}
-.profile-hero .avatar-wrap { position: relative; width: 88px; height: 88px; flex-shrink: 0; }
-.profile-hero .avatar-wrap img {
-    width: 88px; height: 88px; border-radius: 50%;
-    object-fit: cover; border: 3px solid rgba(146, 5, 5, 0.35);
-}
-.profile-hero .avatar-wrap .status-dot {
-    position: absolute; bottom: 4px; right: 4px;
-    width: 14px; height: 14px; border-radius: 50%;
-    background: #4ade80; border: 2px solid #fff;
-}
-.profile-badge {
-    display: inline-block; font-size: 11px; font-weight: 700;
-    letter-spacing: 0.06em; text-transform: uppercase;
-    background: #4ade80; color: #0f3d24;
-    padding: 4px 12px; border-radius: 20px; margin-bottom: 8px;
-}
-.profile-hero h2 { font-size: 1.65rem; font-weight: 700; margin: 0 0 6px; }
-.profile-hero .meta { color: rgb(122, 0, 0); font-size: 0.92rem; }
-.profile-hero .meta span { margin: 0 6px; }
-.profile-hero .btn-dashboard {
-    background: var(--pf-green-light); color: #fff; border: none;
-    border-radius: 12px; font-weight: 600; padding: 10px 18px;
-}
-.profile-hero .btn-edit-profile {
-    background: var(--pf-accent); color: #fff; border: none;
-    border-radius: 12px; font-weight: 600; padding: 10px 18px;
-}
-.profile-hero .btn-dashboard:hover,
-.profile-hero .btn-edit-profile:hover { color: #fff; opacity: 0.92; }
-.profile-card {
-    background: #fff; border-radius: 18px;
-    border: 1px solid rgba(0,0,0,0.06);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.05);
-    height: 100%;
-}
-.profile-card .card-head {
-    padding: 18px 20px 12px;
-    border-bottom: 1px solid rgba(0,0,0,0.06);
-    font-weight: 700; color: #1a1a1a; font-size: 1rem;
-}
-.profile-card .card-head i { color: var(--pf-green); margin-right: 8px; }
-.profile-card .card-body { padding: 8px 20px 18px; }
-.profile-row {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 12px 0; border-bottom: 1px solid rgba(0,0,0,0.05);
-    font-size: 0.92rem;
-}
-.profile-row:last-child { border-bottom: none; }
-.profile-row .label { color: #6b7280; font-weight: 500; }
-.profile-row .value { color: #111827; font-weight: 600; text-align: right; max-width: 60%; word-break: break-word; }
-.pf-badge-ok {
-    display: inline-flex; align-items: center; gap: 4px;
-    background: var(--pf-green-soft); color: var(--pf-green);
-    border-radius: 20px; padding: 4px 12px; font-size: 0.82rem; font-weight: 600;
-}
-.edit-card {
-    background: #fff; border-radius: 18px;
-    border: 1px solid rgba(0,0,0,0.06);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.05);
-    padding: 24px 28px;
-}
-.edit-card .section-title {
-    font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em;
-    text-transform: uppercase; color: #9ca3af; margin: 20px 0 14px;
-}
-.edit-card .section-title:first-of-type { margin-top: 0; }
-.edit-card h3 { font-size: 1.15rem; font-weight: 700; color: #111827; margin: 0; }
-.edit-card h3 i { color: var(--pf-green); margin-right: 8px; }
-.edit-card .subtitle { color: #6b7280; font-size: 0.88rem; margin-top: 6px; }
-.edit-card label { font-weight: 600; color: #374151; font-size: 0.9rem; }
-.edit-card .form-control { border-color: #e5e7eb; }
-.edit-card .form-control:focus {
-    border-color: var(--pf-green-light);
-    box-shadow: 0 0 0 0.15rem rgba(34, 160, 107, 0.15);
-}
-.btn-save-profile {
-    background: var(--pf-green-light); color: #fff; border: none;
-    border-radius: 12px; font-weight: 600; padding: 10px 22px;
-}
-.btn-save-profile:hover { color: #fff; background: var(--pf-green); }
-.password-card {
-    background: #fff; border-radius: 18px;
-    border: 1px solid rgba(0,0,0,0.06);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.05);
-    padding: 24px 28px; margin-top: 24px;
-}
-.password-card h4 { font-size: 1rem; font-weight: 700; color: #111827; margin-bottom: 16px; }
-.password-card h4 i { color: var(--pf-green); margin-right: 8px; }
-{% endblock style %}
-
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'userauths/css/profil.css' %}">
+{% endblock extra_css %}
+{% block navbar_nav %}
+{% endblock navbar_nav %}
 {% block main_content %}
 <div class="col-md-12 profile-page">
-
-    {% if messages %}
-    <div class="mb-3">
-        {% for message in messages %}
-        <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert" style="border-radius: 12px;">
-            {{ message }}
-            <button type="button" class="close" data-dismiss="alert" aria-label="Fermer"><span aria-hidden="true">&times;</span></button>
-        </div>
-        {% endfor %}
-    </div>
-    {% endif %}
-
-    <!-- Bannière profil -->
-    <div class="profile-hero mb-4">
-        <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between">
-            <div class="d-flex align-items-center mb-3 mb-lg-0">
-                <div class="avatar-wrap mr-3">
+    {# ── Bannière ── #}
+    <div class="profile-hero">
+        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between">
+            <div class="d-flex align-items-center">
+                <div class="profile-hero__avatar-wrap mr-3">
                     {% if user_profile.avatar %}
-                        <img src="{{ user_profile.avatar.url }}" alt="Avatar">
-                    {% elif user.gender == 'Femme' %}
-                        <img src="{% static 'agente.png' %}" alt="Avatar">
+                        <img src="{{ user_profile.avatar.url }}" alt="Avatar" class="profile-hero__avatar">
+                    {% elif user.gender == 'Homme' %}
+                        <img src="{% static 'agent.png' %}" alt="Avatar" class="profile-hero__avatar">
                     {% else %}
-                        <img src="{% static 'agent.png' %}" alt="Avatar">
+                        <img src="{% static 'agente.png' %}" alt="Avatar" class="profile-hero__avatar">
                     {% endif %}
-                    <span class="status-dot"></span>
+                    <label for="{{ profile_form.avatar.id_for_label }}" class="profile-hero__avatar-edit" title="Changer la photo de profil">
+                        <i class="fas fa-camera"></i>
+                    </label>
                 </div>
                 <div>
-                    <span class="profile-badge">{{ role_badge }}</span>
-                    <h2>Bonjour, {{ display_name }} !</h2>
-                    <div class="meta">
-                        {{ user.gender }}
-                        <span>•</span>
-                        {{ user.username }}
-                        <span>•</span>
-                        Réf. {{ user_ref }}
-                    </div>
+                    <span class="profile-hero__badge">
+                        {% if user.user_type == "1" %}Espace administrateur
+                        {% elif user.user_type == "2" %}Espace chef exploitation
+                        {% elif user.user_type == "3" %}Espace comptable
+                        {% elif user.user_type == "4" %}Espace gérant
+                        {% else %}Mon espace{% endif %}
+                    </span>
+                    <h2 class="profile-hero__title">Bonjour, {{ user.prenom|default:user.username }} {{ user.nom }} !</h2>
+                    <p class="profile-hero__meta">
+                        {{ user.gender }} &bull; {{ user.username }}
+                        <button type="button" class="profile-hero__photo-submit" id="hero-photo-submit">
+                            <i class="fas fa-check-circle mr-1"></i> Valider la photo
+                        </button>
+                    </p>
                 </div>
             </div>
-            <div class="d-flex flex-wrap" style="gap: 10px;">
-                <a href="{% url 'dash' %}" class="btn btn-dashboard">
-                    <i class="fas fa-th-large mr-1"></i> Tableau de bord
+            <div class="profile-hero__actions mt-3 mt-md-0">
+                <a href="{% url 'dash' %}" class="profile-btn-primary">
+                    <i class="fas fa-tachometer-alt mr-1"></i> Tableau de bord
                 </a>
-                <a href="#edit-profile" class="btn btn-edit-profile">
+                <a href="#edit-profile" class="profile-btn-outline">
                     <i class="fas fa-user-edit mr-1"></i> Modifier mon profil
                 </a>
             </div>
         </div>
     </div>
-
-    <!-- Cartes d'information -->
-    <div class="row mb-4">
-        <div class="col-md-4 mb-3 mb-md-0">
+    {# ── Cartes résumé ── #}
+    <div class="row">
+        <div class="col-md-4 mb-3">
             <div class="profile-card">
-                <div class="card-head"><i class="fas fa-id-card"></i> Mon compte</div>
-                <div class="card-body">
+                <div class="profile-card__head"><i class="fas fa-id-card"></i> Mon compte</div>
+                <div class="profile-card__body">
                     <div class="profile-row">
-                        <span class="label">E-mail</span>
-                        <span class="value">{{ user.email }}</span>
+                        <span class="profile-row__label">E-mail</span>
+                        <span class="profile-row__value">{{ user.email }}</span>
                     </div>
                     <div class="profile-row">
-                        <span class="label">Téléphone</span>
-                        <span class="value">{{ user.telephone|default:user_profile.tel1|default:"-" }}</span>
+                        <span class="profile-row__label">Téléphone</span>
+                        <span class="profile-row__value">{{ user.telephone|default:user_profile.tel1|default:"—" }}</span>
                     </div>
                     <div class="profile-row">
-                        <span class="label">Adresse</span>
-                        <span class="value">{{ user.adresse|default:"-" }}</span>
+                        <span class="profile-row__label">Adresse</span>
+                        <span class="profile-row__value">{{ user.adresse|default:"—" }}</span>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-4 mb-3 mb-md-0">
+        <div class="col-md-4 mb-3">
             <div class="profile-card">
-                <div class="card-head"><i class="fas fa-shield-alt"></i> Accès &amp; rôle</div>
-                <div class="card-body">
+                <div class="profile-card__head"><i class="fas fa-shield-alt"></i> Accès &amp; rôle</div>
+                <div class="profile-card__body">
                     <div class="profile-row">
-                        <span class="label">Rôle</span>
-                        <span class="value">{{ role_display }}</span>
+                        <span class="profile-row__label">Rôle</span>
+                        <span class="profile-row__value">{{ user.username }}</span>
                     </div>
                     <div class="profile-row">
-                        <span class="label">Compte</span>
-                        <span class="value">
+                        <span class="profile-row__label">Compte</span>
+                        <span class="profile-row__value">
                             {% if user.is_active %}
-                            <span class="pf-badge-ok"><i class="fas fa-check"></i> Actif</span>
+                                <span class="profile-pill"><i class="fas fa-check-circle"></i> Actif</span>
                             {% else %}
-                            <span class="badge badge-secondary">Inactif</span>
+                                <span class="profile-pill" style="opacity:0.65;"><i class="fas fa-times-circle"></i> Inactif</span>
                             {% endif %}
                         </span>
                     </div>
-                    {% if user.user_type == "4" and gerant_profil.gerant_voiture.all %}
-                    <div class="profile-row">
-                        <span class="label">Catégories</span>
-                        <span class="value">
-                            {% for categorie in gerant_profil.gerant_voiture.all %}
-                            <span class="pf-badge-ok mb-1 d-inline-block">{{ categorie.category }}</span>
-                            {% endfor %}
-                        </span>
-                    </div>
-                    {% endif %}
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-4 mb-3">
             <div class="profile-card">
-                <div class="card-head"><i class="fas fa-bell"></i> Préférences</div>
-                <div class="card-body">
+                <div class="profile-card__head"><i class="fas fa-bell"></i> Préférences</div>
+                <div class="profile-card__body">
                     <div class="profile-row">
-                        <span class="label">Langue</span>
-                        <span class="value">{{ user_profile.get_langue_display|default:"Français" }}</span>
+                        <span class="profile-row__label">Langue</span>
+                        <span class="profile-row__value">{% if user_profile.langue == 'en' %}English{% else %}Français{% endif %}</span>
                     </div>
                     <div class="profile-row">
-                        <span class="label">E-mail</span>
-                        <span class="value">
+                        <span class="profile-row__label">E-mail</span>
+                        <span class="profile-row__value">
                             {% if user_profile.notif_email %}
-                            <span class="pf-badge-ok">Activées</span>
+                                <span class="profile-pill">Activées</span>
                             {% else %}
-                            <span class="badge badge-light border">Désactivées</span>
+                                <span class="profile-pill" style="opacity:0.65;">Désactivées</span>
                             {% endif %}
                         </span>
                     </div>
                     <div class="profile-row">
-                        <span class="label">Sur le site</span>
-                        <span class="value">
+                        <span class="profile-row__label">Sur le site</span>
+                        <span class="profile-row__value">
                             {% if user_profile.notif_site %}
-                            <span class="pf-badge-ok">Activées</span>
+                                <span class="profile-pill">Activées</span>
                             {% else %}
-                            <span class="badge badge-light border">Désactivées</span>
+                                <span class="profile-pill" style="opacity:0.65;">Désactivées</span>
                             {% endif %}
                         </span>
                     </div>
@@ -241,122 +131,172 @@
         </div>
     </div>
 
-    <!-- Formulaire d'édition -->
-    <div class="edit-card" id="edit-profile">
-        <div class="mb-3">
-            <h3><i class="fas fa-edit"></i> Modifier mes informations</h3>
-            <p class="subtitle">Mettez à jour vos coordonnées et préférences. Votre rôle et votre e-mail sont gérés par un administrateur.</p>
+    {# ── Formulaire d'édition ── #}
+    <div class="profile-edit-card" id="edit-profile">
+        <div class="profile-edit-card__head">
+            <h3 class="profile-edit-card__title"><i class="fas fa-edit"></i> Modifier mes informations</h3>
+            <p class="profile-edit-card__subtitle">Mettez à jour vos coordonnées et préférences. Votre rôle et votre e-mail sont gérés par un administrateur.</p>
         </div>
+        <div class="profile-edit-card__body">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="save_profile" value="1">
 
-        <form method="post" enctype="multipart/form-data" novalidate>
-            {% csrf_token %}
-            <input type="hidden" name="form_type" value="profile">
-
-            <div class="section-title">Identité</div>
-            <div class="row">
-                <div class="col-md-4 form-group">
-                    <label for="{{ profile_form.prenom.id_for_label }}">Prénom</label>
-                    {{ profile_form.prenom }}
-                    {% if profile_form.prenom.errors %}<small class="text-danger">{{ profile_form.prenom.errors.0 }}</small>{% endif %}
-                </div>
-                <div class="col-md-4 form-group">
-                    <label for="{{ profile_form.nom.id_for_label }}">Nom</label>
-                    {{ profile_form.nom }}
-                    {% if profile_form.nom.errors %}<small class="text-danger">{{ profile_form.nom.errors.0 }}</small>{% endif %}
-                </div>
-                <div class="col-md-4 form-group">
-                    <label for="{{ profile_form.telephone.id_for_label }}">Téléphone</label>
-                    {{ profile_form.telephone }}
-                    {% if profile_form.telephone.errors %}<small class="text-danger">{{ profile_form.telephone.errors.0 }}</small>{% endif %}
-                </div>
-                <div class="col-md-4 form-group">
-                    <label for="{{ profile_form.gender.id_for_label }}">Sexe</label>
-                    {{ profile_form.gender }}
-                    {% if profile_form.gender.errors %}<small class="text-danger">{{ profile_form.gender.errors.0 }}</small>{% endif %}
-                </div>
-                <div class="col-md-4 form-group">
-                    <label for="{{ profile_form.date_naissance.id_for_label }}">Date de naissance</label>
-                    {{ profile_form.date_naissance }}
-                    {% if profile_form.date_naissance.errors %}<small class="text-danger">{{ profile_form.date_naissance.errors.0 }}</small>{% endif %}
-                </div>
-                <div class="col-md-4 form-group">
-                    <label for="{{ profile_form.adresse.id_for_label }}">Adresse</label>
-                    {{ profile_form.adresse }}
-                    {% if profile_form.adresse.errors %}<small class="text-danger">{{ profile_form.adresse.errors.0 }}</small>{% endif %}
-                </div>
-            </div>
-
-            <div class="section-title">Préférences &amp; avatar</div>
-            <div class="row">
-                <div class="col-md-6 form-group">
-                    <label for="{{ profile_form.avatar.id_for_label }}">Photo de profil</label>
-                    {{ profile_form.avatar }}
-                    {% if user_profile.avatar %}
-                    <small class="text-muted d-block mt-1">Photo actuelle : {{ user_profile.avatar.name }}</small>
-                    {% endif %}
-                    {% if profile_form.avatar.errors %}<small class="text-danger">{{ profile_form.avatar.errors.0 }}</small>{% endif %}
-                </div>
-                <div class="col-md-6 form-group">
-                    <label for="{{ profile_form.langue.id_for_label }}">Langue</label>
-                    {{ profile_form.langue }}
-                    {% if profile_form.langue.errors %}<small class="text-danger">{{ profile_form.langue.errors.0 }}</small>{% endif %}
-                </div>
-                <div class="col-md-12 form-group">
-                    <label for="{{ profile_form.bio.id_for_label }}">Biographie</label>
-                    {{ profile_form.bio }}
-                    {% if profile_form.bio.errors %}<small class="text-danger">{{ profile_form.bio.errors.0 }}</small>{% endif %}
-                </div>
-                
-                <div class="col-md-6 form-group d-flex flex-column justify-content-center">
-                    <div class="form-check mb-2">
-                        {{ profile_form.notif_email }}
-                        <label class="form-check-label" for="{{ profile_form.notif_email.id_for_label }}">Notifications par e-mail</label>
+                <p class="profile-section-label">Identité</p>
+                <div class="row">
+                    <div class="col-md-4 profile-field mb-3">
+                        <label for="{{ profile_form.prenom.id_for_label }}">{{ profile_form.prenom.label }}</label>
+                        {{ profile_form.prenom }}
+                        <small class="text-danger">{{ profile_form.prenom.errors }}</small>
                     </div>
-                    <div class="form-check">
-                        {{ profile_form.notif_site }}
-                        <label class="form-check-label" for="{{ profile_form.notif_site.id_for_label }}">Notifications sur le site</label>
+                    <div class="col-md-4 profile-field mb-3">
+                        <label for="{{ profile_form.nom.id_for_label }}">{{ profile_form.nom.label }}</label>
+                        {{ profile_form.nom }}
+                        <small class="text-danger">{{ profile_form.nom.errors }}</small>
+                    </div>
+                    <div class="col-md-4 profile-field mb-3">
+                        <label for="{{ profile_form.telephone.id_for_label }}">{{ profile_form.telephone.label }}</label>
+                        {{ profile_form.telephone }}
+                        <small class="text-danger">{{ profile_form.telephone.errors }}</small>
+                    </div>
+                    <div class="col-md-4 profile-field mb-3">
+                        <label for="{{ profile_form.gender.id_for_label }}">{{ profile_form.gender.label }}</label>
+                        {{ profile_form.gender }}
+                        <small class="text-danger">{{ profile_form.gender.errors }}</small>
+                    </div>
+                    <div class="col-md-4 profile-field mb-3">
+                        <label for="{{ profile_form.date_naissance.id_for_label }}">{{ profile_form.date_naissance.label }}</label>
+                        {{ profile_form.date_naissance }}
+                        <small class="text-danger">{{ profile_form.date_naissance.errors }}</small>
+                    </div>
+                    <div class="col-md-4 profile-field mb-3">
+                        <label for="{{ profile_form.adresse.id_for_label }}">{{ profile_form.adresse.label }}</label>
+                        {{ profile_form.adresse }}
+                        <small class="text-danger">{{ profile_form.adresse.errors }}</small>
+                    </div>
+                    <div class="col-md-6 profile-field mb-3">
+                        <label for="{{ profile_form.commune.id_for_label }}">{{ profile_form.commune.label }}</label>
+                        {{ profile_form.commune }}
+                        <small class="text-danger">{{ profile_form.commune.errors }}</small>
+                    </div>
+                    <div class="col-md-6 profile-field mb-3">
+                        <label for="{{ profile_form.profession.id_for_label }}">{{ profile_form.profession.label }}</label>
+                        {{ profile_form.profession }}
+                        <small class="text-danger">{{ profile_form.profession.errors }}</small>
                     </div>
                 </div>
-            </div>
 
-            <div class="text-right mt-3">
-                <button type="submit" class="btn btn-save-profile">
-                    <i class="fas fa-check mr-1"></i> Enregistrer les modifications
-                </button>
-            </div>
-        </form>
+                <p class="profile-section-label">Préférences &amp; avatar</p>
+                <div class="row">
+                    <div class="col-md-6 profile-field mb-3">
+                        <label for="{{ profile_form.avatar.id_for_label }}">{{ profile_form.avatar.label }}</label>
+                        <div style="display:none;">
+                            {{ profile_form.avatar }}
+                        </div>
+                        <small class="text-muted d-block">Cliquez sur l'icône caméra de l'avatar en haut pour changer la photo.</small>
+                        <small class="text-danger">{{ profile_form.avatar.errors }}</small>
+                    </div>
+                    <div class="col-md-6 profile-field mb-3">
+                        <label for="{{ profile_form.langue.id_for_label }}">{{ profile_form.langue.label }}</label>
+                        {{ profile_form.langue }}
+                        <small class="text-danger">{{ profile_form.langue.errors }}</small>
+                    </div>
+                    <div class="col-md-12 profile-field mb-3">
+                        <label for="{{ profile_form.bio.id_for_label }}">{{ profile_form.bio.label }}</label>
+                        {{ profile_form.bio }}
+                        <small class="text-danger">{{ profile_form.bio.errors }}</small>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="profile-checks">
+                            <div class="form-check">
+                                {{ profile_form.notif_email }}
+                                <label class="form-check-label" for="{{ profile_form.notif_email.id_for_label }}">{{ profile_form.notif_email.label }}</label>
+                            </div>
+                            <div class="form-check">
+                                {{ profile_form.notif_site }}
+                                <label class="form-check-label" for="{{ profile_form.notif_site.id_for_label }}">{{ profile_form.notif_site.label }}</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-right mt-2">
+                    <button type="submit" class="profile-save-btn">
+                        <i class="fas fa-check mr-1"></i> Enregistrer les modifications
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 
-    <!-- Changement de mot de passe -->
-    <div class="password-card" id="change-password">
-        <h4><i class="fas fa-lock"></i> Changer de mot de passe</h4>
-        <form method="post" novalidate>
-            {% csrf_token %}
-            <input type="hidden" name="form_type" value="password">
-            <div class="row">
-                <div class="col-md-4 form-group">
-                    <label for="{{ form.old_password.id_for_label }}">Ancien mot de passe <span class="text-danger">*</span></label>
-                    {{ form.old_password }}
-                    {% if form.old_password.errors %}<small class="text-danger d-block">{{ form.old_password.errors.0 }}</small>{% endif %}
-                </div>
-                <div class="col-md-4 form-group">
-                    <label for="{{ form.new_password1.id_for_label }}">Nouveau mot de passe <span class="text-danger">*</span></label>
-                    {{ form.new_password1 }}
-                    {% if form.new_password1.errors %}<small class="text-danger d-block">{{ form.new_password1.errors.0 }}</small>{% endif %}
-                    <small class="text-muted">8 caractères min., majuscule, minuscule, chiffre et caractère spécial.</small>
-                </div>
-                <div class="col-md-4 form-group">
-                    <label for="{{ form.new_password2.id_for_label }}">Confirmer <span class="text-danger">*</span></label>
-                    {{ form.new_password2 }}
-                    {% if form.new_password2.errors %}<small class="text-danger d-block">{{ form.new_password2.errors.0 }}</small>{% endif %}
+    {# ── Mot de passe & permissions (repliables) ── #}
+    <div class="profile-extra-card">
+        <div class="card-header" data-toggle="collapse" data-target="#collapse-password" aria-expanded="false">
+            <strong><i class="fas fa-lock mr-1"></i> Changer de mot de passe</strong>
+            <i class="fas fa-chevron-down float-right mt-1" style="color:#a83232;"></i>
+        </div>
+        <div id="collapse-password" class="collapse">
+            <div class="card-body p-4">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-4 profile-field mb-3">
+                            <label>Ancien mot de passe <span class="text-danger">*</span></label>
+                            {{ form.old_password }}
+                            <small class="text-danger">{{ form.old_password.errors }}</small>
+                        </div>
+                        <div class="col-md-4 profile-field mb-3">
+                            <label>Nouveau mot de passe <span class="text-danger">*</span></label>
+                            {{ form.new_password1 }}
+                            <small class="text-danger">{{ form.new_password1.errors }}</small>
+                        </div>
+                        <div class="col-md-4 profile-field mb-3">
+                            <label>Confirmer <span class="text-danger">*</span></label>
+                            {{ form.new_password2 }}
+                            <small class="text-danger">{{ form.new_password2.errors }}</small>
+                        </div>
+                    </div>
+                    <small class="text-muted d-block mb-3">Au moins 8 caractères, 1 majuscule, 1 minuscule, 1 chiffre et 1 caractère spécial.</small>
+                    <button type="submit" class="profile-save-btn btn-sm">Enregistrer le mot de passe</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="profile-extra-card mb-4">
+        <div class="card-header" data-toggle="collapse" data-target="#collapse-permissions" aria-expanded="false">
+            <strong><i class="fas fa-key mr-1"></i> Mes permissions</strong>
+            <i class="fas fa-chevron-down float-right mt-1" style="color:#a83232;"></i>
+        </div>
+        <div id="collapse-permissions" class="collapse">
+            <div class="card-body p-4">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 style="font-weight:700; color:#a83232; font-size:0.9rem;">Permissions personnalisées</h6>
+                        {% if custom_permissions %}
+                            <select multiple class="custom-select mb-3" style="width:100%; height:160px; border-radius:12px;">
+                                {% for perm in custom_permissions %}<option>{{ perm.name }}</option>{% endfor %}
+                            </select>
+                        {% else %}
+                            <p class="text-muted font-italic small">Aucune permission personnalisée</p>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <h6 style="font-weight:700; color:#a83232; font-size:0.9rem;">Permissions système</h6>
+                        {% if system_permissions %}
+                            {% for perm in system_permissions %}
+                                <div class="d-flex align-items-center mb-2">
+                                    <input type="checkbox" checked disabled class="mr-2" style="accent-color:#a83232;">
+                                    <span style="font-size:0.88rem; font-weight:600;">{{ perm.name|truncatewords:10 }}</span>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-muted font-italic small">Aucune permission système</p>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
-            <div class="text-right">
-                <button type="submit" class="btn btn-save-profile">
-                    <i class="fas fa-key mr-1"></i> Mettre à jour le mot de passe
-                </button>
-            </div>
-        </form>
+        </div>
     </div>
 
 </div>
@@ -364,8 +304,15 @@
 
 {% block custom_js %}
 <script>
-    setTimeout(function() {
-        $('.alert').fadeOut('slow');
-    }, 4000);
+    setTimeout(function() { $('#message').fadeOut('slow'); }, 3000);
+
+    (function () {
+        var heroPhotoSubmit = document.getElementById('hero-photo-submit');
+        var formSubmitBtn = document.querySelector('.profile-save-btn');
+        if (!heroPhotoSubmit || !formSubmitBtn) return;
+        heroPhotoSubmit.addEventListener('click', function () {
+            formSubmitBtn.click();
+        });
+    })();
 </script>
 {% endblock custom_js %}

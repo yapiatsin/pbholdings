@@ -2,15 +2,7 @@
 {% load static %} 
 {% block title %} Etat des recettes {% endblock title %} 
 {% block navbar_nav %}
-    <form class="search-form" method="get">
-        <div class="input-group">
-            {{ form.immatriculation }}
-            <div class="input-group-append">
-            <button type="submit" name="submit" class="btn btn-danger"><i class="fas fa-search"></i></button>
-            <a href="{% url 'list_recet' %}" name="submit" class="btn btn-danger" style="border-radius: 0 50px 50px 0;"><i class="fas fa-refresh text-light"></i></a>
-            </div>
-        </div>
-    </form>
+    {% include 'perfect/partials/navbar_default_search.html' with search_action='list_recet' %}
 {% endblock navbar_nav %}  
 {% block page_title %}
     <img class="profile-user-img" style="border:none; height:55px;width:55px" src="{% static 'recet.png' %}" alt="User profile picture">Etats des recettes 
@@ -30,61 +22,14 @@
                 {% endfor %}
             {% endif %}
         {% endfor %}
-        <a class="btn btn-default" data-toggle="modal" data-target="#modal-sm" href="#" style="font-size: 16px; color: #a83232;"><i style="font-size: 20px;" class="fa fa-calendar"></i></a>
+        {% include 'perfect/partials/modal_filter_trigger.html' %}
         <a class="btn btn-default" style="font-size: 16px; color: #a83232;" href="{% url 'list_recet' %}"><i style="font-size: 20px;" class="fas fa-sync"></i></a>
     </form>
 {% endblock page_action %}
 {% block main_content %}
 
-<div class="modal fade" id="modal-sm">
-    <div class="modal-dialog modal-sm">
-        <div class="modal-content" style="border-radius:25px; border: 1px solid rgba(168, 50, 50, 0.2);">
-            <div class="modal-header" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.98)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 25px 25px 0 0;">
-                <h4 class="modal-title" style="font-weight:700;color: #a83232; font-size:15px;">FILTRE</h4>
-                <button type="button" style="border-radius:25px;" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-
-            <form id="basic-form" method="get" novalidate>
-                <div class="modal-body">
-                    <div class="form-group mb-3">
-                        <label style="font-weight:600;color: #a83232; font-size:15px;">Période</label>
-                        <select id="period-select" name="periode" class="form-control">
-                            <option value="today" {% if selected_period == 'today' %}selected{% endif %}>Aujourd'hui</option>
-                            <option value="week" {% if selected_period == 'week' %}selected{% endif %}>Cette semaine</option>
-                            <option value="month" {% if selected_period == 'month' %}selected{% endif %}>Ce mois</option>
-                            <option value="year" {% if selected_period == 'year' %}selected{% endif %}>Cette année</option>
-                            <option value="custom" {% if selected_period == 'custom' %}selected{% endif %}>Personnalisé</option>
-                        </select>
-                    </div>
-                    <div id="custom-period-fields">
-                        <div class="form-group mb-2">
-                            <label style="font-weight:600;color: #a83232; font-size:15px;">Date début</label>
-                            {{ form.date_debut }}
-                        </div>
-                        <div class="form-group mb-2">
-                            <label style="font-weight:600;color: #a83232; font-size:15px;">Date fin</label>
-                            {{ form.date_fin }}
-                        </div>
-                        <div class="form-group mb-2">
-                            <label style="font-weight:600;color: #a83232; font-size:15px;">Catégorie</label>
-                            {{ form.categorie }}
-                        </div>
-                        <div class="form-group mb-2">
-                            <label style="font-weight:600;color: #a83232; font-size:15px;">Matricule</label>
-                            {{ form.immatriculation }}
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer justify-content-between">
-                    <a href="{% url 'list_recet' %}" class="btn btn-outline-secondary" style="border-radius:25px;">Réinitialiser</a>
-                    <button type="submit" class="btn" style="border-radius:25px; border: 1px solid #a83232; color: #a83232; background: transparent; font-weight: 600;">Appliquer</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
+{% url 'list_recet' as filter_reset_url %}
+{% include 'perfect/partials/modal_default.html' with modal_id='modal-sm' modal_title='Filtre' body_template='perfect/partials/filters/dashboard_filter_body.html' form=form reset_url=filter_reset_url submit_label='Appliquer' %}
 <div class="col-12 col-sm-6 col-md-4">
     <div class="info-box" style="border-radius:25px;">
         <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-money-bill-wave" style="color:rgba(168, 50, 50, 0.65);"></i></span>
@@ -309,17 +254,5 @@
 {% endblock main_content %}
 
 {% block custom_js %}
-<script>
-(function () {
-    const periodSelect = document.getElementById('period-select');
-    const customFields = document.getElementById('custom-period-fields');
-    if (!periodSelect || !customFields) return;
-
-    function toggleCustomFields() {
-        customFields.style.display = periodSelect.value === 'custom' ? 'block' : 'none';
-    }
-    periodSelect.addEventListener('change', toggleCustomFields);
-    toggleCustomFields();
-})();
-</script>
+{% include 'perfect/partials/filters/period_filter_js.html' %}
 {% endblock custom_js %}

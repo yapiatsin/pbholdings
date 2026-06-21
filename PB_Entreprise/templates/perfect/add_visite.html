@@ -7,8 +7,8 @@
 {% endblock page_title %}
 {% block page_action %}
     <form id="quickForm">
-        <button type="button" class="btn btn-default" data-toggle="modal" data-target="#modal-lg" style="color: #a83232;">Saisie <i class="fa fa-plus-circle"></i></button>
-        <a class="btn btn-default" data-toggle="modal" data-target="#modal-sm" href="#" style="font-size: 16px; color: #a83232;"><i style="font-size: 20px; color: rgba(168, 50, 50, 0.75);" class="fa fa-calendar"></i></a>
+        {% include 'perfect/partials/modal_saisie_trigger.html' with label='Saisie' icon='fa-plus-circle' %}
+        {% include 'perfect/partials/modal_filter_trigger.html' %}
         <a class="btn btn-default" href="{% url 'add_visit' vehicule.pk %}" style="font-size: 16px; color: #a83232;"><i style="font-size: 20px; color: rgba(168, 50, 50, 0.75);" class="fas fa-sync"></i></a>
     </form>
 {% endblock page_action %}
@@ -48,45 +48,6 @@
         </div>
     </div>
 </div>
-
-<div class="modal fade" id="modal-sm">
-    <div class="modal-dialog modal-sm">
-        <div class="modal-content" style="border-radius:25px; border: 1px solid rgba(168, 50, 50, 0.2);">
-            <div class="modal-header" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.98)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 25px 25px 0 0;">
-                <h4 class="modal-title" style="font-weight:700;color: #a83232;">FILTRE</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="card-body">
-                    <form id="basic-form" method="get" novalidate>
-                        <div class="row clearfix">
-                            <div class="col-md-12 form-group"><input type="text" value="Critère de filtre" class="form-control text-center" disabled></div>
-                            <div class="col-12">
-                                <label style="font-weight:600; color: #a83232;">Date debut </label>
-                                <div class="form-group">                                    
-                                    {{ form.date_debut }}
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <label style="font-weight:600; color: #a83232;">Date fin</label>
-                                <div class="form-group">                                    
-                                    {{ form.date_fin }}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Annuler</button>
-                            <button type="submit" class="btn" style="border-radius:25px; border: 1px solid #a83232; color: #a83232; background: transparent; font-weight: 600;">Afficher</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
 <div class="col-12 col-sm-6 col-md-4">
     <div class="info-box" style="border-radius:25px;">
         <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-clipboard-check" style="color: #a83232;"></i></span>
@@ -126,45 +87,8 @@
     </div>
 </div>
 
-<div class="modal fade" id="modal-lg">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content" style="border-radius:25px; border: 1px solid rgba(168, 50, 50, 0.2);">
-            <div class="modal-header" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.98)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 25px 25px 0 0;">
-                <h4 class="modal-title" style="font-weight:700;color: #a83232;">Enrégistrer une nouvelle visite techniques</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div class="modal-body">
-                <form method='post' role="form" id="quickForm" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <div class="row card-body text-secondary">
-                        <div class="col-md-6 col-sm-6  form-group">
-                            <label for="fullname"><b>Date de visite</b></label> {{forms.date_vis}}
-                        </div>
-                        <div class="col-md-6 col-sm-6 form-group">
-                            <label for="fullname"><b>Date de sortie</b></label> {{forms.date_sortie}}
-                        </div>
-                        <div class="col-md-6 col-sm-6 form-group">
-                            <label for="fullname"><b>Date prochaine visite</b></label> {{forms.date_proch}}
-                        </div>
-                        <div class="col-md-6 col-sm-6 form-group">
-                            <label for="fullname"><b>Montant</b></label> {{forms.montant}}
-                        </div>
-                        <div class="col-md-12 col-sm-6 form-group">
-                            <label for="fullname"><b>Reçu</b></label> {{forms.image}}
-                        </div>
-                    </div>
-                    <div class="modal-footer justify-content-between">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
-                        <button type="submit" class="btn" style="border-radius:25px; border: 1px solid #a83232; color: #a83232; background: transparent; font-weight: 600;">Enregistrer</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
+{% include 'perfect/partials/modal_default.html' with modal_id='modal-sm' modal_title='Filtre' form=form submit_label='Afficher' %}
+{% include 'perfect/partials/modal_default.html' with modal_id='modal-lg' modal_size='lg' modal_title='Enrégistrer une nouvelle visite technique' form_method='post' form_id='quickForm' enctype='multipart/form-data' body_template='perfect/partials/saisie/visite_body.html' submit_label='Enregistrer' %}
 <div class="col-md-12">
     <div class="row">
         <div class="col-md-12">

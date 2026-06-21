@@ -1,4 +1,14 @@
-<form class="pb-search-form" method="get" role="search" onsubmit="return false;">
-    <i class="fas fa-search search-icon"></i>
-    <input type="search" placeholder="Rechercher véhicule, immatriculation..." aria-label="Rechercher">
+<form class="pb-navbar-search-form" method="get" action="{% url search_action|default:'dash' %}">
+    <div class="pb-navbar-search">
+        <i class="fas fa-search pb-navbar-search__icon" aria-hidden="true"></i>
+        <input
+            type="search"
+            name="immatriculation"
+            class="pb-navbar-search__input"
+            placeholder="Rechercher véhicule, immatriculation…"
+            value="{{ request.GET.immatriculation|default:'' }}"
+            autocomplete="off"
+            aria-label="Rechercher véhicule ou immatriculation"
+        >
+    </div>
 </form>

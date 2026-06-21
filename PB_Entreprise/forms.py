@@ -3,6 +3,33 @@ from django.forms import DateInput
 from .models import *
 from userauths.models import CustomUser
 from django.forms import inlineformset_factory, modelformset_factory, BaseModelFormSet
+
+MODAL_FORM_CONTROL_CLASS = 'form-control'
+
+
+def apply_modal_form_styles(form):
+    """Applique les classes CSS standard du modal-default aux widgets d'un formulaire."""
+    for field in form.fields.values():
+        widget = field.widget
+        if getattr(widget, 'input_type', None) == 'checkbox':
+            css = widget.attrs.get('class', '')
+            if 'form-check-input' not in css:
+                widget.attrs['class'] = f'form-check-input {css}'.strip()
+            continue
+        css = widget.attrs.get('class', '')
+        if MODAL_FORM_CONTROL_CLASS not in css:
+            widget.attrs['class'] = f'{MODAL_FORM_CONTROL_CLASS} {css}'.strip()
+    return form
+
+
+class ModalFilterForm(forms.Form):
+    """Base pour les formulaires de filtre affichés dans modal-default."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        apply_modal_form_styles(self)
+
+
 LIEU_PIECE = (
     ('INTERNE', 'INTERNE'),
     ('EXTERNE', 'EXTERNE'),
@@ -14,11 +41,11 @@ MOTIF_REPARATION = (
     ('Accident', 'Accident'),
 )
 
-class DateForm(forms.Form):
+class DateForm(ModalFilterForm):
     date_debut = forms.DateField(widget=forms.DateInput(attrs={'type': 'date','class':'form-control'}))
     date_fin = forms.DateField(widget=forms.DateInput(attrs={'type': 'date','class':'form-control'}))
 
-class DateFormMJR(forms.Form):
+class DateFormMJR(ModalFilterForm):
     date_debut = forms.DateField(widget=forms.DateInput(attrs={'type': 'date','class': 'form-control'}), required=False)
     date_fin = forms.DateField(widget=forms.DateInput(attrs={'type': 'date','class': 'form-control'}), required=False)
     categorie = forms.ModelChoiceField(queryset=CategoVehi.objects.all(), required=False, widget=forms.Select(attrs={'class': 'form-control'}))

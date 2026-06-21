@@ -1,5 +1,8 @@
 {% extends 'perfect/base.html' %} 
 {% load static %} 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'pb/css/reparation-form.css' %}?v=2">
+{% endblock extra_css %}
 {% block title %} Saisie & Etat des réparations {% endblock title %}  
 {% block page_title %}
 <a href="{% url 'temps_arrets' %}"><img class="profile-user-img" style="border:none; height:25px;width:25px" src="{% static 'retour.png' %}" alt="Retour"></a>
@@ -7,57 +10,14 @@
 {% endblock page_title %} 
 
 {% block page_action %}
-        <form id="quickForm">
-            <button type="button" class="btn btn-default" data-toggle="modal" data-target="#modal-lg" style="color: #a83232;">Saisie <i class="fa fa-plus-circle"></i></button>
-            <a class="btn btn-default" data-toggle="modal" data-target="#modal-sm" href="#" style="font-size: 16px; color: #a83232;"><i style="font-size: 20px; color: rgba(168, 50, 50, 0.75);" class="fa fa-calendar"></i></a>
-            <a class="btn btn-default" href="{% url 'add_reparation' vehicule.pk %}" style="font-size: 16px; color: #a83232;"><i style="font-size: 20px; color: rgba(168, 50, 50, 0.75);" class="fas fa-sync"></i></a>
-        </form>
+  <form id="quickForm">
+      {% include 'perfect/partials/modal_saisie_trigger.html' with label='Saisie' icon='fa-plus-circle' %}
+      {% include 'perfect/partials/modal_filter_trigger.html' %}
+      <a class="btn btn-default" href="{% url 'add_reparation' vehicule.pk %}" style="font-size: 16px; color: #a83232;"><i style="font-size: 20px; color: rgba(168, 50, 50, 0.75);" class="fas fa-sync"></i></a>
+  </form>
 {% endblock page_action %}
 
 {% block main_content %}
-
-<div class="modal fade" id="modal-sm">
-    <div class="modal-dialog modal-sm">
-        <div class="modal-content" style="border-radius:25px; border: 1px solid rgba(168, 50, 50, 0.2);">
-            <div class="modal-header" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.98)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 25px 25px 0 0;">
-                <h4 class="modal-title" style="font-weight:700;color: #a83232;">FILTRE</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="card-body">
-                    <form id="basic-form" method="get" novalidate>
-                        <div class="row clearfix">
-                            <div class="col-12">
-                                <label style="font-weight:600; color: #a83232;">Date debut </label>
-                                <div class="form-group">                                    
-                                    {{ form.date_debut }}
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <label style="font-weight:600; color: #a83232;">Date fin</label>
-                                <div class="form-group">                                    
-                                    {{ form.date_fin }}
-                                </div>
-                            </div>
-                            <div class="col-12">
-                              <label style="font-weight:600; color: #a83232;">Motif</label>
-                                <div class="form-group">                                    
-                                    {{ form.motif }}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="modal-footer justify-content-between">
-                            <button type="button" class="btn btn-outline-secondary" style="border-radius:25px;" data-dismiss="modal">Annuler</button>
-                            <button type="submit" class="btn" style="border-radius:25px; border: 1px solid #a83232; color: #a83232; background: transparent; font-weight: 600;">Afficher</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
 <div class="col-12 col-sm-6 col-md-3">
     <div class="info-box" style="border-radius:25px;">
@@ -114,104 +74,9 @@
     </div>
 </div>
 
-<div class="modal fade" id="modal-lg">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content" style="border-radius:25px; border: 1px solid rgba(168, 50, 50, 0.2);">
-        <div class="modal-header" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.98)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 25px 25px 0 0;">
-          <h4 class="modal-title" style="font-weight:700;color: #a83232;">
-            Enrégistrer une nouvelle réparation du <b style="color: #1a1a1a;"> {{vehicule}}</b>
-          </h4>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-  
-        <div class="modal-body">
-          <form method="post" role="form" id="quickForm" enctype="multipart/form-data">
-            {% csrf_token %}
-  
-            <div class="row card-body">
-              <!-- Info Réparation -->
-              <div class="col-md-12 form-group">
-                <input value="REPARATION" class="form-control text-center" disabled>
-              </div>
-  
-              <div class="col-md-3 col-sm-6 form-group">
-                <label>Motif de réparation</label> {{ forms.motif }}
-              </div>
-              <div class="col-md-3 col-sm-6 form-group">
-                <label>N°facture</label> {{ forms.num_fich }}
-              </div>
-              <div class="col-md-3 col-sm-6 form-group">
-                <label>Heure d'entrée</label> {{ forms.date_entree }}
-              </div>
-              <div class="col-md-3 col-sm-6 form-group">
-                <label>Heure de sortie</label> {{ forms.date_sortie }}
-              </div>
-  
-              <div class="col-md-12 form-group">
-                <label>Réçu</label> {{ forms.image }}
-              </div>
-              <div class="col-md-12 form-group">
-                <label>Description de la réparation</label> {{ forms.description }}
-              </div>
-  
-              <hr class="col-md-12">
-  
-              <!-- Partie Pièces -->
-              <div class="col-md-12 form-group">
-                <input value="LES PIÈCES DE REPARATION" class="form-control text-center" disabled>
-              </div>
-  
-              <div class="col-md-12">
-                <div class="text-right mb-3">
-                  <button type="button" class="btn" id="add-piece" style="position:absolute;right: -80px; top:95px; z-index:1; border-radius: 50px; background-color: #a83232; border-color: #a83232; color: #fff;"><i class="fa fa-plus"></i> Ajouter</button>
-                </div>
-                <div id="piece-formset-container">
-                  {{ piece_formset.management_form }}
-                  {% for form in piece_formset %}
-                    <div class="ligne-piece border p-3 mb-2 bg-light rounded">
-                      <div class="row">
-                        <div class="col-md-3">
-                          {{ form.libelle.label_tag }}
-                          {{ form.libelle }}
-                        </div>
-                        <div class="col-md-3">
-                          {{ form.lieu.label_tag }}
-                          {{ form.lieu }}
-                        </div>
-                        <div class="col-md-2">
-                          {{ form.quantite.label_tag }}
-                          {{ form.quantite }}
-                        </div>
-                        <div class="col-md-3">
-                          {{ form.montant.label_tag }}
-                          {{ form.montant }}
-                        </div>
-                        <div class="col-md-1 d-flex align-items-end" style="position: relative; top: -3px;">
-                          <button type="button" class="btn btn-sm remove-piece" style="margin-top: -15px; border: 1px solid rgba(168, 50, 50, 0.45); color: #a83232; background: transparent;">🗑</button>
-                        </div>
-                      </div>
-                    </div>
-                  {% endfor %}
-                </div>
-              </div>
-  
-              <hr class="col-md-12">
-              <!-- Coûts -->
-              <div class="col-md-12 form-group">
-                <label>Coût de prestation</label> {{ forms.prestation }}
-              </div>
-            </div>
-            <div class="modal-footer justify-content-between">
-                <button type="button" class=" btn btn-outline-secondary" style="border-radius:25px;" data-dismiss="modal" aria-label="Close">Annuler</button>
-                <button type="submit" class="btn" style="border-radius:25px; border: 1px solid #a83232; color: #a83232; background: transparent; font-weight: 600;">Enregistrer</button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-</div>
+{% include 'perfect/partials/modal_default.html' with modal_id='modal-sm' modal_title='Filtre' form=form submit_label='Afficher' %}
+
+{% include 'perfect/partials/modal_default.html' with modal_id='modal-lg' modal_size='lg' modal_title='Enrégistrer une nouvelle réparation' form_method='post' form_id='quickForm' enctype='multipart/form-data' body_template='perfect/partials/saisie/reparation_body.html' submit_label='Enregistrer' scrollable_body=True %}
 
 <div class="col-md-12">
     <div class="row">
@@ -369,12 +234,15 @@
     </div>
 </div>
 
+{% endblock main_content %}
+
 {% block custom_js %}
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       const formsetContainer = document.getElementById('piece-formset-container');
       const addButton = document.getElementById('add-piece');
       const totalForms = document.querySelector('#id_pieces-TOTAL_FORMS');
+      if (!formsetContainer || !addButton || !totalForms) return;
       const initialRow = formsetContainer.querySelector('.ligne-piece');
       const rowTemplate = initialRow ? initialRow.cloneNode(true) : null;
 
@@ -434,5 +302,3 @@
     });
   </script>
 {% endblock custom_js %}
-
-{% endblock main_content %}

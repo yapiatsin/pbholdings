@@ -1,5 +1,8 @@
 {% extends 'perfect/base.html' %} 
 {% load static %} 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'pb/css/reparation-form.css' %}?v=5">
+{% endblock extra_css %}
 {% block title %} Listes des véhicules {% endblock title %} 
 
 {% block page_title %}
@@ -23,107 +26,15 @@
         </form>
     {% endif %}
 {% endblock page_action %}
-
+{% block navbar_nav %}
+{% endblock navbar_nav %}
 {% block main_content %}
-<div class="modal fade" id="modal-sm">
-    <div class="modal-dialog modal-sm">
-        <div class="modal-content" style="border-radius:25px; border: 1px solid rgba(168, 50, 50, 0.2);">
-            <div class="modal-header" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.98)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 25px 25px 0 0;">
-                <h4 class="modal-title" style="font-weight:700;color: #a83232; font-size:15px;">FILTRE</h4>
-                <button type="button" style="border-radius:25px;" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="card-body">
-                    <form id="basic-form" method="get" novalidate>
-                        <div class="row clearfix">
-                            <div class="col-12">
-                                <label style="font-weight:600;color: #a83232; font-size:15px;">Date debut </label>
-                                <div class="form-group">                                    
-                                    {{ form.date_debut }}
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <label style="font-weight:600;color: #a83232; font-size:15px;">Date fin</label>
-                                <div class="form-group">                                    
-                                    {{ form.date_fin }}
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <label style="font-weight:600;color: #a83232; font-size:15px;">Categorie</label>
-                                <div class="form-group">                                    
-                                    {{ form.categorie }}
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <label style="font-weight:600;color: #a83232; font-size:15px;">Matricule</label>
-                                <div class="form-group">                                    
-                                    {{ form.immatriculation }}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="modal-footer justify-content-between">
-                            <button type="button" class="btn btn-outline-secondary" style="border-radius:25px;" data-dismiss="modal">Annuler</button>
-                            <button type="submit" class="btn" style="border-radius:25px; border: 1px solid #a83232; color: #a83232; background: transparent; font-weight: 600;">Afficher</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
-<div class="modal fade" id="modal-lg">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content" style="border-radius: 25px; border: 1px solid rgba(168, 50, 50, 0.2);">
-            <div class="modal-header" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.98)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 25px 25px 0 0;">
-                <h4 class="modal-title" style="font-weight:700;color: #a83232;">Nouveau véhicule "{{categorie}}"</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="border-radius: 50px">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form method='post' role="form" id="quickForm" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <div class="row card-body text-secondary">
-                        <div class="col-md-6 col-sm-6 form-group">
-                            <label for="fullname"><b>Immatriculation</b></label> {{forms.immatriculation}}
-                        </div>
-                        <div class="col-md-6 col-sm-6 form-group">
-                            <label for="fullname"><b>Marque</b></label> {{forms.marque}}
-                        </div>
-                        <div class="col-md-6 col-sm-6 form-group">
-                            <label for="fullname"><b>Durée</b></label> {{forms.duree}}
-                        </div>
-                        <div class="col-md-6 col-sm-6 form-group">
-                            <label for="fullname"><b>Cout d'Acquisition</b></label> {{forms.cout_acquisition}}
-                        </div>
-                        <div class="col-md-6 col-sm-6 form-group">
-                            <label for="fullname"><b>Numero chassis</b></label> {{forms.num_Chassis}}
-                        </div>
-                        <div class="col-md-6 col-sm-6 form-group">
-                            <label for="fullname"><b>Numero Carte Grise</b></label> {{forms.num_cart_grise}}
-                        </div>
-                        <div class="col-md-4 col-sm-6 form-group">
-                            <label for="fullname"><b>Date d'Acquisition</b></label> {{forms.date_acquisition}}
-                        </div>
-                        <div class="col-md-4 col-sm-6 form-group">
-                            <label for="fullname"><b>Date Edit Carte Grise</b></label> {{forms.dat_edit_carte_grise}}
-                        </div>
-                        <div class="col-md-4 col-sm-6 form-group">
-                            <label for="fullname"><b>Date Mise en Service</b></label> {{forms.date_mis_service}}
-                        </div>
-                    </div>
-                    <div class="modal-footer justify-content-between">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
-                        <button type="submit" class="btn" style="border-radius:25px; border: 1px solid #a83232; color: #a83232; background: transparent; font-weight: 600;">Enregistrer</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
+{% include 'perfect/partials/modal_default.html' with modal_id='modal-sm' modal_title='Filtre' form=form submit_label='Afficher' %}
+
+{% if categorie %}
+{% include 'perfect/partials/modal_default.html' with modal_id='modal-lg' modal_size='lg' modal_title_html='Nouveau véhicule &laquo; '|add:categorie|add:'&raquo;' form_method='post' form_id='vehiculeCreateForm' enctype='multipart/form-data' body_template='perfect/partials/saisie/vehicule_create_body.html' submit_label='Enregistrer' %}
+{% endif %}
 
 {% comment %} color: #1a1a1a {% endcomment %}
 <div class="col-12 col-sm-6 col-md-3">
@@ -343,41 +254,17 @@
     </div>
 </div>
 
-<div class="modal fade" id="editCarModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content" style="border-radius:20px;">
-            <div class="modal-body" id="modalBodyContent">
-
+<div class="modal fade pb-modal-default pb-modal-default--lg" id="editCarModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-body p-0" id="modalBodyContent">
+                <div class="text-center p-4"><div class="spinner-border" role="status"><span class="sr-only">Chargement...</span></div></div>
             </div>
         </div>
     </div>
 </div>
 
-<div class="modal fade" id="motifSortiModal" tabindex="-1">
-    <div class="modal-dialog modal-sm">
-        <div class="modal-content" style="border-radius:25px; border: 1px solid rgba(168, 50, 50, 0.2);">
-            <div class="modal-header" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.98)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 25px 25px 0 0;">
-                <h4 class="modal-title" style="font-weight:700;color: #a83232; font-size:15px;">Motif de sortie</h4>
-                <button type="button" style="border-radius:25px;" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form id="motifSortiForm">
-                    <div class="form-group">
-                        <label for="motif_sorti_input" style="font-weight:600;color: #a83232; font-size:15px;">Motif de sortie du stock</label>
-                        <input type="text" class="form-control" id="motif_sorti_input" name="motif_sorti" maxlength="100" required>
-                        <input type="hidden" id="vehicule_id_hidden" name="vehicule_id">
-                    </div>
-                    <div class="modal-footer justify-content-between">
-                        <button type="button" class="btn btn-outline-secondary" style="border-radius:25px;" data-dismiss="modal">Annuler</button>
-                        <button type="submit" class="btn" style="border-radius:25px; border: 1px solid #a83232; color: #a83232; background: transparent; font-weight: 600;">Confirmer</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
+{% include 'perfect/partials/modal_default.html' with modal_id='motifSortiModal' modal_title='Motif de sortie' form_id='motifSortiForm' submit_label='Confirmer' body_template='perfect/partials/saisie/motif_sorti_body.html' %}
 
 <script>
     document.getElementById('checkAll').addEventListener('click', function() {

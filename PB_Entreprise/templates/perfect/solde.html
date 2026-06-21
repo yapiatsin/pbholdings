@@ -5,7 +5,8 @@
 
 {% endblock navbar_nav %} 
 {% block page_title %}
-<a href="{% url 'billetage' %}"><img class="profile-user-img" style="border:none; height:25px;width:25px" src="{% static 'retour.png' %}" alt="Retour"></a>
+{% url 'billetage' as billetage_back_url %}
+{% include 'perfect/partials/page_back_link.html' with back_url=billetage_back_url %}
 <img class="profile-user-img" style="border:none; height:45px;width:45px" src="{% static 'sold.png' %}" alt="User profile picture">Saisie de solde de fin de journée 
 {% endblock page_title %} 
 
@@ -20,39 +21,8 @@
 
 {% block main_content %}
 
-<div class="modal fade" id="modal-lg">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content" style="border-radius:25px">
-            <div class="modal-header">
-                <h4 class="modal-title" style="font-weight:700;color: #06497C; font-size:16px;">Enrégistrer le solde de fin de journée</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div class="modal-body">
-                <form method='post' role="form" id="quickForm" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <div class="row card-body text-secondary">
-                        <div class="col-md-12 col-sm-6 form-group">
-                            <label for="fullname"><b>Date</b></label> {{forms.date_saisie}}
-                        </div>
-                        <div class="col-md-12 col-sm-6 form-group">
-                            <label for="fullname"><b>Montant</b></label> {{forms.montant}}
-                        </div>
-                    </div>
-                    <div class="modal-footer justify-content-between">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
-                        <button type="submit" class="btn btn-primary">Enregistrer</button>
-                    </div>
-                </form>
-            </div>
+{% include 'perfect/partials/modal_default.html' with modal_id='modal-lg' modal_size='lg' modal_title='Enregistrer le solde de fin de journée' form_id='soldeForm' form_method='post' enctype='multipart/form-data' body_template='perfect/partials/filters/solde_form_body.html' form=forms submit_label='Enregistrer' %}
 
-        </div>
-        <!-- /.modal-content -->
-    </div>
-    <!-- /.modal-dialog -->
-</div>
-<!-- /.modal -->
 <div class="col-md-12">
     <div class="row">
         <div class="col-md-12">

@@ -1,0 +1,462 @@
+/**
+ * Formulaires de saisie modaux (.pb-modal-default--lg) — réparation, entrée/sortie caisse
+ */
+.pb-modal-default--lg.pb-modal-default .pb-modal-saisie-layout {
+    margin-bottom: 0;
+}
+
+.pb-modal-default--lg.pb-modal-default .pb-modal-saisie-layout > [class*="col-"] {
+    margin-bottom: 0;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+/* ── Section panneau (réparation) ── */
+.pb-modal-default--lg .pb-modal-saisie-layout .pb-modal-panel {
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 1.15rem 1.25rem 0.5rem;
+    margin-bottom: 1.5rem;
+    background: #fff;
+}
+
+.pb-modal-default--lg .pb-modal-saisie-layout .pb-modal-panel > .row {
+    margin-left: -0.5rem;
+    margin-right: -0.5rem;
+}
+
+.pb-modal-default--lg .pb-modal-saisie-layout .pb-modal-panel > .row > [class*="col-"] {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.pb-modal-default--lg .pb-modal-saisie-layout .pb-modal-panel__title {
+    display: block;
+    text-align: center;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: #a83232;
+    margin: 0 0 1.1rem;
+    padding-bottom: 0.65rem;
+    border-bottom: 1px solid #eef1f4;
+}
+
+/* ── Section tableau (pièces / lignes caisse) ── */
+.pb-modal-default--lg .pb-modal-saisie-layout .pb-modal-table-section {
+    margin-top: 0.25rem;
+}
+
+.pb-modal-default--lg .pb-modal-saisie-layout .pb-modal-table-section__title {
+    display: block;
+    text-align: center;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: #a83232;
+    margin: 0 0 0.85rem;
+}
+
+.pb-modal-default--lg .pb-modal-saisie-layout .pb-modal-table {
+    margin-bottom: 0;
+}
+
+.pb-modal-default--lg .pb-modal-saisie-layout .pb-modal-table__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    background: rgba(168, 50, 50, 0.12);
+    border: 1px solid #d1d5db;
+    border-bottom: none;
+    border-radius: 6px 6px 0 0;
+    padding: 0.65rem 0.85rem;
+    margin: 0;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #374151;
+}
+
+.pb-modal-default--lg .pb-modal-saisie-layout .pb-modal-table__head > [class*="col-"] {
+    padding-left: 0.4rem;
+    padding-right: 0.4rem;
+}
+
+.pb-modal-default--lg .pb-modal-saisie-layout .pb-modal-table__body {
+    border: 1px solid #d1d5db;
+    border-radius: 0 0 6px 6px;
+    background: #fff;
+    padding: 0.85rem 0.85rem 0.5rem;
+}
+
+.pb-modal-default--lg .pb-modal-saisie-layout .pb-modal-table__row {
+    padding-bottom: 0.8rem;
+    margin-bottom: 0.8rem;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.pb-modal-default--lg .pb-modal-saisie-layout .pb-modal-table__row:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.pb-modal-default--lg .pb-modal-saisie-layout .pb-modal-table__row > .row {
+    margin-left: -0.4rem;
+    margin-right: -0.4rem;
+    align-items: center;
+}
+
+.pb-modal-default--lg .pb-modal-saisie-layout .pb-modal-table__row > .row > [class*="col-"] {
+    padding-left: 0.4rem;
+    padding-right: 0.4rem;
+    margin-bottom: 0;
+}
+
+.pb-modal-default--lg .pb-modal-saisie-layout .pb-modal-field--compact .form-control,
+.pb-modal-default--lg .pb-modal-saisie-layout .pb-modal-field--compact select.form-control {
+    min-height: 38px;
+    font-size: 0.875rem;
+    border-color: #d1d5db;
+    border-radius: 6px;
+}
+
+.pb-modal-default--lg .pb-modal-saisie-layout .pb-modal-table__actions {
+    min-height: 38px;
+}
+
+.pb-modal-default--lg .pb-modal-saisie-layout .pb-modal-formset__remove {
+    border: 1px solid rgba(168, 50, 50, 0.4);
+    color: #a83232;
+    background: #fff;
+    border-radius: 6px;
+    padding: 0.35rem 0.5rem;
+    font-size: 0.85rem;
+    line-height: 1;
+    box-shadow: none;
+}
+
+.pb-modal-default--lg .pb-modal-saisie-layout .pb-modal-formset__remove:hover {
+    background: rgba(168, 50, 50, 0.08);
+    color: #a83232;
+}
+
+/* Bouton « Ajouter une ligne » */
+.pb-modal-default--lg .pb-modal-saisie-layout button.pb-modal-formset__add--outline {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    margin-top: 0.85rem;
+    margin-bottom: 0;
+    padding: 0.5rem 1rem;
+    border: 1px solid #9ca3af;
+    border-radius: 6px;
+    background: #fff;
+    color: #374151;
+    font-size: 0.84rem;
+    font-weight: 600;
+    line-height: 1.25;
+    white-space: nowrap;
+    cursor: pointer;
+    box-shadow: none;
+    appearance: none;
+    -webkit-appearance: none;
+    transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+}
+
+.pb-modal-default--lg .pb-modal-saisie-layout button.pb-modal-formset__add--outline:hover,
+.pb-modal-default--lg .pb-modal-saisie-layout button.pb-modal-formset__add--outline:focus {
+    border-color: #a83232;
+    background: rgba(168, 50, 50, 0.05);
+    color: #a83232;
+    outline: none;
+    box-shadow: none;
+}
+
+.pb-modal-default--lg .pb-modal-saisie-layout button.pb-modal-formset__add--outline .pb-modal-formset__add-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: auto;
+    height: auto;
+    background: transparent;
+    color: #a83232;
+    font-size: 0.9rem;
+    border-radius: 0;
+}
+
+/* Coût de prestation (réparation) */
+.pb-modal-default--lg .pb-modal-saisie-layout .pb-modal-table-section__prestation {
+    margin-top: 1.15rem;
+    padding: 0.95rem 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    background: #fafafa;
+}
+
+.pb-modal-default--lg .pb-modal-saisie-layout .pb-modal-table-section__prestation .pb-modal-field__label {
+    margin-bottom: 0.45rem;
+}
+
+.pb-modal-default--lg .pb-modal-saisie-layout .pb-modal-table-section__prestation .form-control {
+    background: #fff;
+    border-color: #d1d5db;
+}
+
+/* Champs panneau réparation */
+.pb-modal-default--lg .pb-modal-saisie-layout .pb-modal-panel .pb-modal-field__label {
+    margin-bottom: 0.4rem;
+}
+
+.pb-modal-default--lg .pb-modal-saisie-layout .pb-modal-panel .form-control,
+.pb-modal-default--lg .pb-modal-saisie-layout .pb-modal-panel select.form-control,
+.pb-modal-default--lg .pb-modal-saisie-layout .pb-modal-panel textarea.form-control {
+    border-color: #d1d5db;
+    border-radius: 6px;
+}
+
+.pb-modal-default--lg .pb-modal-saisie-layout .pb-modal-panel input[type="file"].form-control {
+    border: 1px dashed #d1d5db;
+    border-radius: 6px;
+}
+
+@media (max-width: 767.98px) {
+    .pb-modal-default--lg .pb-modal-saisie-layout .pb-modal-table__head {
+        display: none;
+    }
+
+    .pb-modal-default--lg .pb-modal-saisie-layout .pb-modal-table__row .sr-only {
+        position: static;
+        width: auto;
+        height: auto;
+        margin: 0 0 0.25rem;
+        overflow: visible;
+        clip: auto;
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: #64748b;
+    }
+
+    .pb-modal-default--lg .pb-modal-saisie-layout .pb-modal-table__row > .row > [class*="col-"] {
+        margin-bottom: 0.65rem;
+    }
+
+    .pb-modal-default--lg .pb-modal-saisie-layout button.pb-modal-formset__add--outline {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Résumé billetage — card */
+.pb-modal-default--lg .pb-modal-billetage-summary {
+    margin-top: 1.25rem;
+}
+
+.pb-modal-default--lg .pb-modal-billetage-card {
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    background: #fff;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(15, 23, 42, 0.06);
+}
+
+.pb-modal-default--lg .pb-modal-billetage-card__header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: rgba(168, 50, 50, 0.09);
+    border-bottom: 1px solid rgba(168, 50, 50, 0.15);
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: #a83232;
+}
+
+.pb-modal-default--lg .pb-modal-billetage-card__header-icon {
+    font-size: 0.95rem;
+    opacity: 0.85;
+}
+
+.pb-modal-default--lg .pb-modal-billetage-card__body {
+    padding: 1rem;
+}
+
+.pb-modal-default--lg .pb-modal-billetage-card__body > .row {
+    margin-left: -0.5rem;
+    margin-right: -0.5rem;
+}
+
+.pb-modal-default--lg .pb-modal-billetage-card__body > .row > [class*="col-"] {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+}
+
+.pb-modal-default--lg .pb-modal-billetage-card__section {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 160px;
+    border: 1px solid #e8edf2;
+    border-radius: 8px;
+    background: #fafbfc;
+    padding: 0.85rem;
+}
+
+.pb-modal-default--lg .pb-modal-billetage-card__section--billets {
+    border-top: 3px solid rgba(168, 50, 50, 0.45);
+}
+
+.pb-modal-default--lg .pb-modal-billetage-card__section--pieces {
+    border-top: 3px solid rgba(100, 116, 139, 0.45);
+}
+
+.pb-modal-default--lg .pb-modal-billetage-card__section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #475569;
+    margin-bottom: 0.6rem;
+    padding-bottom: 0.45rem;
+    border-bottom: 1px dashed #e2e8f0;
+}
+
+.pb-modal-default--lg .pb-modal-billetage-card__section-title i {
+    color: #a83232;
+    font-size: 0.85rem;
+}
+
+.pb-modal-default--lg .pb-modal-billetage-card__section--pieces .pb-modal-billetage-card__section-title i {
+    color: #64748b;
+}
+
+.pb-modal-default--lg .pb-modal-billetage-card__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    flex: 1 1 auto;
+    max-height: 120px;
+    overflow-y: auto;
+}
+
+.pb-modal-default--lg .pb-modal-billetage-card__list li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.65rem;
+    padding: 0.4rem 0.35rem;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 0.83rem;
+}
+
+.pb-modal-default--lg .pb-modal-billetage-card__list li:last-child {
+    border-bottom: none;
+}
+
+.pb-modal-default--lg .pb-modal-billetage-card__item-label {
+    color: #64748b;
+}
+
+.pb-modal-default--lg .pb-modal-billetage-card__item-value {
+    font-weight: 700;
+    color: #1e293b;
+    white-space: nowrap;
+}
+
+.pb-modal-default--lg .pb-modal-billetage-card__empty {
+    font-style: italic;
+    color: #94a3b8;
+    justify-content: center;
+    padding: 0.75rem 0.35rem;
+}
+
+.pb-modal-default--lg .pb-modal-billetage-card__subtotal {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 0.65rem;
+    padding-top: 0.6rem;
+    border-top: 1px solid #e2e8f0;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.pb-modal-default--lg .pb-modal-billetage-card__subtotal strong {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #a83232;
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+.pb-modal-default--lg .pb-modal-billetage-card__footer {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    border-top: 1px solid #e2e8f0;
+    background: linear-gradient(180deg, #fafbfc 0%, rgba(251, 237, 237, 0.35) 100%);
+}
+
+.pb-modal-default--lg .pb-modal-billetage-card__stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    padding: 0.85rem 1rem;
+    text-align: center;
+}
+
+.pb-modal-default--lg .pb-modal-billetage-card__stat:first-child {
+    border-right: 1px solid #e2e8f0;
+}
+
+.pb-modal-default--lg .pb-modal-billetage-card__stat-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #64748b;
+}
+
+.pb-modal-default--lg .pb-modal-billetage-card__stat-value {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #1e293b;
+    line-height: 1.2;
+}
+
+.pb-modal-default--lg .pb-modal-billetage-card__stat--ecart .pb-modal-billetage-card__stat-value {
+    color: #a83232;
+}
+
+@media (max-width: 767.98px) {
+    .pb-modal-default--lg .pb-modal-billetage-card__body > .row > [class*="col-"]:first-child {
+        margin-bottom: 0.75rem;
+    }
+
+    .pb-modal-default--lg .pb-modal-billetage-card__footer {
+        grid-template-columns: 1fr;
+    }
+
+    .pb-modal-default--lg .pb-modal-billetage-card__stat:first-child {
+        border-right: none;
+        border-bottom: 1px solid #e2e8f0;
+    }
+}

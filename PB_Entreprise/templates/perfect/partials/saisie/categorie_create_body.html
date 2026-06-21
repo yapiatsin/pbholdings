@@ -1,0 +1,27 @@
+<div class="row pb-modal-grid pb-modal-saisie-layout">
+    <div class="col-12">
+        <div class="pb-modal-panel">
+            <div class="pb-modal-panel__title">Informations de la catégorie</div>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="pb-modal-field">
+                        <label class="pb-modal-field__label" for="{{ form.category.id_for_label }}">Catégorie</label>
+                        {{ form.category }}
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="pb-modal-field">
+                        <label class="pb-modal-field__label" for="{{ form.recette_defaut.id_for_label }}">Recette par défaut</label>
+                        {{ form.recette_defaut }}
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="pb-modal-field pb-modal-field--last">
+                        <label class="pb-modal-field__label" for="{{ form.perte_par_30min.id_for_label }}">Valeur perdue par arrêt</label>
+                        {{ form.perte_par_30min }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,99 @@
+/* Sidebar : scroll actif, barre invisible */
+.main-sidebar .sidebar,
+.main-sidebar .os-viewport {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.main-sidebar .sidebar::-webkit-scrollbar,
+.main-sidebar .os-viewport::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+.main-sidebar .os-scrollbar,
+.main-sidebar .os-scrollbar-vertical,
+.main-sidebar .os-scrollbar-horizontal {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+}
+
+/* Profil utilisateur en bas de la sidebar */
+.main-sidebar {
+    display: flex;
+    flex-direction: column;
+}
+
+.main-sidebar > .sidebar {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.pb-sidebar-profile {
+    flex-shrink: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.14);
+    padding: 14px 14px 16px;
+    background: rgba(250, 7, 7, 0.14);
+}
+
+.pb-sidebar-profile-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none !important;
+    color: inherit;
+}
+
+.pb-sidebar-profile-link:hover {
+    opacity: 0.92;
+}
+
+.pb-sidebar-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #4ade80;
+    flex-shrink: 0;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.pb-sidebar-user-meta {
+    min-width: 0;
+    flex: 1;
+}
+
+.pb-sidebar-user-name {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.25;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.pb-sidebar-user-role {
+    display: block;
+    font-size: 0.78rem;
+    color: rgba(255, 255, 255, 0.62);
+    margin-top: 2px;
+}
+
+.sidebar-mini.sidebar-collapse .pb-sidebar-user-meta {
+    display: none;
+}
+
+.sidebar-mini.sidebar-collapse .pb-sidebar-profile {
+    padding: 10px 0 12px;
+    text-align: center;
+}
+
+.sidebar-mini.sidebar-collapse .pb-sidebar-profile-link {
+    justify-content: center;
+}

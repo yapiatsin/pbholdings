@@ -1,6 +1,7 @@
 from django.urls import path
 from . import views
 from .views import *
+from .Mestatistiques import MesStatistiquesView
 
 urlpatterns = [
     path('B', base, name='base'),
@@ -11,6 +12,7 @@ urlpatterns = [
     path('temps arret', TableaustopView.as_view(), name='temps'),
     path('temps-arret/export-excel/', ExportTempsArretExcelView.as_view(), name='export_temps_arret_excel'),
     path('Tableau de bord', DashboardView.as_view(), name='dash'),
+    path('Mes statistiques', MesStatistiquesView.as_view(), name='mes_stats'),
     path('Saisie comptable /', SaisiComptaView.as_view(), name='saisi_compta'),
     path('dashboard Garage /', DashboardGaragView.as_view(), name='dashgarage'),
     path('alertes', GestionalerteView.as_view(), name='alerte'),

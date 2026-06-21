@@ -1,0 +1,79 @@
+<div class="row pb-modal-grid pb-modal-saisie-layout">
+    <div class="col-12">
+        <div class="pb-modal-panel">
+            <div class="pb-modal-panel__title">Information de connexion</div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="pb-modal-field">
+                        <label class="pb-modal-field__label" for="{{ form.user_type.id_for_label }}">Rôle</label>
+                        {{ form.user_type }}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="pb-modal-field">
+                        <label class="pb-modal-field__label" for="{{ form.username.id_for_label }}">Username</label>
+                        {{ form.username }}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="pb-modal-field">
+                        <label class="pb-modal-field__label" for="{{ form.email.id_for_label }}">Email</label>
+                        {{ form.email }}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="pb-modal-field pb-modal-field--last">
+                        <label class="pb-modal-field__label" for="{{ form.gender.id_for_label }}">Genre</label>
+                        {{ form.gender }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12">
+        <div class="pb-modal-panel">
+            <div class="pb-modal-panel__title">Information du profil</div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="pb-modal-field">
+                        <label class="pb-modal-field__label" for="{{ form.nom.id_for_label }}">Nom</label>
+                        {{ form.nom }}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="pb-modal-field">
+                        <label class="pb-modal-field__label" for="{{ form.prenom.id_for_label }}">Prénoms</label>
+                        {{ form.prenom }}
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="pb-modal-field">
+                        <label class="pb-modal-field__label" for="{{ form.commune.id_for_label }}">Commune</label>
+                        {{ form.commune }}
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="pb-modal-field">
+                        <label class="pb-modal-field__label" for="{{ form.tel1.id_for_label }}">Tel 1</label>
+                        {{ form.tel1 }}
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="pb-modal-field">
+                        <label class="pb-modal-field__label" for="{{ form.tel2.id_for_label }}">Tel 2</label>
+                        {{ form.tel2 }}
+                    </div>
+                </div>
+                {% include 'perfect/partials/saisie/gerant_voiture_picker.html' with gerant_voiture=form.gerant_voiture section_id='gerant-voiture-section' initial_hidden=True %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 pb-modal-table-section">
+        <div class="pb-modal-panel pb-modal-panel--permissions">
+            <div class="pb-modal-panel__title">Les permissions</div>
+            {% include 'perfect/partials/saisie/permissions_picker.html' with permission_search_id='create-account-permission-search' permission_clear_id='create-account-clear-search' permission_container_id='create-account-permissions-container' permission_no_results_id='create-account-no-results' permission_item_class='create-account-permission-item' checkbox_id_prefix='permissions' %}
+        </div>
+    </div>
+</div>

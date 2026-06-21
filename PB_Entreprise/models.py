@@ -368,6 +368,13 @@ LANGUE_CHOICES = (
 
 class UserProfile(models.Model):
     """Profil unifié (admin, chef exploitation, comptable, gérant)."""
+<<<<<<< HEAD
+=======
+    LANGUE_CHOICES = (
+        ('fr', 'Français'),
+        ('en', 'English'),
+    )
+>>>>>>> e295670b8 (Modification et des ajouts 21-06-26 02:36)
     avatar = models.ImageField(upload_to='avatars/', blank=True, null=True, verbose_name="Avatar")
     user = models.OneToOneField(
         CustomUser,
@@ -399,7 +406,10 @@ class UserProfile(models.Model):
     )
     date_creation = models.DateField(auto_now_add=True, verbose_name="Date de création")
     langue = models.CharField(
-        max_length=5, choices=LANGUE_CHOICES, default='fr', verbose_name="Langue",
+        max_length=5,
+        choices=LANGUE_CHOICES,
+        default='fr',
+        verbose_name="Langue",
     )
     notif_email = models.BooleanField(default=True, verbose_name="Notifications par e-mail")
     notif_site = models.BooleanField(default=True, verbose_name="Notifications sur le site")

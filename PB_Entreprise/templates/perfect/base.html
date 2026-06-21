@@ -29,98 +29,45 @@
     <link rel="stylesheet" href="{% static 'assets/vendors/sweetalert2/sweetalert2.min.css' %}">
     <!-- Theme style -->
     <link rel="stylesheet" href="{% static 'pb/dists/css/adminlte.min.css' %}">
+    {% include 'perfect/partials/navbar_modern_styles.html' %}
+    <link rel="stylesheet" href="{% static 'pb/css/sidebar-profile.css' %}">
+    <link rel="stylesheet" href="{% static 'pb/css/modal-default.css' %}">
+    {% block extra_css %}{% endblock extra_css %}
     <style>{% block style %}{% endblock style %}</style>
 </head>
 
 <body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed" style="background-image: url('{% static "al_red.png" %}');
     background-size: cover; background-position: center; background-repeat: no-repeat; opacity: .95">
     <div class="wrapper">
-        <nav class="main-header navbar navbar-expand navbar-white navbar-light">
-            <ul class="navbar-nav">
+        <nav class="main-header navbar navbar-expand navbar-white navbar-light pb-navbar-modern">
+            <ul class="navbar-nav flex-shrink-0">
                 <li class="nav-item">
-                    <a class="nav-link" data-widget="pushmenu" href="#"><i class="fas fa-bars"></i></a>
+                    <a class="nav-link" data-widget="pushmenu" href="#" aria-label="Menu"><i class="fas fa-bars"></i></a>
                 </li>
             </ul>
-            <ul class="navbar-nav">
-                {% block navbar_nav %} {% endblock navbar_nav %}
-            </ul>
-            <!-- Right navbar links -->
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item dropdown">
-                    <a class="nav-link" data-toggle="dropdown" href="#">
-                        <i class="far fa-bell"></i>
-                        {% if total_alertes > 0 %}
-                            <span class="badge badge-danger navbar-badge">{{ total_alertes }}</span>
-                        {% else %}
-                            <span class="badge badge-warning navbar-badge">0</span>
-                        {% endif %}
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-                      <span class="dropdown-item dropdown-header">
-                        {% if total_alertes > 0 %}
-                          {{ total_alertes }} Alerte{{ total_alertes|pluralize }}
-                        {% else %}
-                          Aucune alertes
-                        {% endif %}
-                      </span>
-                      <div class="dropdown-divider"></div>
-                      {% if alertes_list %}
-                        {% for alerte in alertes_list %}
-                          <a href="{% url 'alerte' %}" class="dropdown-item">
-                            <i class="fas fa-exclamation-triangle mr-2 text-danger"></i> 
-                            {{ alerte.type }} - {{ alerte.vehicule }}
-                            <span class="float-right text-muted text-sm">{{ alerte.jours }} jour{{ alerte.jours|pluralize }}</span>
-                          </a>
-                          <div class="dropdown-divider"></div>
-                        {% endfor %}
-                      {% else %}
-                        <a href="#" class="dropdown-item">
-                          <i class="fas fa-check-circle mr-2 text-success"></i> 
-                          <span class="text-muted">Aucune alerte critique</span>
-                        </a>
-                        <div class="dropdown-divider"></div>
-                      {% endif %}
-                      <a href="{% url 'alerte' %}" class="dropdown-item dropdown-footer">Voir toutes les alertes</a>
-                    </div>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" data-widget="control-sidebar" data-slide="true" href="#">
-                        <i class="fa fa-user-circle text-danger" style="font-size:20px"></i>
-                    </a>
-                </li>
-            </ul>
+            <div class="flex-grow-1 d-flex align-items-center px-2 px-md-3" style="min-width: 0;">
+                {% block navbar_nav %}
+                    {% include 'perfect/partials/navbar_default_search.html' %}
+                {% endblock navbar_nav %}
+            </div>
+            {% include 'perfect/partials/navbar_user_menu.html' %}
         </nav>
         <!-- Main Sidebar Container -->
         <aside class="main-sidebar sidebar-dark-primary elevation-4" style="background-image: linear-gradient(var(--pb-primary), var(--pb-primary-light)); border-radius: 25px 25px 0px 0;">
-            <a href="#" class="brand-link" style="background-color: var(--pb-soft); border-radius: 0 25px 0 0;">
-                <img src="{% static 'pb.png' %}" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
-                <span class="brand-text font-weight-danger text-danger" style="font-weight: 700; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);">P&BENTREPRISE</span>
-            </a>
+            {% if user.user_type == '4' %}
+                <a href="{% url 'dashgarage' %}" class="brand-link" style="background-color: var(--pb-soft); border-radius: 0 25px 0 0;">
+            {% else %}
+                <a href="{% url 'dash' %}" class="brand-link" style="background-color: var(--pb-soft); border-radius: 0 25px 0 0;">   
+            {% endif %}
+                    <img src="{% static 'pb.png' %}" alt="P&B Entreprise logo" class="brand-image img-circle elevation-3" style="opacity: .8">
+                    <span class="brand-text font-weight-danger text-danger" style="font-weight: 700; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);">P&BENTREPRISE</span>
+                </a>
             <div class="sidebar">
-                <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-                    <div class="image">
-                    {% if user.gender %}
-                        {% if user.is_staff %}
-                            <img src="{% static 'adm.png' %}" style="height: 60px; width: 60px;" class="img" alt="User Image"> 
-                        {% elif user.user_type == '1' or user.user_type == '2' %}
-                            <img src="{% static 'agent.png' %}" style="height: 60px; width: 60px;" class="img-circle elevation-2" alt="User Image"> 
-                        {% elif user.user_type == '3' %}
-                            {% if user.gender == 'Homme' %}
-                                <img src="{% static 'agent.png' %}" style="height: 60px; width: 60px;" class="img-circle elevation-2" alt="User Image"> 
-                            {% else %}
-                                <img src="{% static 'agente.png' %}" style="height: 60px; width: 60px;" class="img-circle elevation-2" alt="User Image"> 
-                            {% endif %}                      
-                        {% elif user.user_type == '4' %}
-                            <img src="{% static 'agear.png' %}" style="height: 60px; width: 60px;" class="img-circle elevation-2" alt="User Image"> 
-                        {% endif %}
-                    {% endif %}
-                    </div>
-                    <div class="info text-center"><a href="#" class="d-flex text-center font-weight-700 mt-3">{{user.username}}</a></div>
-                </div>
                 <nav class="mt-2">
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                         {% for categorie, perms in grouped_permissions.items %}
                             {% if categorie.categorie == "bord" %}
+                            <li class="nav-header">STATISTIQUES</li>
                                 <li class="nav-item has-treeview">
                                     <a href="#" class="nav-link" style="background-color: rgba(255, 255, 255, .1);">
                                         <i class="nav-icon fa fa-pie-chart"></i>
@@ -375,6 +322,7 @@
                     </ul>
                 </nav>
             </div>
+            {% include 'perfect/partials/sidebar_profile_footer.html' %}
         </aside>
 
         <div class="content-wrapper" style="background-color: rgb(247,248,250)">
@@ -543,6 +491,9 @@
             {% endif %}
         });
     </script>
+    {% if user.is_authenticated %}
+    <script src="{% static 'userauths/js/notifications.js' %}"></script>
+    {% endif %}
 </body>
 
 </html>

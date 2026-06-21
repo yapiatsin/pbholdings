@@ -1,0 +1,63 @@
+<div class="row pb-modal-grid pb-modal-saisie-layout">
+    <div class="col-12">
+        <div class="pb-modal-panel">
+            <div class="pb-modal-panel__title">Informations du véhicule</div>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="pb-modal-field">
+                        <label class="pb-modal-field__label" for="{{ forms.immatriculation.id_for_label }}">Immatriculation</label>
+                        {{ forms.immatriculation }}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="pb-modal-field">
+                        <label class="pb-modal-field__label" for="{{ forms.marque.id_for_label }}">Marque</label>
+                        {{ forms.marque }}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="pb-modal-field">
+                        <label class="pb-modal-field__label" for="{{ forms.duree.id_for_label }}">Durée</label>
+                        {{ forms.duree }}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="pb-modal-field">
+                        <label class="pb-modal-field__label" for="{{ forms.cout_acquisition.id_for_label }}">Coût d'acquisition</label>
+                        {{ forms.cout_acquisition }}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="pb-modal-field">
+                        <label class="pb-modal-field__label" for="{{ forms.num_Chassis.id_for_label }}">Numéro chassis</label>
+                        {{ forms.num_Chassis }}
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="pb-modal-field">
+                        <label class="pb-modal-field__label" for="{{ forms.num_cart_grise.id_for_label }}">Numéro carte grise</label>
+                        {{ forms.num_cart_grise }}
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="pb-modal-field">
+                        <label class="pb-modal-field__label" for="{{ forms.date_acquisition.id_for_label }}">Date d'acquisition</label>
+                        {{ forms.date_acquisition }}
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="pb-modal-field">
+                        <label class="pb-modal-field__label" for="{{ forms.dat_edit_carte_grise.id_for_label }}">Date édit. carte grise</label>
+                        {{ forms.dat_edit_carte_grise }}
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="pb-modal-field pb-modal-field--last">
+                        <label class="pb-modal-field__label" for="{{ forms.date_mis_service.id_for_label }}">Date mise en service</label>
+                        {{ forms.date_mis_service }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

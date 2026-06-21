@@ -2,15 +2,7 @@
 {% load static %} 
 {% block title %} Liste des assurances {% endblock title %}  
 {% block navbar_nav %}
-    <form class="search-form" method="get">
-        <div class="input-group">
-            {{ form.immatriculation }}
-            <div class="input-group-append">
-            <button type="submit" name="submit" class="btn btn-danger"><i class="fas fa-search"></i></button>
-            <a href="{% url 'liste_assurance' %}" name="submit" class="btn btn-danger" style="border-radius: 0 50px 50px 0;"><i class="fas fa-sync text-light"></i></a>
-            </div>
-        </div>
-    </form>
+    {% include 'perfect/partials/navbar_default_search.html' with search_action='liste_assurance' %}
 {% endblock navbar_nav %}
 {% block page_title %}
     <img class="profile-user-img" style="border:none; height:50px;width:55px" src="{% static 'assurance.png' %}" alt="User profile picture">Etats des assurances
@@ -30,59 +22,13 @@
                 {% endfor %}
             {% endif %}
         {% endfor %}
-        <a class="btn btn-default text-danger" data-toggle="modal" data-target="#modal-sm" href="#" style="font-size: 16px;"><i style="font-size: 20px;color: var(--pb-primary)" class="fa fa-calendar"></i></a>
+        {% include 'perfect/partials/modal_filter_trigger.html' %}
         <a class="btn btn-default text-danger" href="{% url 'liste_assurance' %}" style="font-size: 16px;"><i style="font-size: 20px;color: var(--pb-primary)" class="fas fa-sync"></i></a>
     </form>
 {% endblock page_action %}
 {% block main_content %}
-<div class="modal fade" id="modal-sm">
-    <div class="modal-dialog modal-sm">
-        <div class="modal-content" style="border-radius:25px;">
-            <div class="modal-header">
-                <h4 class="modal-title" style="font-weight:700;color: #a83232; font-size:15px;">FILTRE</h4>
-                <button type="button" style="border-radius:25px;" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="card-body">
-                    <form id="basic-form" method="get" novalidate>
-                        <div class="row clearfix">
-                            <div class="col-12">
-                                <label style="font-weight:700;color:rgba(152, 152, 152, 0.85); font-size:15px;">Date debut </label>
-                                <div class="form-group">                                    
-                                    {{ form.date_debut }}
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <label style="font-weight:700;color: rgba(152, 152, 152, 0.85); font-size:15px;">Date fin</label>
-                                <div class="form-group">                                    
-                                    {{ form.date_fin }}
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <label style="font-weight:700;color: rgba(152, 152, 152, 0.85); font-size:15px;">Categorie</label>
-                                <div class="form-group">                                    
-                                    {{ form.categorie }}
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <label style="font-weight:700;color: rgba(152, 152, 152, 0.85); font-size:15px;">Matricule</label>
-                                <div class="form-group">                                    
-                                    {{ form.immatriculation }}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="modal-footer justify-content-between">
-                            <button type="button" class="btn btn-outline-secondary" style="border-radius:25px;" data-dismiss="modal">Annuler</button>
-                            <button type="submit" class="btn btn-outline-success" style="border-radius:25px;">Afficher</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+{% url 'liste_assurance' as filter_reset_url %}
+{% include 'perfect/partials/modal_default.html' with modal_id='modal-sm' modal_title='Filtre' form=form reset_url=filter_reset_url submit_label='Afficher' %}
 
 <div class="col-12 col-sm-6 col-md-4">
     <div class="info-box" style="border-radius:25px;">

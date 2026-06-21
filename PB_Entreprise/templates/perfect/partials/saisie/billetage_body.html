@@ -1,0 +1,115 @@
+<div class="row pb-modal-grid pb-modal-saisie-layout">
+    <div class="col-12 pb-modal-table-section">
+        <div class="pb-modal-table-section__title">Lignes de billetage</div>
+
+        <div class="pb-modal-table">
+            <div class="pb-modal-table__head row no-gutters">
+                <div class="col-md-4 col-6">Valeur</div>
+                <div class="col-md-4 col-6">Type</div>
+                <div class="col-md-3 col-4">Nombre</div>
+                <div class="col-md-1 col-2 text-center d-none d-md-block"></div>
+            </div>
+
+            {{ formset.management_form }}
+            <div id="billet-formset-container" class="pb-modal-table__body">
+                {% for form in formset %}
+                    <div class="ligne-billet pb-modal-table__row">
+                        <div class="row align-items-center">
+                            <div class="col-md-4 col-sm-6">
+                                <div class="pb-modal-field pb-modal-field--compact">
+                                    <label class="sr-only" for="{{ form.valeur.id_for_label }}">{{ form.valeur.label }}</label>
+                                    {{ form.valeur }}
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-sm-6">
+                                <div class="pb-modal-field pb-modal-field--compact">
+                                    <label class="sr-only" for="{{ form.type.id_for_label }}">{{ form.type.label }}</label>
+                                    {{ form.type }}
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-sm-6">
+                                <div class="pb-modal-field pb-modal-field--compact">
+                                    <label class="sr-only" for="{{ form.nombre.id_for_label }}">{{ form.nombre.label }}</label>
+                                    {{ form.nombre }}
+                                </div>
+                            </div>
+                            <div class="col-md-1 col-sm-6 d-flex align-items-center justify-content-center pb-modal-table__actions">
+                                <button type="button" class="btn btn-sm pb-modal-formset__remove remove-billet" title="Supprimer">🗑</button>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <button type="button" class="pb-modal-formset__add pb-modal-formset__add--outline" id="add-billet" title="Ajouter une ligne">
+            <span class="pb-modal-formset__add-icon" aria-hidden="true"><i class="fa fa-plus"></i></span>
+            <span class="pb-modal-formset__add-label">Ajouter une ligne</span>
+        </button>
+    </div>
+
+    <div class="col-12 pb-modal-billetage-summary">
+        <div class="pb-modal-billetage-card">
+            <div class="pb-modal-billetage-card__header">
+                <i class="fa fa-calculator pb-modal-billetage-card__header-icon" aria-hidden="true"></i>
+                Résumé du billetage
+            </div>
+            <div class="pb-modal-billetage-card__body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="pb-modal-billetage-card__section pb-modal-billetage-card__section--billets">
+                            <div class="pb-modal-billetage-card__section-title">
+                                <i class="fa fa-money-bill-wave" aria-hidden="true"></i> Billets
+                            </div>
+                            <ul class="pb-modal-billetage-card__list">
+                                {% for b in biels %}
+                                    <li>
+                                        <span class="pb-modal-billetage-card__item-label">{{ b.val }} × {{ b.nb }}</span>
+                                        <span class="pb-modal-billetage-card__item-value">{{ b.res }}</span>
+                                    </li>
+                                {% empty %}
+                                    <li class="pb-modal-billetage-card__empty">Aucun billet saisi</li>
+                                {% endfor %}
+                            </ul>
+                            <div class="pb-modal-billetage-card__subtotal">
+                                <span>Total billets</span>
+                                <strong>{{ sombiels }}</strong>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="pb-modal-billetage-card__section pb-modal-billetage-card__section--pieces">
+                            <div class="pb-modal-billetage-card__section-title">
+                                <i class="fa fa-coins" aria-hidden="true"></i> Pièces
+                            </div>
+                            <ul class="pb-modal-billetage-card__list">
+                                {% for p in piecs %}
+                                    <li>
+                                        <span class="pb-modal-billetage-card__item-label">{{ p.val }} × {{ p.nb }}</span>
+                                        <span class="pb-modal-billetage-card__item-value">{{ p.res }}</span>
+                                    </li>
+                                {% empty %}
+                                    <li class="pb-modal-billetage-card__empty">Aucune pièce saisie</li>
+                                {% endfor %}
+                            </ul>
+                            <div class="pb-modal-billetage-card__subtotal">
+                                <span>Total pièces</span>
+                                <strong>{{ sompiecs }}</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="pb-modal-billetage-card__footer">
+                <div class="pb-modal-billetage-card__stat">
+                    <span class="pb-modal-billetage-card__stat-label">Total billets + pièces</span>
+                    <span class="pb-modal-billetage-card__stat-value">{{ tot_bi_pi }}</span>
+                </div>
+                <div class="pb-modal-billetage-card__stat pb-modal-billetage-card__stat--ecart">
+                    <span class="pb-modal-billetage-card__stat-label">Écart</span>
+                    <span class="pb-modal-billetage-card__stat-value">{{ ecart }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

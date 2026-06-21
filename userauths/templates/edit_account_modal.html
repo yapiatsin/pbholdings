@@ -1,71 +1,8 @@
-<form method="post" id="account-edit-form-modal" action="{% url 'edit_account' account_user.id %}">
+<form method="post" id="account-edit-form-modal" action="{% url 'edit_account' account_user.id %}" class="pb-modal-default__form">
     {% csrf_token %}
-    <div class="row">
-        <div class="col-md-12 form-group">
-            <input type="text" value="INFORMATION DE CONNEXION" class="form-control text-center" disabled readonly>
-        </div>
-        <div class="col-md-6 form-group">
-            <label>USERNAME</label>
-            {{ form.username }}
-            {% if form.username.errors %}<div class="text-danger">{{ form.username.errors }}</div>{% endif %}
-        </div>
-        <div class="col-md-6 form-group">
-            <label>EMAIL</label>
-            {{ form.email }}
-            {% if form.email.errors %}<div class="text-danger">{{ form.email.errors }}</div>{% endif %}
-        </div>
-        <div class="col-md-12 form-group">
-            <label>GENDER</label>
-            {{ form.gender }}
-            {% if form.gender.errors %}<div class="text-danger">{{ form.gender.errors }}</div>{% endif %}
-        </div>
-        <div class="col-md-12 form-group">
-            <input type="text" value="INFORMATION DU PROFIL" class="form-control text-center" disabled readonly>
-        </div>
-        <div class="col-md-6 form-group">
-            <label>NOM</label>
-            {{ form.nom }}
-            {% if form.nom.errors %}<div class="text-danger">{{ form.nom.errors }}</div>{% endif %}
-        </div>
-        <div class="col-md-6 form-group">
-            <label>PRENOMS</label>
-            {{ form.prenom }}
-            {% if form.prenom.errors %}<div class="text-danger">{{ form.prenom.errors }}</div>{% endif %}
-        </div>
-        <div class="col-md-4 form-group">
-            <label>COMMUNE</label>
-            {{ form.commune }}
-            {% if form.commune.errors %}<div class="text-danger">{{ form.commune.errors }}</div>{% endif %}
-        </div>
-        <div class="col-md-4 form-group">
-            <label>TEL 1</label>
-            {{ form.tel1 }}
-            {% if form.tel1.errors %}<div class="text-danger">{{ form.tel1.errors }}</div>{% endif %}
-        </div>
-        <div class="col-md-4 form-group">
-            <label>TEL 2</label>
-            {{ form.tel2 }}
-            {% if form.tel2.errors %}<div class="text-danger">{{ form.tel2.errors }}</div>{% endif %}
-        </div>
-        {% if account_user.user_type == "4" %}
-        <div class="col-md-12 form-group" id="edit-gerant-voiture-section">
-            <label>VÉHICULES GÉRÉS</label>
-            <div class="form-check-group" style="display:flex;flex-wrap:wrap;gap:15px;padding:10px;border:1px solid #ddd;border-radius:5px;max-height:200px;overflow-y:auto;">
-                {% for checkbox in form.gerant_voiture %}
-                    <div class="form-check" style="min-width:150px;">
-                        {{ checkbox.tag }}
-                        <label class="form-check-label" for="{{ checkbox.id_for_label }}">{{ checkbox.choice_label }}</label>
-                    </div>
-                {% empty %}
-                    <p class="text-muted mb-0">Aucune catégorie disponible.</p>
-                {% endfor %}
-            </div>
-            {% if form.gerant_voiture.errors %}<div class="text-danger">{{ form.gerant_voiture.errors }}</div>{% endif %}
-        </div>
-        {% endif %}
-    </div>
-    <div class="modal-footer justify-content-between">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
-        <button type="submit" class="btn btn-primary">Enregistrer</button>
+    {% include 'perfect/partials/saisie/edit_account_body.html' %}
+    <div class="d-flex justify-content-between align-items-center w-100 pt-3 mt-2 border-top">
+        <button type="button" class="btn pb-modal-default__btn-cancel" data-dismiss="modal">Annuler</button>
+        <button type="submit" class="btn pb-modal-default__btn-submit">Enregistrer</button>
     </div>
 </form>

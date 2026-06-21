@@ -1,0 +1,50 @@
+<div class="row pb-modal-grid pb-modal-saisie-layout">
+    <div class="col-12 pb-modal-table-section">
+        <div class="pb-modal-table-section__title">{{ section_title|default:"Lignes de saisie" }}</div>
+
+        <div class="pb-modal-table">
+            <div class="pb-modal-table__head row no-gutters">
+                <div class="col-md-4 col-6">N° pièce</div>
+                <div class="col-md-4 col-6">Libellé</div>
+                <div class="col-md-3 col-4">Montant</div>
+                <div class="col-md-1 col-2 text-center d-none d-md-block"></div>
+            </div>
+
+            {{ formset.management_form }}
+            <div id="encaissement-formset-container" class="pb-modal-table__body">
+                {% for form in formset %}
+                    <div class="ligne-encaissement pb-modal-table__row">
+                        <div class="row align-items-center">
+                            <div class="col-md-4 col-sm-6">
+                                <div class="pb-modal-field pb-modal-field--compact">
+                                    <label class="sr-only" for="{{ form.Num_piece.id_for_label }}">{{ form.Num_piece.label }}</label>
+                                    {{ form.Num_piece }}
+                                </div>
+                            </div>
+                            <div class="col-md-4 col-sm-6">
+                                <div class="pb-modal-field pb-modal-field--compact">
+                                    <label class="sr-only" for="{{ form.libelle.id_for_label }}">{{ form.libelle.label }}</label>
+                                    {{ form.libelle }}
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-sm-6">
+                                <div class="pb-modal-field pb-modal-field--compact">
+                                    <label class="sr-only" for="{{ form.montant.id_for_label }}">{{ form.montant.label }}</label>
+                                    {{ form.montant }}
+                                </div>
+                            </div>
+                            <div class="col-md-1 col-sm-6 d-flex align-items-center justify-content-center pb-modal-table__actions">
+                                <button type="button" class="btn btn-sm pb-modal-formset__remove remove-encaissement" title="Supprimer">🗑</button>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <button type="button" class="pb-modal-formset__add pb-modal-formset__add--outline" id="add-encaissement" title="Ajouter une ligne">
+            <span class="pb-modal-formset__add-icon" aria-hidden="true"><i class="fa fa-plus"></i></span>
+            <span class="pb-modal-formset__add-label">Ajouter une ligne</span>
+        </button>
+    </div>
+</div>

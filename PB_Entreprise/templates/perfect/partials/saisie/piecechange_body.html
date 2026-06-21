@@ -1,0 +1,54 @@
+<div class="row pb-modal-grid">
+    <div class="col-12">
+        <div class="pb-modal-field">
+            <label class="pb-modal-field__label" for="{{ forms.date_saisie.id_for_label }}">Date</label>
+            {{ forms.date_saisie }}
+        </div>
+    </div>
+
+    <div class="col-12 pb-modal-formset">
+        <div class="pb-modal-section-title">Lignes de pièces</div>
+        <div class="pb-modal-formset__actions-bar">
+            <button type="button" class="pb-modal-formset__add" id="add-ligne">
+                <span class="pb-modal-formset__add-icon" aria-hidden="true"><i class="fa fa-plus"></i></span>
+                Ajouter une ligne
+            </button>
+        </div>
+        {{ lignes_formset.management_form }}
+        <div id="ligne-formset-container" class="pb-modal-formset__list">
+            {% for form in lignes_formset %}
+                <div class="ligne-piece pb-modal-formset__row">
+                    <div class="row">
+                        <div class="col-md-4 col-sm-6">
+                            <div class="pb-modal-field">
+                                <label class="pb-modal-field__label" for="{{ form.libelle.id_for_label }}">{{ form.libelle.label }}</label>
+                                {{ form.libelle }}
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <div class="pb-modal-field">
+                                <label class="pb-modal-field__label" for="{{ form.lieu.id_for_label }}">{{ form.lieu.label }}</label>
+                                {{ form.lieu }}
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-sm-6">
+                            <div class="pb-modal-field">
+                                <label class="pb-modal-field__label" for="{{ form.quantite.id_for_label }}">{{ form.quantite.label }}</label>
+                                {{ form.quantite }}
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-sm-6">
+                            <div class="pb-modal-field">
+                                <label class="pb-modal-field__label" for="{{ form.montant.id_for_label }}">{{ form.montant.label }}</label>
+                                {{ form.montant }}
+                            </div>
+                        </div>
+                        <div class="col-md-1 col-sm-6 d-flex align-items-end pb-modal-formset__actions">
+                            <button type="button" class="btn btn-sm pb-modal-formset__remove remove-ligne" title="Supprimer">🗑</button>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
