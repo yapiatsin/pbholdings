@@ -1,0 +1,17 @@
+<div class="pb-stats-card">
+    <div class="pb-stats-card__header">
+        <h3 class="pb-stats-card__title">{{ title }}</h3>
+    </div>
+    <div class="pb-stats-card__body pb-stats-card__body--flush">
+        <ul class="pb-stats-rank-list">
+            {% for item in items %}
+            <li class="pb-stats-rank-list__item">
+                <span class="pb-stats-rank-list__label">{{ item.label }}</span>
+                <span class="pb-stats-rank-list__value">{{ item.value }}</span>
+            </li>
+            {% empty %}
+            <li class="pb-stats-empty">{{ empty_message|default:"Aucune donnée sur la période." }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>

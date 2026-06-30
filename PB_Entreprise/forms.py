@@ -1,6 +1,7 @@
 from django import forms
 from django.forms import DateInput
 from .models import *
+from .saisie_dates import SaisiePastDateMixin
 from userauths.models import CustomUser
 from django.forms import inlineformset_factory, modelformset_factory, BaseModelFormSet
 
@@ -115,7 +116,9 @@ class CategorieForm(forms.ModelForm):
             'perte_par_30min':forms.NumberInput(attrs={'class':'form-control','min':'0'}),
         }
 
-class Solde_JourForm(forms.ModelForm):
+class Solde_JourForm(SaisiePastDateMixin, forms.ModelForm):
+    saisie_past_date_fields = ('date_saisie',)
+    saisie_past_date_labels = {'date_saisie': 'La date de saisie'}
     date_saisie = forms.DateTimeField(widget=forms.DateInput(format=('%m/%d/%Y'), attrs={'class':'form-control','placeholder':'Selection une date...', 'format':'yyyy-mm-dd', 'type':'date'}))
     class Meta:
         model = SoldeJour
@@ -124,7 +127,12 @@ class Solde_JourForm(forms.ModelForm):
             'montant': forms.NumberInput(attrs={'class':'form-control','min':'0'}),
         }
 
-class AutrarretForm(forms.ModelForm):
+class AutrarretForm(SaisiePastDateMixin, forms.ModelForm):
+    saisie_past_date_fields = ('date_arret', 'date_sortie')
+    saisie_past_date_labels = {
+        'date_arret': "La date d'arrêt",
+        'date_sortie': 'La date de sortie',
+    }
     class Meta:
         model = Autrarret
         fields = ('auteur','libelle','date_sortie','date_arret','numfich','montant')
@@ -141,7 +149,12 @@ class AutrarretForm(forms.ModelForm):
         self.fields["date_arret"].input_formats = ("%Y-%m-%dT%H:%M",) 
         self.fields["date_sortie"].input_formats = ("%Y-%m-%dT%H:%M",) 
 
-class UpdatAutrarretForm(forms.ModelForm):
+class UpdatAutrarretForm(SaisiePastDateMixin, forms.ModelForm):
+    saisie_past_date_fields = ('date_arret', 'date_sortie')
+    saisie_past_date_labels = {
+        'date_arret': "La date d'arrêt",
+        'date_sortie': 'La date de sortie',
+    }
     class Meta:
         model = Autrarret
         fields = ('auteur','libelle','date_sortie','date_arret','numfich','montant')
@@ -171,7 +184,9 @@ class ChargeAdminisExcelImportForm(forms.Form):
         return f
 
 
-class ChargeAdminisForm(forms.ModelForm):
+class ChargeAdminisForm(SaisiePastDateMixin, forms.ModelForm):
+    saisie_past_date_fields = ('date_saisie',)
+    saisie_past_date_labels = {'date_saisie': 'La date de saisie'}
     date_saisie = forms.DateTimeField(widget= forms.DateTimeInput(format=('%m/%d/%Y %H:%M'), attrs={'class':'form-control','format':'yyyy-mm-dd HH-ii ss', 'type':'date'}))
     class Meta:
         model = ChargeAdminis
@@ -184,7 +199,9 @@ class ChargeAdminisForm(forms.ModelForm):
             'Num_piece': forms.TextInput(attrs={'class':'form-control'}),
         }
 
-class updatChargeAdminisForm(forms.ModelForm):
+class updatChargeAdminisForm(SaisiePastDateMixin, forms.ModelForm):
+    saisie_past_date_fields = ('date_saisie',)
+    saisie_past_date_labels = {'date_saisie': 'La date de saisie'}
     class Meta:
         model = ChargeAdminis
         fields = ('libelle','montant','cpte_comptable','Num_piece','Num_fact','date_saisie')
@@ -265,7 +282,9 @@ BilletageFormSet = modelformset_factory(
     can_delete=True
 )
 
-class CartStationForm(forms.ModelForm):
+class CartStationForm(SaisiePastDateMixin, forms.ModelForm):
+    saisie_past_date_fields = ('date_saisie',)
+    saisie_past_date_labels = {'date_saisie': 'La date de saisie'}
     date_saisie = forms.DateField(widget=forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control', 'placeholder': 'Sélectionner une date...', 'type': 'date'}))
     date_proch = forms.DateField(widget=forms.DateInput(format='%Y-%m-%d', attrs={'class': 'form-control', 'placeholder': 'Sélectionner une date...', 'type': 'date'}))
     class Meta:
@@ -284,7 +303,9 @@ class CartStationForm(forms.ModelForm):
         self.fields["date_saisie"].input_formats = ("%Y-%m-%d", "%m/%d/%Y")
         self.fields["date_proch"].input_formats = ("%Y-%m-%d", "%m/%d/%Y")
       
-class UpdatCartStationForm(forms.ModelForm):
+class UpdatCartStationForm(SaisiePastDateMixin, forms.ModelForm):
+    saisie_past_date_fields = ('date_saisie',)
+    saisie_past_date_labels = {'date_saisie': 'La date de saisie'}
     class Meta:
         model = Stationnement
         fields = ('montant', 'date_saisie', 'date_proch','image')
@@ -298,7 +319,9 @@ class UpdatCartStationForm(forms.ModelForm):
         self.fields["date_saisie"].input_formats = ("%Y-%m-%dT%H:%M",)
         self.fields["date_proch"].input_formats = ("%Y-%m-%dT%H:%M",)
 
-class PatenteForm(forms.ModelForm):
+class PatenteForm(SaisiePastDateMixin, forms.ModelForm):
+    saisie_past_date_fields = ('date_saisie',)
+    saisie_past_date_labels = {'date_saisie': 'La date de saisie'}
     date_saisie = forms.DateTimeField(widget= forms.DateInput(format=('%m/%d/%Y'), attrs={'class':'form-control','placeholder':'Selection une date...', 'format':'yyyy-mm-dd', 'type':'date'}))
     date_proch = forms.DateTimeField(widget= forms.DateInput(format=('%m/%d/%Y'), attrs={'class':'form-control','placeholder':'Selection une date...', 'format':'yyyy-mm-dd', 'type':'date'}))
     class Meta:
@@ -312,7 +335,9 @@ class PatenteForm(forms.ModelForm):
             }),
         }
         
-class UpdatPatenteForm(forms.ModelForm):
+class UpdatPatenteForm(SaisiePastDateMixin, forms.ModelForm):
+    saisie_past_date_fields = ('date_saisie',)
+    saisie_past_date_labels = {'date_saisie': 'La date de saisie'}
     class Meta:
         model = Patente
         fields = ('montant', 'date_saisie', 'date_proch','image')
@@ -333,7 +358,9 @@ class UpdatPatenteForm(forms.ModelForm):
         formatted_date = date.strftime('%Y-%m-%d')
         return formatted_date   
     
-class VignetteForm(forms.ModelForm):
+class VignetteForm(SaisiePastDateMixin, forms.ModelForm):
+    saisie_past_date_fields = ('date_saisie',)
+    saisie_past_date_labels = {'date_saisie': 'La date de saisie'}
     date_saisie = forms.DateTimeField(widget= forms.DateInput(format=('%m/%d/%Y'), attrs={'class':'form-control','placeholder':'Selection une date...', 'format':'yyyy-mm-dd', 'type':'date'}))
     date_proch = forms.DateTimeField(widget= forms.DateInput(format=('%m/%d/%Y'), attrs={'class':'form-control','placeholder':'Selection une date...', 'format':'yyyy-mm-dd', 'type':'date'}))
     class Meta:
@@ -347,7 +374,9 @@ class VignetteForm(forms.ModelForm):
             }),
         }
         
-class UpdatVignetteForm(forms.ModelForm):
+class UpdatVignetteForm(SaisiePastDateMixin, forms.ModelForm):
+    saisie_past_date_fields = ('date_saisie',)
+    saisie_past_date_labels = {'date_saisie': 'La date de saisie'}
     class Meta:
         model = Vignette
         fields = ('montant', 'date_saisie', 'date_proch','image',)
@@ -433,7 +462,9 @@ class UpdatEncaissementForm(forms.ModelForm):
     #     formatted_date = date.strftime('%Y-%m-%d')
     #     return formatted_date
         
-class RecetteForm(forms.ModelForm):
+class RecetteForm(SaisiePastDateMixin, forms.ModelForm):
+    saisie_past_date_fields = ('date_saisie',)
+    saisie_past_date_labels = {'date_saisie': 'La date de saisie'}
     date_saisie = forms.DateTimeField(widget= forms.DateInput(format=('%m/%d/%Y'), attrs={'class':'form-control', 'format':'yyyy-mm-dd', 'type':'date'}))
     class Meta:
         model = Recette
@@ -484,7 +515,9 @@ class ChargeVariableExcelImportForm(forms.Form):
         return f
 
 
-class UpdateRecetteForm(forms.ModelForm):
+class UpdateRecetteForm(SaisiePastDateMixin, forms.ModelForm):
+    saisie_past_date_fields = ('date_saisie',)
+    saisie_past_date_labels = {'date_saisie': 'La date de saisie'}
     class Meta:
         model = Recette
         fields = ('chauffeur','montant','cpte_comptable','Num_piece','numero_fact','date_saisie')
@@ -589,7 +622,9 @@ class HistoriqueRecetteFilterForm(forms.Form):
         label="Type d'historique"
     )
                 
-class ChargeFixForm(forms.ModelForm):
+class ChargeFixForm(SaisiePastDateMixin, forms.ModelForm):
+    saisie_past_date_fields = ('date_saisie',)
+    saisie_past_date_labels = {'date_saisie': 'La date de saisie'}
     date_saisie = forms.DateTimeField(widget= forms.DateInput(format=('%m/%d/%Y'), attrs={'class':'form-control', 'format':'yyyy-mm-dd', 'type':'date'}))
     class Meta:
         model = ChargeFixe
@@ -602,7 +637,9 @@ class ChargeFixForm(forms.ModelForm):
             'montant': forms.NumberInput(attrs={'class':'form-control','min':'0'}),
         }
 
-class UpdatChargeFixForm(forms.ModelForm):
+class UpdatChargeFixForm(SaisiePastDateMixin, forms.ModelForm):
+    saisie_past_date_fields = ('date_saisie',)
+    saisie_past_date_labels = {'date_saisie': 'La date de saisie'}
     class Meta:
         model = ChargeFixe
         fields = ('libelle','montant','cpte_comptable','Num_piece','Num_fact','date_saisie')
@@ -851,7 +888,9 @@ class HistoriqueVehiculeFilterForm(forms.Form):
         label="Type d'historique"
     )
         
-class ChargeVarForm(forms.ModelForm):
+class ChargeVarForm(SaisiePastDateMixin, forms.ModelForm):
+    saisie_past_date_fields = ('date_saisie',)
+    saisie_past_date_labels = {'date_saisie': 'La date de saisie'}
     date_saisie = forms.DateTimeField(widget= forms.DateInput(format=('%m/%d/%Y'), attrs={'class':'form-control','placeholder':'Selection une date...', 'format':'yyyy-mm-dd', 'type':'date'}))
     class Meta:
         model = ChargeVariable
@@ -865,7 +904,9 @@ class ChargeVarForm(forms.ModelForm):
             'Num_fact': forms.TextInput(attrs={'class':'form-control'}),
         }
 
-class updatChargeVarForm(forms.ModelForm):
+class updatChargeVarForm(SaisiePastDateMixin, forms.ModelForm):
+    saisie_past_date_fields = ('date_saisie',)
+    saisie_past_date_labels = {'date_saisie': 'La date de saisie'}
     #date = forms.DateTimeField(widget= forms.DateInput(format=('%m/%d/%Y'), attrs={'class':'form-control','placeholder':'Selection une date...', 'format':'yyyy-mm-dd', 'type':'date'}))
     class Meta:
         model = ChargeVariable
@@ -886,7 +927,12 @@ class updatChargeVarForm(forms.ModelForm):
         formatted_date = date.strftime('%Y-%m-%d',)
         return formatted_date
   
-class VisiteTechniqueForm(forms.ModelForm):
+class VisiteTechniqueForm(SaisiePastDateMixin, forms.ModelForm):
+    saisie_past_date_fields = ('date_vis', 'date_sortie')
+    saisie_past_date_labels = {
+        'date_vis': 'La date de visite',
+        'date_sortie': 'La date de sortie',
+    }
     date_proch = forms.DateField(widget= forms.DateInput(format=('%m/%d/%Y'), attrs={'class':'form-control','placeholder':'Selection une date...', 'format':'yyyy-mm-dd', 'type':'date'}))
     class Meta:
         model = VisiteTechnique
@@ -906,7 +952,12 @@ class VisiteTechniqueForm(forms.ModelForm):
         self.fields["date_vis"].input_formats = ("%Y-%m-%dT%H:%M",)
         self.fields["date_sortie"].input_formats = ("%Y-%m-%dT%H:%M",) 
 
-class UpdatVisiteTechniqueForm(forms.ModelForm):
+class UpdatVisiteTechniqueForm(SaisiePastDateMixin, forms.ModelForm):
+    saisie_past_date_fields = ('date_vis', 'date_sortie')
+    saisie_past_date_labels = {
+        'date_vis': 'La date de visite',
+        'date_sortie': 'La date de sortie',
+    }
     # date_proch = forms.DateField(
     #     widget=forms.DateInput(
     #         attrs={
@@ -933,7 +984,9 @@ class UpdatVisiteTechniqueForm(forms.ModelForm):
         self.fields["date_sortie"].input_formats = ("%Y-%m-%d",)
         self.fields["date_proch"].input_formats = ("%Y-%m-%d",)
         
-class AssuranceForm(forms.ModelForm):
+class AssuranceForm(SaisiePastDateMixin, forms.ModelForm):
+    saisie_past_date_fields = ('date_saisie',)
+    saisie_past_date_labels = {'date_saisie': 'La date de saisie'}
     date_saisie = forms.DateTimeField(widget= forms.DateInput(format=('%m/%d/%Y'), attrs={'class':'form-control','placeholder':'Selection une date...', 'format':'yyyy-mm-dd', 'type':'date'}))
     date_proch = forms.DateTimeField(widget= forms.DateInput(format=('%m/%d/%Y'), attrs={'class':'form-control','placeholder':'Selection une date...', 'format':'yyyy-mm-dd', 'type':'date'}))
     class Meta:
@@ -947,7 +1000,9 @@ class AssuranceForm(forms.ModelForm):
             }),
         }
 
-class UpdatAssuranceForm(forms.ModelForm):
+class UpdatAssuranceForm(SaisiePastDateMixin, forms.ModelForm):
+    saisie_past_date_fields = ('date_saisie',)
+    saisie_past_date_labels = {'date_saisie': 'La date de saisie'}
     class Meta:
         model = Assurance
         fields = ('date_saisie','date_proch','montant','image')
@@ -965,7 +1020,12 @@ class UpdatAssuranceForm(forms.ModelForm):
         self.fields["date_saisie"].input_formats = ("%Y-%m-%d",)
         self.fields["date_proch"].input_formats = ("%Y-%m-%d",) 
         
-class EntretienForm(forms.ModelForm):
+class EntretienForm(SaisiePastDateMixin, forms.ModelForm):
+    saisie_past_date_fields = ('date_Entret', 'date_sortie')
+    saisie_past_date_labels = {
+        'date_Entret': "La date d'entretien",
+        'date_sortie': 'La date de sortie',
+    }
     date_proch = forms.DateTimeField(widget= forms.DateInput(format=('%m/%d/%Y'), attrs={'class':'form-control','placeholder':'Selection une date...', 'format':'yyyy-mm-dd', 'type':'date'}))
     class Meta:
         model = Entretien
@@ -985,7 +1045,12 @@ class EntretienForm(forms.ModelForm):
         self.fields["date_sortie"].input_formats = ("%Y-%m-%dT%H:%M",)
         self.fields["date_Entret"].input_formats = ("%Y-%m-%dT%H:%M",) 
 
-class UpdatEntretienForm(forms.ModelForm):
+class UpdatEntretienForm(SaisiePastDateMixin, forms.ModelForm):
+    saisie_past_date_fields = ('date_Entret', 'date_sortie')
+    saisie_past_date_labels = {
+        'date_Entret': "La date d'entretien",
+        'date_sortie': 'La date de sortie',
+    }
     class Meta:
         model = Entretien
         fields = ('montant','date_sortie','date_Entret','date_proch','image','auteur')
@@ -1006,7 +1071,12 @@ class UpdatEntretienForm(forms.ModelForm):
         self.fields["date_Entret"].input_formats = ("%Y-%m-%d",)
         self.fields["date_proch"].input_formats = ("%Y-%m-%d",) 
 
-class ReparationForm(forms.ModelForm):
+class ReparationForm(SaisiePastDateMixin, forms.ModelForm):
+    saisie_past_date_fields = ('date_entree', 'date_sortie')
+    saisie_past_date_labels = {
+        'date_entree': "La date d'entrée",
+        'date_sortie': 'La date de sortie',
+    }
     class Meta:
         model = Reparation
         exclude = ('montant', "auteur", "vehicule")
@@ -1027,7 +1097,12 @@ class ReparationForm(forms.ModelForm):
         self.fields["date_entree"].input_formats = ("%Y-%m-%dT%H:%M",)
         self.fields["date_sortie"].input_formats = ("%Y-%m-%dT%H:%M",)   
  
-class UpdatReparationForm(forms.ModelForm):
+class UpdatReparationForm(SaisiePastDateMixin, forms.ModelForm):
+    saisie_past_date_fields = ('date_entree', 'date_sortie')
+    saisie_past_date_labels = {
+        'date_entree': "La date d'entrée",
+        'date_sortie': 'La date de sortie',
+    }
     class Meta:
         model = Reparation
         fields = ('date_entree','date_sortie','num_fich','description','montant','image','auteur')
@@ -1058,7 +1133,9 @@ PieceFormSet = inlineformset_factory(Reparation, Piece, form=PieceForm, extra=1,
 # Formset pour la modification : afficher les pièces existantes, suppression possible, pas d'ajout
 PieceFormSetUpdate = inlineformset_factory(Reparation, Piece, form=PieceForm, extra=0, can_delete=True)
 
-class PiecEchangeForm(forms.ModelForm):
+class PiecEchangeForm(SaisiePastDateMixin, forms.ModelForm):
+    saisie_past_date_fields = ('date_saisie',)
+    saisie_past_date_labels = {'date_saisie': 'La date de saisie'}
     date_saisie = forms.DateTimeField(widget= forms.DateInput(format=('%m/%d/%Y'), attrs={'class':'form-control','format':'yyyy-mm-dd', 'type':'date'}))
     class Meta:
         model = PiecEchange

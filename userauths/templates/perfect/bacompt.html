@@ -369,6 +369,26 @@
             margin: 0 0 18px;
         }
 
+        .otp-countdown-value {
+            color: #a83232;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 0.04em;
+        }
+
+        .otp-hint--warning .otp-countdown-value {
+            color: #c2410c;
+        }
+
+        .otp-hint--expired {
+            color: #a83232;
+            font-weight: 600;
+        }
+
+        .otp-hint--expired a {
+            color: #a83232;
+            text-decoration: underline;
+        }
+
         @media (max-width: 420px) {
             .otp-container {
                 gap: 5px;

@@ -2,10 +2,10 @@
    data-toggle="modal"
    data-target="#{{ modal_id|default:'modal-sm' }}"
    href="#"
-   aria-label="{{ label|default:'Ouvrir les filtres' }}"
-   title="{{ label|default:'Filtres' }}">
-    {% if label %}
-        {{ label }}
+   aria-label="{{ filter_label|default:'Ouvrir les filtres' }}"
+   title="{{ filter_label|default:'Filtres' }}">
+    {% if filter_label %}
+        {{ filter_label }}
     {% endif %}
     <i class="fa {{ icon|default:'fa-calendar' }}" aria-hidden="true"></i>
 </a>

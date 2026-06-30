@@ -25,7 +25,17 @@
                         <input class="otp-input" type="text" id="otp6" maxlength="1" inputmode="numeric" required />
                     </div>
                     <input type="hidden" id="otp" name="otp" />
-                    <p class="otp-hint">Le code est valide pendant 5 minutes.</p>
+                    <p class="otp-hint" id="otp-countdown" role="timer" aria-live="polite">
+                        {% if otp_expires_at %}
+                            Temps restant : <strong id="otp-countdown-value" class="otp-countdown-value">05:00</strong>
+                        {% else %}
+                            Le code est valide pendant 5 minutes.
+                        {% endif %}
+                    </p>
+                    <p class="otp-hint otp-hint--expired{% if not otp_expired %} d-none{% endif %}" id="otp-expired-msg">
+                        Le code a expiré.
+                        <a href="{% url 'mot_passe_oublie' %}">Demander un nouveau code</a>
+                    </p>
                     <button type="submit" class="auth-btn" id="loginButton">
                         <span id="buttonText">Vérifier le code</span>
                         <span id="spinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
@@ -44,6 +54,51 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             var inputs = Array.from(document.querySelectorAll('#otp-form .otp-input'));
+            var submitBtn = document.getElementById('loginButton');
+            var expiresAtIso = '{{ otp_expires_at|default:""|escapejs }}';
+            var countdownWrap = document.getElementById('otp-countdown');
+            var countdownValue = document.getElementById('otp-countdown-value');
+            var expiredMsg = document.getElementById('otp-expired-msg');
+            var countdownTimer = null;
+
+            function disableOtpForm() {
+                if (submitBtn) submitBtn.disabled = true;
+                inputs.forEach(function (input) { input.disabled = true; });
+                if (countdownWrap) countdownWrap.classList.add('d-none');
+                if (expiredMsg) expiredMsg.classList.remove('d-none');
+            }
+
+            function formatRemaining(seconds) {
+                var m = Math.floor(seconds / 60);
+                var s = seconds % 60;
+                return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+            }
+
+            function updateCountdown() {
+                if (!expiresAtIso || !countdownValue) return;
+                var expiryMs = new Date(expiresAtIso).getTime();
+                if (Number.isNaN(expiryMs)) return;
+
+                var remaining = Math.max(0, Math.floor((expiryMs - Date.now()) / 1000));
+                if (remaining <= 0) {
+                    if (countdownTimer) clearInterval(countdownTimer);
+                    disableOtpForm();
+                    return;
+                }
+
+                countdownValue.textContent = formatRemaining(remaining);
+                if (countdownWrap) {
+                    countdownWrap.classList.toggle('otp-hint--warning', remaining <= 60);
+                }
+            }
+
+            if (expiresAtIso) {
+                updateCountdown();
+                countdownTimer = setInterval(updateCountdown, 1000);
+            }
+            {% if otp_expired %}
+            disableOtpForm();
+            {% endif %}
 
             inputs.forEach(function (input, index) {
                 if (index === 0) {
@@ -85,6 +140,10 @@
 
             document.getElementById('otp-form').addEventListener('submit', function (event) {
                 event.preventDefault();
+
+                if (submitBtn && submitBtn.disabled) {
+                    return;
+                }
 
                 var allFilled = inputs.every(function (input) { return input.value; });
                 if (!allFilled) {

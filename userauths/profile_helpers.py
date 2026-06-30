@@ -1,22 +1,54 @@
 from PB_Entreprise.models import UserProfile, Vehicule
 
 
+def user_initials(user, profile=None):
+    """Initiales affichées si pas d'avatar (prénom + nom)."""
+    prenom = (getattr(user, 'prenom', '') or '').strip()
+    nom = (getattr(user, 'nom', '') or '').strip()
+    if profile is not None:
+        prenom = prenom or (profile.prenom or '').strip()
+        nom = nom or (profile.nom or '').strip()
+    letters = []
+    if prenom:
+        letters.append(prenom[0].upper())
+    if nom:
+        letters.append(nom[0].upper())
+    if letters:
+        return ''.join(letters)
+    username = (getattr(user, 'username', '') or '').strip()
+    if username:
+        return username[0].upper()
+    return '?'
+
+
+def user_avatar_url(profile):
+    """URL avatar avec cache-bust pour forcer le rafraîchissement navigateur."""
+    if not profile or not profile.avatar or not profile.avatar.name:
+        return ''
+    return f'{profile.avatar.url}?v={profile.avatar.name}'
+
+
+def refresh_user_profile_cache(user):
+    """Invalide le profil mis en cache sur l'instance user (OneToOne)."""
+    if user is not None:
+        user.__dict__.pop('profile', None)
+
+
 def get_user_profile(user):
-    try:
-        return user.profile
-    except UserProfile.DoesNotExist:
+    if not getattr(user, 'pk', None):
         return None
+    return UserProfile.objects.filter(user_id=user.pk).first()
 
 
 def ensure_user_profile(user):
-    profile = get_user_profile(user)
+    if not getattr(user, 'pk', None):
+        return None
+    profile = UserProfile.objects.filter(user_id=user.pk).first()
     if profile is None:
-        profile, _ = UserProfile.objects.get_or_create(
-            user=user,
-            defaults={
-                'nom': user.nom or '',
-                'prenom': user.prenom or '',
-            },
+        profile = UserProfile.objects.create(
+            user_id=user.pk,
+            nom=user.nom or '',
+            prenom=user.prenom or '',
         )
     return profile
 
@@ -101,8 +133,11 @@ def apply_my_profile_form(user, profile, form):
     profile.notif_email = cleaned.get('notif_email', True)
     profile.notif_site = cleaned.get('notif_site', True)
     if cleaned.get('avatar'):
+        if profile.avatar and profile.avatar.name:
+            profile.avatar.delete(save=False)
         profile.avatar = cleaned['avatar']
     profile.save()
+    refresh_user_profile_cache(user)
     return profile
 
 
@@ -162,6 +197,8 @@ def build_profile_page_context(user):
     return {
         'user': user,
         'user_profile': user_profile,
+        'user_initials': user_initials(user, user_profile),
+        'user_avatar_url': user_avatar_url(user_profile),
         'admin_profil': user_profile,
         'chefexploit_profil': user_profile,
         'comptable_profil': user_profile,
@@ -195,8 +232,11 @@ def save_my_profile(user, profile, form):
     profile.notif_email = cleaned.get('notif_email', True)
     profile.notif_site = cleaned.get('notif_site', True)
     if cleaned.get('avatar'):
+        if profile.avatar and profile.avatar.name:
+            profile.avatar.delete(save=False)
         profile.avatar = cleaned['avatar']
     profile.save()
+    refresh_user_profile_cache(user)
     return profile
 
 

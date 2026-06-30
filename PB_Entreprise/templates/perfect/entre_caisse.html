@@ -1,130 +1,254 @@
-{% extends 'perfect/base.html' %} {% load static %} 
-{% block extra_css<link rel="stylesheet" href="{% static 'pb/css/reparation-form.css' %}?v=2">
-{% endblock extra_css{% block title %} Entrée de caisse {% endblock title %} 
-{% block page_title %}    <a href="{% url 'billetage' %}"><img class="profile-user-img" style="border:none; height:25px;width:25px" src="{% static 'retour.png' %}" alt="Retour"></a>
-    <img class="profile-{% endblock page_title %} 
-{% block page_action %}
-    <form id="quickFor        {% include 'perfect/partials/modal_saisie_trigger.html' with label='Saisie' icon='fa-plus-circle' %}
+{% extends 'perfect/base.html' %}
+{% load static %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'pb/css/reparation-form.css' %}?v=2">
+{% endblock extra_css %}
+{% block title %} Entrée de caisse {% endblock title %}
+{% block page_title %}
     {% url 'billetage' as billetage_back_url %}
     {% include 'perfect/partials/page_back_link.html' with back_url=billetage_back_url %}
-        </a>        {% include 'perfect/partials/modal_filter_trigger.html' %}
+    <img class="profile-user-img" style="border:none; height:45px;width:45px" src="{% static 'dp.png' %}" alt="User profile picture">Saisie une entrée de caisse
+{% endblock page_title %}
+{% block page_action %}
+    <form id="quickFormTrigger">
+        {% include 'perfect/partials/modal_saisie_trigger.html' with label='Saisie' icon='fa-plus-circle' %}
+        <a href="{% url 'export_encaissements' %}?date_debut={{ form.date_debut.value }}&date_fin={{ form.date_fin.value }}" class="btn btn-default pb-modal-trigger">
+            Excel <i class="fa fa-file-excel-o"></i>
+        </a>
+        {% include 'perfect/partials/modal_filter_trigger.html' %}
         <a class="btn btn-default pb-modal-trigger" href="{% url 'addencaisse' %}"><i style="font-size: 20px;" class="fas fa-sync"></i></a>
+    </form>
+{% endblock page_action %}
+{% block navbar_nav %}
+{% endblock navbar_nav %}
+{% block active_page %} Entrée de caisse {% endblock active_page %}
 {% block main_content %}
 {% url 'addencaisse' as filter_reset_url %}
-{% include 'perfect/partials/mod
-{% include 'perfect/partials/modal_default.html' with modal_id='modal-lg' modal_size='lg' modal_title_html='
-<div class="col-12 col-sm-6 col-md-4">    <div class="info-box" style="border-radius:25px;">
-        <span class="info-box-icon elevation-1" style        <div class="info-box-content">
-                        <span class="info-box-number" style="font-size:20px; color: #1a1a1a;">
-            {{entret_jours_format}}            <small>frs cfa</small>
-            </span>        </div>
-    </div></div>
+{% include 'perfect/partials/modal_default.html' with modal_id='modal-sm' modal_title='Filtre' form=form reset_url=filter_reset_url submit_label='Afficher' %}
+{% include 'perfect/partials/modal_default.html' with modal_id='modal-lg' modal_size='lg' modal_title='Enregistrer une entrée de caisse' form_method='post' form_id='quickForm' body_template='perfect/partials/saisie/caisse_formset_body.html' submit_label='Enregistrer' scrollable_body=True section_title="Lignes d'entrée de caisse" %}
+
+<div class="col-12 col-sm-6 col-md-4">
+    <div class="info-box" style="border-radius:25px;">
+        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-file-invoice-dollar" style="color:rgba(168, 50, 50, 0.65);"></i></span>
+        <div class="info-box-content">
+            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">Aujourd'hui</span>
+            <span class="info-box-number" style="font-size:18px; color: #1a1a1a;">
+            {{ entret_jours_format }}
+            <small>frs cfa</small>
+            </span>
+        </div>
+    </div>
+</div>
 <div class="clearfix hidden-md-up"></div>
 <div class="col-12 col-sm-6 col-md-4">
     <div class="info-box" style="border-radius:25px;">
+        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-clock" style="color:rgba(168, 50, 50, 0.65);"></i></span>
+        <div class="info-box-content">
             <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">Entrées mensuelle</span>
-            <span class="info-box-number" s            {{entret_mois_format}}
-            <small>frs cfa</small>    </div>
-{% include 'perfect/partials/modal_default.html' with modal_id='modal-lg' modal_size='lg' modal_title='Enregistrer une entrée de caisse' form_method='post' form_id='quickForm' body_template='perfect/partials/saisie/caisse_formset_body.html' submit_label='Enregistrer' scrollable_body=True section_title="Lignes d'entrée de caisse" %}
-    <div class="info-box mb-3" style="border-radius:25px;">
-    <span class="info-box-icon elevati    <div class="info-box-content">
-        <span class="info-box-text" style="font-size:1        <span class="info-box-number" style="font-size:20px; color: #1a1a1a;">
-        {{entret_an_format}}        <small>frs cfa</small>
-        </span>    </div>
-    </div></div>
-<div class="col-md-12">
-    <div class="row">        <div class="col-md-12">
-            <div class="" style="b                <div id="" class="">
-                                           <div class="col-md-12 p-0">
-                                              <div class="card-header">
-                                                  
-                                          <div class="card-tools">
-                                        <                                    </div>
-                                </div>                                <div class="card-body">
-                                    <table id="example                                        <thead>
-                                            <tr class=" text-center text-danger">                                                <th>N°#</th>
-                                                                                      <th>LIBELLE</th>
-                                                <th>MONTANT</th>                                                <th>DATE</th>
-                                                <th>SAISIE PAR</th>                                                <th>ACTION</th>
-                                                                          </thead>
-                                                                              {% for e in entres_liste %}
-                                                                       <td>{{forloop.counter}}</td>
-             >                                                    <td><a class="text-primary" type="button" data-toggle="tooltip" data-placement="top" title="{{e.libelle}}">{{e.libelle|slice:":100"}}{% if e.libelle|length > 70 %}...{% endif %}</a></td>
-                                                              <td>{{e.date_saisie|date:"d-m-y"}} à {{e.date|date:"H:m:s"}}</td>
-                                                              <a class="mr-3 text-primary">{{e.auteur.username}}</a>
-                                                                                             <td class="text-center">
-                                                                                                  {% if categorie.categorie == 'permencais' %}
-                                                                                                                               {% if perm.name == "mod entrée caisse" %}
-                                                                        <a href="#" class="edit-entre-btn" data-url="{% url 'updat_encaisse' e.pk %}">                                                                            <i style="font-size: 20px;" class="fa fa-edit text-warning"></i>
-                                                                                                     {% elif perm.name == "sup entrée caisse" %}
-                                                                        <a href="{% url perm.url e.pk %}" class="text                                                                            <i style="font-size: 20px;" class="fa fa-trash text-danger"></i>
-                                                                        </a>                                                                    {% endif %}
-                                                                                        {% endif %}
-                                                                                  </td>
-                                                           {% endfor %} 
-                                              </table>
-                                      </div>
-                        </div>
-            </div>
-        </div>    </div>
+            <span class="info-box-number" style="font-size:18px; color: #1a1a1a;">
+            {{ entret_mois_format }}
+            <small>frs cfa</small>
+            </span>
+        </div>
+    </div>
 </div>
-<div class="modal fade" id="edi    <div class="modal-dialog modal-lg">
-        <div class="modal-content" style="border-radi            <div class="modal-body" id="modalBodyContent">
+<div class="clearfix hidden-md-up"></div>
+<div class="col-12 col-sm-6 col-md-4">
+    <div class="info-box mb-3" style="border-radius:25px;">
+        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fa fa-calendar" style="color:rgba(168, 50, 50, 0.65);"></i></span>
+        <div class="info-box-content">
+            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">Entrées annuelle</span>
+            <span class="info-box-number" style="font-size:18px; color: #1a1a1a;">
+            {{ entret_an_format }}
+            <small>frs cfa</small>
+            </span>
+        </div>
+    </div>
+</div>
+
+<div class="col-md-12">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="" style="border-radius:20px">
+                <div id="" class="">
+                    <div class="row p-0 m-0">
+                        <div class="col-md-12 p-0">
+                            <div class="card" style="box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);backdrop-filter: blur(5.2px);-webkit-backdrop-filter: blur(5.2px); border-radius:25px">
+                                <div class="card-header">
+                                    <h3 class="card-title"></h3>
+                                    <div class="card-tools">
+                                        <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <table id="example1" class="table table-bordered table-striped">
+                                        <thead>
+                                            <tr class="text-center text-danger">
+                                                <th>N°#</th>
+                                                <th>N°PIECE</th>
+                                                <th>LIBELLE</th>
+                                                <th>MONTANT</th>
+                                                <th>DATE</th>
+                                                <th>SAISIE PAR</th>
+                                                <th>ACTION</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for e in entres_liste %}
+                                                <tr class="text-center">
+                                                    <td>{{ forloop.counter }}</td>
+                                                    <td>{{ e.Num_piece }}</td>
+                                                    <td><a class="text-primary" type="button" data-toggle="tooltip" data-placement="top" title="{{ e.libelle }}">{{ e.libelle|slice:":100" }}{% if e.libelle|length > 70 %}...{% endif %}</a></td>
+                                                    <td>{{ e.montant }}</td>
+                                                    <td>{{ e.date_saisie|date:"d-m-y" }} à {{ e.date|date:"H:i:s" }}</td>
+                                                    <td>
+                                                        <a class="mr-3 text-primary">{{ e.auteur.username }}</a>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        {% for categorie, perms in grouped_permissions.items %}
+                                                            {% if categorie.categorie == 'permencais' %}
+                                                                {% for perm in perms %}
+                                                                    {% if perm.name == "mod entrée caisse" %}
+                                                                        <a href="#" class="edit-entre-btn" data-url="{% url 'updat_encaisse' e.pk %}">
+                                                                            <i style="font-size: 20px;" class="fa fa-edit text-warning"></i>
+                                                                        </a>
+                                                                    {% elif perm.name == "sup entrée caisse" %}
+                                                                        <a href="{% url perm.url e.pk %}" class="text-primary" onclick="return confirm('Etes-vous sûre de vouloir supprimer cette entrée de caisse de {{ e.montant }}frs - {{ e.date_saisie|date:"d-m-y" }} ? Toutes les informations liées seront supprimées.')">
+                                                                            <i style="font-size: 20px;" class="fa fa-trash text-danger"></i>
+                                                                        </a>
+                                                                    {% endif %}
+                                                                {% endfor %}
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>    </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editEntreModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="border-radius:20px;">
+            <div class="modal-body" id="modalBodyContent">
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock main_content %}
-{% block custom_js %}    <script>
-        document.addEventListener('DOMContentLoaded', funct            const totalForms = document.querySelector('#id_form-TOTAL_FORMS');
-            if (!formsetContainer || !add            const initialRow = formsetContainer.querySelector('.ligne-encaissement');
-            const rowTemplate = initialRow ? initialRow.clon
-            function reindexEncaissementRow(fromEl, newIndex) {                fromEl.querySelectorAll('input, select, textarea').forEach(function (input) {
-                    if (input.name) {                        input.name = input.name.replace(/-\d+-/, '-' + newIndex + '-');
-                    }                    if (input.id) {
-                        input.id = input.id.replace(/-\                    }
-                });            }
-            addButton.addEventListener('click', function () {
-                const currentFormCount = parseInt(totalForms.value, 10) || 0;                const sourceRow = formsetContainer.querySelector('.ligne-encaissement');
-                let newForm = null;                if (sourceRow) {
-                    newForm = sourceRow.cloneNode(true);                } else if (rowTemplate) {
-                    newForm = rowTemplate.cloneNode(true);                }
-                if (!newForm) return;
-                newForm.querySelectorAll('input, select, text                    if (input.type === 'checkbox' || input.type === 'radio') {
-                        input.checked = false;                    } else {
-                        input.value = '';                    }
+{% block custom_js %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const formsetContainer = document.getElementById('encaissement-formset-container');
+            const addButton = document.getElementById('add-encaissement');
+            const totalForms = document.querySelector('#id_form-TOTAL_FORMS');
+            if (!formsetContainer || !addButton || !totalForms) return;
+            const initialRow = formsetContainer.querySelector('.ligne-encaissement');
+            const rowTemplate = initialRow ? initialRow.cloneNode(true) : null;
+
+            function reindexEncaissementRow(fromEl, newIndex) {
+                fromEl.querySelectorAll('input, select, textarea').forEach(function (input) {
+                    if (input.name) {
+                        input.name = input.name.replace(/-\d+-/, '-' + newIndex + '-');
+                    }
+                    if (input.id) {
+                        input.id = input.id.replace(/-\d+-/, '-' + newIndex + '-');
+                    }
                 });
-                reindexEncaissementRow(newForm,                 totalForms.value = currentFormCount + 1;
-                formsetContainer.appendChild(ne            });
-            formsetContainer.addEventListener('click', function (e) {
-                const btn = e.target.closest('.remove-encaissement');                if (!btn) return;
-                const ligne = btn.closest('.ligne-encaissement');                if (!ligne) return;
-                ligne.remove();                updateFormIndexes();
+            }
+
+            addButton.addEventListener('click', function () {
+                const currentFormCount = parseInt(totalForms.value, 10) || 0;
+                const sourceRow = formsetContainer.querySelector('.ligne-encaissement');
+                let newForm = null;
+                if (sourceRow) {
+                    newForm = sourceRow.cloneNode(true);
+                } else if (rowTemplate) {
+                    newForm = rowTemplate.cloneNode(true);
+                }
+                if (!newForm) return;
+
+                newForm.querySelectorAll('input, select, textarea').forEach(function (input) {
+                    if (input.type === 'checkbox' || input.type === 'radio') {
+                        input.checked = false;
+                    } else {
+                        input.value = '';
+                    }
+                });
+
+                reindexEncaissementRow(newForm, currentFormCount);
+                totalForms.value = currentFormCount + 1;
+                formsetContainer.appendChild(newForm);
             });
-            function updateFormIndexes() {                const forms = formsetContainer.querySelectorAll('.ligne-encaissement');
-                forms.forEach(function (formEl, index) {                    reindexEncaissementRow(formEl, index);
-                });                totalForms.value = forms.length;
-            }        });
+
+            formsetContainer.addEventListener('click', function (e) {
+                const btn = e.target.closest('.remove-encaissement');
+                if (!btn) return;
+                const ligne = btn.closest('.ligne-encaissement');
+                if (!ligne) return;
+                ligne.remove();
+                updateFormIndexes();
+            });
+
+            function updateFormIndexes() {
+                const forms = formsetContainer.querySelectorAll('.ligne-encaissement');
+                forms.forEach(function (formEl, index) {
+                    reindexEncaissementRow(formEl, index);
+                });
+                totalForms.value = forms.length;
+            }
+        });
+
         $(document).on("click", ".edit-entre-btn", function(e) {
-            e.preventDefault();            let url = $(this).data("url");
-            $.get(url, function(data) {                $("#modalBodyContent").html(data);
-                $("#editEntreModal").modal("show");            });
-        });        $(document).on("submit", "#encaisUpdateForm", function(e) {
-            e.preventDefault();            let form = $(this);
-            let url = form.attr("action");            let formData = new FormData(this);
-            $.ajax({                url: url,
-                type: "POST",                data: formData,
-                processData: false,                contentType: false,
-                success: function(data) {                    if (data.success) {
-                        $("#editEntreModal").modal("hide");                        const Toast = Swal.mixin({
-                            toast: true,                            position: 'top',
-                            showConfirmButton: false,                            timer: 4000,
-                            timerProgressBar: true                        });
-                        Toast.fire({                            type: 'success',
-                            title: data.message                        });
-                        setTimeout(function() {                            location.reload();
-                        }, 500);                    } else {
-                        $("#modalBodyContent").html(data)                    }
-                }            });
-        });    </script>
+            e.preventDefault();
+            let url = $(this).data("url");
+            $.get(url, function(data) {
+                $("#modalBodyContent").html(data);
+                $("#editEntreModal").modal("show");
+            });
+        });
+
+        $(document).on("submit", "#encaisUpdateForm", function(e) {
+            e.preventDefault();
+            let form = $(this);
+            let url = form.attr("action");
+            let formData = new FormData(this);
+            $.ajax({
+                url: url,
+                type: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(data) {
+                    if (data.success) {
+                        $("#editEntreModal").modal("hide");
+                        const Toast = Swal.mixin({
+                            toast: true,
+                            position: 'top',
+                            showConfirmButton: false,
+                            timer: 4000,
+                            timerProgressBar: true
+                        });
+                        Toast.fire({
+                            type: 'success',
+                            title: data.message
+                        });
+                        setTimeout(function() {
+                            location.reload();
+                        }, 500);
+                    } else {
+                        $("#modalBodyContent").html(data);
+                    }
+                }
+            });
+        });
+    </script>
 {% endblock custom_js %}
->

@@ -18,13 +18,7 @@
         <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between">
             <div class="d-flex align-items-center">
                 <div class="profile-hero__avatar-wrap mr-3">
-                    {% if user_profile.avatar %}
-                        <img src="{{ user_profile.avatar.url }}" alt="Avatar" class="profile-hero__avatar">
-                    {% elif user.gender == 'Homme' %}
-                        <img src="{% static 'agent.png' %}" alt="Avatar" class="profile-hero__avatar">
-                    {% else %}
-                        <img src="{% static 'agente.png' %}" alt="Avatar" class="profile-hero__avatar">
-                    {% endif %}
+                    {% include 'perfect/partials/user_avatar.html' with profile=user_profile user=user avatar_class='profile-hero__avatar' %}
                     <label for="{{ profile_form.avatar.id_for_label }}" class="profile-hero__avatar-edit" title="Changer la photo de profil">
                         <i class="fas fa-camera"></i>
                     </label>
@@ -309,10 +303,38 @@
     (function () {
         var heroPhotoSubmit = document.getElementById('hero-photo-submit');
         var formSubmitBtn = document.querySelector('.profile-save-btn');
-        if (!heroPhotoSubmit || !formSubmitBtn) return;
-        heroPhotoSubmit.addEventListener('click', function () {
-            formSubmitBtn.click();
-        });
+        var avatarInput = document.querySelector('input[type="file"][name="avatar"]');
+        if (heroPhotoSubmit && formSubmitBtn) {
+            heroPhotoSubmit.addEventListener('click', function () {
+                formSubmitBtn.click();
+            });
+        }
+        if (avatarInput) {
+            avatarInput.addEventListener('change', function () {
+                var file = avatarInput.files && avatarInput.files[0];
+                if (!file || !file.type.match(/^image\//)) return;
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    var url = e.target.result;
+                    document.querySelectorAll('[data-pb-user-avatar]').forEach(function (el) {
+                        if (el.tagName === 'IMG') {
+                            el.src = url;
+                            return;
+                        }
+                        if (el.dataset.pbUserAvatar === 'initials') {
+                            var img = document.createElement('img');
+                            img.src = url;
+                            img.alt = '';
+                            img.loading = 'lazy';
+                            img.className = el.className.replace('pb-user-avatar-initials', '').trim();
+                            img.setAttribute('data-pb-user-avatar', 'image');
+                            el.replaceWith(img);
+                        }
+                    });
+                };
+                reader.readAsDataURL(file);
+            });
+        }
     })();
 </script>
 {% endblock custom_js %}

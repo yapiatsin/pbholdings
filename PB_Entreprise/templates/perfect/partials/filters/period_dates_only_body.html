@@ -8,13 +8,20 @@
         <option value="custom" {% if selected_period == 'custom' %}selected{% endif %}>Personnalisé</option>
     </select>
 </div>
-<div id="custom-period-fields">
-    <div class="pb-modal-field">
-        <label class="pb-modal-field__label" for="{{ form.date_debut.id_for_label }}">Date début</label>
-        {{ form.date_debut }}
-    </div>
-    <div class="pb-modal-field">
-        <label class="pb-modal-field__label" for="{{ form.date_fin.id_for_label }}">Date fin</label>
-        {{ form.date_fin }}
+<div id="custom-period-fields" class="pb-modal-custom-period{% if selected_period == 'custom' %} is-visible{% endif %}"{% if selected_period != 'custom' %} hidden{% endif %}>
+    <div class="row pb-modal-grid">
+        <div class="col-12 col-md-6 pb-modal-grid__item">
+            <div class="pb-modal-field">
+                <label class="pb-modal-field__label" for="{{ form.date_debut.id_for_label }}">Date début</label>
+                {{ form.date_debut }}
+            </div>
+        </div>
+        <div class="col-12 col-md-6 pb-modal-grid__item">
+            <div class="pb-modal-field">
+                <label class="pb-modal-field__label" for="{{ form.date_fin.id_for_label }}">Date fin</label>
+                {{ form.date_fin }}
+            </div>
+        </div>
     </div>
 </div>
+{% include 'perfect/partials/filters/period_filter_js.html' %}

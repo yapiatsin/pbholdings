@@ -6,7 +6,16 @@ def navbar_context(request):
     """Contexte navbar : profil et libellé de rôle."""
     if not request.user.is_authenticated:
         return {}
-    from userauths.profile_helpers import ensure_user_profile
+    from userauths.profile_helpers import (
+        ensure_user_profile,
+        refresh_user_profile_cache,
+        user_initials,
+        user_avatar_url,
+    )
+    refresh_user_profile_cache(request.user)
+    profile = ensure_user_profile(request.user)
+    if profile is not None:
+        profile.refresh_from_db(fields=['avatar', 'prenom', 'nom'])
     role_labels = {
         '1': 'Admin',
         '2': 'Chef exploitation',
@@ -15,8 +24,10 @@ def navbar_context(request):
     }
     user_type = str(request.user.user_type)
     return {
-        'navbar_profile': ensure_user_profile(request.user),
+        'navbar_profile': profile,
         'navbar_role_label': role_labels.get(user_type, request.user.username),
+        'user_initials': user_initials(request.user, profile),
+        'user_avatar_url': user_avatar_url(profile),
     }
 
 

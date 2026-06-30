@@ -84,8 +84,8 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'PB_Entreprise.context_processors.grouped_user_permissions',
+                'PB_Entreprise.context_processors.navbar_context',
                 'PB_Entreprise.context_processors.alertes_count',
-                'PB_Entreprise.context_processors.navbar_user',
                 'PBFinance.context_processors.pb_navigation',
                 'PBFinance.context_processors.pb_reseaux_sociaux',
                 'PBFinance.context_processors.pb_footer_links',
@@ -187,6 +187,7 @@ EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 EMAIL_USE_TLS = config('EMAIL_USE_TLS')
 FRONTEND_URL = config('FRONTEND_URL', default='https://pbholdingsite.com').rstrip('/')
+# FRONTEND_URL = config('FRONTEND_URL', default='http://localhost:8004').rstrip('/')
 ########################---o---#######################---o---######################---o---###################
 JAZZMIN_SETTINGS = {
     'site_title': 'P&B Entreprise',

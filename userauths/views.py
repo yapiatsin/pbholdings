@@ -518,6 +518,26 @@ def _clear_password_reset_session(request):
     request.session.modified = True
 
 
+def _otp_page_context(email):
+    """Contexte page OTP : email + horodatage d'expiration du code actif."""
+    ctx = {'email': email}
+    if not email:
+        return ctx
+    try:
+        user = CustomUser.objects.get(email=email)
+        otp_obj = (
+            PasswordResetOTP.objects.filter(user=user, used=False)
+            .order_by('-created_at')
+            .first()
+        )
+        if otp_obj and otp_obj.expires_at:
+            ctx['otp_expires_at'] = otp_obj.expires_at.isoformat()
+            ctx['otp_expired'] = timezone.now() >= otp_obj.expires_at
+    except CustomUser.DoesNotExist:
+        pass
+    return ctx
+
+
 class VerifyOtpView(View):
     def get(self, request):
         if not request.session.get('password_reset_otp_verified'):
@@ -609,7 +629,7 @@ class OptValid(View):
         if not email:
             messages.error(request, "Veuillez d'abord saisir votre adresse email.")
             return redirect('mot_passe_oublie')
-        return render(request, 'perfect/otp.html', {'email': email})
+        return render(request, 'perfect/otp.html', _otp_page_context(email))
 
     def post(self, request):
         email = request.session.get('password_reset_email')
@@ -620,7 +640,7 @@ class OptValid(View):
         otp = request.POST.get('otp', '').strip()
         if len(otp) != 6 or not otp.isdigit():
             messages.error(request, "Le code OTP doit contenir 6 chiffres.")
-            return render(request, 'perfect/otp.html', {'email': email})
+            return render(request, 'perfect/otp.html', _otp_page_context(email))
 
         try:
             user = CustomUser.objects.get(email=email)
@@ -632,7 +652,7 @@ class OptValid(View):
 
             if not otp_obj:
                 messages.error(request, "Code OTP invalide. Veuillez vérifier et réessayer.")
-                return render(request, 'perfect/otp.html', {'email': email})
+                return render(request, 'perfect/otp.html', _otp_page_context(email))
 
             if not otp_obj.is_valid():
                 otp_obj.increment_attempts()
@@ -643,7 +663,7 @@ class OptValid(View):
                     messages.error(request, "Le code OTP a expiré. Veuillez demander un nouveau code.")
                 else:
                     messages.error(request, "Code OTP invalide ou expiré.")
-                return render(request, 'perfect/otp.html', {'email': email})
+                return render(request, 'perfect/otp.html', _otp_page_context(email))
 
             request.session['password_reset_otp_id'] = otp_obj.id
             request.session['password_reset_otp_verified'] = True

@@ -1,0 +1,13 @@
+<div class="pb-stats-card pb-stats-card--chart">
+    <div class="pb-stats-card__header">
+        <h3 class="pb-stats-card__title">
+            {{ title }}{% if hint %} <small class="pb-stats-card__hint">{{ hint }}</small>{% endif %}
+        </h3>
+        {% if badge %}<span class="badge badge-danger">{{ badge }}</span>{% endif %}
+    </div>
+    <div class="pb-stats-card__body">
+        <div class="pb-stats-chart-wrap">
+            <canvas id="{{ chart_id }}"></canvas>
+        </div>
+    </div>
+</div>

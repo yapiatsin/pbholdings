@@ -1,0 +1,11 @@
+{% load static %}
+<div class="pb-stats-kpi-card{% if highlight %} pb-stats-kpi-card--highlight{% endif %}">
+    <div class="pb-stats-kpi-card__icon">
+        {% if icon %}<i class="fas {{ icon }}" aria-hidden="true"></i>{% elif icon_img %}<img src="{% static icon_img %}" alt="">{% endif %}
+    </div>
+    <div class="pb-stats-kpi-card__body">
+        <span class="pb-stats-kpi-card__label">{{ label }}</span>
+        <span class="pb-stats-kpi-card__value">{{ value }}</span>
+        {% if sublabel %}<span class="pb-stats-kpi-card__sub">{{ sublabel }}</span>{% endif %}
+    </div>
+</div>

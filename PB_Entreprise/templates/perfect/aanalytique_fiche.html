@@ -4,7 +4,7 @@
 {% block page_title %} ETAT ANALYTIQUE EXPLOITATION{% endblock page_title %} 
 {% block search_form %}
     <div class="col-sm-12 text-right mb-2">
-        {% include 'perfect/partials/modal_filter_trigger.html' with modal_id='modal-filtre-analytique' label='Filtres' %}
+        {% include 'perfect/partials/modal_filter_trigger.html' with modal_id='modal-filtre-analytique' filter_label='Filtres' %}
         {% for categorie, perms in grouped_permissions.items %}
             {% if categorie.categorie == 'Exporter' %}
                 {% for perm in perms %}

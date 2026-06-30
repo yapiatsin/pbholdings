@@ -2,463 +2,152 @@
 {% load static %}
 {% block title %}Mes statistiques{% endblock title %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'pb/css/mes-statistics.css' %}">
+{% endblock extra_css %}
+
 {% block page_title %}
-    <img class="profile-user-img" style="border:none; height:55px;width:55px" src="{% static 'dash.png' %}" alt="Statistiques">Mes statistiques
-    <small class="text-muted ml-2" style="font-size: 0.85rem; font-weight: 600;">{{ period_label }}</small>
+    <img class="profile-user-img" style="border:none; height:55px;width:55px" src="{% static 'dash.png' %}" alt="Statistiques">
+    Mes statistiques
+    <span class="pb-stats-period-badge"><i class="far fa-calendar-alt" aria-hidden="true"></i> {{ period_label }}</span>
 {% endblock page_title %}
 
 {% block page_action %}
     <form id="quickForm">
         {% include 'perfect/partials/modal_filter_trigger.html' %}
-        <a class="btn btn-default text-info" href="{% url 'mes_stats' %}" style="font-size: 16px;">
+        <a class="btn btn-default text-info" href="{% url 'mes_stats' %}" style="font-size: 16px;" title="Actualiser">
             <i style="font-size: 20px; color: var(--pb-primary);" class="fas fa-sync"></i>
         </a>
     </form>
 {% endblock page_action %}
 
 {% block main_content %}
+<div class="col-md-12 pb-stats-page">
+
 {% url 'mes_stats' as stats_reset_url %}
 {% include 'perfect/partials/modal_default.html' with modal_id='modal-sm' modal_title='Filtre' body_template='perfect/partials/filters/dashboard_filter_body.html' form=form reset_url=stats_reset_url submit_label='Appliquer' %}
 
-{# ===== KPI — Utilisateurs & parc ===== #}
-<div class="col-md-12">
-    <div class="row">
-        <div class="col-xl-2 col-lg-4 col-md-4 col-sm-6 mb-3">
-            <div class="card h-100" style="border-radius: 20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);">
-                <div class="card-body py-3">
-                    <div class="d-flex align-items-center">
-                        <div style="height: 55px; width: 55px; min-width: 55px; background-color: #f4f6f9; border-radius: 55px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                            <i class="fas fa-users" style="font-size: 22px; margin-top: 16px; color: #a83232;"></i>
-                        </div>
-                        <div>
-                            <div style="font-size: 15px; color: #a83232;">Utilisateurs</div>
-                            <div style="font-size: 18px; font-weight: 700; line-height: 1.2; color: #1a1a1a;">{{ users_total }}</div>
-                            <small style="color: #1a1a1a; font-weight: 600;">{{ users_active }} actifs</small>
-                        </div>
-                    </div>
-                </div>
+{# ——— Parc & utilisateurs ——— #}
+<section class="pb-stats-section">
+    <h2 class="pb-stats-section__title"><i class="fas fa-users" aria-hidden="true"></i> Parc &amp; utilisateurs</h2>
+    <div class="pb-stats-kpi-grid pb-stats-kpi-grid--6">
+        {% include 'perfect/partials/stats/kpi_card.html' with label="Utilisateurs" value=users_total sublabel=users_active|add:" actifs" icon="fa-users" %}
+        {% include 'perfect/partials/stats/kpi_card.html' with label="Comptes bloqués" value=users_blocked sublabel=users_inactive|add:" inactifs" icon="fa-lock" %}
+        {% include 'perfect/partials/stats/kpi_card.html' with label="Connexions" value=login_success sublabel=login_failed|add:" échec(s)" icon="fa-sign-in-alt" %}
+        {% with en_parc_sub="/ "|add:vehicules_total|add:" total" %}
+        {% include 'perfect/partials/stats/kpi_card.html' with label="En parc" value=vehicules_in_parc sublabel=en_parc_sub icon="fa-car" %}
+        {% endwith %}
+        {% include 'perfect/partials/stats/kpi_card.html' with label="Hors parc" value=vehicules_out_parc sublabel="sortis / inactifs" icon="fa-car-side" %}
+        {% include 'perfect/partials/stats/kpi_card.html' with label="Notifications" value=notif_total sublabel=notif_unread|add:" non lues" icon="fa-bell" %}
+    </div>
+</section>
+
+{# ——— Finances & garage ——— #}
+<section class="pb-stats-section">
+    <h2 class="pb-stats-section__title"><i class="fas fa-chart-line" aria-hidden="true"></i> Finances &amp; garage</h2>
+    <div class="pb-stats-kpi-grid pb-stats-kpi-grid--4">
+        {% include 'perfect/partials/stats/kpi_card.html' with label="Recette" value=totals_fmt.recettes icon_img="recet.png" highlight=True %}
+        {% include 'perfect/partials/stats/kpi_card.html' with label="Marge directe" value=totals_fmt.marge icon_img="marge.png" highlight=True %}
+        {% include 'perfect/partials/stats/kpi_card.html' with label="Charges totales" value=totals_fmt.charges_total icon_img="sum.png" %}
+        {% include 'perfect/partials/stats/kpi_card.html' with label="Charges fixes" value=totals_fmt.charges_fixes icon_img="chargfix.png" %}
+        {% include 'perfect/partials/stats/kpi_card.html' with label="Charges variables" value=totals_fmt.charges_variables icon_img="chargvar.png" %}
+        {% with repar_sub=counts.pannes|add:" panne(s) · "|add:counts.accidents|add:" accident(s)" ent_sub=counts.entretiens|add:" entretien(s)" enc_sub="Déc. "|add:totals_fmt.decaissements %}
+        {% include 'perfect/partials/stats/kpi_card.html' with label="Réparations" value=totals_fmt.reparations sublabel=repar_sub icon_img="gear.png" %}
+        {% include 'perfect/partials/stats/kpi_card.html' with label="Pièces / Entretiens" value=totals_fmt.pieces sublabel=ent_sub icon_img="update.png" %}
+        {% include 'perfect/partials/stats/kpi_card.html' with label="Encaissements" value=totals_fmt.encaissements sublabel=enc_sub icon_img="brute.png" %}
+        {% endwith %}
+    </div>
+</section>
+
+{# ——— Graphiques ——— #}
+<section class="pb-stats-section">
+    <h2 class="pb-stats-section__title"><i class="fas fa-chart-area" aria-hidden="true"></i> Visualisations</h2>
+    <div class="pb-stats-charts-grid">
+        {% include 'perfect/partials/stats/chart_card.html' with title="Évolution des recettes" hint=chart_axis_hint chart_id="chartFinance" %}
+        {% include 'perfect/partials/stats/chart_card.html' with title="Évolution des charges" hint=chart_axis_hint chart_id="chartChargesBar" %}
+        {% include 'perfect/partials/stats/chart_card.html' with title="Répartition des charges" chart_id="chartChargesPie" %}
+        {% include 'perfect/partials/stats/chart_card.html' with title="Évolution des réparations" hint=chart_axis_hint chart_id="chartReparations" %}
+        {% include 'perfect/partials/stats/chart_card.html' with title="Réparations par motif" chart_id="chartReparMotif" %}
+        {% include 'perfect/partials/stats/chart_card.html' with title="Véhicules par catégorie" chart_id="chartVehicules" %}
+        {% include 'perfect/partials/stats/chart_card.html' with title="Connexions (réussies / échouées)" chart_id="chartLogin" %}
+        {% include 'perfect/partials/stats/chart_card.html' with title="Audit — types d'actions" chart_id="chartAudit" %}
+        {% include 'perfect/partials/stats/chart_card.html' with title="Notifications par type" chart_id="chartNotif" %}
+
+        {# Classements #}
+        <div class="pb-stats-card">
+            <div class="pb-stats-card__header">
+                <h3 class="pb-stats-card__title">{{ top_recettes|length }} Meilleure{% if top_recettes|length > 1 %}s{% endif %} recette{% if top_recettes|length > 1 %}s{% endif %}</h3>
+            </div>
+            <div class="pb-stats-card__body pb-stats-card__body--flush">
+                <ul class="pb-stats-rank-list">
+                    {% for c in top_recettes %}
+                    <li class="pb-stats-rank-list__item">
+                        <span class="pb-stats-rank-list__label">{{ c.vehicule__immatriculation }}</span>
+                        <span class="pb-stats-rank-list__value">{{ c.total }}</span>
+                    </li>
+                    {% empty %}
+                    <li class="pb-stats-empty">Aucune donnée sur la période.</li>
+                    {% endfor %}
+                </ul>
             </div>
         </div>
-        <div class="col-xl-2 col-lg-4 col-md-4 col-sm-6 mb-3">
-            <div class="card h-100" style="border-radius: 20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);">
-                <div class="card-body py-3">
-                    <div class="d-flex align-items-center">
-                        <div style="height: 55px; width: 55px; min-width: 55px; background-color: #f4f6f9; border-radius: 55px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                            <i class="fas fa-lock" style="font-size: 22px; margin-top: 16px; color: #a83232;"></i>
-                        </div>
-                        <div>
-                            <div style="font-size: 15px; color: #a83232;">Comptes bloqués</div>
-                            <div style="font-size: 18px; font-weight: 700; line-height: 1.2; color: #1a1a1a;">{{ users_blocked }}</div>
-                            <small style="color: #1a1a1a; font-weight: 600;">{{ users_inactive }} inactifs</small>
-                        </div>
-                    </div>
-                </div>
+
+        <div class="pb-stats-card">
+            <div class="pb-stats-card__header">
+                <h3 class="pb-stats-card__title">{{ top_reparations|length }} Top réparation{% if top_reparations|length > 1 %}s{% endif %}</h3>
+            </div>
+            <div class="pb-stats-card__body pb-stats-card__body--flush">
+                <ul class="pb-stats-rank-list">
+                    {% for c in top_reparations %}
+                    <li class="pb-stats-rank-list__item">
+                        <span class="pb-stats-rank-list__label">{{ c.vehicule__immatriculation }} <small class="text-muted">({{ c.motif }})</small></span>
+                        <span class="pb-stats-rank-list__value">{{ c.total }}</span>
+                    </li>
+                    {% empty %}
+                    <li class="pb-stats-empty">Aucune donnée sur la période.</li>
+                    {% endfor %}
+                </ul>
             </div>
         </div>
-        <div class="col-xl-2 col-lg-4 col-md-4 col-sm-6 mb-3">
-            <div class="card h-100" style="border-radius: 20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);">
-                <div class="card-body py-3">
-                    <div class="d-flex align-items-center">
-                        <div style="height: 55px; width: 55px; min-width: 55px; background-color: #f4f6f9; border-radius: 55px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                            <i class="fas fa-sign-in-alt" style="font-size: 22px; margin-top: 16px; color: #a83232;"></i>
-                        </div>
-                        <div>
-                            <div style="font-size: 15px; color: #a83232;">Connexions</div>
-                            <div style="font-size: 18px; font-weight: 700; line-height: 1.2; color: #1a1a1a;">{{ login_success }}</div>
-                            <small style="color: #1a1a1a; font-weight: 600;">{{ login_failed }} échec(s)</small>
-                        </div>
-                    </div>
-                </div>
+
+        <div class="pb-stats-card">
+            <div class="pb-stats-card__header">
+                <h3 class="pb-stats-card__title">Utilisateurs par profil</h3>
             </div>
-        </div>
-        <div class="col-xl-2 col-lg-4 col-md-4 col-sm-6 mb-3">
-            <div class="card h-100" style="border-radius: 20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);">
-                <div class="card-body py-3">
-                    <div class="d-flex align-items-center">
-                        <div style="height: 55px; width: 55px; min-width: 55px; background-color: #f4f6f9; border-radius: 55px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                            <i class="fas fa-car" style="font-size: 22px; margin-top: 16px; color: #a83232;"></i>
-                        </div>
-                        <div>
-                            <div style="font-size: 15px; color: #a83232;">En parc</div>
-                            <div style="font-size: 18px; font-weight: 700; line-height: 1.2; color: #1a1a1a;">{{ vehicules_in_parc }}</div>
-                            <small style="color: #1a1a1a; font-weight: 600;">/ {{ vehicules_total }} total</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-2 col-lg-4 col-md-4 col-sm-6 mb-3">
-            <div class="card h-100" style="border-radius: 20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);">
-                <div class="card-body py-3">
-                    <div class="d-flex align-items-center">
-                        <div style="height: 55px; width: 55px; min-width: 55px; background-color: #f4f6f9; border-radius: 55px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                            <i class="fas fa-car-side" style="font-size: 22px; margin-top: 16px; color: #a83232;"></i>
-                        </div>
-                        <div>
-                            <div style="font-size: 15px; color: #a83232;">Hors parc</div>
-                            <div style="font-size: 18px; font-weight: 700; line-height: 1.2; color: #1a1a1a;">{{ vehicules_out_parc }}</div>
-                            <small style="color: #1a1a1a; font-weight: 600;">sortis / inactifs</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-2 col-lg-4 col-md-4 col-sm-6 mb-3">
-            <div class="card h-100" style="border-radius: 20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);">
-                <div class="card-body py-3">
-                    <div class="d-flex align-items-center">
-                        <div style="height: 55px; width: 55px; min-width: 55px; background-color: #f4f6f9; border-radius: 55px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                            <i class="fas fa-bell" style="font-size: 22px; margin-top: 16px; color: #a83232;"></i>
-                        </div>
-                        <div>
-                            <div style="font-size: 15px; color: #a83232;">Notifications</div>
-                            <div style="font-size: 18px; font-weight: 700; line-height: 1.2; color: #1a1a1a;">{{ notif_total }}</div>
-                            <small style="color: #1a1a1a; font-weight: 600;">{{ notif_unread }} non lues</small>
-                        </div>
-                    </div>
-                </div>
+            <div class="pb-stats-card__body pb-stats-card__body--flush">
+                <ul class="pb-stats-rank-list">
+                    {% for row in users_by_type %}
+                    <li class="pb-stats-rank-list__item">
+                        <span class="pb-stats-rank-list__label">{% for k,v in user_type_choices.items %}{% if k == row.user_type %}{{ v }}{% endif %}{% endfor %}</span>
+                        <span class="pb-stats-rank-list__value">{{ row.count }}</span>
+                    </li>
+                    {% empty %}
+                    <li class="pb-stats-empty">Aucune donnée.</li>
+                    {% endfor %}
+                </ul>
             </div>
         </div>
     </div>
-</div>
+</section>
 
-{# ===== KPI — Finances & garage ===== #}
-<div class="col-md-12">
-    <div class="row">
-        <div class="col-xl-3 col-lg-4 col-md-4 col-sm-6 mb-3">
-            <div class="card h-100" style="border-radius: 20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);">
-                <div class="card-body py-3">
-                    <div class="d-flex align-items-center">
-                        <div style="height: 55px; width: 55px; min-width: 55px; background-color: #f4f6f9; border-radius: 55px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                            <img style="height: 40px; width: 40px; position:relative; margin-top: 9px; margin-left: 2px;" src="{% static 'recet.png' %}" alt="">
-                        </div>
-                        <div>
-                            <div style="font-size: 15px; color: #a83232;">Recette</div>
-                            <div style="font-size: 18px; font-weight: 700; line-height: 1.2; color: #1a1a1a;">{{ totals_fmt.recettes }}</div>
-                        </div>
-                    </div>
+{# ——— Connexions & sécurité ——— #}
+<section class="pb-stats-section">
+    <h2 class="pb-stats-section__title"><i class="fas fa-shield-alt" aria-hidden="true"></i> Connexions &amp; sécurité</h2>
+    <div class="pb-stats-split pb-stats-split--8-4">
+        <div class="pb-stats-split__main">
+            <div class="pb-stats-card">
+                <div class="pb-stats-card__header">
+                    <h3 class="pb-stats-card__title"><i class="fas fa-sign-in-alt mr-1" aria-hidden="true"></i> Historique des connexions</h3>
                 </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-lg-4 col-md-4 col-sm-6 mb-3">
-            <div class="card h-100" style="border-radius: 20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);">
-                <div class="card-body py-3">
-                    <div class="d-flex align-items-center">
-                        <div style="height: 55px; width: 55px; min-width: 55px; background-color: #f4f6f9; border-radius: 55px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                            <img style="height: 30px; width: 30px; position:relative; margin-top: 13px; margin-left: 3px;" src="{% static 'marge.png' %}" alt="">
-                        </div>
-                        <div>
-                            <div style="font-size: 15px; color: #a83232;">Marge directe</div>
-                            <div style="font-size: 18px; font-weight: 700; line-height: 1.2; color: #1a1a1a;">{{ totals_fmt.marge }}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-lg-4 col-md-4 col-sm-6 mb-3">
-            <div class="card h-100" style="border-radius: 20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);">
-                <div class="card-body py-3">
-                    <div class="d-flex align-items-center">
-                        <div style="height: 55px; width: 55px; min-width: 55px; background-color: #f4f6f9; border-radius: 55px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                            <img style="height: 40px; width: 40px; position:relative; margin-top: 9px;" src="{% static 'sum.png' %}" alt="">
-                        </div>
-                        <div>
-                            <div style="font-size: 15px; color: #a83232;">Charges totales</div>
-                            <div style="font-size: 18px; font-weight: 700; line-height: 1.2; color: #1a1a1a;">{{ totals_fmt.charges_total }}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-lg-4 col-md-4 col-sm-6 mb-3">
-            <div class="card h-100" style="border-radius: 20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);">
-                <div class="card-body py-3">
-                    <div class="d-flex align-items-center">
-                        <div style="height: 55px; width: 55px; min-width: 55px; background-color: #f4f6f9; border-radius: 55px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                            <img style="height: 40px; width: 40px; position:relative; margin-top: 9px;" src="{% static 'chargfix.png' %}" alt="">
-                        </div>
-                        <div>
-                            <div style="font-size: 15px; color: #a83232;">Charges fixes</div>
-                            <div style="font-size: 18px; font-weight: 700; line-height: 1.2; color: #1a1a1a;">{{ totals_fmt.charges_fixes }}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-lg-4 col-md-4 col-sm-6 mb-3">
-            <div class="card h-100" style="border-radius: 20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);">
-                <div class="card-body py-3">
-                    <div class="d-flex align-items-center">
-                        <div style="height: 55px; width: 55px; min-width: 55px; background-color: #f4f6f9; border-radius: 55px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                            <img style="height: 40px; width: 40px; position:relative; margin-top: 9px;" src="{% static 'chargvar.png' %}" alt="">
-                        </div>
-                        <div>
-                            <div style="font-size: 15px; color: #a83232;">Charges variables</div>
-                            <div style="font-size: 18px; font-weight: 700; line-height: 1.2; color: #1a1a1a;">{{ totals_fmt.charges_variables }}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-lg-4 col-md-4 col-sm-6 mb-3">
-            <div class="card h-100" style="border-radius: 20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);">
-                <div class="card-body py-3">
-                    <div class="d-flex align-items-center">
-                        <div style="height: 55px; width: 55px; min-width: 55px; background-color: #f4f6f9; border-radius: 55px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                            <img style="height: 40px; width: 40px; position:relative; margin-top: 9px;" src="{% static 'gear.png' %}" alt="">
-                        </div>
-                        <div>
-                            <div style="font-size: 14px; color: #a83232;">Réparations</div>
-                            <div style="font-size: 18px; font-weight: 700; line-height: 1.2; color: #1a1a1a;">{{ totals_fmt.reparations }}</div>
-                            <small style="color: #1a1a1a; font-weight: 600;">{{ counts.pannes }} panne(s) · {{ counts.accidents }} accident(s)</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-lg-4 col-md-4 col-sm-6 mb-3">
-            <div class="card h-100" style="border-radius: 20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);">
-                <div class="card-body py-3">
-                    <div class="d-flex align-items-center">
-                        <div style="height: 55px; width: 55px; min-width: 55px; background-color: #f4f6f9; border-radius: 55px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                            <img style="height: 40px; width: 40px; position:relative; margin-top: 8px;" src="{% static 'update.png' %}" alt="">
-                        </div>
-                        <div>
-                            <div style="font-size: 14px; color: #a83232;">Pièces / Entretiens</div>
-                            <div style="font-size: 18px; font-weight: 700; line-height: 1.2; color: #1a1a1a;">{{ totals_fmt.pieces }}</div>
-                            <small style="color: #1a1a1a; font-weight: 600;">{{ counts.entretiens }} entretien(s)</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-lg-4 col-md-4 col-sm-6 mb-3">
-            <div class="card h-100" style="border-radius: 20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);">
-                <div class="card-body py-3">
-                    <div class="d-flex align-items-center">
-                        <div style="height: 55px; width: 55px; min-width: 55px; background-color: #f4f6f9; border-radius: 55px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                            <img style="height: 40px; width: 40px; position:relative; margin-top: 9px;" src="{% static 'brute.png' %}" alt="">
-                        </div>
-                        <div>
-                            <div style="font-size: 14px; color: #a83232;">Encaissements</div>
-                            <div style="font-size: 18px; font-weight: 700; line-height: 1.2; color: #1a1a1a;">{{ totals_fmt.encaissements }}</div>
-                            <small style="color: #1a1a1a; font-weight: 600;">Déc. {{ totals_fmt.decaissements }}</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-{# ===== GRAPHIQUES ===== #}
-<div class="col-md-12">
-    <div class="row">
-        <div class="col-md-4">
-            <div class="card" style="border-radius: 20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);">
-                <div class="card-header d-flex justify-content-between align-items-center" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.95)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 20px 20px 0 0;">
-                    <strong style="font-size: 1.05rem; color: #a83232;">Évolution des recettes{% if chart_axis_hint %} (<small class="text-muted" style="font-size: 0.75rem; font-weight: normal;">{{ chart_axis_hint }}</small>){% endif %}</strong>
-                </div>
-                <div class="card-body p-3">
-                    <div class="chart">
-                        <canvas id="chartFinance" style="min-height: 200px; height: 200px; max-height: 200px; max-width: 100%;"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card" style="border-radius: 20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);">
-                <div class="card-header d-flex justify-content-between align-items-center" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.95)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 20px 20px 0 0;">
-                    <strong style="font-size: 1.05rem; color: #a83232;">Évolution des charges{% if chart_axis_hint %} (<small class="text-muted" style="font-size: 0.75rem; font-weight: normal;">{{ chart_axis_hint }}</small>){% endif %}</strong>
-                </div>
-                <div class="card-body p-3">
-                    <div class="chart">
-                        <canvas id="chartChargesBar" style="min-height: 200px; height: 200px; max-height: 200px; max-width: 100%;"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card" style="border-radius: 20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);">
-                <div class="card-header d-flex justify-content-between align-items-center" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.95)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 20px 20px 0 0;">
-                    <strong style="font-size: 1.05rem; color: #a83232;">Répartition des charges</strong>
-                </div>
-                <div class="card-body p-3">
-                    <div class="chart">
-                        <canvas id="chartChargesPie" style="min-height: 200px; height: 200px; max-height: 200px; max-width: 100%;"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card" style="border-radius: 20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);">
-                <div class="card-header d-flex justify-content-between align-items-center" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.95)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 20px 20px 0 0;">
-                    <strong style="font-size: 1.05rem; color: #a83232;">Évolution des réparations{% if chart_axis_hint %} (<small class="text-muted" style="font-size: 0.75rem; font-weight: normal;">{{ chart_axis_hint }}</small>){% endif %}</strong>
-                </div>
-                <div class="card-body p-3">
-                    <div class="chart">
-                        <canvas id="chartReparations" style="min-height: 200px; height: 200px; max-height: 200px; max-width: 100%;"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card" style="border-radius: 20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);">
-                <div class="card-header d-flex justify-content-between align-items-center" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.95)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 20px 20px 0 0;">
-                    <strong style="font-size: 1.05rem; color: #a83232;">Réparations par motif</strong>
-                </div>
-                <div class="card-body p-3">
-                    <div class="chart">
-                        <canvas id="chartReparMotif" style="min-height: 200px; height: 200px; max-height: 200px; max-width: 100%;"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card" style="border-radius: 20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);">
-                <div class="card-header d-flex justify-content-between align-items-center" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.95)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 20px 20px 0 0;">
-                    <strong style="font-size: 1.05rem; color: #a83232;">Véhicules par catégorie</strong>
-                </div>
-                <div class="card-body p-3">
-                    <div class="chart">
-                        <canvas id="chartVehicules" style="min-height: 200px; height: 200px; max-height: 200px; max-width: 100%;"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card" style="border-radius: 20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);">
-                <div class="card-header d-flex justify-content-between align-items-center" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.95)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 20px 20px 0 0;">
-                    <strong style="font-size: 1.05rem; color: #a83232;">Connexions (réussies / échouées)</strong>
-                </div>
-                <div class="card-body p-3">
-                    <div class="chart">
-                        <canvas id="chartLogin" style="min-height: 200px; height: 200px; max-height: 200px; max-width: 100%;"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card" style="border-radius: 20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);">
-                <div class="card-header d-flex justify-content-between align-items-center" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.95)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 20px 20px 0 0;">
-                    <strong style="font-size: 1.05rem; color: #a83232;">Audit — types d'actions</strong>
-                </div>
-                <div class="card-body p-3">
-                    <div class="chart">
-                        <canvas id="chartAudit" style="min-height: 200px; height: 200px; max-height: 200px; max-width: 100%;"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card" style="border-radius: 20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);">
-                <div class="card-header d-flex justify-content-between align-items-center" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.95)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 20px 20px 0 0;">
-                    <strong style="font-size: 1.05rem; color: #a83232;">Notifications par type</strong>
-                </div>
-                <div class="card-body p-3">
-                    <div class="chart">
-                        <canvas id="chartNotif" style="min-height: 200px; height: 200px; max-height: 200px; max-width: 100%;"></canvas>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        {# --- Classements (style dashboard) --- #}
-        <div class="col-md-4">
-            <div class="card" style="border-radius: 20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);">
-                <div class="card-header d-flex align-items-center flex-nowrap w-100 dashboard-card-header-row" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.95)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 20px 20px 0 0;">
-                    <strong style="font-size: 1.05rem; color: #a83232;" class="card-title mb-0 flex-grow-1">{{ top_recettes|length }} Meilleure{% if top_recettes|length > 1 %}s{% endif %} recette{% if top_recettes|length > 1 %}s{% endif %}</strong>
-                </div>
-                <div class="card-body p-0">
-                    <ul class="products-list product-list-in-card dashboard-products-transparent-items pl-2 pr-2">
-                        {% for c in top_recettes %}
-                        <li class="item" style="font-size:15px;">
-                            <div class="product-img">
-                                <a href="javascript:void(0)" class="product-title text-secondary">{{ c.vehicule__immatriculation }}</a>
-                            </div>
-                            <div class="product-info">
-                                <a href="javascript:void(0)" class="product-title">
-                                    <span class="badge badge-light float-right p-2">- {{ c.total }} -</span>
-                                </a>
-                            </div>
-                        </li>
-                        {% empty %}
-                        <li class="item text-muted pl-3 py-2">Aucune donnée sur la période.</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card" style="border-radius: 20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);">
-                <div class="card-header d-flex align-items-center flex-nowrap w-100" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.95)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 20px 20px 0 0;">
-                    <strong style="font-size: 1.05rem; color: #a83232;" class="card-title mb-0 flex-grow-1">{{ top_reparations|length }} Top réparation{% if top_reparations|length > 1 %}s{% endif %}</strong>
-                </div>
-                <div class="card-body p-0">
-                    <ul class="products-list product-list-in-card dashboard-products-transparent-items pl-2 pr-2">
-                        {% for c in top_reparations %}
-                        <li class="item" style="font-size:15px;">
-                            <div class="product-img">
-                                <a href="javascript:void(0)" class="product-title text-secondary">{{ c.vehicule__immatriculation }} <small>({{ c.motif }})</small></a>
-                            </div>
-                            <div class="product-info">
-                                <a href="javascript:void(0)" class="product-title">
-                                    <span class="badge badge-light float-right p-2">- {{ c.total }} -</span>
-                                </a>
-                            </div>
-                        </li>
-                        {% empty %}
-                        <li class="item text-muted pl-3 py-2">Aucune donnée sur la période.</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card" style="border-radius: 20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);">
-                <div class="card-header d-flex align-items-center flex-nowrap w-100" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.95)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 20px 20px 0 0;">
-                    <strong style="font-size: 1.05rem; color: #a83232;" class="card-title mb-0 flex-grow-1">Utilisateurs par profil</strong>
-                </div>
-                <div class="card-body p-0">
-                    <ul class="products-list product-list-in-card dashboard-products-transparent-items pl-2 pr-2">
-                        {% for row in users_by_type %}
-                        <li class="item" style="font-size:15px;">
-                            <div class="product-img">
-                                <a href="javascript:void(0)" class="product-title text-secondary">{% for k,v in user_type_choices.items %}{% if k == row.user_type %}{{ v }}{% endif %}{% endfor %}</a>
-                            </div>
-                            <div class="product-info">
-                                <a href="javascript:void(0)" class="product-title">
-                                    <span class="badge badge-light float-right p-2">- {{ row.count }} -</span>
-                                </a>
-                            </div>
-                        </li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-{# ===== CONNEXIONS & SÉCURITÉ ===== #}
-<div class="col-md-12">
-    <div class="row">
-        <div class="col-md-8">
-            <div class="card" style="border-radius: 20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);">
-                <div class="card-header" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.95)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 20px 20px 0 0;">
-                    <strong style="font-size: 1.05rem; color: #a83232;"><i class="fas fa-sign-in-alt mr-1"></i> Historique des connexions</strong>
-                </div>
-                <div class="card-body p-0 stats-scroll" style="max-height: 340px; overflow-y: auto;">
-                    <table class="table table-sm table-hover mb-0 text-nowrap">
+                <div class="pb-stats-card__body pb-stats-card__body--flush pb-stats-scroll">
+                    <table class="table table-sm table-hover pb-stats-table mb-0 text-nowrap">
                         <thead>
-                            <tr style="background: rgba(168, 50, 50, 0.08);">
-                                <th style="color: #a83232;">Date / heure</th>
-                                <th style="color: #a83232;">Utilisateur</th>
-                                <th style="color: #a83232;">IP</th>
-                                <th style="color: #a83232;">Statut</th>
-                                <th style="color: #a83232;">Raison échec</th>
+                            <tr>
+                                <th>Date / heure</th>
+                                <th>Utilisateur</th>
+                                <th>IP</th>
+                                <th>Statut</th>
+                                <th>Raison échec</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -471,63 +160,64 @@
                                 <td><small>{{ log.failure_reason|default:"—" }}</small></td>
                             </tr>
                             {% empty %}
-                            <tr><td colspan="5" class="text-center text-muted py-3">Aucune connexion sur cette période.</td></tr>
+                            <tr><td colspan="5" class="pb-stats-empty">Aucune connexion sur cette période.</td></tr>
                             {% endfor %}
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card" style="border-radius: 20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);">
-                <div class="card-header" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.95)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 20px 20px 0 0;">
-                    <strong style="font-size: 1.05rem; color: #a83232;">Tentatives échouées</strong>
+        <div class="pb-stats-split__side pb-stats-side-stack">
+            <div class="pb-stats-card">
+                <div class="pb-stats-card__header">
+                    <h3 class="pb-stats-card__title">Tentatives échouées</h3>
                 </div>
-                <div class="card-body p-0 stats-scroll" style="max-height: 200px; overflow-y: auto;">
-                    <ul class="products-list product-list-in-card dashboard-products-transparent-items pl-2 pr-2 mb-0">
+                <div class="pb-stats-card__body pb-stats-card__body--flush pb-stats-scroll pb-stats-scroll--sm">
+                    <ul class="pb-stats-rank-list">
                         {% for u in users_failed_attempts %}
-                        <li class="item" style="font-size:14px;">
-                            <div class="product-img"><span class="text-secondary">{{ u.email }}</span></div>
-                            <div class="product-info"><span class="badge badge-warning float-right">{{ u.failed_login_attempts }}</span></div>
+                        <li class="pb-stats-rank-list__item">
+                            <span class="pb-stats-rank-list__label">{{ u.email }}</span>
+                            <span class="badge badge-warning">{{ u.failed_login_attempts }}</span>
                         </li>
                         {% empty %}
-                        <li class="item text-muted pl-3 py-2">Aucun compte en échec.</li>
+                        <li class="pb-stats-empty">Aucun compte en échec.</li>
                         {% endfor %}
                     </ul>
                 </div>
             </div>
-            <div class="card mt-3" style="border-radius: 20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);">
-                <div class="card-header" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.95)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 20px 20px 0 0;">
-                    <strong style="font-size: 1.05rem; color: #a83232;">Sécurité compte</strong>
+            <div class="pb-stats-card">
+                <div class="pb-stats-card__header">
+                    <h3 class="pb-stats-card__title">Sécurité compte</h3>
                 </div>
-                <div class="card-body py-2">
-                    <div class="d-flex justify-content-between mb-1"><span class="text-muted">OTP reset</span><strong>{{ password_resets }}</strong></div>
-                    <div class="d-flex justify-content-between mb-1"><span class="text-muted">Vérifications email</span><strong>{{ email_verifications }}</strong></div>
-                    <div class="d-flex justify-content-between"><span class="text-muted">Changements MDP</span><strong>{{ password_changes }}</strong></div>
+                <div class="pb-stats-card__body">
+                    <div class="pb-stats-metric-row"><span>OTP reset</span><strong>{{ password_resets }}</strong></div>
+                    <div class="pb-stats-metric-row"><span>Vérifications email</span><strong>{{ email_verifications }}</strong></div>
+                    <div class="pb-stats-metric-row"><span>Changements MDP</span><strong>{{ password_changes }}</strong></div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</section>
 
-{# ===== NOTIFICATIONS ===== #}
-<div class="col-md-12">
-    <div class="row">
-        <div class="col-md-8">
-            <div class="card" style="border-radius: 20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);">
-                <div class="card-header" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.95)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 20px 20px 0 0;">
-                    <strong style="font-size: 1.05rem; color: #a83232;"><i class="fas fa-bell mr-1"></i> Notifications & alertes</strong>
-                    <span class="badge badge-danger ml-2">{{ notif_alerts }} alerte(s)</span>
+{# ——— Notifications ——— #}
+<section class="pb-stats-section">
+    <h2 class="pb-stats-section__title"><i class="fas fa-bell" aria-hidden="true"></i> Notifications</h2>
+    <div class="pb-stats-split pb-stats-split--8-4">
+        <div class="pb-stats-split__main">
+            <div class="pb-stats-card">
+                <div class="pb-stats-card__header">
+                    <h3 class="pb-stats-card__title"><i class="fas fa-bell mr-1" aria-hidden="true"></i> Notifications &amp; alertes</h3>
+                    <span class="badge badge-danger">{{ notif_alerts }} alerte(s)</span>
                 </div>
-                <div class="card-body p-0 stats-scroll" style="max-height: 320px; overflow-y: auto;">
-                    <table class="table table-sm table-hover mb-0">
+                <div class="pb-stats-card__body pb-stats-card__body--flush pb-stats-scroll">
+                    <table class="table table-sm table-hover pb-stats-table mb-0">
                         <thead>
-                            <tr style="background: rgba(168, 50, 50, 0.08);">
-                                <th style="color: #a83232;">Date</th>
-                                <th style="color: #a83232;">Destinataire</th>
-                                <th style="color: #a83232;">Titre</th>
-                                <th style="color: #a83232;">Type</th>
-                                <th style="color: #a83232;">Lu</th>
+                            <tr>
+                                <th>Date</th>
+                                <th>Destinataire</th>
+                                <th>Titre</th>
+                                <th>Type</th>
+                                <th>Lu</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -540,51 +230,52 @@
                                 <td>{% if n.lu %}<i class="fas fa-check text-success"></i>{% else %}<i class="fas fa-circle text-warning" style="font-size: 8px;"></i>{% endif %}</td>
                             </tr>
                             {% empty %}
-                            <tr><td colspan="5" class="text-center text-muted py-3">Aucune notification sur cette période.</td></tr>
+                            <tr><td colspan="5" class="pb-stats-empty">Aucune notification sur cette période.</td></tr>
                             {% endfor %}
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card" style="border-radius: 20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);">
-                <div class="card-header" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.95)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 20px 20px 0 0;">
-                    <strong style="font-size: 1.05rem; color: #a83232;">Notifications par catégorie</strong>
+        <div class="pb-stats-split__side">
+            <div class="pb-stats-card">
+                <div class="pb-stats-card__header">
+                    <h3 class="pb-stats-card__title">Notifications par catégorie</h3>
                 </div>
-                <div class="card-body p-0">
-                    <ul class="products-list product-list-in-card dashboard-products-transparent-items pl-2 pr-2">
+                <div class="pb-stats-card__body pb-stats-card__body--flush">
+                    <ul class="pb-stats-rank-list">
                         {% for row in notif_by_category %}
-                        <li class="item" style="font-size:15px;">
-                            <div class="product-img"><span class="text-secondary">{{ row.categorie|default:"autre" }}</span></div>
-                            <div class="product-info"><span class="badge badge-light float-right p-2">- {{ row.count }} -</span></div>
+                        <li class="pb-stats-rank-list__item">
+                            <span class="pb-stats-rank-list__label">{{ row.categorie|default:"autre" }}</span>
+                            <span class="pb-stats-rank-list__value">{{ row.count }}</span>
                         </li>
                         {% empty %}
-                        <li class="item text-muted pl-3 py-2">—</li>
+                        <li class="pb-stats-empty">—</li>
                         {% endfor %}
                     </ul>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</section>
 
-{# ===== AUDIT ===== #}
-<div class="col-md-12">
-    <div class="card" style="border-radius: 20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);">
-        <div class="card-header" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.95)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 20px 20px 0 0;">
-            <strong style="font-size: 1.05rem; color: #a83232;"><i class="fas fa-history mr-1"></i> Piste d'audit (simple-history)</strong>
+{# ——— Audit ——— #}
+<section class="pb-stats-section">
+    <h2 class="pb-stats-section__title"><i class="fas fa-history" aria-hidden="true"></i> Piste d'audit</h2>
+    <div class="pb-stats-card">
+        <div class="pb-stats-card__header">
+            <h3 class="pb-stats-card__title"><i class="fas fa-history mr-1" aria-hidden="true"></i> Piste d'audit (simple-history)</h3>
         </div>
-        <div class="card-body p-0 stats-scroll" style="max-height: 360px; overflow-y: auto;">
-            <table class="table table-sm table-hover mb-0 text-nowrap">
+        <div class="pb-stats-card__body pb-stats-card__body--flush pb-stats-scroll">
+            <table class="table table-sm table-hover pb-stats-table mb-0 text-nowrap">
                 <thead>
-                    <tr style="background: rgba(168, 50, 50, 0.08);">
-                        <th style="color: #a83232;">Date / heure</th>
-                        <th style="color: #a83232;">Module</th>
-                        <th style="color: #a83232;">Action</th>
-                        <th style="color: #a83232;">Détail</th>
-                        <th style="color: #a83232;">Montant</th>
-                        <th style="color: #a83232;">Utilisateur</th>
+                    <tr>
+                        <th>Date / heure</th>
+                        <th>Module</th>
+                        <th>Action</th>
+                        <th>Détail</th>
+                        <th>Montant</th>
+                        <th>Utilisateur</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -602,27 +293,28 @@
                         <td><small>{% if entry.user %}{{ entry.user.email }}{% else %}—{% endif %}</small></td>
                     </tr>
                     {% empty %}
-                    <tr><td colspan="6" class="text-center text-muted py-3">Aucune action enregistrée sur cette période.</td></tr>
+                    <tr><td colspan="6" class="pb-stats-empty">Aucune action enregistrée sur cette période.</td></tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
     </div>
-</div>
+</section>
 
-{# ===== VOLUME DES OPÉRATIONS ===== #}
-<div class="col-md-12">
-    <div class="card" style="border-radius: 20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);">
-        <div class="card-header" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.95)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 20px 20px 0 0;">
-            <strong style="font-size: 1.05rem; color: #a83232;"><i class="fas fa-list mr-1"></i> Volume des opérations par module</strong>
+{# ——— Volume des opérations ——— #}
+<section class="pb-stats-section">
+    <h2 class="pb-stats-section__title"><i class="fas fa-list" aria-hidden="true"></i> Volume des opérations</h2>
+    <div class="pb-stats-card">
+        <div class="pb-stats-card__header">
+            <h3 class="pb-stats-card__title"><i class="fas fa-list mr-1" aria-hidden="true"></i> Volume des opérations par module</h3>
         </div>
-        <div class="card-body p-0">
-            <table class="table table-sm table-hover mb-0">
+        <div class="pb-stats-card__body pb-stats-card__body--flush">
+            <table class="table table-sm table-hover pb-stats-table mb-0">
                 <thead>
-                    <tr style="background: rgba(168, 50, 50, 0.08);">
-                        <th style="color: #a83232;">Module</th>
-                        <th class="text-right" style="color: #a83232;">Nombre</th>
-                        <th class="text-right" style="color: #a83232;">Montant (FCFA)</th>
+                    <tr>
+                        <th>Module</th>
+                        <th class="text-right">Nombre</th>
+                        <th class="text-right">Montant (FCFA)</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -641,31 +333,22 @@
             </table>
         </div>
     </div>
-</div>
+</section>
 
+</div>
 {% endblock main_content %}
 
 {% block custom_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 (function () {
-    const periodSelect = document.getElementById('period-select');
-    const customFields = document.getElementById('custom-period-fields');
-    if (periodSelect && customFields) {
-        function toggleCustomFields() {
-            customFields.style.display = periodSelect.value === 'custom' ? 'block' : 'none';
-        }
-        periodSelect.addEventListener('change', toggleCustomFields);
-        toggleCustomFields();
-    }
-
     const chartLabels = {{ chart_labels_json|safe }};
     const legendBottom = {
         display: true,
         position: 'bottom',
-        labels: { usePointStyle: true, boxWidth: 8, color: '#1a1a1a' }
+        labels: { usePointStyle: true, boxWidth: 8, color: '#1a1a1a', padding: 12 }
     };
-    const gridY = { beginAtZero: true, grid: { color: 'rgba(136, 136, 136, 0.22)' }, ticks: { color: '#888' } };
+    const gridY = { beginAtZero: true, grid: { color: 'rgba(136, 136, 136, 0.18)' }, ticks: { color: '#888', maxTicksLimit: 6 } };
 
     const ctxFinance = document.getElementById('chartFinance').getContext('2d');
     const gradFinance = ctxFinance.createLinearGradient(0, 0, 0, 400);
@@ -684,9 +367,11 @@
                 tension: 0.4,
                 fill: true,
                 backgroundColor: gradFinance,
+                pointRadius: 2,
+                pointHoverRadius: 4,
             }]
         },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: legendBottom }, scales: { y: gridY } }
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: legendBottom }, scales: { x: { grid: { display: false }, ticks: { color: '#888' } }, y: gridY } }
     });
 
     new Chart(document.getElementById('chartChargesBar'), {
@@ -700,17 +385,17 @@
                     borderWidth: 1,
                     borderColor: 'rgba(168, 50, 50, 0.9)',
                     backgroundColor: 'rgba(168, 50, 50, 0.16)',
-                    borderRadius: 12,
-                    barThickness: 22,
+                    borderRadius: 8,
+                    barThickness: 18,
                 },
                 {
                     label: 'Charges variables',
                     data: {{ chart_chargvar_json|safe }},
                     borderWidth: 1,
-                    borderColor: 'rgba(26, 26, 26, 0.9)',
-                    backgroundColor: 'rgba(26, 26, 26, 0.22)',
-                    borderRadius: 12,
-                    barThickness: 22,
+                    borderColor: 'rgba(182, 81, 41, 0.9)',
+                    backgroundColor: 'rgba(182, 81, 41, 0.18)',
+                    borderRadius: 8,
+                    barThickness: 18,
                 },
             ]
         },
@@ -745,7 +430,7 @@
                 borderWidth: 1
             }]
         },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { ...legendBottom, position: 'right', padding: 10 } } }
+        options: { responsive: true, maintainAspectRatio: false, cutout: '58%', plugins: { legend: { ...legendBottom, position: 'right' } } }
     });
 
     const ctxRepar = document.getElementById('chartReparations').getContext('2d');
@@ -764,18 +449,19 @@
                 tension: 0.4,
                 fill: true,
                 backgroundColor: gradRepar,
+                pointRadius: 2,
             }]
         },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: legendBottom }, scales: { y: gridY } }
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: legendBottom }, scales: { x: { grid: { display: false }, ticks: { color: '#888' } }, y: gridY } }
     });
 
     new Chart(document.getElementById('chartReparMotif'), {
         type: 'doughnut',
         data: {
             labels: {{ repar_motif_labels|safe }},
-            datasets: [{ data: {{ repar_motif_data|safe }}, backgroundColor: ['#a83232', '#ffc107', '#17a2b8', '#6c757d'] }]
+            datasets: [{ data: {{ repar_motif_data|safe }}, backgroundColor: ['#a83232', '#ffc107', '#17a2b8', '#6c757d'], borderWidth: 0 }]
         },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { ...legendBottom, position: 'right' } } }
+        options: { responsive: true, maintainAspectRatio: false, cutout: '58%', plugins: { legend: { ...legendBottom, position: 'right' } } }
     });
 
     new Chart(document.getElementById('chartVehicules'), {
@@ -788,15 +474,15 @@
                 borderWidth: 1,
                 borderColor: 'rgba(168, 50, 50, 0.9)',
                 backgroundColor: 'rgba(168, 50, 50, 0.16)',
-                borderRadius: 12,
-                barThickness: 22,
+                borderRadius: 8,
+                barThickness: 28,
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
             plugins: { legend: { display: false } },
-            scales: { x: { grid: { display: false }, ticks: { color: '#888' } }, y: gridY }
+            scales: { x: { grid: { display: false }, ticks: { color: '#888' } }, y: { ...gridY, ticks: { ...gridY.ticks, stepSize: 1 } } }
         }
     });
 
@@ -805,15 +491,15 @@
         data: {
             labels: {{ login_labels_json|safe }},
             datasets: [
-                { label: 'Réussies', data: {{ login_success_json|safe }}, backgroundColor: 'rgba(40, 167, 69, 0.75)', borderRadius: 8, barThickness: 18 },
-                { label: 'Échouées', data: {{ login_failure_json|safe }}, backgroundColor: 'rgba(220, 53, 69, 0.75)', borderRadius: 8, barThickness: 18 },
+                { label: 'Réussies', data: {{ login_success_json|safe }}, backgroundColor: 'rgba(40, 167, 69, 0.75)', borderRadius: 6, barThickness: 16 },
+                { label: 'Échouées', data: {{ login_failure_json|safe }}, backgroundColor: 'rgba(220, 53, 69, 0.75)', borderRadius: 6, barThickness: 16 },
             ]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
             plugins: { legend: legendBottom },
-            scales: { x: { stacked: true, grid: { display: false } }, y: { ...gridY, stacked: true } }
+            scales: { x: { stacked: true, grid: { display: false }, ticks: { color: '#888' } }, y: { ...gridY, stacked: true } }
         }
     });
 
@@ -821,18 +507,18 @@
         type: 'doughnut',
         data: {
             labels: {{ audit_by_action_labels|safe }},
-            datasets: [{ data: {{ audit_by_action_data|safe }}, backgroundColor: ['#28a745', '#ffc107', '#dc3545'] }]
+            datasets: [{ data: {{ audit_by_action_data|safe }}, backgroundColor: ['#28a745', '#ffc107', '#dc3545'], borderWidth: 0 }]
         },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { ...legendBottom, position: 'right' } } }
+        options: { responsive: true, maintainAspectRatio: false, cutout: '58%', plugins: { legend: { ...legendBottom, position: 'right' } } }
     });
 
     new Chart(document.getElementById('chartNotif'), {
         type: 'doughnut',
         data: {
             labels: {{ notif_type_labels|safe }},
-            datasets: [{ data: {{ notif_type_data|safe }}, backgroundColor: ['#17a2b8', '#dc3545', '#6f42c1', '#6c757d'] }]
+            datasets: [{ data: {{ notif_type_data|safe }}, backgroundColor: ['#17a2b8', '#dc3545', '#6f42c1', '#6c757d'], borderWidth: 0 }]
         },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { ...legendBottom, position: 'right' } } }
+        options: { responsive: true, maintainAspectRatio: false, cutout: '58%', plugins: { legend: { ...legendBottom, position: 'right' } } }
     });
 })();
 </script>

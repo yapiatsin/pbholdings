@@ -1,12 +1,33 @@
 <script>
 (function () {
-    const periodSelect = document.getElementById('period-select');
-    const customFields = document.getElementById('custom-period-fields');
-    if (!periodSelect || !customFields) return;
-    function toggleCustomFields() {
-        customFields.style.display = periodSelect.value === 'custom' ? 'block' : 'none';
+    function initPeriodFilterToggle(form) {
+        if (form.dataset.pbPeriodFilterBound === '1') return;
+
+        const periodSelect = form.querySelector('#period-select');
+        const customFields = form.querySelector('#custom-period-fields');
+        if (!periodSelect || !customFields) return;
+
+        form.dataset.pbPeriodFilterBound = '1';
+
+        function toggleCustomFields() {
+            const show = periodSelect.value === 'custom';
+            customFields.hidden = !show;
+            customFields.style.display = show ? 'block' : 'none';
+            customFields.classList.toggle('is-visible', show);
+        }
+
+        periodSelect.addEventListener('change', toggleCustomFields);
+        toggleCustomFields();
     }
-    periodSelect.addEventListener('change', toggleCustomFields);
-    toggleCustomFields();
+
+    function initAllPeriodFilters() {
+        document.querySelectorAll('.pb-modal-default__form').forEach(initPeriodFilterToggle);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initAllPeriodFilters);
+    } else {
+        initAllPeriodFilters();
+    }
 })();
 </script>

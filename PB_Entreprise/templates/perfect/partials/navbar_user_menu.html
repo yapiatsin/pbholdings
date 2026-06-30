@@ -25,13 +25,7 @@
 
     <li class="nav-item dropdown pb-navbar-user">
         <a class="nav-link pb-navbar-user__toggle" href="#" data-toggle="dropdown" aria-expanded="false">
-            {% if navbar_profile.avatar %}
-                <img src="{{ navbar_profile.avatar.url }}" alt="" class="pb-navbar-user__avatar">
-            {% elif user.gender == 'Homme' %}
-                <img src="{% static 'agent.png' %}" alt="" class="pb-navbar-user__avatar">
-            {% else %}
-                <img src="{% static 'agente.png' %}" alt="" class="pb-navbar-user__avatar">
-            {% endif %}
+            {% include 'perfect/partials/user_avatar.html' with profile=navbar_profile user=user avatar_class='pb-navbar-user__avatar' %}
             <i class="fas fa-chevron-down" aria-hidden="true"></i>
         </a>
         <div class="dropdown-menu dropdown-menu-right pb-navbar-dropdown">

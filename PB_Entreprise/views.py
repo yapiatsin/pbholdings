@@ -35,6 +35,7 @@ from django.utils import timezone as dj_timezone
 
 from django.core.mail import send_mail
 from userauths.utils import search_vehicules
+from .saisie_dates import is_saisie_date_allowed
 
 import io
 import openpyxl
@@ -4622,10 +4623,9 @@ class ListRecetView(LoginRequiredMixin, CustomPermissionRequiredMixin, ListView)
 
 class ExportRecetteExcelView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
-        _, _, _, _, _, recettes = _filter_recette_list_queryset(request)
-        recettes = recettes.select_related('vehicule', 'vehicule__category', 'auteur').order_by(
-            '-date_saisie'
-        )
+        recettes = _export_recettes_queryset(request).select_related(
+            'vehicule', 'vehicule__category', 'auteur'
+        ).order_by('-date_saisie')
 
         wb = openpyxl.Workbook()
         ws = wb.active
@@ -5031,13 +5031,40 @@ _NUM_PIECE_SKIP_MSG = (
 
 
 def _build_list_export_querystring(request, default_period='month'):
-    """Export Excel : mois en cours par défaut, sinon les critères du filtre actif."""
+    """Export Excel (pages import) : mois en cours par défaut, sinon critères du filtre actif."""
     params = request.GET.copy()
-    if not params:
+    has_period_criteria = (
+        params.get('periode')
+        or (params.get('date_debut') and params.get('date_fin'))
+    )
+    if not has_period_criteria:
         params['periode'] = default_period
-    elif 'periode' not in params and not (params.get('date_debut') and params.get('date_fin')):
-        params['periode'] = default_period
+    params['source'] = 'excel_import'
     return params.urlencode()
+
+
+def _export_recettes_queryset(request):
+    if request.GET.get('source') == 'excel_import':
+        filtered_qs, _, _, _, _ = _apply_recette_excel_filters(request, Recette.objects.all())
+        return filtered_qs
+    _, _, _, _, _, filtered_qs = _filter_recette_list_queryset(request)
+    return filtered_qs
+
+
+def _export_chargefix_queryset(request):
+    if request.GET.get('source') == 'excel_import':
+        filtered_qs, _, _, _, _ = _apply_recette_excel_filters(request, ChargeFixe.objects.all())
+        return filtered_qs
+    _, _, _, _, _, filtered_qs = _filter_chargefix_list_queryset(request)
+    return filtered_qs
+
+
+def _export_chargevar_queryset(request):
+    if request.GET.get('source') == 'excel_import':
+        filtered_qs, _, _, _, _ = _apply_recette_excel_filters(request, ChargeVariable.objects.all())
+        return filtered_qs
+    _, _, _, _, _, filtered_qs = _filter_chargevar_list_queryset(request)
+    return filtered_qs
 
 
 class AddRecetteExcelView(LoginRequiredMixin, CustomPermissionRequiredMixin, FormView):
@@ -5095,7 +5122,7 @@ class AddRecetteExcelView(LoginRequiredMixin, CustomPermissionRequiredMixin, For
             )
             return
 
-        created = updated = skipped_same = bad_rows = bad_immat = skipped_num_piece_month = 0
+        created = updated = skipped_same = bad_rows = bad_immat = skipped_num_piece_month = bad_future_dates = 0
         seen_num_piece_month_dates = {}
 
         for rnum, row in enumerate(rows[1:], start=2):
@@ -5132,7 +5159,10 @@ class AddRecetteExcelView(LoginRequiredMixin, CustomPermissionRequiredMixin, For
             numero_fact = str(nf_v).strip()[:20] if nf_v is not None else ''
             num_piece = str(np_v).strip()[:100] if np_v is not None else ''
 
-            date_saisie = _charge_admin_parse_excel_date(_cell('date_saisie'))
+            date_saisie, date_err = _excel_parse_saisie_date(_cell('date_saisie'))
+            if date_err == 'future':
+                bad_future_dates += 1
+                continue
 
             if not chauffeur or montant is None or not date_saisie:
                 bad_rows += 1
@@ -5196,12 +5226,17 @@ class AddRecetteExcelView(LoginRequiredMixin, CustomPermissionRequiredMixin, For
             )
         if bad_rows:
             messages.error(request, f'{bad_rows} ligne(s) ignorée(s) : données incomplètes ou montant invalide.')
+        if bad_future_dates:
+            messages.error(
+                request,
+                f'{bad_future_dates} ligne(s) ignorée(s) : date de saisie postérieure à aujourd\'hui.',
+            )
         if skipped_num_piece_month:
             messages.error(
                 request,
                 f'{skipped_num_piece_month} {_NUM_PIECE_SKIP_MSG}',
             )
-        if not any([created, updated, skipped_same, bad_immat, bad_rows, skipped_num_piece_month]):
+        if not any([created, updated, skipped_same, bad_immat, bad_rows, bad_future_dates, skipped_num_piece_month]):
             messages.info(request, 'Aucune ligne de données exploitable.')
 
     def get_context_data(self, **kwargs):
@@ -5301,7 +5336,7 @@ class AddChargeFixExcelView(LoginRequiredMixin, CustomPermissionRequiredMixin, F
             )
             return
 
-        created = updated = skipped_same = bad_rows = bad_immat = skipped_num_piece_month = 0
+        created = updated = skipped_same = bad_rows = bad_immat = skipped_num_piece_month = bad_future_dates = 0
         seen_num_piece_month_dates = {}
 
         for row in rows[1:]:
@@ -5335,7 +5370,10 @@ class AddChargeFixExcelView(LoginRequiredMixin, CustomPermissionRequiredMixin, F
             cpte = str(cpte_v).strip()[:100] if cpte_v is not None else ''
             num_piece = str(np_v).strip()[:100] if np_v is not None else ''
             num_fact = str(nf_v).strip()[:100] if nf_v is not None else ''
-            date_saisie = _charge_admin_parse_excel_date(_cell('date_saisie'))
+            date_saisie, date_err = _excel_parse_saisie_date(_cell('date_saisie'))
+            if date_err == 'future':
+                bad_future_dates += 1
+                continue
 
             if montant is None or not date_saisie:
                 bad_rows += 1
@@ -5391,12 +5429,17 @@ class AddChargeFixExcelView(LoginRequiredMixin, CustomPermissionRequiredMixin, F
             messages.error(request, f'{bad_immat} ligne(s) ignorée(s) : immatriculation inconnue (véhicule absent du parc).')
         if bad_rows:
             messages.error(request, f'{bad_rows} ligne(s) ignorée(s) : données incomplètes ou montant invalide.')
+        if bad_future_dates:
+            messages.error(
+                request,
+                f'{bad_future_dates} ligne(s) ignorée(s) : date de saisie postérieure à aujourd\'hui.',
+            )
         if skipped_num_piece_month:
             messages.error(
                 request,
                 f'{skipped_num_piece_month} {_NUM_PIECE_SKIP_MSG}',
             )
-        if not any([created, updated, skipped_same, bad_immat, bad_rows, skipped_num_piece_month]):
+        if not any([created, updated, skipped_same, bad_immat, bad_rows, bad_future_dates, skipped_num_piece_month]):
             messages.info(request, 'Aucune ligne de données exploitable.')
 
     def get_context_data(self, **kwargs):
@@ -5495,7 +5538,7 @@ class AddChargeVarExcelView(LoginRequiredMixin, CustomPermissionRequiredMixin, F
             )
             return
 
-        created = updated = skipped_same = bad_rows = bad_immat = skipped_num_piece_month = 0
+        created = updated = skipped_same = bad_rows = bad_immat = skipped_num_piece_month = bad_future_dates = 0
         seen_num_piece_month_dates = {}
 
         for row in rows[1:]:
@@ -5529,7 +5572,10 @@ class AddChargeVarExcelView(LoginRequiredMixin, CustomPermissionRequiredMixin, F
             cpte = str(cpte_v).strip()[:100] if cpte_v is not None else ''
             num_piece = str(np_v).strip()[:100] if np_v is not None else ''
             num_fact = str(nf_v).strip()[:100] if nf_v is not None else ''
-            date_saisie = _charge_admin_parse_excel_date(_cell('date_saisie'))
+            date_saisie, date_err = _excel_parse_saisie_date(_cell('date_saisie'))
+            if date_err == 'future':
+                bad_future_dates += 1
+                continue
 
             if montant is None or not date_saisie:
                 bad_rows += 1
@@ -5585,12 +5631,17 @@ class AddChargeVarExcelView(LoginRequiredMixin, CustomPermissionRequiredMixin, F
             messages.error(request, f'{bad_immat} ligne(s) ignorée(s) : immatriculation inconnue (véhicule absent du parc).')
         if bad_rows:
             messages.error(request, f'{bad_rows} ligne(s) ignorée(s) : données incomplètes ou montant invalide.')
+        if bad_future_dates:
+            messages.error(
+                request,
+                f'{bad_future_dates} ligne(s) ignorée(s) : date de saisie postérieure à aujourd\'hui.',
+            )
         if skipped_num_piece_month:
             messages.error(
                 request,
                 f'{skipped_num_piece_month} {_NUM_PIECE_SKIP_MSG}',
             )
-        if not any([created, updated, skipped_same, bad_immat, bad_rows, skipped_num_piece_month]):
+        if not any([created, updated, skipped_same, bad_immat, bad_rows, bad_future_dates, skipped_num_piece_month]):
             messages.info(request, 'Aucune ligne de données exploitable.')
 
     def get_context_data(self, **kwargs):
@@ -6660,10 +6711,9 @@ class UpdateChargFixView(LoginRequiredMixin, CustomPermissionRequiredMixin, Upda
 
 class ExportChargeFixeExcelView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
-        _, _, _, _, _, charges = _filter_chargefix_list_queryset(request)
-        charges = charges.select_related('vehicule', 'vehicule__category', 'auteur').order_by(
-            '-date_saisie'
-        )
+        charges = _export_chargefix_queryset(request).select_related(
+            'vehicule', 'vehicule__category', 'auteur'
+        ).order_by('-date_saisie')
         wb = openpyxl.Workbook()
         ws = wb.active
         ws.title = "Charges Fixes"
@@ -7034,10 +7084,9 @@ class UpdateChargeVarView(LoginRequiredMixin, CustomPermissionRequiredMixin, Upd
 
 class ExportChargeVariableExcelView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
-        _, _, _, _, _, charges = _filter_chargevar_list_queryset(request)
-        charges = charges.select_related('vehicule', 'vehicule__category', 'auteur').order_by(
-            '-date_saisie'
-        )
+        charges = _export_chargevar_queryset(request).select_related(
+            'vehicule', 'vehicule__category', 'auteur'
+        ).order_by('-date_saisie')
 
         # Création du fichier Excel
         wb = openpyxl.Workbook()
@@ -7421,6 +7470,16 @@ def _charge_admin_parse_excel_date(val):
     return None
 
 
+def _excel_parse_saisie_date(val):
+    """Parse une date Excel ; refuse les dates futures (après aujourd'hui)."""
+    parsed = _charge_admin_parse_excel_date(val)
+    if parsed is None:
+        return None, 'invalid'
+    if not is_saisie_date_allowed(parsed):
+        return None, 'future'
+    return parsed, None
+
+
 _RECETTE_EXCEL_HEADER_TO_FIELD = {
     'immatriculation': 'immatriculation',
     'marque': None,
@@ -7516,6 +7575,7 @@ class AddChargeAdminisView(LoginRequiredMixin, CustomPermissionRequiredMixin, Cr
         skipped_dup = 0
         skipped_samples = []
         row_errors = []
+        future_row_errors = []
 
         for rnum, row in enumerate(rows[1:], start=2):
             if row is None or not any(cell not in (None, '') for cell in row):
@@ -7544,7 +7604,10 @@ class AddChargeAdminisView(LoginRequiredMixin, CustomPermissionRequiredMixin, Cr
             num_fact = str(nf_v).strip() if nf_v is not None else ''
             num_piece = str(np_v).strip() if np_v is not None else ''
 
-            date_saisie = _charge_admin_parse_excel_date(_cell('date_saisie'))
+            date_saisie, date_err = _excel_parse_saisie_date(_cell('date_saisie'))
+            if date_err == 'future':
+                future_row_errors.append(rnum)
+                continue
 
             if not libelle or montant is None or not cpte or not date_saisie:
                 row_errors.append(rnum)
@@ -7599,7 +7662,14 @@ class AddChargeAdminisView(LoginRequiredMixin, CustomPermissionRequiredMixin, Cr
                 request,
                 f'Ligne(s) ignorée(s) (données incomplètes ou montant invalide) : {preview}{more}.',
             )
-        if not created and not skipped_dup and not row_errors:
+        if future_row_errors:
+            preview = ', '.join(str(x) for x in future_row_errors[:15])
+            more = f' (+{len(future_row_errors) - 15} autres)' if len(future_row_errors) > 15 else ''
+            messages.error(
+                request,
+                f'Ligne(s) ignorée(s) (date de saisie postérieure à aujourd\'hui) : {preview}{more}.',
+            )
+        if not created and not skipped_dup and not row_errors and not future_row_errors:
             messages.info(request, 'Aucune ligne de données exploitable dans le fichier.')
 
         return redirect(self.success_url)

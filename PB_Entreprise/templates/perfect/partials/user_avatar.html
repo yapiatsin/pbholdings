@@ -1,0 +1,5 @@
+{% if profile and profile.avatar and profile.avatar.name %}
+    <img src="{{ user_avatar_url|default:profile.avatar.url }}" alt="" class="{{ avatar_class|default:'' }}" data-pb-user-avatar="image" loading="lazy">
+{% else %}
+    <span class="{{ avatar_class|default:'' }} pb-user-avatar-initials" data-pb-user-avatar="initials" aria-hidden="true">{{ user_initials|default:"?" }}</span>
+{% endif %}
