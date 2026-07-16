@@ -2,7 +2,7 @@ from django.contrib import admin
 from .models import *
 
 class ChargeAdminisAdmin(admin.ModelAdmin):
-    list_display = ['libelle', 'cpte_comptable', 'Num_piece', 'Num_fact', 'montant','date','auteur']
+    list_display = ['libelle', 'cpte_comptable', 'Num_piece', 'Num_fact', 'montant','date','date_saisie','auteur']
     list_filter = ['libelle', 'date_saisie']
 
 class AssuranceAdmin(admin.ModelAdmin):
@@ -18,7 +18,7 @@ class PieceAdmin(admin.ModelAdmin):
     list_filter = ['libelle','date_saisie','lieu']
  
 class PiecEchangeAdmin(admin.ModelAdmin):
-    list_display = ['vehicule','date_saisie','auteur',]
+    list_display = ['vehicule','date_saisie','auteur','date']
     list_filter = ['date_saisie']
  
 class LignePiecEchangeAdmin(admin.ModelAdmin):
@@ -34,12 +34,12 @@ class VisiteTechniqueAdmin(admin.ModelAdmin):
     list_filter = ['vehicule', 'montant', 'date_saisie']
   
 class EntretienAdmin(admin.ModelAdmin):
-    list_display = ['vehicule', 'date_Entret', 'date_proch', 'montant','date_saisie','auteur']
+    list_display = ['vehicule', 'date_Entret', 'date_proch', 'montant','date_saisie','auteur','date']
     list_filter = ['vehicule', 'montant', 'date_saisie']
      
 class RecetteAdmin(admin.ModelAdmin):
-    list_display = ['vehicule', 'montant', 'cpte_comptable', 'Num_piece', 'chauffeur', 'date', 'date_saisie','auteur']
-    list_filter = ['vehicule', 'montant', 'date_saisie']
+    list_display = ['vehicule', 'montant', 'cpte_comptable', 'Num_piece','numero_fact', 'chauffeur', 'date', 'date_saisie','auteur']
+    list_filter = ['vehicule', 'montant','Num_piece','numero_fact', 'date_saisie']
     
 class PrevisionAdmin(admin.ModelAdmin):
     list_display = ['mois', 'montant_previs',]
@@ -69,15 +69,15 @@ class ChargeFixeAdmin(admin.ModelAdmin):
     list_filter = ['vehicule', 'libelle', 'cpte_comptable', 'date_saisie']
  
 class VignetteAdmin(admin.ModelAdmin):
-    list_display = ['vehicule','montant', 'date_saisie', 'date','auteur']
+    list_display = ['vehicule','montant', 'date_saisie','date_proch', 'date','auteur']
     list_filter = ['vehicule', 'date_saisie']
     
 class PatenteAdmin(admin.ModelAdmin):
-    list_display = ['vehicule','montant','auteur', 'date_saisie', 'date']
+    list_display = ['vehicule','montant','auteur', 'date_saisie', 'date_proch', 'date']
     list_filter = ['vehicule','date', 'date_saisie']
     
 class StationnementAdmin(admin.ModelAdmin):
-    list_display = ['vehicule','montant','auteur', 'date_saisie', 'date']
+    list_display = ['vehicule','montant','auteur', 'date_saisie', 'date_proch', 'date']
     list_filter = ['vehicule','date', 'date_saisie']
     
 class EncaissementAdmin(admin.ModelAdmin):
@@ -85,7 +85,7 @@ class EncaissementAdmin(admin.ModelAdmin):
     list_filter = ['libelle','date_saisie', 'date_saisie']
 
 class DecaissementAdmin(admin.ModelAdmin):
-    list_display = ['libelle','montant','date_saisie','auteur','auteur']
+    list_display = ['libelle','montant','date_saisie', 'date','auteur','auteur']
     list_filter = ['libelle','date_saisie']
 
 class BilletageAdmin(admin.ModelAdmin):

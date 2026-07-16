@@ -174,53 +174,80 @@
                         </div>
                     </div>
                     <div class="card-body table-responsive p-2">
-                        <table id="example1" class="table table-bordered table-striped">
-                            <thead>
-                                <tr class="text-center text-danger ">
-                                    <th>N°FACTURE</th>
-                                    <th>LIBELLE</th>
-                                    <th>MONTANT</th>
-                                    <th>COMPTE</th>
-                                    <th>N°PIECE</th>
-                                    <th>DATE</th>
-                                    <th>SAISIR PAR</th>
-                                    <th>ACTION</th>
-                                </tr>
-                            </thead>
-                            <tbody class="text-center">
-                            {% if list_charge_adminis %}
-                                {% for c in list_charge_adminis %}
-                                    <tr>
-                                        <td>{{c.Num_fact}}</td>
-                                        <td><a style="color: #a83232;" type="button" data-toggle="tooltip" data-placement="top" title="{{c.libelle}}">{{c.libelle|slice:":500"}}{% if c.libelle|length > 100 %}...{% endif %}</a></td>
-                                        <td>{{c.montant}}</td>
-                                        <td>{{c.cpte_comptable}}</td>
-                                        <td>{{c.Num_piece}}</td>
-                                        <td>{{c.date_saisie|date:"d-m-y"}}</td>
-                                        <td>{{c.auteur.username}}</td>
-                                        <td class="text-center ">
+                        <form method="POST" action="{% url 'delete_multiple_chargadmin' %}" id="deleteForm">
+                            {% csrf_token %}
+                            <table id="example1" class="table table-bordered table-striped">
+                                <thead>
+                                    <tr class="text-center text-danger ">
+                                        <th><input type="checkbox" id="checkAll"></th>
+                                        <th>N°FACTURE</th>
+                                        <th>LIBELLE</th>
+                                        <th>MONTANT</th>
+                                        <th>COMPTE</th>
+                                        <th>N°PIECE</th>
+                                        <th>DATE</th>
+                                        <th>SAISIR PAR</th>
+                                        <th>ACTION</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-center">
+                                {% if list_charge_adminis %}
+                                    {% for c in list_charge_adminis %}
+                                        <tr>
+                                            <td>
+                                                <input type="checkbox" name="charge_admin_ids" value="{{ c.id }}">
+                                            </td>
+                                            <td>{{c.Num_fact}}</td>
+                                            <td><a style="color: #a83232;" type="button" data-toggle="tooltip" data-placement="top" title="{{c.libelle}}">{{c.libelle|slice:":500"}}{% if c.libelle|length > 100 %}...{% endif %}</a></td>
+                                            <td>{{c.montant}}</td>
+                                            <td>{{c.cpte_comptable}}</td>
+                                            <td>{{c.Num_piece}}</td>
+                                            <td>{{c.date_saisie|date:"d-m-y"}}</td>
+                                            <td>{{c.auteur.username}}</td>
+                                            <td class="text-center ">
+                                                {% for categorie, perms in grouped_permissions.items %}
+                                                    {% if categorie.categorie == "permchargadmin" %}
+                                                        {% for perm in perms %}
+                                                            {% if perm.name == "mod charge administrative" %}
+                                                                <a href="#" class="edit-chargadmin-btn" data-url="{% url 'updat_charg_administ' c.pk %}">
+                                                                    <i style="font-size: 20px;" class="fa fa-edit text-warning"></i>
+                                                                </a>
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                {% endif %}
+                                </tbody>
+                                <tfoot>
+                                    <tr class="text-center">
+                                        <th>
                                             {% for categorie, perms in grouped_permissions.items %}
                                                 {% if categorie.categorie == "permchargadmin" %}
                                                     {% for perm in perms %}
-                                                        {% if perm.name == "mod charge administrative" %}
-                                                            <a href="#" class="edit-chargadmin-btn" data-url="{% url 'updat_charg_administ' c.pk %}">
-                                                                <i style="font-size: 20px;" class="fa fa-edit text-warning"></i>
-                                                            </a>
-                                                        {% elif perm.name == "sup charge administrative" %}
-                                                            <a href="{% url perm.url c.pk %}" style="color: #a83232;" onclick="return confirm('Etes-vous sûre de vouloir supprimer la charge de {{ c.montant }}frs saisie le {{ c.date_saisie|date:"d-m-y" }}? Toutes les informations liées seront supprimées.')">
-                                                                <i style="font-size: 20px;" class="fa fa-trash text-danger"></i>
-                                                            </a>
+                                                        {% if perm.name == "sup charge administrative" %}
+                                                            <button type="submit" class="btn" style="border-radius:25px; border: 1px solid #a83232; color: #a83232; background: transparent; font-weight: 600;" onclick="return confirm('Confirmez-vous la suppression des charges administratives sélectionnées ?')">
+                                                                <i class="fa fa-trash"></i>
+                                                            </button>
                                                         {% endif %}
                                                     {% endfor %}
                                                 {% endif %}
                                             {% endfor %}
-                                            
-                                        </td>
+                                        </th>
+                                        <th>---</th>
+                                        <th>---</th>
+                                        <th>---</th>
+                                        <th>---</th>
+                                        <th>---</th>
+                                        <th>---</th>
+                                        <th>---</th>
+                                        <th>---</th>
                                     </tr>
-                                {% endfor %}
-                            {% endif %}
-                            </tbody>
-                        </table>
+                                </tfoot>
+                            </table>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -237,6 +264,15 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.getElementById('checkAll').addEventListener('click', function() {
+        const checkboxes = document.querySelectorAll('input[name="charge_admin_ids"]');
+        for (let checkbox of checkboxes) {
+            checkbox.checked = this.checked;
+        }
+    });
+</script>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>

@@ -7831,6 +7831,18 @@ def delete_chargadmin(request, pk):
         messages.error(request, f"Erreur lors de la suppression : {str(e)}")
     return redirect('add_chargadminist')
 
+@login_required(login_url='login')
+def delete_multiple_chargadmin(request):
+    ids = request.POST.getlist('charge_admin_ids')
+    if ids:
+        charges = ChargeAdminis.objects.filter(id__in=ids)
+        deleted_count = charges.count()
+        charges.delete()
+        messages.success(request, f"{deleted_count} charge(s) administrative(s) supprimée(s) avec succès.")
+    else:
+        messages.warning(request, "Aucune charge administrative sélectionnée.")
+    return redirect('add_chargadminist')
+
 class ExportChargeAdminisExcelView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         filter_form = DateForm(request.GET)

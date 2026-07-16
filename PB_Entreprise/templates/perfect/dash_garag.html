@@ -453,18 +453,18 @@
                     <script>
                         const ctxRepartition = document.getElementById('lineaCharta').getContext('2d');
                         const repartitionColors = [
-                            '168, 50, 50',
-                            '26, 26, 26',
-                            '139, 112, 112',
-                            '200, 145, 145',
-                            '120, 28, 28',
-                            '235, 221, 221',
+                            '37, 99, 235',
+                            '249, 115, 22',
+                            '234, 179, 8',
+                            '236, 72, 153',
+                            '16, 185, 129',
+                            '139, 92, 246',
                         ];
                         const repartitionGradients = repartitionColors.map((color) => {
                             const gradient = ctxRepartition.createRadialGradient(150, 100, 35, 150, 100, 120);
-                            gradient.addColorStop(0, `rgba(${color}, 0.02)`);
-                            gradient.addColorStop(0.68, `rgba(${color}, 0.12)`);
-                            gradient.addColorStop(1, `rgba(${color}, 0.42)`);
+                            gradient.addColorStop(0, `rgba(${color}, 0.15)`);
+                            gradient.addColorStop(0.68, `rgba(${color}, 0.35)`);
+                            gradient.addColorStop(1, `rgba(${color}, 0.65)`);
                             return gradient;
                         });
                         const repartitionChart = new Chart(ctxRepartition, {
@@ -474,7 +474,7 @@
                                 datasets: [{
                                     data: {{ datacat|safe }},
                                     backgroundColor: repartitionGradients,
-                                    borderColor: repartitionColors.map((color) => `rgba(${color}, 0.75)`),
+                                    borderColor: repartitionColors.map((color) => `rgba(${color}, 0.85)`),
                                     borderWidth: 1
                                 }]
                             },

@@ -25,6 +25,7 @@ urlpatterns = [
 
     path('charge administive', AddChargeAdminisView.as_view(), name='add_chargadminist'),
     path('charge administrative /<int:pk>/ delet', delete_chargadmin, name='delet_charge_admin'),
+    path('charge administrative /delete-multiple/', delete_multiple_chargadmin, name='delete_multiple_chargadmin'),
     path('charge administrative /<int:pk>/ modifier', UpdateChargeAdminView.as_view(), name='updat_charg_administ'),
     path("charge administrative/export-excel/", ExportChargeAdminisExcelView.as_view(), name="export_charge_admin_excel"),
     path("charge administrative/exemplaire-import-excel/",DownloadChargeAdminExcelTemplateView.as_view(), name="download_charge_admin_excel_template",),
