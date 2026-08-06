@@ -76,17 +76,25 @@
         const chartEl = document.getElementById('chargeVarCategoryDailyChart');
         if (!chartEl) return;
         const labels = {{ chart_labels|safe }};
-        const palette = ['#a83232', '#1a1a1a', '#888', '#022e17', '#5f3a03'];
+        const palette = [
+            '37, 99, 235',
+            '249, 115, 22',
+            '234, 179, 8',
+            '236, 72, 153',
+            '16, 185, 129',
+            '139, 92, 246',
+        ];
         const datasets = ({{ chart_datasets|safe }} || []).map((dataset, index) => {
             const color = palette[index % palette.length];
-            const rgba = color === '#888' ? 'rgba(136, 136, 136, 0.15)' : `${color}26`;
+            const solid = `rgba(${color}, 0.85)`;
+            const rgba = `rgba(${color}, 0.15)`;
             return {
                 ...dataset,
-                borderColor: color,
+                borderColor: solid,
                 backgroundColor: rgba,
-                pointBackgroundColor: color,
-                pointBorderColor: color,
-                pointHoverBackgroundColor: color,
+                pointBackgroundColor: solid,
+                pointBorderColor: solid,
+                pointHoverBackgroundColor: solid,
                 pointHoverBorderColor: '#fff',
                 tension: dataset.tension ?? 0.35,
                 fill: dataset.fill ?? false

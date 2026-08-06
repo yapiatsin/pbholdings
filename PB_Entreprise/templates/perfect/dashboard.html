@@ -285,17 +285,25 @@
                     </div>
                     <script>
                         const ctx = document.getElementById('barsChart').getContext('2d');
-                        const basePalette = ['#a83232', '#1a1a1a', '#888', '#022e17', '#5f3a03', '#0d6efd', '#6f42c1'];
+                        const basePalette = [
+                            '37, 99, 235',
+                            '249, 115, 22',
+                            '234, 179, 8',
+                            '236, 72, 153',
+                            '16, 185, 129',
+                            '139, 92, 246',
+                        ];
                         const datasets = ({{ datasets_json|safe }} || []).map((dataset, index) => {
                             const color = basePalette[index % basePalette.length];
-                            const alphaColor = color === '#888' ? 'rgba(136, 136, 136, 0.28)' : `${color}40`;
+                            const solid = `rgba(${color}, 0.85)`;
+                            const alphaColor = `rgba(${color}, 0.28)`;
                             return {
                                 ...dataset,
-                                borderColor: dataset.borderColor || color,
+                                borderColor: dataset.borderColor || solid,
                                 backgroundColor: dataset.backgroundColor || alphaColor,
-                                pointBackgroundColor: dataset.pointBackgroundColor || color,
-                                pointBorderColor: dataset.pointBorderColor || color,
-                                pointHoverBackgroundColor: dataset.pointHoverBackgroundColor || color,
+                                pointBackgroundColor: dataset.pointBackgroundColor || solid,
+                                pointBorderColor: dataset.pointBorderColor || solid,
+                                pointHoverBackgroundColor: dataset.pointHoverBackgroundColor || solid,
                                 pointHoverBorderColor: dataset.pointHoverBorderColor || '#fff',
                                 borderWidth: 2
                             };
