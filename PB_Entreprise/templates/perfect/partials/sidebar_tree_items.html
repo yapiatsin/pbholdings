@@ -1,0 +1,10 @@
+{% for perm in perms %}
+{% url perm.url as perm_href %}
+{% if perm_href %}
+<li class="nav-item">
+    <a href="{{ perm_href }}" class="nav-link">
+        <p>{{ perm.name }}</p>
+    </a>
+</li>
+{% endif %}
+{% endfor %}

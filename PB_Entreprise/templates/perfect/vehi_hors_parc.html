@@ -28,7 +28,7 @@
             </div>
             <div class="modal-body">
                 <div class="card-body">
-                    <form id="basic-form" method="get" novalidate>
+                    <form id="basic-form" method="get" data-live-filter novalidate>
                         <div class="row clearfix">
                             <div class="col-12">
                                 <label style="font-weight:700;color:rgba(152, 152, 152, 0.85); font-size:15px;">Date debut </label>
@@ -118,227 +118,148 @@
 </div>
 
 {% comment %} color: #fa7832 {% endcomment %}
-<div class="col-12 col-sm-6 col-md-3">
-    <div class="info-box" style="border-radius:25px;">
-        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);">
-            <img style="height: 40px; width: 40px; position:relative; margin-top: 6px; margin-left: 0px;" src="{% static 'categ.png' %}" alt="" srcset="">
-        </span>
-        <div class="info-box-content">
-            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Catégorie{% if categories|length > 1 %}s{% endif %}</span>
-            <span class="info-box-number" style="font-size:20px;color: #fa7832;">
-                {{categories|length}}
-            <small></small>
-            </span>
-        </div>
-    </div>
-</div>
-<div class="clearfix hidden-md-up"></div>
-<div class="col-12 col-sm-6 col-md-3">
-    <div class="info-box mb-3" style="border-radius:25px;">
-    <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);">
-        <img style="height: 40px; width: 40px; position:relative; margin-top: 6px; margin-left: 0px;" src="{% static 'summ.png' %}" alt="" srcset="">
-    </span>
-    <div class="info-box-content">
-        <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Total Véhicules parc
-            <a href="{% url 'all_vehi' %}" class="product-title">
-                <span class="badge badge-success float-right p-1"><i class="fa fa-arrow-circle-left"></i></span>
-            </a>
-        </span>
-        <span class="info-box-number" style="font-size:20px;color: #fa7832;">
-        {{total_veh}}
-        <small></small>
-        </span>
-    </div>
-    </div>
-</div>
-<div class="clearfix hidden-md-up"></div>
-<div class="col-12 col-sm-6 col-md-3">
-    <div class="info-box mb-3" style="border-radius:25px;">
-    <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);">
-        <img style="height: 40px; width: 40px; position:relative; margin-top: 6px; margin-left: 0px;" src="{% static 'summ.png' %}" alt="" srcset="">
-    </span>
-    <div class="info-box-content">
-        <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">
-            Total Véhicules hors parc 
-        </span>
-        <span class="info-box-number" style="font-size:20px;color: #fa7832;">
-        {{total_veh_hors_parc}}
-        <small></small>
-        </span>
-    </div>
-    </div>
-</div>
-<div class="clearfix hidden-md-up"></div>
-<div class="col-12 col-sm-6 col-md-3" >
-    <div class="info-box mb-3" style="border-radius:25px;">
-        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-coins" style="color:rgba(6, 73, 124, 0.54);"></i></span>
-        <div class="info-box-content">
-            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #06497C;">Prix total véhicule</span>
-            <span class="info-box-number" style="font-size:20px;color: #fa7832;">
-            {{cout_total}}
-            <small>cfa</small>
-            </span>
-        </div>
+{% url 'all_vehi' as all_vehi_url %}
+<div class="col-md-12">
+    <div class="pb-kpi-grid pb-kpi-grid--4">
+        {% include 'perfect/partials/stats/kpi_card.html' with label="Catégories" subtitle="Parc véhicules" value=categories|length sublabel="Effectif" icon_img='categ.png' %}
+        {% include 'perfect/partials/stats/kpi_card.html' with label="Total Véhicules parc" subtitle="Parc véhicules" value=total_veh sublabel="Véhicules en parc" icon_img='summ.png' side_value="Voir" side_icon="fa-arrow-circle-left" side_label="Tous les véhicules" side_url=all_vehi_url %}
+        {% include 'perfect/partials/stats/kpi_card.html' with label="Total Véhicules hors parc" subtitle="Parc véhicules" value=total_veh_hors_parc sublabel="Véhicules sortis" icon_img='summ.png' %}
+        {% include 'perfect/partials/stats/kpi_card.html' with label="Prix total véhicule" subtitle="Parc véhicules" value=cout_total unit="cfa" sublabel="Coût d'acquisition" icon="fa-coins" %}
     </div>
 </div>
 <div class="col-md-3">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card" style="box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);backdrop-filter: blur(5.2px);-webkit-backdrop-filter: blur(5.2px); border-radius:25px 25px 0 0;">
-                <div class="card-header">
-                    <h3 class="card-title">Catégories</h3>
-                    <div class="card-tools">
-                        <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                            <i class="fas fa-minus"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="card-body p-0">
-                    <ul class="products-list product-list-in-card pl-2 pr-2 p-2 m-2">
-                        <li class="item">
-                            <div class="product-img">
-                                <a href="{% url "all_vehi" %}" class="product-title text-secondary">Tous les véhicules</a>
-                            </div>
-                            <div class="product-info">
-                                <a href="javascript:void(0)" class="product-title">
-                                    <span class="badge badge-warning float-right p-2">- {{total_veh}} -</span>
-                                </a>
-                            </div>
-                        </li>
-                        {% for categorie, perms in grouped_permissions.items %}
-                            {% if categorie.categorie == 'permvehi' %}
-                                {% for perm in perms %}
-                                    {% if perm.name == "add véhicule" %}
-                                        {% for c in categories %}
-                                            <li class="item">
-                                                <div class="product-img">
-                                                    <a href="{% url 'add_vehi' c.pk %}" class="product-title">{{c.category}}</a>
-                                                </div>
-                                                <div class="product-info">
-                                                    <a href="javascript:void(0)" class="product-title">
-                                                        <span class="badge badge-light float-right p-2">- {{c.nb_vehicules}} -</span>
-                                                    </a>
-                                                </div>
-                                            </li>
-                                        {% endfor %}
-                                    {% endif %}
+    <div class="card pb-panel">
+        <div class="card-header pb-panel__header">
+            <div class="pb-panel__heading">
+                <span class="pb-panel__title">Catégories</span>
+                <span class="pb-panel__hint">Véhicules par catégorie</span>
+            </div>
+            <div class="pb-panel__tools">
+                <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Réduire">
+                    <i class="fas fa-minus"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-body pb-panel__body pb-panel__body--flush">
+            <ul class="pb-list">
+                <li class="pb-list__item">
+                    <a href="{% url "all_vehi" %}" class="pb-list__link">Tous les véhicules</a>
+                    <span class="pb-list__count">{{total_veh}}</span>
+                </li>
+                {% for categorie, perms in grouped_permissions.items %}
+                    {% if categorie.categorie == 'permvehi' %}
+                        {% for perm in perms %}
+                            {% if perm.name == "add véhicule" %}
+                                {% for c in categories %}
+                                    <li class="pb-list__item">
+                                        <a href="{% url 'add_vehi' c.pk %}" class="pb-list__link">{{c.category}}</a>
+                                        <span class="pb-list__count">{{c.nb_vehicules}}</span>
+                                    </li>
                                 {% endfor %}
                             {% endif %}
                         {% endfor %}
-                    </ul>
-                </div>
-            </div>
+                    {% endif %}
+                {% endfor %}
+            </ul>
         </div>
     </div>
 </div>
 
 <div class="col-md-9">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card" style="box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);backdrop-filter: blur(5.2px);-webkit-backdrop-filter: blur(5.2px); border-radius:25px;">
-                <div class="card-header">
-                    <div class="card-tools">
-                        <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
-                    </div>
-                </div>
-                <div class="card-body table-responsive p-2" style="border-radius:20px;height: 100%;">
-                    <table id="example1" class="table table-bordered table-striped table-hover table-sm" style="border:none; border-bottom: 2px solid rgba(168, 50, 50, 0.12);">
-                        <thead style="font-weight: 700; background-color:#a83232; font-size: 14px;">
-                            <tr class=" text-center text-danger ">
-                                <th><input type="checkbox" id="checkAll"></th>
-                                <th>IMMAT</th>
-                                <th>MARQUE</th>
-                                <th>CATEGORIE</th>
-                                <th>COUT</th>
-                                <th>DUREE</th>
-                                <th>AGE</th>
-                                <th>STATUT</th>
-                                <th>MOTIF</th>
-                                <th>ACTION</th>
+    <div class="card pb-panel">
+        <div class="card-header pb-panel__header">
+            <div class="pb-panel__heading">
+                <span class="pb-panel__title">Véhicules hors parc</span>
+                <span class="pb-panel__hint">{{ total_veh_hors_parc }} véhicule{{ total_veh_hors_parc|pluralize }} sorti{{ total_veh_hors_parc|pluralize }} du parc</span>
+            </div>
+            <div class="pb-panel__tools">
+                <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Réduire">
+                    <i class="fas fa-minus"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-body pb-panel__body pb-panel__body--flush">
+            {% if vehicules %}
+                <div class="pb-table-wrap">
+                    <table id="example1" class="table pb-table">
+                        <thead>
+                            <tr>
+                                <th><input type="checkbox" id="checkAll" aria-label="Tout sélectionner"></th>
+                                <th>Immat</th>
+                                <th>Marque</th>
+                                <th>Catégorie</th>
+                                <th>Coût</th>
+                                <th>Durée</th>
+                                <th>Âge</th>
+                                <th>Statut</th>
+                                <th>Motif</th>
+                                <th class="text-center">Action</th>
                             </tr>
                         </thead>
-                        <tbody> 
-                            {% if vehicules %} 
-                                {% for u in vehicules %}
-                                    <tr class="text-center">
-                                        <td>
-                                            <input type="checkbox" name="vehicule_ids" value="{{ u.id }}">
-                                        </td>
-                                        <td><a class="mr-3 text-primary">{{u.immatriculation}}</a></td>
-                                        <td><a class="mr-3">{{u.marque}}</a></td>
-                                        <td><a class="mr-3">{{u.category}}</a></td>
-                                        <td><a class="mr-3">{{u.cout_acquisition}}</a></td>
-                                        <td><a class="mr-3">{{u.duree}}</a></td>
-                                        <td>
-                                            <a class="mr-3">
-                                                <span class="badge bg-{{ u.color_age }}" style="font-size: 14px;">
-                                                    {{ u.age }} ans
-                                                </span>
-                                            </a>
-                                        </td>
-                                        <td>
-                                            <div class="custom-control custom-switch custom-switch-off-danger custom-switch-on-success">
-                                                <input type="checkbox"
-                                                       class="custom-control-input toggle-car-statut"
-                                                       id="switch-car-{{ u.id }}"
-                                                       data-url="{% url 'toggle_car_statut' u.id %}"
-                                                       data-vehicule-id="{{ u.id }}"
-                                                       {% if u.car_statut %} checked {% endif %}>
-                                                <label class="custom-control-label" for="switch-car-{{ u.id }}"></label>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <span class="badge bg-info" style="font-size: 14px;">
-                                                {{u.motif_sorti}}
-                                            </span>
-                                        </td>
-                                        <td>
+                        <tbody>
+                            {% for u in vehicules %}
+                                <tr>
+                                    <td><input type="checkbox" name="vehicule_ids" value="{{ u.id }}" aria-label="Sélectionner {{ u.immatriculation }}"></td>
+                                    <td><span class="pb-table__key">{{u.immatriculation}}</span></td>
+                                    <td>{{u.marque}}</td>
+                                    <td class="pb-table__muted">{{u.category}}</td>
+                                    <td>{{u.cout_acquisition}}</td>
+                                    <td class="pb-table__muted">{{u.duree}}</td>
+                                    <td><span class="badge bg-{{ u.color_age }}">{{ u.age }} ans</span></td>
+                                    <td>
+                                        <div class="custom-control custom-switch custom-switch-off-danger custom-switch-on-success">
+                                            <input type="checkbox"
+                                                   class="custom-control-input toggle-car-statut"
+                                                   id="switch-car-{{ u.id }}"
+                                                   data-url="{% url 'toggle_car_statut' u.id %}"
+                                                   data-vehicule-id="{{ u.id }}"
+                                                   {% if u.car_statut %} checked {% endif %}>
+                                            <label class="custom-control-label" for="switch-car-{{ u.id }}"></label>
+                                        </div>
+                                    </td>
+                                    <td><span class="badge bg-info">{{u.motif_sorti}}</span></td>
+                                    <td class="text-center">
+                                        <span class="pb-table__actions">
                                             {% for categorie, perms in grouped_permissions.items %}
                                                 {% if categorie.categorie == 'permvehi' %}
                                                     {% for perm in perms %}
                                                         {% if perm.name == "modifier véhicule" %}
-                                                            <a href="#" class="edit-vehicule-btn" data-url="{% url 'updat_car' u.pk %}">
-                                                                <i style="font-size: 20px;" class="fa fa-edit text-warning"></i>
+                                                            <a href="#" class="pb-table__action edit-vehicule-btn" data-url="{% url 'updat_car' u.pk %}" title="Modifier">
+                                                                <i class="fas fa-pen" aria-hidden="true"></i>
                                                             </a>
                                                         {% endif %}
                                                     {% endfor %}
                                                 {% endif %}
                                             {% endfor %}
-                                        </td>
-                                    </tr>
-                                {% endfor %} 
-                            {% endif %}
+                                        </span>
+                                    </td>
+                                </tr>
+                            {% endfor %}
                         </tbody>
-                        <tfoot>
-                            <tr class="text-center ">
-                                <th>
-                                    {% for categorie, perms in grouped_permissions.items %}
-                                        {% if categorie.categorie == 'permvehi' %}
-                                            {% for perm in perms %}
-                                                {% if perm.name == "sup véhicule" %}
-                                                    <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Confirmez-vous la suppression des véhicules sélectionnés ?')">
-                                                        <i class="fa fa-trash"></i>
-                                                    </button>
-                                                {% endif %}
-                                            {% endfor %}
-                                        {% endif %}
-                                    {% endfor %}
-                                </th>
-                                <th>---</th>
-                                <th>---</th>
-                                <th>---</th>
-                                <th>---</th>
-                                <th>---</th>
-                                <th>---</th>
-                                <th>---</th>
-                                <th>---</th>
-                                <th>---</th>
-                            </tr>
-                        </tfoot>
                     </table>
                 </div>
-            </div>      
+            {% else %}
+                <p class="pb-empty">
+                    <i class="fas fa-car-side" aria-hidden="true"></i>
+                    Aucun véhicule hors parc pour le moment.
+                </p>
+            {% endif %}
         </div>
+        {% if vehicules %}
+            {% for categorie, perms in grouped_permissions.items %}
+                {% if categorie.categorie == 'permvehi' %}
+                    {% for perm in perms %}
+                        {% if perm.name == "sup véhicule" %}
+                            <div class="pb-panel__footer">
+                                <button type="submit" class="pb-panel__action pb-panel__action--danger" onclick="return confirm('Confirmez-vous la suppression des véhicules sélectionnés ?')">
+                                    <i class="fas fa-trash" aria-hidden="true"></i> Supprimer la sélection
+                                </button>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            {% endfor %}
+        {% endif %}
     </div>
 </div>
 
@@ -362,7 +283,7 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form id="motifSortiForm">
+                <form id="motifSortiForm" data-no-live-filter>
                     <div class="form-group">
                         <label for="motif_sorti_input" style="font-weight:700;color:rgba(152, 152, 152, 0.85); font-size:15px;">Motif de sortie du stock</label>
                         <input type="text" class="form-control" id="motif_sorti_input" name="motif_sorti" maxlength="100" required>
@@ -378,152 +299,4 @@
     </div>
 </div>
 
-<script>
-    document.getElementById('checkAll').addEventListener('click', function() {
-        const checkboxes = document.querySelectorAll('input[name="vehicule_ids"]');
-        for (let checkbox of checkboxes) {
-            checkbox.checked = this.checked;
-        }
-    });
-</script>
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-    $(document).on("click", ".edit-vehicule-btn", function(e) {
-        e.preventDefault();
-        let url = $(this).data("url");
-        $.get(url, function(data) {
-            $("#modalBodyContent").html(data);
-            $("#editCarModal").modal("show");
-        });
-    });
-    $(document).on("submit", "#CarUpdateForm", function(e) {
-        e.preventDefault();
-        let form = $(this);
-        let url = form.attr("action") || window.location.href;
-        $.post(url, form.serialize(), function(data) {
-            if (data.success) {
-                $("#editCarModal").modal("hide");
-                const Toast = Swal.mixin({
-                    toast: true,
-                    position: 'top',
-                    showConfirmButton: false,
-                    timer: 4000,
-                    timerProgressBar: true
-                });
-                Toast.fire({
-                    type: 'success',
-                    title: data.message
-                });
-                setTimeout(function() {
-                    location.reload();
-                }, 2000);
-            } else {
-                $("#modalBodyContent").html(data); 
-            }
-        });
-    });
-
-    // Gestion du toggle car_statut
-    let currentCheckbox = null;
-    $(document).on("change", ".toggle-car-statut", function() {
-        let checkbox = $(this);
-        let url = checkbox.data("url");
-        let vehiculeId = checkbox.data("vehicule-id");
-        let isChecked = checkbox.is(":checked");
-        
-        // Si on désactive (on décoche), on demande le motif
-        if (!isChecked) {
-            currentCheckbox = checkbox;
-            $("#vehicule_id_hidden").val(vehiculeId);
-            $("#motif_sorti_input").val("");
-            $("#motifSortiModal").modal("show");
-            // On remet la checkbox à checked en attendant la confirmation
-            checkbox.prop("checked", true);
-        } else {
-            // Si on réactive, on envoie directement
-            $.ajax({
-                url: url,
-                type: "POST",
-                data: {
-                    csrfmiddlewaretoken: "{{ csrf_token }}",
-                },
-                success: function(response) {
-                    if (response.success) {
-                        const Toast = Swal.mixin({
-                            toast: true,
-                            position: 'top',
-                            showConfirmButton: false,
-                            timer: 4000,
-                            timerProgressBar: true
-                        });
-                        Toast.fire({
-                            type: 'success',
-                            title: 'Véhicule réintégré dans le stock avec succès !'
-                        });
-                    }
-                },
-                error: function() {
-                    checkbox.prop("checked", false);
-                    alert("⚠️ Erreur lors de la mise à jour du statut.");
-                }
-            });
-        }
-    });
-
-    // Gestion du formulaire de motif
-    $(document).on("submit", "#motifSortiForm", function(e) {
-        e.preventDefault();
-        let form = $(this);
-        let motif = $("#motif_sorti_input").val().trim();
-        let vehiculeId = $("#vehicule_id_hidden").val();
-        
-        if (!motif) {
-            alert("⚠️ Veuillez saisir un motif de sortie.");
-            return;
-        }
-        let checkbox = currentCheckbox;
-        let url = checkbox.data("url");
-        $.ajax({
-            url: url,
-            type: "POST",
-            data: {
-                csrfmiddlewaretoken: "{{ csrf_token }}",
-                motif_sorti: motif
-            },
-            success: function(response) {
-                if (response.success) {
-                    $("#motifSortiModal").modal("hide");
-                    checkbox.prop("checked", false);
-                    const Toast = Swal.mixin({
-                        toast: true,
-                        position: 'top',
-                        showConfirmButton: false,
-                        timer: 4000,
-                        timerProgressBar: true
-                    });
-                    Toast.fire({
-                        type: 'error',
-                        title: 'Véhicule retiré du stock avec succès !'
-                    });
-                } else {
-                    alert("⚠️ " + (response.error || "Erreur lors de la mise à jour."));
-                    checkbox.prop("checked", true);
-                }
-            },
-            error: function() {
-                alert("⚠️ Erreur lors de la mise à jour du statut.");
-                checkbox.prop("checked", true);
-            }
-        });
-    });
-    // Réinitialiser le modal quand il se ferme
-    $("#motifSortiModal").on("hidden.bs.modal", function() {
-        if (currentCheckbox) {
-            currentCheckbox.prop("checked", true);
-            currentCheckbox = null;
-        }
-        $("#motif_sorti_input").val("");
-    });
-</script>
 {% endblock main_content %}

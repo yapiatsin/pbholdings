@@ -61,7 +61,7 @@ def alertes_count(request):
         return empty
     try:
         from userauths.notification_utils import notifications_payload
-        payload = notifications_payload(request.user, limit=15)
+        payload = notifications_payload(request.user, limit=15, unread_only=True)
         alertes_list = []
         for item in payload['notifications']:
             label = item.get('label') or item.get('titre', '')

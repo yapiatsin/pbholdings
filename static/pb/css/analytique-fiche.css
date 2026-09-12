@@ -1,0 +1,58 @@
+html, body {
+    overflow: hidden;
+    height: 100%;
+}
+.layout-top-nav .content-wrapper {
+    overflow: hidden !important;
+}
+.pb-table-wrap--freeze {
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100dvh - 22rem);
+    overflow: hidden;
+}
+.pb-table-wrap--freeze > .pb-table.table {
+    flex: 0 0 auto;
+    width: 100%;
+    margin: 0;
+    table-layout: fixed;
+    font-size: 0.78rem;
+}
+.pb-table-wrap--body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+.pb-table-wrap--body::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
+}
+.pb-table-wrap--body > .pb-table.table {
+    width: 100%;
+    margin: 0;
+    table-layout: fixed;
+    font-size: 0.78rem;
+}
+.pb-table-wrap--freeze .pb-table.table thead th {
+    padding: 0.4rem 0.55rem;
+    font-size: 0.65rem;
+    background: var(--pb-kpi-pill-bg);
+}
+.pb-table-wrap--freeze .pb-table.table tbody td {
+    padding: 0.32rem 0.55rem;
+    background: #fff;
+}
+.pb-table-wrap--freeze .pb-table.table tbody tr:hover td {
+    background: var(--pb-kpi-pill-bg);
+}
+.pb-table-wrap--freeze .pb-table.table tfoot th {
+    padding: 0.4rem 0.55rem;
+    font-size: 0.72rem;
+    background: var(--pb-kpi-bg);
+    border-top: 1px solid var(--pb-kpi-border);
+}

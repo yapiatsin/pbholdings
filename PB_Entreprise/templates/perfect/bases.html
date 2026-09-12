@@ -5,7 +5,7 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <link href="{% static 'icn.png' %}" rel="icon">
     <title>
@@ -30,11 +30,18 @@
     <!-- Theme style -->
     <link rel="stylesheet" href="{% static 'pb/dists/css/adminlte.min.css' %}">
     {% include 'perfect/partials/navbar_modern_styles.html' %}
-    <link rel="stylesheet" href="{% static 'pb/css/modal-default.css' %}">
-    <style>{% block style %}{% endblock style %}</style>
+    <link rel="stylesheet" href="{% static 'pb/css/modal-default.css' %}?v=perm-1">
+    <link rel="stylesheet" href="{% static 'pb/css/kpi-card.css' %}?v=status-red">
+    <link rel="stylesheet" href="{% static 'pb/css/live-filter.css' %}?v=1">
+    {% include 'perfect/partials/app_background_styles.html' %}
+    {% include 'perfect/partials/responsive_styles.html' %}
 
 </head>
-    <body class="hold-transition layout-top-nav layout-footer-fixed">
+    <body class="hold-transition layout-top-nav layout-navbar-fixed layout-footer-fixed pb-app-bg" x-data data-live-layout="topnav" :class="{ 'pb-live-filter-busy': $store.pb && $store.pb.busy }">
+        <div data-live-extra-css>
+            {% block extra_css %}{% endblock extra_css %}
+            <style>{% block style %}{% endblock style %}</style>
+        </div>
         <div class="wrapper">
             <nav class="main-header navbar navbar-expand-md navbar-light navbar-white pb-navbar-modern">
                 <div class="container-fluid d-flex align-items-center flex-nowrap w-100">
@@ -51,7 +58,7 @@
                         <span class="navbar-toggler-icon"></span>
                     </button>
                     <div class="collapse navbar-collapse flex-grow-1 d-md-flex align-items-center order-3 order-md-2" id="navbarCollapse" style="min-width: 0;">
-                        <div class="flex-grow-1 d-flex align-items-center px-1 px-md-3" style="min-width: 0;">
+                        <div class="flex-grow-1 d-flex align-items-center px-1 px-md-3" style="min-width: 0;" data-live-navbar>
                             {% block navbar_nav %}
                                 {% include 'perfect/partials/navbar_default_search.html' %}
                             {% endblock navbar_nav %}
@@ -65,6 +72,7 @@
             <!-- Content Wrapper. Contains page content -->
 
             <div class="content-wrapper">
+                <div data-live-filter-root>
                 {% block content_header %}
                 <div class="content-header">
                     <div class="container-fluid">
@@ -83,7 +91,7 @@
                                                                   <i style="font-size: 20px; color: var(--pb-primary); text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);" class="fa fa-calendar"></i>
                                                             </a>
                                                         <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right col-md-12" style="font-size: 20px; color: var(--pb-dark); text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); ">
-                                                            <form class="col-md-12" method="get">
+                                                            <form class="col-md-12" method="get" data-live-filter>
                                                                 {% csrf_token %}
                                                                 <div class="row">
                                                                     <div class="col-md-12">
@@ -121,6 +129,7 @@
                         </div>
                     </div>
                 </div>
+                </div>
             </div>
             <!-- /.content-wrapper -->
             <!-- Control Sidebar -->
@@ -135,57 +144,14 @@
                 </div>
             </aside>
 
-            <footer class="main-footer">
-                <div class="float-right d-none d-sm-inline">
-                    <b><small>Version Bradi One</small></b>
-                </div>
-                <strong>Copyright &copy; <span id="currentYear"></span> <a>P&BENTREPRISE</a>.</strong>
+            <footer class="main-footer pb-app-footer">
+                <strong class="pb-app-footer__copy">Copyright &copy; <span id="currentYear"></span> <a>P&BENTREPRISE</a>.</strong>
+                <span class="pb-app-footer__brand d-none d-sm-inline">Thrive One</span>
             </footer>
             <script>
                 document.getElementById("currentYear").textContent = new Date().getFullYear();
             </script>
         </div>
-
-        {% block custom_js %}
-            <script>
-                function updateTable(month, year) {
-                    const url = `?month=${month}&year=${year}`;
-                    fetch(url)
-                        .then(response => response.text())
-                        .then(html => {
-                            const parser = new DOMParser();
-                            const newDoc = parser.parseFromString(html, 'text/html');
-                            const newTable = newDoc.querySelector('table'); // Remplace uniquement le tableau
-                            const oldTable = document.querySelector('table');
-                            if (newTable && oldTable) {
-                                oldTable.innerHTML = newTable.innerHTML; // Mise à jour des données
-                            }
-                        })
-                        .catch(err => console.error('Error updating table:', err));
-                }
-                function changeMonth(offset) {
-                    let month = parseInt(document.getElementById('month').value);
-                    let year = parseInt(document.getElementById('year').value);
-                    month += offset;
-                    if (month > 12) {
-                        month = 1;
-                        year++;
-                    } else if (month < 1) {
-                        month = 12;
-                        year--;
-                    }
-                    // Mettre à jour les sélections
-                    document.getElementById('month').value = month;
-                    document.getElementById('year').value = year;
-                    updateTable(month, year);
-                }
-                function selectMonthYear() {
-                    const month = document.getElementById('month').value;
-                    const year = document.getElementById('year').value;
-                    updateTable(month, year);
-                }
-            </script>
-        {% endblock custom_js %}
 
         <script src="{% static 'pb/plugins/jquery/jquery.min.js' %} "></script>
         <script src="{% static 'pb/plugins/bootstrap/js/bootstrap.bundle.min.js' %} "></script>
@@ -199,6 +165,9 @@
 
         <!-- SweetAlert2 -->
         <script src="{% static 'assets/vendors/sweetalert2/sweetalert2.min.js' %}"></script>
+        <script src="{% static 'pb/js/pb-live-table-actions.js' %}?v=2"></script>
+        <script src="{% static 'pb/js/pb-permissions-picker.js' %}?v=1"></script>
+        <script src="{% static 'pb/js/monthly-grid.js' %}?v=4"></script>
 
         <script>
             $(function() {
@@ -231,8 +200,16 @@
             });
         </script>
         {% if user.is_authenticated %}
-        <script src="{% static 'userauths/js/notifications.js' %}"></script>
+        <script src="{% static 'userauths/js/notifications.js' %}?v=inbox-1"></script>
+        <script src="{% static 'userauths/js/notifications-inbox.js' %}?v=1"></script>
         {% endif %}
+        <script type="application/json" id="pb-live-messages">[{% for msg in messages %}{"tags":"{{ msg.tags|escapejs }}","text":"{{ msg|escapejs }}"}{% if not forloop.last %},{% endif %}{% endfor %}]</script>
+        <div data-live-custom-js>
+        {% block custom_js %}
+        {% endblock custom_js %}
+        </div>
+        <script src="{% static 'pb/js/pb-live-app.js' %}?v=6"></script>
+        <script defer src="{% static 'pb/js/alpine.min.js' %}"></script>
     </body>
 </html>
 {% endif %}

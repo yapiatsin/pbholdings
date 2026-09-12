@@ -1,98 +1,46 @@
+{% extends 'perfect/bases.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Tableau de bord de gestion | P&BEntreprise</title>
-    <link rel="shortcut icon" type="image/x-icon" href="{% static 'pb_site_asset/img/logo/icn.png' %}">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root { --pb-primary: #EC281C; }
-        body { background: #f5f6fa; font-family: 'Segoe UI', sans-serif; }
-        .pb-header {
-            position: fixed; top: 0; left: 0; right: 0; z-index: 1030;
-            background: #fff; border-bottom: 3px solid var(--pb-primary);
-            padding: 14px 0; margin-bottom: 0;
-            box-shadow: 0 2px 12px rgba(0,0,0,.08);
-        }
-        main.pb-main { padding-top: 6.5rem; }
-        @media (max-width: 575.98px) {
-            main.pb-main { padding-top: 9.5rem; }
-        }
-        .pb-header h1 { color: var(--pb-primary); font-weight: 700; margin: 0; font-size: 1.5rem; }
-        .pb-header p { margin: 0; color: #666; font-size: .9rem; }
-        .section-title {
-            font-size: .85rem; font-weight: 700; text-transform: uppercase;
-            letter-spacing: 1px; color: var(--pb-primary); margin: 30px 0 15px;
-            padding-bottom: 6px; border-bottom: 2px solid rgba(236,40,28,.15);
-        }
-        .section-title:first-child { margin-top: 0; }
-        .manage-card {
-            background: #fff; border: 1px solid #e5e7eb; border-radius: 10px;
-            padding: 18px; text-decoration: none; color: #333;
-            display: flex; align-items: center; gap: 12px;
-            transition: all .25s ease;
-            box-shadow: 0 1px 4px rgba(0,0,0,.04);
-            height: 100%;
-        }
-        .manage-card:hover {
-            border-color: var(--pb-primary);
-            box-shadow: 0 6px 18px rgba(236,40,28,.15);
-            transform: translateY(-2px);
-            color: var(--pb-primary);
-        }
-        .manage-card__icon {
-            width: 42px; height: 42px; border-radius: 10px;
-            background: rgba(236,40,28,.1); color: var(--pb-primary);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.1rem; flex-shrink: 0;
-        }
-        .manage-card__title { font-weight: 600; font-size: .95rem; margin: 0; }
-    </style>
-</head>
-<body>
 
-<header class="pb-header">
-    <div class="container-fluid px-4 d-flex flex-wrap align-items-center justify-content-between gap-3">
-        <div>
-            <h1><i class="fa-solid fa-chart-high me-2"></i>Tableau de bord de gestion</h1>
-            <p>Gérez dynamiquement le contenu de votre site P&BEntreprise</p>
+{% block title %}Tableau de bord de gestion{% endblock title %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'pb/css/manage-dashboard.css' %}?v=1">
+{% endblock extra_css %}
+
+{% block navbar_nav %}{% endblock navbar_nav %}
+
+{% block page_title %}
+    <img class="profile-user-img" style="border:none; height:55px;width:55px" src="{% static 'dash.png' %}" alt="">
+    Tableau de bord de gestion
+{% endblock page_title %}
+
+{% block search_form %}{% endblock search_form %}
+
+{% block main_content %}
+{% for section_name, links in sections %}
+<div class="col-md-12">
+    <div class="card pb-panel">
+        <div class="card-header pb-panel__header">
+            <div class="pb-panel__heading">
+                <strong class="pb-panel__title">{{ section_name }}</strong>
+                <span class="pb-panel__hint">{{ links|length }} module{{ links|length|pluralize }}</span>
+            </div>
         </div>
-        <div class="d-flex flex-wrap gap-2 align-items-center">
-            <a href="{% url 'dash' %}" class="btn btn-outline-danger btn-sm">
-                <i class="fa-solid fa-gauge-high me-1"></i> Tableau de bord
-            </a>
-            <a href="{% url 'log_out' %}" class="btn btn-danger btn-sm">
-                <i class="fa-solid fa-right-from-bracket me-1"></i> Déconnexion
-            </a>
+        <div class="card-body pb-panel__body pb-panel__body--flush">
+            <div class="pb-folder-grid">
+                {% for url_name, label in links %}
+                <a href="{% url url_name %}" class="pb-folder" title="{{ label }}">
+                    <span class="pb-mac-folder" aria-hidden="true">
+                        <span class="pb-mac-folder__tab"></span>
+                        <span class="pb-mac-folder__body"></span>
+                        <span class="pb-mac-folder__shine"></span>
+                    </span>
+                    <span class="pb-folder__label">{{ label }}</span>
+                </a>
+                {% endfor %}
+            </div>
         </div>
     </div>
-</header>
-
-<main class="container-fluid px-4 pb-5 pb-main">
-    {% for section_name, links in sections %}
-        <h3 class="section-title">{{ section_name }}</h3>
-        <div class="row g-3">
-            {% for url_name, label in links %}
-                <div class="col-lg-3 col-md-4 col-sm-6">
-                    <a href="{% url url_name %}" class="manage-card">
-                        <span class="manage-card__icon">
-                            <i class="fa-solid fa-folder-open"></i>
-                        </span>
-                        <p class="manage-card__title">{{ label }}</p>
-                    </a>
-                </div>
-            {% endfor %}
-        </div>
-    {% endfor %}
-</main>
-
-<footer class="text-center text-muted py-4 small">
-    <p class="mb-0">P&BEntreprise — Administration du site</p>
-</footer>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+</div>
+{% endfor %}
+{% endblock main_content %}

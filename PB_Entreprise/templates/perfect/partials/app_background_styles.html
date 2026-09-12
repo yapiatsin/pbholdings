@@ -1,0 +1,62 @@
+{% load static %}
+<style>
+/* Fond d'écran applicatif : l'image reste fixe derrière l'interface,
+   le contenu (cards, tableaux, formulaires) passe au premier plan.
+   Volontairement inline : un nouveau fichier statique n'est pas servi
+   par WhiteNoise tant que le serveur n'a pas redémarré. */
+
+body.pb-app-bg {
+    background: #eef0f4;
+    /* Pas d'opacity ici : elle s'appliquerait à TOUTE l'interface
+       et donnerait l'impression que le contenu se fond dans l'image. */
+    opacity: 1;
+}
+
+body.pb-app-bg::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-image: url("{% static 'al_red.png' %}");
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    opacity: 0.16;
+    /* z-index négatif : le calque passe derrière le contenu SANS que .wrapper
+       ait besoin d'un z-index. Un .wrapper positionné créerait un contexte
+       d'empilement qui enfermerait les modales (z-index 1050) sous le
+       .modal-backdrop de Bootstrap (1040), placé lui directement sur <body>. */
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* La zone de contenu laisse voir le fond fixe : ce sont les cards
+   qui portent le fond opaque, pas le conteneur qui scrolle. */
+body.pb-app-bg .content-wrapper {
+    background: transparent !important;
+    animation: none;
+    box-shadow: none;
+    border-radius: 0;
+}
+
+/* Premier plan : blocs de contenu opaques et lisibles. */
+body.pb-app-bg .content-wrapper .card,
+body.pb-app-bg .content-wrapper .info-box,
+body.pb-app-bg .content-wrapper .small-box,
+body.pb-app-bg .content-wrapper .kpi-card,
+body.pb-app-bg .content-wrapper .callout,
+body.pb-app-bg .content-wrapper .table-responsive {
+    position: relative;
+    z-index: 1;
+    background-color: #fff;
+    box-shadow: 0 2px 10px rgba(20, 20, 20, 0.12);
+}
+
+/* Le titre de page et les actions restent lisibles sur l'image. */
+body.pb-app-bg .content-header {
+    position: relative;
+    z-index: 1;
+}
+</style>

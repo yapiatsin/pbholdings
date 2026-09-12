@@ -1,0 +1,18 @@
+<p class="text-muted pb-modal-hint">
+    Colonnes attendues : Immatriculation, Marque, Duree, Numero carte grise, Numero chassis,
+    Date acquisition, Cout acquisition, Date edition carte grise, Date mise en service.
+    <strong>Pas de colonne « Catégorie »</strong> : toutes les lignes sont rattachées à
+    {% if categorie %}la catégorie « {{ categorie }} »{% else %}la catégorie sélectionnée{% endif %}.
+    Une immatriculation déjà enregistrée fait ignorer la ligne, sans modifier le véhicule existant.
+</p>
+{% if categorie %}
+<p class="pb-modal-hint">
+    <a href="{% url 'download_vehicule_excel_template' categorie.pk %}">
+        <i class="fa fa-download" aria-hidden="true"></i> Télécharger l'exemplaire à remplir
+    </a>
+</p>
+{% endif %}
+<div class="pb-modal-field">
+    <label class="pb-modal-field__label" for="excel_file">Fichier Excel (.xlsx)</label>
+    <input type="file" class="form-control" id="excel_file" name="excel_file" accept=".xls,.xlsx" required>
+</div>

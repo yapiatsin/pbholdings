@@ -1,5 +1,8 @@
 {% extends 'perfect/base.html' %} 
 {% load static %} 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'pb/css/saisie-live-search.css' %}?v=1">
+{% endblock extra_css %}
 {% block title %}Saisie des autres arrêts{% endblock title %} 
 
 {% block page_title %}
@@ -16,226 +19,82 @@
 {% endblock page_action %}
 {% block main_content %}
 
-<div class="col-12 col-sm-6 col-md-3">
-    <div class="info-box" style="border-radius:25px;">
-        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-plus" style="color:rgba(168, 50, 50, 0.65);"></i></span>
-        <div class="info-box-content">
-            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">Nombre total</span>
-            <span class="info-box-number" style="font-size:18px; color: #1a1a1a">
-            {{autarret_total}}
-            <small></small>
-            </span>
-        </div>
-    </div>
-</div>
-<div class="clearfix hidden-md-up"></div>
-<div class="col-12 col-sm-6 col-md-3">
-    <div class="info-box" style="border-radius:25px;">
-        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-clock" style="color:rgba(168, 50, 50, 0.65);"></i></span>
-        <div class="info-box-content">
-            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">Aujourd'hui</span>
-            <span class="info-box-number" style="font-size:18px; color: #1a1a1a">
-            {{autarret_jours_format}}
-            <small>frs cfa</small>
-            </span>
-        </div>
-    </div>
-</div>
-<div class="clearfix hidden-md-up"></div>
-<div class="col-12 col-sm-6 col-md-3">
-    <div class="info-box mb-3" style="border-radius:25px;">
-    <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fa fa-calendar" style="color:rgba(168, 50, 50, 0.65);"></i></span>
-    <div class="info-box-content">
-        <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">Mensuelle</span>
-        <span class="info-box-number" style="font-size:18px; color: #1a1a1a">
-        {{autarret_mois_format}}
-        <small>frs cfa</small>
-        </span>
-    </div>
-    </div>
-</div>
-<div class="clearfix hidden-md-up"></div>
-<div class="col-12 col-sm-6 col-md-3" >
-    <div class="info-box mb-3" style="border-radius:25px;">
-        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-calendar" style="color:rgba(168, 50, 50, 0.65);"></i></span>
-        <div class="info-box-content">
-            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">Annuelle</span>
-            <span class="info-box-number" style="font-size:18px; color: #1a1a1a">
-            {{autarret_an_format}}
-            <small>frs cfa</small>
-            </span>
-        </div>
+<div class="col-md-12">
+    <div class="pb-kpi-grid pb-kpi-grid--4">
+        {% include 'perfect/partials/stats/kpi_card.html' with label="Nombre total" subtitle="Arrêts" value=autarret_total sublabel="Effectif" icon="fa-plus" %}
+        {% include 'perfect/partials/stats/kpi_card.html' with label="Aujourd'hui" subtitle="Arrêts" value=autarret_jours_format unit="frs cfa" sublabel="Total du jour" icon="fa-clock" %}
+        {% include 'perfect/partials/stats/kpi_card.html' with label="Mensuelle" subtitle="Arrêts" value=autarret_mois_format unit="frs cfa" sublabel="Total du mois" icon="fa-calendar" %}
+        {% include 'perfect/partials/stats/kpi_card.html' with label="Annuelle" subtitle="Arrêts" value=autarret_an_format unit="frs cfa" sublabel="Total de l'année" icon="fa-calendar" %}
     </div>
 </div>
 
 {% include 'perfect/partials/modal_default.html' with modal_id='modal-sm' modal_title='Filtre' form=form submit_label='Afficher' %}
 
 {% include 'perfect/partials/modal_default.html' with modal_id='modal-lg' modal_size='lg' modal_title='Enrégistrer un autre arrêt' form_method='post' form_id='quickForm' enctype='multipart/form-data' body_template='perfect/partials/saisie/autarret_body.html' submit_label='Enregistrer' %}
-<div class="col-md-12">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="" style="border-radius:20px" >
-                <div id="" class="">
-                    <div class="row p-0 m-0">
-                        <div class="col-md-12 p-0">
-                            <div class="card" style="box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);backdrop-filter: blur(5.2px);--webkit-backdrop-filter: blur(5.2px); border-radius:25px;">
-                                <div class="card-header col-12 col-sm-12 col-md-12" style="font-size:18px; font-weight: 700; color: #a83232;">
-                                    <form class="search-form">
-                                        <div class="input-group">
-                                            <input type="text" name="search" value="{{ search_query }}" class="form-control" placeholder="Saisissez l'immatriculation du véhicule..." style="border-radius: 50px 0 0 50px;">
-                                            <div class="input-group-append">
-                                            <button type="submit" name="submit" class="btn btn-danger" style="border-radius: 0 50px 50px 0;"><i class="fas fa-search"></i></button>
-                                            {% comment %} <a href="{% url 'saisi_compta' %}" name="submit" class="btn btn-danger" style="border-radius: 0 50px 50px 0;"><i class="fas fa-refresh text-light"></i></a> {% endcomment %}
-                                            </div>
-                                        </div>
-                                    </form>
-                                </div>
-                                <!-- /.card-header -->
-                                <div class="card-body">
-                                    <div class="col-md-4">
-                                        {% if vehicules %}
-                                            {% for v in vehicules %}
-                                                <div class="card card-widget widget-user" style="border-radius:25px; ">
-                                                    <div class="widget-user-header" style="border-radius:25px;">
-                                                        <i class="fa fa-car text-center" style="font-size: 50px; color:rgba(139, 139, 139, 0.39);"></i>
-                                                      <h5 class="widget-user-desc">{{v.immatriculation}}</h5>
-                                                    </div>
-                                                    <div class="card-footer p-0">
-                                                      <ul class="nav flex-column">
-                                                        <li class="nav-item">
-                                                            {% for categorie, perms in grouped_permissions.items %}
-                                                                {% if categorie.categorie == "permentretien" %}
-                                                                    {% for perm in perms %}
-                                                                        {% if perm.name == "add entretien" %}
-                                                                            <a href="{% url perm.url v.pk %}" class="nav-link" title="Ajouter un entretien">
-                                                                                Entretien
-                                                                                <span class="float-right badge bg-info"><i style="font-size: 20px;" class="fa fa-plus-circle"></i></span>
-                                                                            </a>
-                                                                        {% endif %}
-                                                                    {% endfor %}
-                                                                {% endif %}
-                                                            {% endfor %}
-                                                        </li>
-                                                        <li class="nav-item">
-                                                            {% for categorie, perms in grouped_permissions.items %}
-                                                                {% if categorie.categorie == "permvisit" %}
-                                                                    {% for perm in perms %}
-                                                                        {% if perm.name == "add visite" %}
-                                                                            <a href="{% url perm.url v.pk %}" class="nav-link" title="Ajouter une visite">
-                                                                                Visite technique
-                                                                                <span class="float-right badge bg-primary"><i style="font-size: 20px;" class="fa fa-plus-circle"></i></span>
-                                                                            </a>
-                                                                        {% endif %}
-                                                                    {% endfor %}
-                                                                {% endif %}
-                                                            {% endfor %}
-                                                        </li>
-                                                        <li class="nav-item">
-                                                            {% for categorie, perms in grouped_permissions.items %}
-                                                                {% if categorie.categorie == "permreparation" %}
-                                                                    {% for perm in perms %}
-                                                                        {% if perm.name == "add reparation" %}
-                                                                            <a href="{% url perm.url v.pk %}" class="nav-link" title="Ajouter un réparation">
-                                                                                Réparation
-                                                                                <span class="float-right badge bg-success"><i style="font-size: 20px;" class="fa fa-plus-circle"></i></span>
-                                                                            </a>
-                                                                        {% endif %}
-                                                                    {% endfor %}
-                                                                {% endif %}
-                                                            {% endfor %}
-                                                        </li>
-                                                        <li class="nav-item">
-                                                            {% for categorie, perms in grouped_permissions.items %}
-                                                                {% if categorie.categorie == "permarret" %}
-                                                                    {% for perm in perms %}
-                                                                        {% if perm.name == "add autre arrêt" %}
-                                                                            <a href="{% url perm.url v.pk %}" class="nav-link" title="Ajouter un autre arrêt">
-                                                                                Autre arrêt
-                                                                                <span class="float-right badge bg-secondary"><i style="font-size: 20px;" class="fa fa-plus-circle"></i></span>
-                                                                            </a>
-                                                                        {% endif %}
-                                                                    {% endfor %}
-                                                                {% endif %}
-                                                            {% endfor %}
-                                                        </li>
-                                                      </ul>
-                                                    </div>
-                                                </div>
-                                            {% endfor %}
-                                        {% else %}
-                                            <p>Aucun véhicule trouvé.</p>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+{% url 'add_autarrets' vehicule.pk as saisie_reset_url %}
+{% include 'perfect/partials/saisie/vehicule_live_search_panel.html' with panel_title='Changer de véhicule' reset_url=saisie_reset_url %}
 
 <div class="col-md-12">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="">
-                <div id="" class="">
-                    <div class="row p-0 m-0">
-                        <div class="col-md-12 p-0">
-                            <div class="card" style="box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);backdrop-filter: blur(5.2px);-webkit-backdrop-filter: blur(5.2px); border-radius:25px;">
-                                <div class="card-header">
-                                    <h3 class="card-title"></h3>
-                                    <div class="card-tools">
-                                        <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
-                                    </div>
-                                </div>
-                                <!-- /.card-header -->
-                                <div class="card-body">
-                                    <table id="example1" class="table table-bordered table-striped">
-                                        <thead>
-                                            <tr class=" text-center text-danger ">
-                                                <th>IMMAT</th>
-                                                <th>LIBELLE</th>
-                                                <th>MONTANT</th>
-                                                <th>DATE ARRET</th>
-                                                <th>DATE REPRISE</th>
-                                                <th>ACTION</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody> 
-                                            {% if liste_autarret %} 
-                                                {% for u in liste_autarret %}
-                                                    <tr class="text-center">
-                                                        <td><a class="mr-3" style="color: #a83232;" title="N°fiche: {{u.numfich}} - Date saisie: {{u.date_saisie}}">{{u.vehicule.immatriculation}}</a></td>
-                                                        <td>{{u.libelle}}</td>
-                                                        <td>{{u.montant}}</td>
-                                                        <td>{{u.date_arret|date:'d-m-Y à H:m:s'}}</td>
-                                                        <td>{{u.date_sortie|date:'d-m-Y à H:m:s'}}</td>
-                                                        <td>
-                                                            {% for categorie, perms in grouped_permissions.items %}
-                                                                {% if categorie.categorie == 'permarret' %}
-                                                                    {% for perm in perms %}
-                                                                        {% if perm.name == "modifier autre arrêt" %}
-                                                                            <a href="#" class="edit-autarret-btn" data-url="{% url 'updat_autarret' u.pk %}?next={% url 'add_autarrets' vehicule.pk %}">
-                                                                                <i class="fa fa-edit text-warning"></i>
-                                                                            </a>
-                                                                        {% endif %}
-                                                                    {% endfor %}
-                                                                {% endif %}
-                                                            {% endfor %}
-                                                        </td>
-                                                    </tr>
-                                                {% endfor %} 
-                                            {% endif %}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    <div class="card pb-panel">
+        <div class="card-header pb-panel__header">
+            <div class="pb-panel__heading">
+                <span class="pb-panel__title">Autres arrêts du véhicule</span>
+                <span class="pb-panel__hint">{{ vehicule.immatriculation }}</span>
             </div>
+            <div class="pb-panel__tools">
+                <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Réduire">
+                    <i class="fas fa-minus"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-body pb-panel__body pb-panel__body--flush">
+            {% if liste_autarret %}
+                <div class="pb-table-wrap">
+                    <table id="example1" class="table pb-table">
+                        <thead>
+                            <tr>
+                                <th>Immat</th>
+                                <th>Libellé</th>
+                                <th>Montant</th>
+                                <th>Date arrêt</th>
+                                <th>Date reprise</th>
+                                <th class="text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for u in liste_autarret %}
+                                <tr>
+                                    <td><span class="pb-table__key" title="N°fiche: {{u.numfich}} - Date saisie: {{u.date_saisie}}">{{u.vehicule.immatriculation}}</span></td>
+                                    <td>{{u.libelle}}</td>
+                                    <td>{{u.montant}}</td>
+                                    <td class="pb-table__muted">{{u.date_arret|date:'d-m-Y à H:m:s'}}</td>
+                                    <td class="pb-table__muted">{{u.date_sortie|date:'d-m-Y à H:m:s'}}</td>
+                                    <td class="text-center">
+                                        <span class="pb-table__actions">
+                                            {% for categorie, perms in grouped_permissions.items %}
+                                                {% if categorie.categorie == 'permarret' %}
+                                                    {% for perm in perms %}
+                                                        {% if perm.name == "modifier autre arrêt" %}
+                                                            <a href="#" class="pb-table__action edit-autarret-btn" data-url="{% url 'updat_autarret' u.pk %}?next={% url 'add_autarrets' vehicule.pk %}" title="Modifier">
+                                                                <i class="fas fa-pen" aria-hidden="true"></i>
+                                                            </a>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                {% endif %}
+                                            {% endfor %}
+                                        </span>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="pb-empty">
+                    <i class="fas fa-inbox" aria-hidden="true"></i>
+                    Aucun autre arrêt enregistré pour le moment.
+                </p>
+            {% endif %}
         </div>
     </div>
 </div>

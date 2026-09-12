@@ -1,5 +1,9 @@
 {% extends 'perfect/base.html' %} 
 {% load static %} 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'pb/css/saisie-live-search.css' %}?v=1">
+<link rel="stylesheet" href="{% static 'pb/css/dashboard.css' %}?v=stat-pad">
+{% endblock extra_css %}
 {% block title %} Marges & Charges administratives {% endblock title %} 
 {% block navbar_nav %}<p class="mb-2" style="font-size:16px; font-weight: 700; color: #a83232;">Année: {{ annee }}</p>{% endblock navbar_nav %} 
 {% block page_title %}
@@ -32,227 +36,182 @@
 {% url 'add_chargadminist' as charg_admin_url %}
 {% include 'perfect/partials/modal_default.html' with modal_id='modal-import-excel' modal_title='Importer des charges (Excel)' form_method='post' form_action=charg_admin_url enctype='multipart/form-data' body_template='perfect/partials/saisie/charg_admin_import_body.html' submit_label='Importer' %}
 
-<div class="col-12 col-sm-6 col-md-3">
-    <div class="info-box" style="border-radius:25px;">
-        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-coins" style="color:rgba(168, 50, 50, 0.65);"></i></span>
-        <div class="info-box-content">
-            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">{{ kpi_labels.recette }}</span>
-            <span class="info-box-number" style="font-size:18px; color: #1a1a1a">
-            {{total_recette_annuel_format}}
-            <small></small>
-            </span>
-        </div>
+<div class="col-md-12">
+    <div class="pb-kpi-grid pb-kpi-grid--4">
+        {% include 'perfect/partials/stats/kpi_card.html' with label=kpi_labels.recette subtitle="Charges administratives" value=total_recette_annuel_format unit="frs cfa" sublabel="Total période" icon="fa-coins" %}
+        {% include 'perfect/partials/stats/kpi_card.html' with label=kpi_labels.marge subtitle="Charges administratives" value=marge_contribution_annuel_format unit="frs cfa" sublabel="Total période" icon="fa-file-invoice-dollar" %}
+        {% include 'perfect/partials/stats/kpi_card.html' with label=kpi_labels.charge_admin subtitle="Charges administratives" value=total_chargeadmin_annuel_format unit="frs cfa" sublabel="Total période" icon="fa-file-invoice" %}
+        {% include 'perfect/partials/stats/kpi_card.html' with label=kpi_labels.resultat subtitle="Charges administratives" value=resultat_annuel_format unit="frs cfa" sublabel="Total période" icon="fa-calendar" %}
     </div>
 </div>
-<div class="col-12 col-sm-6 col-md-3">
-    <div class="info-box" style="border-radius:25px;">
-        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-file-invoice-dollar" style="color:rgba(168, 50, 50, 0.65);"></i></span>
-        <div class="info-box-content">
-            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">{{ kpi_labels.marge }}</span>
-            <span class="info-box-number" style="font-size:18px; color: #1a1a1a">
-            {{marge_contribution_annuel_format}}
-            <small></small>
-            </span>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{% static 'pb/js/dashboard-charts.js' %}?v=bar-hover"></script>
+<div class="col-md-12">
+    <div class="row pb-panel-row">
+        <div class="col-md-8">
+            <div class="card pb-panel">
+                <div class="card-header pb-panel__header">
+                    <div class="pb-panel__heading">
+                        <strong class="pb-panel__title">Evolution des charges administratives</strong>
+                        {% if chart_axis_hint %}<span class="pb-panel__hint">{{ chart_axis_hint }}</span>{% endif %}
+                    </div>
+                </div>
+                <div class="card-body pb-panel__body">
+                    <div class="chart pb-panel__chart">
+                        <canvas id="barChart"></canvas>
+                    </div>
+                    <script>
+                        pbMakeLineChart(
+                            document.getElementById('barChart'),
+                            {{ label|safe }},
+                            {{ chargadmin_data }},
+                            'Charges administratives',
+                            '168, 50, 50'
+                        );
+                    </script>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
-<div class="col-12 col-sm-6 col-md-3">
-    <div class="info-box" style="border-radius:25px;">
-        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-file-invoice" style="color:rgba(168, 50, 50, 0.65);"></i></span>
-        <div class="info-box-content">
-            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">{{ kpi_labels.charge_admin }}</span>
-            <span class="info-box-number" style="font-size:18px; color: #1a1a1a">
-            {{total_chargeadmin_annuel_format}}
-            <small>frs cfa</small>
-            </span>
+        <div class="col-md-4">
+            <div class="card pb-panel">
+                <div class="card-header pb-panel__header">
+                    <div class="pb-panel__heading">
+                        <strong class="pb-panel__title">Statistique de la période</strong>
+                    </div>
+                </div>
+                <div class="card-body pb-panel__body pb-panel__body--padded">
+                    <div class="pb-panel__stat">
+                        <span class="pb-panel__stat-label">Recette</span>
+                        <span class="pb-panel__stat-value">{{ total_recette_format }}</span>
+                    </div>
+                    <div class="pb-panel__stat">
+                        <span class="pb-panel__stat-label">Charges administratives</span>
+                        <span class="pb-panel__stat-value">{{ total_chargeadmin_format }}</span>
+                    </div>
+                    <div class="pb-panel__stat">
+                        <span class="pb-panel__stat-label">Charges Fixes</span>
+                        <span class="pb-panel__stat-value">{{ total_chargfix_format }}</span>
+                    </div>
+                    <div class="pb-panel__stat">
+                        <span class="pb-panel__stat-label">Charges Variables</span>
+                        <span class="pb-panel__stat-value">{{ total_chargvar_format }}</span>
+                    </div>
+                    <div class="pb-panel__stat pb-panel__stat--accent">
+                        <span class="pb-panel__stat-label">Résultat de la période</span>
+                        <span class="pb-panel__stat-value">{{ resultat_format }}</span>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
-<div class="col-12 col-sm-6 col-md-3">
-    <div class="info-box mb-3" style="border-radius:25px;">
-    <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fa fa-calendar" style="color:rgba(168, 50, 50, 0.65);"></i></span>
-    <div class="info-box-content">
-        <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">{{ kpi_labels.resultat }}</span>
-        <span class="info-box-number" style="font-size:18px; color: #1a1a1a">
-        {{resultat_annuel_format}}
-        <small></small>
-        </span>
-    </div>
     </div>
 </div>
 
 <div class="col-md-12">
-    <div class="card" style="border-radius:25px;">
-      <div class="card-header">
-        <h5 class="card-title">Evolution des charges administratives</h5>
-        <div class="card-tools">
-          <button type="button" class="btn btn-tool" data-card-widget="collapse">
-            <i class="fas fa-minus"></i>
-          </button>
-          <button type="button" class="btn btn-tool" data-card-widget="remove">
-            <i class="fas fa-times"></i>
-          </button>
-        </div>
-      </div>
-      <div class="card-body">
-        <div class="row">
-            <div class="col-md-8">
-                <div class="chart">
-                    <canvas id="barChart" style="min-height: 250px; height: 260px; max-height: 300px; max-width: 100%;"></canvas>
-                    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-                    <script>
-                        const cta = document.getElementById('barChart').getContext('2d');
-                        const gradient = cta.createLinearGradient(0, 0, 0, 400);
-                        gradient.addColorStop(0, 'rgb(168,50,50)');
-                        gradient.addColorStop(1, 'rgb(168,50,50,.1)');
-
-                        new Chart(cta, {
-                            type: 'line',
-                            data: {
-                                labels: {{ label|safe}},
-                                datasets: [{
-                                    label: "Evolution des charges administratives",
-                                    data: {{ chargadmin_data }},
-                                    fill: true,
-                                    borderColor: gradient,
-                                    tension: 0.4,
-                                    backgroundColor: [gradient],
-                                }]
-                            },
-                            options: {
-                                scales: {
-                                    y: {
-                                        beginAtZero: true,
-                                        easing: 'linear',
-                                        from: 1,
-                                    }
-                                }
-                            }
-                        });
-                    </script>
-                </div>
+    <div class="card pb-panel">
+        <div class="card-header pb-panel__header">
+            <div class="pb-panel__heading">
+                <span class="pb-panel__title">Liste des charges administratives</span>
+                <span class="pb-panel__hint" id="pb-live-count">
+                    {% if list_charge_adminis %}{{ list_charge_adminis|length }} ligne{{ list_charge_adminis|length|pluralize }}{% else %}Recherche instantanée{% endif %}
+                </span>
             </div>
-            <div class="col-md-4">
-                <div class="card" style="border-radius: 20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);">
-                    <div class="card-header text-center" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.95)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 20px 20px 0 0;">
-                        <strong style="font-size: 1.05rem; color: #a83232;">Statistique de la période</strong>
-                    </div>
-                    <div class="card-body p-3">
-                        <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
-                            <span class="text-secondary">Recette</span>
-                            <span style="font-weight: 700; color: #1a1a1a;">{{total_recette_format}}</span>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
-                            <span class="text-secondary">Charges administratives</span>
-                            <span style="font-weight: 700; color: #1a1a1a;">{{total_chargeadmin_format}}</span>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
-                            <span class="text-secondary">Charges Fixes</span>
-                            <span style="font-weight: 700; color: #1a1a1a;">{{total_chargfix_format}}</span>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
-                            <span class="text-secondary">Charges Variables</span>
-                            <span style="font-weight: 700; color: #1a1a1a;">{{total_chargvar_format}}</span>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center pt-3">
-                            <span style="font-weight: 600; color: #a83232;">Résultat de la période</span>
-                            <span style="font-weight: 700; color: #1a1a1a;">{{resultat_format}}</span>
-                        </div>
-                    </div>
+        </div>
+        <div class="card-body pb-panel__body pb-panel__body--search">
+            <div class="pb-live-search"
+                 data-live-search
+                 data-live-table="#example1"
+                 data-count="#pb-live-count"
+                 role="search">
+                <div class="pb-live-search__field">
+                    <i class="fas fa-search pb-live-search__icon" aria-hidden="true"></i>
+                    <input type="text"
+                           class="pb-live-search__input"
+                           data-live-input
+                           placeholder="Rechercher une facture, un libellé, un compte…"
+                           autocomplete="off"
+                           spellcheck="false"
+                           inputmode="search"
+                           aria-label="Filtrer les charges administratives">
+                    <button type="button" class="pb-live-search__clear" data-live-clear hidden aria-label="Effacer la recherche">
+                        <i class="fas fa-times" aria-hidden="true"></i>
+                    </button>
                 </div>
             </div>
         </div>
-      </div>
-      <div class="card-footer">
-        <div class="row">
-            <div class="col-md-12 p-0">
-                <div class="card" style="border-radius:25px;">
-                    <div class="card-header ">
-                        <h3 class="card-title">Liste des charges administratives</h3>
-                        <div class="card-tools">
-                            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
-                        </div>
-                    </div>
-                    <div class="card-body table-responsive p-2">
-                        <form method="POST" action="{% url 'delete_multiple_chargadmin' %}" id="deleteForm">
-                            {% csrf_token %}
-                            <table id="example1" class="table table-bordered table-striped">
-                                <thead>
-                                    <tr class="text-center text-danger ">
-                                        <th><input type="checkbox" id="checkAll"></th>
-                                        <th>N°FACTURE</th>
-                                        <th>LIBELLE</th>
-                                        <th>MONTANT</th>
-                                        <th>COMPTE</th>
-                                        <th>N°PIECE</th>
-                                        <th>DATE</th>
-                                        <th>SAISIR PAR</th>
-                                        <th>ACTION</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="text-center">
-                                {% if list_charge_adminis %}
-                                    {% for c in list_charge_adminis %}
-                                        <tr>
-                                            <td>
-                                                <input type="checkbox" name="charge_admin_ids" value="{{ c.id }}">
-                                            </td>
-                                            <td>{{c.Num_fact}}</td>
-                                            <td><a style="color: #a83232;" type="button" data-toggle="tooltip" data-placement="top" title="{{c.libelle}}">{{c.libelle|slice:":500"}}{% if c.libelle|length > 100 %}...{% endif %}</a></td>
-                                            <td>{{c.montant}}</td>
-                                            <td>{{c.cpte_comptable}}</td>
-                                            <td>{{c.Num_piece}}</td>
-                                            <td>{{c.date_saisie|date:"d-m-y"}}</td>
-                                            <td>{{c.auteur.username}}</td>
-                                            <td class="text-center ">
+        <form method="POST" action="{% url 'delete_multiple_chargadmin' %}" id="deleteForm">
+            {% csrf_token %}
+            <div class="card-body pb-panel__body pb-panel__body--flush">
+                {% if list_charge_adminis %}
+                    <div class="pb-table-wrap">
+                        <table id="example1" class="table pb-table">
+                            <thead>
+                                <tr>
+                                    <th><input type="checkbox" id="checkAll"></th>
+                                    <th>N° facture</th>
+                                    <th>Libellé</th>
+                                    <th>Montant</th>
+                                    <th>Compte</th>
+                                    <th>N° pièce</th>
+                                    <th>Date</th>
+                                    <th>Saisi par</th>
+                                    <th class="text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for c in list_charge_adminis %}
+                                    <tr>
+                                        <td>
+                                            <input type="checkbox" name="charge_admin_ids" value="{{ c.id }}">
+                                        </td>
+                                        <td class="pb-table__muted">{{c.Num_fact}}</td>
+                                        <td><span class="pb-table__key" data-toggle="tooltip" data-placement="top" title="{{c.libelle}}">{{c.libelle|slice:":500"}}{% if c.libelle|length > 100 %}...{% endif %}</span></td>
+                                        <td>{{c.montant}}</td>
+                                        <td class="pb-table__muted">{{c.cpte_comptable}}</td>
+                                        <td class="pb-table__muted">{{c.Num_piece}}</td>
+                                        <td class="pb-table__muted">{{c.date_saisie|date:"d-m-y"}}</td>
+                                        <td class="pb-table__muted">{{c.auteur.username}}</td>
+                                        <td class="text-center">
+                                            <span class="pb-table__actions">
                                                 {% for categorie, perms in grouped_permissions.items %}
                                                     {% if categorie.categorie == "permchargadmin" %}
                                                         {% for perm in perms %}
                                                             {% if perm.name == "mod charge administrative" %}
-                                                                <a href="#" class="edit-chargadmin-btn" data-url="{% url 'updat_charg_administ' c.pk %}">
-                                                                    <i style="font-size: 20px;" class="fa fa-edit text-warning"></i>
+                                                                <a href="#" class="pb-table__action edit-chargadmin-btn" data-url="{% url 'updat_charg_administ' c.pk %}" title="Modifier">
+                                                                    <i class="fas fa-pen" aria-hidden="true"></i>
                                                                 </a>
                                                             {% endif %}
                                                         {% endfor %}
                                                     {% endif %}
                                                 {% endfor %}
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                {% endif %}
-                                </tbody>
-                                <tfoot>
-                                    <tr class="text-center">
-                                        <th>
-                                            {% for categorie, perms in grouped_permissions.items %}
-                                                {% if categorie.categorie == "permchargadmin" %}
-                                                    {% for perm in perms %}
-                                                        {% if perm.name == "sup charge administrative" %}
-                                                            <button type="submit" class="btn" style="border-radius:25px; border: 1px solid #a83232; color: #a83232; background: transparent; font-weight: 600;" onclick="return confirm('Confirmez-vous la suppression des charges administratives sélectionnées ?')">
-                                                                <i class="fa fa-trash"></i>
-                                                            </button>
-                                                        {% endif %}
-                                                    {% endfor %}
-                                                {% endif %}
-                                            {% endfor %}
-                                        </th>
-                                        <th>---</th>
-                                        <th>---</th>
-                                        <th>---</th>
-                                        <th>---</th>
-                                        <th>---</th>
-                                        <th>---</th>
-                                        <th>---</th>
-                                        <th>---</th>
+                                            </span>
+                                        </td>
                                     </tr>
-                                </tfoot>
-                            </table>
-                        </form>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
-                </div>
+                {% else %}
+                    <p class="pb-empty">
+                        <i class="fas fa-inbox" aria-hidden="true"></i>
+                        Aucune charge administrative enregistrée pour le moment.
+                    </p>
+                {% endif %}
             </div>
-        </div>
-      </div>
+            {% for categorie, perms in grouped_permissions.items %}
+                {% if categorie.categorie == "permchargadmin" %}
+                    {% for perm in perms %}
+                        {% if perm.name == "sup charge administrative" %}
+                            <div class="pb-panel__footer">
+                                <button type="submit" class="pb-panel__action pb-panel__action--danger" onclick="return confirm('Confirmez-vous la suppression des charges administratives sélectionnées ?')">
+                                    <i class="fas fa-trash" aria-hidden="true"></i> Supprimer la sélection
+                                </button>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            {% endfor %}
+        </form>
     </div>
 </div>
 
@@ -266,7 +225,8 @@
 </div>
 
 <script>
-    document.getElementById('checkAll').addEventListener('click', function() {
+    var pbCheckAll = document.getElementById('checkAll');
+    if (pbCheckAll) pbCheckAll.addEventListener('click', function() {
         const checkboxes = document.querySelectorAll('input[name="charge_admin_ids"]');
         for (let checkbox of checkboxes) {
             checkbox.checked = this.checked;
@@ -319,6 +279,7 @@
         });
     });    
 </script>
+<script src="{% static 'pb/js/saisie-live-search.js' %}?v=2"></script>
 {% endblock main_content %}
 
 {% block custom_js %}

@@ -24,7 +24,7 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
-                <form method="get" action="{% url 'bilanday' %}">
+                <form method="get" action="{% url 'bilanday' %}" data-live-filter>
                     <div class="form-group">
                         <label>Date début</label>
                         {{ form.date_debut }}
@@ -41,124 +41,80 @@
 </div>
 {% endblock search_form %} 
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'pb/css/bilan-day.css' %}">
+{% endblock extra_css %}
 {% block main_content %}
-    <style>
-        .content-wrapper {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.123), rgba(221, 221, 221, 0.197));
-            background-size: 200% 200%;
-            animation: iceEffect 10s ease infinite;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            padding: 2px;
-        }
-        /* Animation pour l'effet de glace */
-        
-        @keyframes iceEffect {
-            0% {
-                background-position: 0% 50%;
-            }
-            50% {
-                background-position: 100% 50%;
-            }
-            100% {
-                background-position: 0% 50%;
-            }
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        
-        th,
-        td {
-            border: 1px solid #ddd;
-            padding: 5px;
-            text-align: center;
-        }
-        
-        th {
-            background-color: #f2f2f2;
-        }
-        
-    </style>
     <div class="col-md-12">
-        <div class="" style="border-radius:20px">
-            <div id="" class="">
-                <div class="row p-0 m-0">
-                    <div class="col-md-12 p-0">
-                        <div class="card" style="box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);backdrop-filter: blur(5.2px);-webkit-backdrop-filter: blur(5.2px);">
-                            <div class="card-header">
-                                <h3 class="card-title"></h3>
-
-                                <div class="card-tools">
-                                    <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
-                                </div>
-                            </div>
-                            <!-- /.card-header -->
-                            <div class="card-body">
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th colspan="6" style="color: rgb(255, 64, 64)">Bilan — {{ period_label }}</th>
-                                        </tr>
-                                    </thead>
-                                    <thead>
-                                        <tr>
-                                            <th colspan="2" style="color: rgb(3, 92, 159)">Section & intitulé</th>
-                                            <th colspan="2" style="color: rgb(3, 92, 159)">Mouvements</th>
-                                            <th colspan="2" style="color: rgb(3, 92, 159)">Tenue de compte : FCFA</th>
-                                        </tr>
-                                    </thead>
-                                    <thead>
-                                        <tr class="text-danger">
-                                            <th>Section</th>
-                                            <th>Intitulé de section</th>
-                                            <th>Débit</th>
-                                            <th>Crédit</th>
-                                            <th>Soldes</th>
-                                            <th>Exercice précédent</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for ligne in lignes_bilan %}
-                                        <tr>
-                                            <td>{{ ligne.section }}</td>
-                                            <td class="text-left">{{ ligne.intitule }}</td>
-                                            <td class="text-right">{{ ligne.debit_fmt }}</td>
-                                            <td class="text-right">{{ ligne.credit_fmt }}</td>
-                                            <td class="text-right">
-                                                {% if ligne.solde_créditeur %}C-{{ ligne.solde_fmt }}{% elif ligne.solde_débiteur %}D-{{ ligne.solde_fmt }}{% else %}-{% endif %}
-                                            </td>
-                                            <td></td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                    <tfoot>
-                                        <tr style="font-weight:700;background-color: rgb(241, 241, 241);">
-                                            <td colspan="2" class="text-right">Total</td>
-                                            <td class="text-right">{{ total_debit_fmt }}</td>
-                                            <td class="text-right">{{ total_credit_fmt }}</td>
-                                            <td class="text-right">
-                                                {% if solde_periode_crediteur %}C-{{ solde_periode_fmt }}{% else %}D-{{ solde_periode_fmt }}{% endif %}
-                                            </td>
-                                            <td></td>
-                                        </tr>
-                                        <tr style="font-weight:700;color: rgb(255, 57, 57);">
-                                            <td colspan="2">A reporter (résultat période)</td>
-                                            <td class="text-right">{{ total_debit_fmt }}</td>
-                                            <td class="text-right">{{ total_credit_fmt }}</td>
-                                            <td class="text-right">
-                                                {% if solde_periode_crediteur %}C-{{ solde_periode_fmt }}{% else %}D-{{ solde_periode_fmt }}{% endif %}
-                                            </td>
-                                            <td></td>
-                                        </tr>
-                                    </tfoot>
-                                </table>
-                            </div>
-                            <!-- /.card-body -->
-                        </div>
-                    </div>
+        <div class="card pb-panel">
+            <div class="card-header pb-panel__header">
+                <div class="pb-panel__heading">
+                    <span class="pb-panel__title">Bilan journalier</span>
+                    <span class="pb-panel__hint">{{ period_label }}</span>
+                </div>
+                <div class="pb-panel__tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Réduire">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="card-body pb-panel__body pb-panel__body--flush">
+                <div class="pb-table-wrap">
+                    <table class="table pb-table">
+                        <thead>
+                            <tr>
+                                <th colspan="2">Section &amp; intitulé</th>
+                                <th colspan="2">Mouvements</th>
+                                <th colspan="2">Tenue de compte : FCFA</th>
+                            </tr>
+                            <tr>
+                                <th>Section</th>
+                                <th>Intitulé de section</th>
+                                <th class="pb-table__num">Débit</th>
+                                <th class="pb-table__num">Crédit</th>
+                                <th class="pb-table__num">Soldes</th>
+                                <th class="pb-table__num">Exercice précédent</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for ligne in lignes_bilan %}
+                            <tr>
+                                <td class="pb-table__muted">{{ ligne.section }}</td>
+                                <td><span class="pb-table__key">{{ ligne.intitule }}</span></td>
+                                <td class="pb-table__num">{{ ligne.debit_fmt }}</td>
+                                <td class="pb-table__num">{{ ligne.credit_fmt }}</td>
+                                <td class="pb-table__num">
+                                    {% if ligne.solde_créditeur %}C-{{ ligne.solde_fmt }}{% elif ligne.solde_débiteur %}D-{{ ligne.solde_fmt }}{% else %}-{% endif %}
+                                </td>
+                                <td class="pb-table__num"></td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="pb-empty">Aucune écriture sur cette période.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="2" class="pb-table__num">Total</th>
+                                <th class="pb-table__num">{{ total_debit_fmt }}</th>
+                                <th class="pb-table__num">{{ total_credit_fmt }}</th>
+                                <th class="pb-table__num">
+                                    {% if solde_periode_crediteur %}C-{{ solde_periode_fmt }}{% else %}D-{{ solde_periode_fmt }}{% endif %}
+                                </th>
+                                <th class="pb-table__num"></th>
+                            </tr>
+                            <tr>
+                                <th colspan="2">A reporter (résultat période)</th>
+                                <th class="pb-table__num">{{ total_debit_fmt }}</th>
+                                <th class="pb-table__num">{{ total_credit_fmt }}</th>
+                                <th class="pb-table__num">
+                                    {% if solde_periode_crediteur %}C-{{ solde_periode_fmt }}{% else %}D-{{ solde_periode_fmt }}{% endif %}
+                                </th>
+                                <th class="pb-table__num"></th>
+                            </tr>
+                        </tfoot>
+                    </table>
                 </div>
             </div>
         </div>

@@ -1,43 +1,60 @@
 {% load static %}
 <div class="col-md-12">
-    <div class="card" style="border-radius:25px;">
-        <div class="card-header">
-            <h5 class="card-title">{{ chart_title }}</h5>
-            <div class="card-tools">
-                <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
-            </div>
-        </div>
-        <div class="card-body">
-            <div class="row align-items-stretch">
-                <div class="col-md-8">
-                    <div class="chart h-100" style="min-height: 300px; position: relative;">
-                        <canvas id="{{ chart_id }}" style="min-height: 250px; height: 100%; max-height: 300px; max-width: 100%;"></canvas>
+    <div class="pb-kpi-grid pb-kpi-grid--4">
+        {% include 'perfect/partials/stats/kpi_card.html' with label="Aujourd'hui" subtitle=kpi_subtitle|default:"Import Excel" value=recette_jours_format unit="frs cfa" sublabel="Total du jour" icon=kpi_icon|default:"fa-money-bill-wave" %}
+        {% include 'perfect/partials/stats/kpi_card.html' with label="Semaine" subtitle=kpi_subtitle|default:"Import Excel" value=recette_semaine_format unit="frs cfa" sublabel="Total de la semaine" icon="fa-calendar-week" %}
+        {% include 'perfect/partials/stats/kpi_card.html' with label="Ce mois" subtitle=kpi_subtitle|default:"Import Excel" value=recette_mois_format unit="frs cfa" sublabel="Total du mois" icon="fa-calendar" %}
+        {% include 'perfect/partials/stats/kpi_card.html' with label="Cette année" subtitle=kpi_subtitle|default:"Import Excel" value=recette_an_format unit="frs cfa" sublabel="Total de l'année" icon="fa-calendar-alt" %}
+    </div>
+</div>
+
+<div class="col-md-12">
+    <div class="row pb-panel-row">
+        <div class="col-lg-8">
+            <div class="card pb-panel">
+                <div class="card-header pb-panel__header">
+                    <div class="pb-panel__heading">
+                        <span class="pb-panel__title">{{ chart_title }}</span>
+                        {% if period_start and period_end %}
+                            <span class="pb-panel__hint">Du {{ period_start|date:"d/m/Y" }} au {{ period_end|date:"d/m/Y" }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="pb-panel__tools">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Réduire">
+                            <i class="fas fa-minus"></i>
+                        </button>
                     </div>
                 </div>
-                <div class="col-md-4 d-flex">
-                    <div class="card h-100 w-100 mb-0 d-flex flex-column" style="border-radius: 20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);">
-                        <div class="card-header text-center" style="background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.95)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 20px 20px 0 0;">
-                            <strong style="font-size: 1.05rem; color: #a83232;">{{ stats_title|default:'Statistique' }}</strong>
-                        </div>
-                        <div class="card-body p-3 d-flex flex-column flex-grow-1 justify-content-center">
-                            <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
-                                <span class="text-secondary">Semaine</span>
-                                <span style="font-weight: 700; color: #1a1a1a;">{{ recette_semaine_format }} <small>frs cfa</small></span>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
-                                <span class="text-secondary">Ce mois</span>
-                                <span style="font-weight: 700; color: #1a1a1a;">{{ recette_mois_format }} <small>frs cfa</small></span>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center pt-3">
-                                <span style="font-weight: 600; color: #a83232;">Cette année</span>
-                                <span style="font-weight: 700; color: #1a1a1a;">{{ recette_an_format }} <small>frs cfa</small></span>
-                            </div>
-                        </div>
+                <div class="card-body pb-panel__body">
+                    <div class="pb-panel__chart">
+                        <canvas id="{{ chart_id }}"></canvas>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="card-footer">
-            <div class="row">
-                <div class="col-md-12 p-0">
-                    <div class="card" style="border-radius:25px;">
+        <div class="col-lg-4">
+            <div class="card pb-panel">
+                <div class="card-header pb-panel__header">
+                    <div class="pb-panel__heading">
+                        <span class="pb-panel__title">{{ stats_title|default:"Statistiques" }}</span>
+                        <span class="pb-panel__hint">Totaux par période calendaire</span>
+                    </div>
+                </div>
+                <div class="card-body pb-panel__body">
+                    <div class="pb-panel__stat">
+                        <span class="pb-panel__stat-label">Semaine</span>
+                        <span class="pb-panel__stat-value">{{ recette_semaine_format }} <small>frs cfa</small></span>
+                    </div>
+                    <div class="pb-panel__stat">
+                        <span class="pb-panel__stat-label">Ce mois</span>
+                        <span class="pb-panel__stat-value">{{ recette_mois_format }} <small>frs cfa</small></span>
+                    </div>
+                    <div class="pb-panel__stat">
+                        <span class="pb-panel__stat-label">Cette année</span>
+                        <span class="pb-panel__stat-value">{{ recette_an_format }} <small>frs cfa</small></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

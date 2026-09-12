@@ -29,205 +29,156 @@
 
 {% url 'list_charg_fix' as filter_reset_url %}
 {% include 'perfect/partials/modal_default.html' with modal_id='modal-sm' modal_title='Filtre' body_template='perfect/partials/filters/dashboard_filter_body.html' form=form reset_url=filter_reset_url submit_label='Appliquer' %}
-<div class="col-12 col-sm-6 col-md-4">
-    <div class="info-box" style="border-radius:25px;">
-        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-file-invoice-dollar" style="color:rgba(168, 50, 50, 0.65);"></i></span>
-        <div class="info-box-content">
-            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">Aujourd'hui</span>
-            <span class="info-box-number" style="font-size:20px; color: #1a1a1a;">
-            {{chargefix_jours_format}}
-            <small>frs cfa</small>
-            </span>
-        </div>
-    </div>
-</div>
-<div class="col-12 col-sm-6 col-md-4">
-    <div class="info-box mb-3" style="border-radius:25px;">
-    <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fa fa-calendar" style="color:rgba(168, 50, 50, 0.65);"></i></span>
-    <div class="info-box-content">
-        <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">{{ kpi_labels.periode }}</span>
-        <span class="info-box-number" style="font-size:20px; color: #1a1a1a;">
-        {{chargefix_mois_format}}
-        <small>frs cfa</small>
-        </span>
-    </div>
-    </div>
-</div>
-<div class="clearfix hidden-md-up"></div>
-<div class="col-12 col-sm-6 col-md-4" >
-    <div class="info-box mb-3" style="border-radius:25px;">
-        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-calendar" style="color:rgba(168, 50, 50, 0.65);"></i></span>
-        <div class="info-box-content">
-            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">{{ kpi_labels.annuelle }}</span>
-            <span class="info-box-number" style="font-size:20px; color: #1a1a1a;">
-            {{chargefix_an_format}}
-            <small>frs cfa</small>
-            </span>
-        </div>
+<div class="col-md-12">
+    <div class="pb-kpi-grid pb-kpi-grid--3">
+        {% include 'perfect/partials/stats/kpi_card.html' with label="Aujourd'hui" subtitle="Charges fixes" value=chargefix_jours_format unit="frs cfa" sublabel="Total du jour" icon="fa-file-invoice-dollar" %}
+        {% include 'perfect/partials/stats/kpi_card.html' with label=kpi_labels.periode subtitle="Charges fixes" value=chargefix_mois_format unit="frs cfa" sublabel="Total période" icon="fa-calendar" %}
+        {% include 'perfect/partials/stats/kpi_card.html' with label=kpi_labels.annuelle subtitle="Charges fixes" value=chargefix_an_format unit="frs cfa" sublabel="Total de l'année" icon="fa-calendar" %}
     </div>
 </div>
 
 <div class="col-md-12">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="" style="border-radius:20px">
-                <div id="" class="">
-                    <div class="row p-0 m-0">
-                        <div class="col-md-12 p-0">
-                            <div class="card" style="box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);border-radius:20px; " >
-                                <form method="post" action="{% url 'delete_selected_chargfix' %}" id="deleteForm">
-                                    {% csrf_token %}
-                                    <div class="card-header">
-                                        <h3 class="card-title">
-                                        </h3>
-                                        <div class="card-tools">
-                                            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
-                                        </div>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="card-body table-responsive p-2" style="border-radius:20px;height: 100%;">
-                                            <table id="example1" class="table table-bordered table-striped table-hover table-sm" style="border:none; border-bottom: 2px solid rgba(168, 50, 50, 0.12);">
-                                                <thead style="font-weight: 700; background-color:#a83232; font-size: 14px;">
-                                                    <tr class="text-center text-danger">
-                                                        <th>
-                                                            {% for categorie, perms in grouped_permissions.items %}
-                                                                {% if categorie.categorie == 'permchargfix' %}
-                                                                    {% for perm in perms %}
-                                                                        {% if perm.name == "sup charge fixe" %}
-                                                                            <input type="checkbox" id="select-all">
-                                                                        {% endif %}
-                                                                    {% endfor %}
-                                                                {% endif %}
-                                                            {% endfor %}
-                                                        </th>
-                                                        <th>IMMAT</th>
-                                                        <th>MARQUE</th>
-                                                        <th>CATEGORIE</th>
-                                                        <th>MONTANT</th>
-                                                        <th>DATE SAISIE</th>
-                                                        <th>SAISIR PAR </th>
-                                                        <th>ACTION</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {% if liste_chargefix %} 
-                                                        {% for u in liste_chargefix %}
-                                                            <tr class="text-center">
-                                                                <td>
-                                                                    {% for categorie, perms in grouped_permissions.items %}
-                                                                        {% if categorie.categorie == 'permchargfix' %}
-                                                                            {% for perm in perms %}
-                                                                                {% if perm.name == "sup charge fixe" %}
-                                                                                    <input type="checkbox" name="chargfix_ids" value="{{ u.id }}">
-                                                                                {% endif %}
-                                                                            {% endfor %}
-                                                                        {% endif %}
-                                                                    {% endfor %}
-                                                                </td>
-                                                                <td>
-                                                                    <a href="#" class="mr-3 text-primary">{{u.vehicule.immatriculation}}</a>
-                                                                </td>
-                                                                <td>{{u.vehicule.marque}}</td>
-                                                                <td>{{u.vehicule.category}}</td>
-                                                                <td>{{u.montant}}</td>
-                                                                <td>{{u.date_saisie|date:"d-m-y"}}</td>
-                                                                <td>{{u.auteur.username}}</td>
-                                                                <td class="text-center">
-                                                                    {% for categorie, perms in grouped_permissions.items %}
-                                                                        {% if categorie.categorie == 'permchargfix' %}
-                                                                            {% for perm in perms %}
-                                                                                {% if perm.name == "modifier charge fixe" %}
-                                                                                    <a href="#" class="edit-chargfix-btn"
-                                                                                        data-id="{{ u.id }}"
-                                                                                        data-url="{% url 'upd_charg_fix' u.id %}">
-                                                                                        <i class="fa fa-edit text-warning"></i>
-                                                                                    </a>
-                                                                                {% endif %}
-                                                                            {% endfor %}
-                                                                        {% endif %}
-                                                                    {% endfor %}
-                                                                    <div class="modal fade" id="chargfixModal{{ u.pk }}" tabindex="-1" role="dialog">
-                                                                        <div class="modal-dialog modal-lg">
-                                                                            <div class="modal-content text-left" style="border-radius:25px;">
-                                                                                <form method="post" action="{% url 'upd_charg_fix' u.pk %}">
-                                                                                    {% csrf_token %}
-                                                                                    <div class="modal-header">
-                                                                                        <h5 class="modal-title">Modifier la charge fixe - {{ u.vehicule.immatriculation }}</h5>
-                                                                                        <button type="button" class="close" data-dismiss="modal">&times;</button>
-                                                                                    </div>
-                                                                                    <div class="modal-body row">
-                                                                                        <div class="form-group col-md-6">
-                                                                                            <label>Libellé</label>
-                                                                                            <input type="text" name="libelle" class="form-control" value="{{ u.libelle }}">
-                                                                                        </div>
-                                                                                        <div class="form-group col-md-6">
-                                                                                            <label>Cpte comptable</label>
-                                                                                            <input type="text" name="cpte_comptable" class="form-control" value="{{ u.cpte_comptable }}">
-                                                                                        </div>
-                                                                                        <div class="form-group col-md-6">
-                                                                                            <label>N°pièce</label>
-                                                                                            <input type="text" name="Num_piece" class="form-control" value="{{ u.Num_piece }}">
-                                                                                        </div>
-                                                                                        <div class="form-group col-md-6">
-                                                                                            <label>N°facture</label>
-                                                                                            <input type="text" name="Num_fact" class="form-control" value="{{ u.Num_fact }}">
-                                                                                        </div>
-                                                                                        <div class="form-group col-md-6">
-                                                                                            <label>Date saisie</label>
-                                                                                            <input type="date" name="date_saisie" class="form-control" value="{{ u.date_saisie|date:'Y-m-d' }}">
-                                                                                        </div>
-                                                                                        <div class="form-group col-md-6">
-                                                                                            <label>Montant</label>
-                                                                                            <input type="number" name="montant" class="form-control" value="{{ u.montant }}">
-                                                                                        </div>
-                                                                                    </div>
-                                                                                    <div class="modal-footer justify-content-between">
-                                                                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
-                                                                                        <button type="submit" class="btn btn-primary">Enregistrer</button>
-                                                                                    </div>
-                                                                                </form>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </td>
-                                                            </tr>
-                                                        {% endfor %} 
-                                                    {% endif %}
-                                                </tbody>
-                                                <tfoot>
-                                                    <tr class="text-center ">
-                                                        <th>
-                                                            {% for categorie, perms in grouped_permissions.items %}
-                                                                {% if categorie.categorie == 'permchargfix' %}
-                                                                    {% for perm in perms %}
-                                                                        {% if perm.name == "sup charge fixe" %}
-                                                                            <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Confirmez-vous la suppression des charges fixes sélectionnées ?')">
-                                                                                <i class="fa fa-trash"></i>
-                                                                            </button>
-                                                                        {% endif %}
-                                                                    {% endfor %}
-                                                                {% endif %}
-                                                            {% endfor %}
-                                                        </th>
-                                                        <th>---</th>
-                                                        <th>---</th>
-                                                        <th>---</th>
-                                                        <th>---</th>
-                                                        <th>---</th>
-                                                        <th>---</th>
-                                                        <th>---</th>
-                                                    </tr>
-                                                </tfoot>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    <div class="card pb-panel">
+        <div class="card-header pb-panel__header">
+            <div class="pb-panel__heading">
+                <span class="pb-panel__title">Liste des charges fixes</span>
+                <span class="pb-panel__hint">{{ liste_chargefix|length }} charge{{ liste_chargefix|length|pluralize }} sur la période</span>
             </div>
         </div>
+        <form method="post" action="{% url 'delete_selected_chargfix' %}" id="deleteForm">
+            {% csrf_token %}
+            <div class="card-body pb-panel__body pb-panel__body--flush">
+                {% if liste_chargefix %}
+                    <div class="pb-table-wrap">
+                        <table id="example1" class="table pb-table">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        {% for categorie, perms in grouped_permissions.items %}
+                                            {% if categorie.categorie == 'permchargfix' %}
+                                                {% for perm in perms %}
+                                                    {% if perm.name == "sup charge fixe" %}
+                                                        <input type="checkbox" id="select-all">
+                                                    {% endif %}
+                                                {% endfor %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </th>
+                                    <th>Immat</th>
+                                    <th>Marque</th>
+                                    <th>Catégorie</th>
+                                    <th>Montant</th>
+                                    <th>Date saisie</th>
+                                    <th>Saisi par</th>
+                                    <th class="text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for u in liste_chargefix %}
+                                    <tr>
+                                        <td>
+                                            {% for categorie, perms in grouped_permissions.items %}
+                                                {% if categorie.categorie == 'permchargfix' %}
+                                                    {% for perm in perms %}
+                                                        {% if perm.name == "sup charge fixe" %}
+                                                            <input type="checkbox" name="chargfix_ids" value="{{ u.id }}">
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                {% endif %}
+                                            {% endfor %}
+                                        </td>
+                                        <td><span class="pb-table__key">{{u.vehicule.immatriculation}}</span></td>
+                                        <td>{{u.vehicule.marque}}</td>
+                                        <td class="pb-table__muted">{{u.vehicule.category}}</td>
+                                        <td>{{u.montant}}</td>
+                                        <td class="pb-table__muted">{{u.date_saisie|date:"d-m-y"}}</td>
+                                        <td class="pb-table__muted">{{u.auteur.username}}</td>
+                                        <td class="text-center">
+                                            <span class="pb-table__actions">
+                                                {% for categorie, perms in grouped_permissions.items %}
+                                                    {% if categorie.categorie == 'permchargfix' %}
+                                                        {% for perm in perms %}
+                                                            {% if perm.name == "modifier charge fixe" %}
+                                                                <a href="#" class="pb-table__action edit-chargfix-btn"
+                                                                    data-id="{{ u.id }}"
+                                                                    data-url="{% url 'upd_charg_fix' u.id %}" title="Modifier">
+                                                                    <i class="fas fa-pen" aria-hidden="true"></i>
+                                                                </a>
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </span>
+                                            <div class="modal fade" id="chargfixModal{{ u.pk }}" tabindex="-1" role="dialog">
+                                                <div class="modal-dialog modal-lg">
+                                                    <div class="modal-content text-left" style="border-radius:25px;">
+                                                        <form method="post" action="{% url 'upd_charg_fix' u.pk %}">
+                                                            {% csrf_token %}
+                                                            <div class="modal-header">
+                                                                <h5 class="modal-title">Modifier la charge fixe - {{ u.vehicule.immatriculation }}</h5>
+                                                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                                            </div>
+                                                            <div class="modal-body row">
+                                                                <div class="form-group col-md-6">
+                                                                    <label>Libellé</label>
+                                                                    <input type="text" name="libelle" class="form-control" value="{{ u.libelle }}">
+                                                                </div>
+                                                                <div class="form-group col-md-6">
+                                                                    <label>Cpte comptable</label>
+                                                                    <input type="text" name="cpte_comptable" class="form-control" value="{{ u.cpte_comptable }}">
+                                                                </div>
+                                                                <div class="form-group col-md-6">
+                                                                    <label>N°pièce</label>
+                                                                    <input type="text" name="Num_piece" class="form-control" value="{{ u.Num_piece }}">
+                                                                </div>
+                                                                <div class="form-group col-md-6">
+                                                                    <label>N°facture</label>
+                                                                    <input type="text" name="Num_fact" class="form-control" value="{{ u.Num_fact }}">
+                                                                </div>
+                                                                <div class="form-group col-md-6">
+                                                                    <label>Date saisie</label>
+                                                                    <input type="date" name="date_saisie" class="form-control" value="{{ u.date_saisie|date:'Y-m-d' }}">
+                                                                </div>
+                                                                <div class="form-group col-md-6">
+                                                                    <label>Montant</label>
+                                                                    <input type="number" name="montant" class="form-control" value="{{ u.montant }}">
+                                                                </div>
+                                                            </div>
+                                                            <div class="modal-footer justify-content-between">
+                                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                                                                <button type="submit" class="btn btn-primary">Enregistrer</button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="pb-empty">
+                        <i class="fas fa-inbox" aria-hidden="true"></i>
+                        Aucune charge fixe enregistrée pour le moment.
+                    </p>
+                {% endif %}
+            </div>
+            {% for categorie, perms in grouped_permissions.items %}
+                {% if categorie.categorie == 'permchargfix' %}
+                    {% for perm in perms %}
+                        {% if perm.name == "sup charge fixe" %}
+                            <div class="pb-panel__footer">
+                                <button type="submit" class="pb-panel__action pb-panel__action--danger" onclick="return confirm('Confirmez-vous la suppression des charges fixes sélectionnées ?')">
+                                    <i class="fas fa-trash" aria-hidden="true"></i> Supprimer la sélection
+                                </button>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+            {% endfor %}
+        </form>
     </div>
 </div>
 
@@ -241,7 +192,8 @@
 </div>
   
 <script>
-    document.getElementById('select-all').onclick = function() {
+    var pbSelectAll = document.getElementById('select-all');
+    if (pbSelectAll) pbSelectAll.onclick = function() {
         let checkboxes = document.querySelectorAll('input[name="chargfix_ids"]');
         for (let checkbox of checkboxes) {
             checkbox.checked = this.checked;
@@ -290,12 +242,6 @@
         });
     });
 
-    $.get(url, function(data) {
-        console.log(data); 
-        $("#modalBodyContent").html(data);
-        $("#editChargeFixeModal").modal("show");
-    });
-    
 </script>
 {% endblock main_content %}
 

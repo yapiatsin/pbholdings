@@ -2,7 +2,7 @@
 {% load static %} 
 {% block title %} Etat des charges fixes {% endblock title %}  
 {% block navbar_nav %}
-    <form class="search-form" method="get">
+    <form class="search-form" method="get" data-live-filter>
         <div class="input-group">
             {{ form.immatriculation }}
             <div class="input-group-append">
@@ -46,7 +46,7 @@
             </div>
             <div class="modal-body">
                 <div class="card-body">
-                    <form id="basic-form" method="get" novalidate>
+                    <form id="basic-form" method="get" data-live-filter novalidate>
                         <div class="row clearfix">
                             <div class="col-12">
                                 <label style="font-weight:700;color:rgba(152, 152, 152, 0.85); font-size:15px;">Date debut </label>
@@ -84,130 +84,77 @@
     </div>
 </div>
 
-<div class="col-12 col-sm-6 col-md-4">
-    <div class="info-box" style="border-radius:25px;">
-        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-clock" style="color:rgba(168, 50, 50, 0.65);"></i></span>
-        <div class="info-box-content">
-            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">Aujourd'hui</span>
-            <span class="info-box-number" style="font-size:20px; color: #1a1a1a;">
-            {{chargefix_jours_format}}
-            <small>frs cfa</small>
-            </span>
-        </div>
-    </div>
-</div>
-<div class="col-12 col-sm-6 col-md-4">
-    <div class="info-box mb-3" style="border-radius:25px;">
-    <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fa fa-calendar" style="color:rgba(168, 50, 50, 0.65);"></i></span>
-    <div class="info-box-content">
-        <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">Mensuelle</span>
-        <span class="info-box-number" style="font-size:20px; color: #1a1a1a;">
-        {{chargefix_mois_format}}
-        <small>frs cfa</small>
-        </span>
-    </div>
-    </div>
-</div>
-<div class="clearfix hidden-md-up"></div>
-<div class="col-12 col-sm-6 col-md-4" >
-    <div class="info-box mb-3" style="border-radius:25px;">
-        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-calendar" style="color:rgba(168, 50, 50, 0.65);"></i></span>
-        <div class="info-box-content">
-            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">Annuelle</span>
-            <span class="info-box-number" style="font-size:20px; color: #1a1a1a;">
-            {{chargefix_an_format}}
-            <small>frs cfa</small>
-            </span>
-        </div>
+<div class="col-md-12">
+    <div class="pb-kpi-grid pb-kpi-grid--3">
+        {% include 'perfect/partials/stats/kpi_card.html' with label="Aujourd'hui" subtitle="Charges fixes" value=chargefix_jours_format unit="frs cfa" sublabel="Total du jour" icon="fa-clock" %}
+        {% include 'perfect/partials/stats/kpi_card.html' with label="Mensuelle" subtitle="Charges fixes" value=chargefix_mois_format unit="frs cfa" sublabel="Total du mois" icon="fa-calendar" %}
+        {% include 'perfect/partials/stats/kpi_card.html' with label="Annuelle" subtitle="Charges fixes" value=chargefix_an_format unit="frs cfa" sublabel="Total de l'année" icon="fa-calendar" %}
     </div>
 </div>
 
 <div class="col-md-12">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="" style="border-radius:20px">
-                <div id="" class="">
-                    <div class="row p-0 m-0">
-                        <div class="col-md-12 p-0">
-                            <div class="card" style="box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);border-radius:20px; " >
-                                <div>
-                                    <div class="card-header">
-                                        <h3 class="card-title">
-                                        </h3>
-                                        <div class="card-tools">
-                                            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
-                                        </div>
-                                    </div>
-                                    <div class="card-body">
-                                        <div id="example1_wrapper" class="dataTables_wrapper dt-bootstrap4">
-                                            <table id="example1" class="table table-bordered table-hover table-striped dataTable" role="grid" aria-describedby="example1_info">
-                                                <thead>
-                                                    <tr class="text-center text-danger">
-                                                        {% if request.user.is_superuser %}<th>TYPE</th>{% endif %}
-                                                        <th>IMMAT</th>
-                                                        <th>MARQUE</th>
-                                                        <th>CATEGORIE</th>
-                                                        <th>LIBELLE</th>
-                                                        <th>MONTANT</th>
-                                                        <th>DATE SAISIE</th>
-                                                        <th>SAISIR PAR</th>
-                                                        <th>DATE HISTORIQUE</th>
-                                                        <th>UTILISATEUR HISTORIQUE</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {% if liste_chargefix %} 
-                                                        {% for u in liste_chargefix %}
-                                                            <tr class="text-center">
-                                                                {% if request.user.is_superuser %}<td>
-                                                                    {% if u.history_type == '+' %}
-                                                                        <span class="badge badge-success">Créé</span>
-                                                                    {% elif u.history_type == '~' %}
-                                                                        <span class="badge badge-warning">Modifié</span>
-                                                                    {% elif u.history_type == '-' %}
-                                                                        <span class="badge badge-danger">Supprimé</span>
-                                                                    {% endif %}
-                                                                </td>{% endif %}
-                                                                <td>
-                                                                    <a href="#" class="mr-3 text-primary">
-                                                                        {% if u.vehicule %}{{u.vehicule.immatriculation}}{% else %}N/A{% endif %}
-                                                                    </a>
-                                                                </td>
-                                                                <td>{% if u.vehicule %}{{u.vehicule.marque}}{% else %}N/A{% endif %}</td>
-                                                                <td>{% if u.vehicule %}{{u.vehicule.category}}{% else %}N/A{% endif %}</td>
-                                                                <td>{{u.libelle|default:"N/A"}}</td>
-                                                                <td>{{u.montant}}</td>
-                                                                <td>{{u.date_saisie|date:"d-m-y"}}</td>
-                                                                <td>{% if u.auteur %}{{u.auteur.username}}{% else %}N/A{% endif %}</td>
-                                                                <td>{{u.history_date|date:"d-m-y H:i"}}</td>
-                                                                <td>{% if u.history_user %}{{u.history_user.username}}{% else %}N/A{% endif %}</td>
-                                                            </tr>
-                                                        {% endfor %} 
-                                                    {% endif %}
-                                                </tbody>
-                                                <tfoot>
-                                                    <tr class="text-center">
-                                                        {% if request.user.is_superuser %}<th>---</th>{% endif %}
-                                                        <th>---</th>
-                                                        <th>---</th>
-                                                        <th>---</th>
-                                                        <th>---</th>
-                                                        <th>---</th>
-                                                        <th>---</th>
-                                                        <th>---</th>
-                                                        <th>---</th>
-                                                        <th>---</th>
-                                                    </tr>
-                                                </tfoot>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    <div class="card pb-panel">
+        <div class="card-header pb-panel__header">
+            <div class="pb-panel__heading">
+                <span class="pb-panel__title">Historique des charges fixes</span>
+                <span class="pb-panel__hint">{{ liste_chargefix|length }} mouvement{{ liste_chargefix|length|pluralize }} sur la période</span>
             </div>
+            <div class="pb-panel__tools">
+                <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Réduire">
+                    <i class="fas fa-minus"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-body pb-panel__body pb-panel__body--flush">
+            {% if liste_chargefix %}
+                <div class="pb-table-wrap">
+                    <table id="example1" class="table pb-table">
+                        <thead>
+                            <tr>
+                                {% if request.user.is_superuser %}<th>Type</th>{% endif %}
+                                <th>Immat</th>
+                                <th>Marque</th>
+                                <th>Catégorie</th>
+                                <th>Libellé</th>
+                                <th>Montant</th>
+                                <th>Date saisie</th>
+                                <th>Saisi par</th>
+                                <th>Date historique</th>
+                                <th>Utilisateur historique</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for u in liste_chargefix %}
+                                <tr>
+                                    {% if request.user.is_superuser %}<td>
+                                        {% if u.history_type == '+' %}
+                                            <span class="badge badge-success">Créé</span>
+                                        {% elif u.history_type == '~' %}
+                                            <span class="badge badge-warning">Modifié</span>
+                                        {% elif u.history_type == '-' %}
+                                            <span class="badge badge-danger">Supprimé</span>
+                                        {% endif %}
+                                    </td>{% endif %}
+                                    <td><span class="pb-table__key">{% if u.vehicule %}{{u.vehicule.immatriculation}}{% else %}N/A{% endif %}</span></td>
+                                    <td>{% if u.vehicule %}{{u.vehicule.marque}}{% else %}N/A{% endif %}</td>
+                                    <td class="pb-table__muted">{% if u.vehicule %}{{u.vehicule.category}}{% else %}N/A{% endif %}</td>
+                                    <td>{{u.libelle|default:"N/A"}}</td>
+                                    <td>{{u.montant}}</td>
+                                    <td class="pb-table__muted">{{u.date_saisie|date:"d-m-y"}}</td>
+                                    <td class="pb-table__muted">{% if u.auteur %}{{u.auteur.username}}{% else %}N/A{% endif %}</td>
+                                    <td class="pb-table__muted">{{u.history_date|date:"d-m-y H:i"}}</td>
+                                    <td class="pb-table__muted">{% if u.history_user %}{{u.history_user.username}}{% else %}N/A{% endif %}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="pb-empty">
+                    <i class="fas fa-clock-rotate-left" aria-hidden="true"></i>
+                    Aucun mouvement ne correspond aux filtres sélectionnés.
+                </p>
+            {% endif %}
         </div>
     </div>
 </div>

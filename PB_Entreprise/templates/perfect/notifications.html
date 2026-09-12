@@ -1,0 +1,64 @@
+{% extends 'perfect/base.html' %}
+{% load static %}
+{% block title %}Notifications{% endblock title %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'pb/css/notifications-inbox.css' %}?v=1">
+{% endblock extra_css %}
+{% block page_title %}Notifications{% endblock page_title %}
+{% block main_content %}
+<div class="col-12 px-0 pb-notif-page">
+    <div class="pb-kpi-grid pb-kpi-grid--4" id="pb-notif-stats">
+        {% include 'perfect/partials/stats/kpi_card.html' with label="Total" subtitle="Boîte de réception" value="—" sublabel="Toutes les notifications" icon="fa-bell" %}
+        {% include 'perfect/partials/stats/kpi_card.html' with label="Non lues" subtitle="À traiter" value="—" sublabel="En attente de lecture" icon="fa-envelope" %}
+        {% include 'perfect/partials/stats/kpi_card.html' with label="Lues" subtitle="Historique" value="—" sublabel="Déjà consultées" icon="fa-envelope-open" %}
+        {% include 'perfect/partials/stats/kpi_card.html' with label="Alertes" subtitle="Véhicules" value="—" sublabel="Échéances et urgences" icon="fa-exclamation-triangle" %}
+    </div>
+
+    <div class="pb-notif-inbox"
+         id="pb-notif-inbox"
+         data-inbox-url="{% url 'notifications_inbox' %}"
+         data-read-url-template="{% url 'notification_mark_read' 0 %}"
+         data-unread-url-template="{% url 'notification_mark_unread' 0 %}"
+         data-read-all-url="{% url 'notifications_mark_all_read' %}"
+         data-selected-id="{{ selected_notification_id }}">
+        <aside class="pb-notif-list">
+            <div class="pb-notif-list__head">
+                <h2>Notifications</h2>
+                <div class="pb-notif-list__tools">
+                    <span class="pb-notif-badge" id="pb-notif-pending-badge" hidden>0</span>
+                    <button type="button" class="pb-notif-btn" id="pb-notif-mark-all">Tout lu</button>
+                </div>
+            </div>
+            <div class="pb-notif-filters">
+                <button type="button" class="pb-notif-filter is-active" data-filter="">Toutes</button>
+                <button type="button" class="pb-notif-filter" data-filter="unread">Non lues</button>
+                <button type="button" class="pb-notif-filter" data-filter="read">Lues</button>
+                <button type="button" class="pb-notif-filter" data-filter="alert">Alertes</button>
+            </div>
+            <div class="pb-notif-items" id="pb-notif-items"></div>
+        </aside>
+
+        <section class="pb-notif-main" id="pb-notif-main">
+            <div class="pb-notif-main__empty" id="pb-notif-empty">
+                <i class="fas fa-bell" aria-hidden="true"></i>
+                <p>Sélectionnez une notification pour afficher le détail.</p>
+            </div>
+            <div id="pb-notif-detail" hidden>
+                <div class="pb-notif-main__head">
+                    <div class="pb-notif-main__meta">
+                        <strong id="pb-notif-detail-title">—</strong>
+                        <span id="pb-notif-detail-status">—</span>
+                    </div>
+                    <div class="pb-notif-actions">
+                        <button type="button" class="pb-notif-btn" id="pb-notif-mark-read">Marquer lu</button>
+                        <button type="button" class="pb-notif-btn" id="pb-notif-mark-unread" hidden>Marquer non lu</button>
+                        <button type="button" class="pb-notif-btn pb-notif-btn--primary" id="pb-notif-open" hidden>Ouvrir</button>
+                    </div>
+                </div>
+                <div class="pb-notif-thread" id="pb-notif-thread"></div>
+            </div>
+        </section>
+    </div>
+</div>
+{% endblock main_content %}
+{% block custom_js %}{% endblock custom_js %}

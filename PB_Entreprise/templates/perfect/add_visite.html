@@ -1,5 +1,8 @@
 {% extends 'perfect/base.html' %} 
 {% load static %} 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'pb/css/saisie-live-search.css' %}?v=1">
+{% endblock extra_css %}
 {% block title %}Saisie & Etat des visites techniques  {% endblock title %} 
 {% block page_title %}
 <a href="{% url 'temps_arrets' %}"><img class="profile-user-img" style="border:none; height:25px;width:25px" src="{% static 'retour.png' %}" alt="Retour"></a>
@@ -24,224 +27,95 @@
               </button>
             </div>
             <div class="modal-body">
-                <div class="card-body">
-                    <table id="example2" class="table table-bordered table-striped">
-                        <thead>
-                            <tr class="text-center" style="color: #a83232;">
-                                <th>IMMATRICULATION</th>
-                                <th>CATEGORIE</th>
-                            </tr>
-                        </thead>
-                        <tbody> 
-                            {% if vehicules %} 
-                                {% for u in vehicules %}
-                                    <tr class="text-center">
-                                        <td><a href="{% url 'add_visit' u.pk %}" class="mr-3" style="color: #a83232;">{{u.immatriculation}}</a></td>
-                                        <td>{{u.category}}</td>
+                <div class="card-body pb-panel__body pb-panel__body--flush">
+                    {% if vehicules %}
+                        <div class="pb-table-wrap">
+                            <table id="example2" class="table pb-table">
+                                <thead>
+                                    <tr>
+                                        <th>Immatriculation</th>
+                                        <th>Catégorie</th>
                                     </tr>
-                                {% endfor %} 
-                            {% endif %}
-                        </tbody>
-                    </table>
+                                </thead>
+                                <tbody>
+                                    {% for u in vehicules %}
+                                        <tr>
+                                            <td><a href="{% url 'add_visit' u.pk %}" class="pb-table__key">{{u.immatriculation}}</a></td>
+                                            <td class="pb-table__muted">{{u.category}}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="pb-empty">
+                            <i class="fas fa-car" aria-hidden="true"></i>
+                            Aucun véhicule disponible pour le moment.
+                        </p>
+                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
 </div>
-<div class="col-12 col-sm-6 col-md-4">
-    <div class="info-box" style="border-radius:25px;">
-        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-clipboard-check" style="color: #a83232;"></i></span>
-        <div class="info-box-content">
-            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">Aujourd'hui</span>
-            <span class="info-box-number" style="font-size:20px; color: #1a1a1a">
-            {{visitech_jours_format}}
-            <small>frs cfa</small>
-            </span>
-        </div>
-    </div>
-</div>
-<div class="clearfix hidden-md-up"></div>
-<div class="col-12 col-sm-6 col-md-4">
-    <div class="info-box mb-3" style="border-radius:25px;">
-    <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fa fa-calendar" style="color: #a83232;"></i></span>
-    <div class="info-box-content">
-        <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">Mensuelle</span>
-        <span class="info-box-number" style="font-size:20px; color: #1a1a1a">
-        {{visitech_mois_format}}
-        <small>frs cfa</small>
-        </span>
-    </div>
-    </div>
-</div>
-<div class="clearfix hidden-md-up"></div>
-<div class="col-12 col-sm-6 col-md-4" >
-    <div class="info-box mb-3" style="border-radius:25px;">
-        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-calendar" style="color: #a83232;"></i></span>
-        <div class="info-box-content">
-            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">Annuelle</span>
-            <span class="info-box-number" style="font-size:20px; color: #1a1a1a">
-            {{visitech_an_format}}
-            <small>frs cfa</small>
-            </span>
-        </div>
+<div class="col-md-12">
+    <div class="pb-kpi-grid pb-kpi-grid--3">
+        {% include 'perfect/partials/stats/kpi_card.html' with label="Aujourd'hui" subtitle="Visites techniques" value=visitech_jours_format unit="frs cfa" sublabel="Total du jour" icon="fa-clipboard-check" %}
+        {% include 'perfect/partials/stats/kpi_card.html' with label="Mensuelle" subtitle="Visites techniques" value=visitech_mois_format unit="frs cfa" sublabel="Total du mois" icon="fa-calendar" %}
+        {% include 'perfect/partials/stats/kpi_card.html' with label="Annuelle" subtitle="Visites techniques" value=visitech_an_format unit="frs cfa" sublabel="Total de l'année" icon="fa-calendar" %}
     </div>
 </div>
 
 {% include 'perfect/partials/modal_default.html' with modal_id='modal-sm' modal_title='Filtre' form=form submit_label='Afficher' %}
 {% include 'perfect/partials/modal_default.html' with modal_id='modal-lg' modal_size='lg' modal_title='Enrégistrer une nouvelle visite technique' form_method='post' form_id='quickForm' enctype='multipart/form-data' body_template='perfect/partials/saisie/visite_body.html' submit_label='Enregistrer' %}
-<div class="col-md-12">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="" style="border-radius:20px" >
-                <div id="" class="">
-                    <div class="row p-0 m-0">
-                        <div class="col-md-12 p-0">
-                            <div class="card" style="box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06); border: 1px solid rgba(168, 50, 50, 0.2); backdrop-filter: blur(5.2px); -webkit-backdrop-filter: blur(5.2px); border-radius:25px;">
-                                <div class="card-header col-12 col-sm-12 col-md-12" style="font-size:18px; font-weight: 700; color: #a83232; background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.98)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 25px 25px 0 0;">
-                                    <form class="search-form">
-                                        <div class="input-group">
-                                            <input type="text" name="search" value="{{ search_query }}" class="form-control" placeholder="Saisissez l'immatriculation du véhicule..." style="border-radius: 50px 0 0 50px; border: 1px solid rgba(168, 50, 50, 0.15);">
-                                            <div class="input-group-append">
-                                            <button type="submit" name="submit" class="btn" style="border-radius: 0 50px 50px 0; background-color: #a83232; border-color: #a83232; color: #fff;"><i class="fas fa-search"></i></button>
-                                            {% comment %} <a href="{% url 'saisi_compta' %}" name="submit" class="btn btn-danger" style="border-radius: 0 50px 50px 0;"><i class="fas fa-refresh text-light"></i></a> {% endcomment %}
-                                            </div>
-                                        </div>
-                                    </form>
-                                </div>
-                                <!-- /.card-header -->
-                                <div class="card-body">
-                                    <div class="col-md-4">
-                                        {% if vehicules %}
-                                            {% for v in vehicules %}
-                                                <div class="card card-widget widget-user" style="border-radius:20px; border: 1px solid rgba(168, 50, 50, 0.2); box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);">
-                                                    <div class="widget-user-header" style="border-radius:20px 20px 0 0;">
-                                                        <i class="fa fa-car text-center" style="font-size: 50px; color: rgba(168, 50, 50, 0.45);"></i>
-                                                      <h5 class="widget-user-desc" style="color: #1a1a1a; font-weight: 700;">{{v.immatriculation}}</h5>
-                                                    </div>
-                                                    <div class="card-footer p-0">
-                                                      <ul class="nav flex-column">
-                                                        <li class="nav-item">
-                                                            {% for categorie, perms in grouped_permissions.items %}
-                                                                {% if categorie.categorie == "permvisit" %}
-                                                                    {% for perm in perms %}
-                                                                        {% if perm.name == "add visite" %}
-                                                                            <a href="{% url perm.url v.pk %}" class="nav-link" title="Ajouter une visite">
-                                                                                Visite technique
-                                                                                <span class="float-right badge" style="background-color: #a83232; color: #fff;"><i style="font-size: 20px;" class="fa fa-plus-circle"></i></span>
-                                                                            </a>
-                                                                        {% endif %}
-                                                                    {% endfor %}
-                                                                {% endif %}
-                                                            {% endfor %}
-                                                        </li>
-                                                        <li class="nav-item">
-                                                            {% for categorie, perms in grouped_permissions.items %}
-                                                                {% if categorie.categorie == "permentretien" %}
-                                                                    {% for perm in perms %}
-                                                                        {% if perm.name == "add entretien" %}
-                                                                            <a href="{% url perm.url v.pk %}" class="nav-link" title="Ajouter un entretien">
-                                                                                Entretien
-                                                                                <span class="float-right badge" style="background-color: rgba(168, 50, 50, 0.85); color: #fff;"><i style="font-size: 20px;" class="fa fa-plus-circle"></i></span>
-                                                                            </a>
-                                                                        {% endif %}
-                                                                    {% endfor %}
-                                                                {% endif %}
-                                                            {% endfor %}
-                                                        </li>
-                                                        <li class="nav-item">
-                                                            {% for categorie, perms in grouped_permissions.items %}
-                                                                {% if categorie.categorie == "permreparation" %}
-                                                                    {% for perm in perms %}
-                                                                        {% if perm.name == "add reparation" %}
-                                                                            <a href="{% url perm.url v.pk %}" class="nav-link" title="Ajouter un réparation">
-                                                                                Réparation
-                                                                                <span class="float-right badge" style="background-color: #8b2929; color: #fff;"><i style="font-size: 20px;" class="fa fa-plus-circle"></i></span>
-                                                                            </a>
-                                                                        {% endif %}
-                                                                    {% endfor %}
-                                                                {% endif %}
-                                                            {% endfor %}
-                                                        </li>
-                                                        <li class="nav-item">
-                                                            {% for categorie, perms in grouped_permissions.items %}
-                                                                {% if categorie.categorie == "permarret" %}
-                                                                    {% for perm in perms %}
-                                                                        {% if perm.name == "add autre arrêt" %}
-                                                                            <a href="{% url perm.url v.pk %}" class="nav-link" title="Ajouter un autre arrêt">
-                                                                                Autre arrêt
-                                                                                <span class="float-right badge" style="background-color: #1a1a1a; color: #fff;"><i style="font-size: 20px;" class="fa fa-plus-circle"></i></span>
-                                                                            </a>
-                                                                        {% endif %}
-                                                                    {% endfor %}
-                                                                {% endif %}
-                                                            {% endfor %}
-                                                        </li>
-                                                      </ul>
-                                                    </div>
-                                                </div>
-                                            {% endfor %}
-                                            
-                                        {% else %}
-                                            <p class="text-muted" style="color: rgba(26, 26, 26, 0.65) !important;">Aucun véhicule trouvé.</p>
-                                        {% endif %}
-                                        </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+{% url 'add_visit' vehicule.pk as saisie_reset_url %}
+{% include 'perfect/partials/saisie/vehicule_live_search_panel.html' with panel_title='Changer de véhicule' reset_url=saisie_reset_url %}
 
 <div class="col-md-12">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="" style="border-radius:20px">
-                <div id="" class="">
-                    <div class="row p-0 m-0">
-                        <div class="col-md-12 p-0">
-                            <div class="card" style="box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);backdrop-filter: blur(3.2px);-webkit-backdrop-filter: blur(3.2px); border-radius:25px;">
-                                <div class="card-header">
-                                    <h3 class="card-title"></h3>
-                                    <div class="card-tools">
-                                        <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
-                                    </div>
-                                </div>
-                                <div class="card-body">
-                                    <table id="example1" class="table table-bordered table-striped">
-                                        <thead>
-                                            <tr class="text-center" style="color: #a83232;">
-                                                <th>IMMAT</th>
-                                                <th>DATE VISITE</th>
-                                                <th>MONTANT</th>
-                                                <th>DATE SAISIE</th>
-                                                <th>SAISIE PAR</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody> 
-                                            {% if liste_visitech %} 
-                                                {% for u in liste_visitech %}
-                                                    <tr class="text-center">
-                                                        <td>
-                                                            <a class="mr-3" style="color: #a83232;">{{u.vehicule.immatriculation}}</a>
-                                                        </td>
-                                                        <td>{{u.date_vis|date:"d-m-y à H:m:s"}}</td>
-                                                        <td>{{u.montant}}</td>
-                                                        <td>{{u.date_saisie|date:"d-m-y"}}</td>
-                                                        <td class="text-center">{{u.auteur.username}}</td>
-                                                    </tr>
-                                                {% endfor %} 
-                                            {% endif %}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    <div class="card pb-panel">
+        <div class="card-header pb-panel__header">
+            <div class="pb-panel__heading">
+                <span class="pb-panel__title">Visites techniques du véhicule</span>
+                <span class="pb-panel__hint">{{ vehicule.immatriculation }}</span>
             </div>
+            <div class="pb-panel__tools">
+                <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Réduire">
+                    <i class="fas fa-minus"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-body pb-panel__body pb-panel__body--flush">
+            {% if liste_visitech %}
+                <div class="pb-table-wrap">
+                    <table id="example1" class="table pb-table">
+                        <thead>
+                            <tr>
+                                <th>Immat</th>
+                                <th>Date visite</th>
+                                <th>Montant</th>
+                                <th>Date saisie</th>
+                                <th>Saisi par</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for u in liste_visitech %}
+                                <tr>
+                                    <td><span class="pb-table__key">{{u.vehicule.immatriculation}}</span></td>
+                                    <td class="pb-table__muted">{{u.date_vis|date:"d-m-y à H:m:s"}}</td>
+                                    <td>{{u.montant}}</td>
+                                    <td class="pb-table__muted">{{u.date_saisie|date:"d-m-y"}}</td>
+                                    <td class="pb-table__muted">{{u.auteur.username}}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="pb-empty">
+                    <i class="fas fa-inbox" aria-hidden="true"></i>
+                    Aucune visite technique enregistrée pour le moment.
+                </p>
+            {% endif %}
         </div>
     </div>
 </div>

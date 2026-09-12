@@ -2436,6 +2436,22 @@ def _build_stats_dashboard_context(request):
     score_perf = round(min(5.0, (total_visites_filtre / 500.0) * 5.0), 1)
     score_perf_pct = int(min(100, (score_perf / 5.0) * 100))
 
+    def _delta_display(val):
+        sign = '+' if val >= 0 else ''
+        return f'{sign}{val}%'
+
+    def _delta_dir(val):
+        return 'up' if val >= 0 else 'down'
+
+    def _delta_tone(val):
+        return 'good' if val >= 0 else 'bad'
+
+    chart_axis_hints = {
+        'hourly': 'par heure',
+        'daily': 'par jour',
+        'monthly': 'par mois',
+    }
+
     return {
         # Période
         'periode': periode,
@@ -2464,6 +2480,18 @@ def _build_stats_dashboard_context(request):
         'delta_clics': delta_clics,
         'delta_visiteurs': delta_visiteurs,
         'delta_pages': delta_pages,
+        'delta_visites_fmt': _delta_display(delta_visites),
+        'delta_clics_fmt': _delta_display(delta_clics),
+        'delta_visiteurs_fmt': _delta_display(delta_visiteurs),
+        'delta_pages_fmt': _delta_display(delta_pages),
+        'delta_visites_dir': _delta_dir(delta_visites),
+        'delta_clics_dir': _delta_dir(delta_clics),
+        'delta_visiteurs_dir': _delta_dir(delta_visiteurs),
+        'delta_pages_dir': _delta_dir(delta_pages),
+        'delta_visites_tone': _delta_tone(delta_visites),
+        'delta_clics_tone': _delta_tone(delta_clics),
+        'delta_visiteurs_tone': _delta_tone(delta_visiteurs),
+        'delta_pages_tone': _delta_tone(delta_pages),
         'progress_visites': progress_visites,
         'progress_clics': progress_clics,
         'progress_visiteurs': progress_visiteurs,
@@ -2476,9 +2504,12 @@ def _build_stats_dashboard_context(request):
 
         # Performance overview (adaptatif)
         'chart_mode': chart_mode,
+        'chart_axis_hint': chart_axis_hints.get(chart_mode, ''),
         'perf_labels_json': json.dumps(perf_labels),
         'perf_visites_json': json.dumps(perf_visites),
         'perf_clics_json': json.dumps(perf_clics),
+        'split_labels_json': json.dumps(['Visites', 'Clics']),
+        'split_data_json': json.dumps([total_visites_filtre, total_clics_filtre]),
 
         # Évolution journalière (mini-chart)
         'daily_labels_json': json.dumps(daily_labels),

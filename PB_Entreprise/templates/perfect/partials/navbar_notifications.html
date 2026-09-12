@@ -2,7 +2,7 @@
         data-list-url="{% url 'notifications_list' %}"
         data-read-url-template="{% url 'notification_mark_read' 0 %}"
         data-read-all-url="{% url 'notifications_mark_all_read' %}"
-        data-alerts-url="{% url 'alerte' %}">
+        data-page-url="{% url 'notifications_page' %}">
         <a class="nav-link pb-navbar-bell" href="#" data-toggle="dropdown" aria-expanded="false" aria-label="Notifications" id="pb-notifications-toggle">
             <i class="fas fa-bell"></i>
             <span class="badge badge-danger navbar-badge{% if total_alertes|default:0 <= 0 %} d-none{% endif %}" id="pb-notifications-badge">{{ total_alertes|default:0 }}</span>
@@ -20,8 +20,9 @@
             <div class="pb-notifications-card__body" id="pb-notifications-list">
                 {% if alertes_list %}
                     {% for alerte in alertes_list %}
-                        <a href="{{ alerte.lien|default:'#' }}"
-                           class="pb-notification-item{% if not alerte.lu %} pb-notification-item--unread{% endif %}"
+                        {% if not alerte.lu %}
+                        <a href="{% url 'notification_detail' alerte.id %}"
+                           class="pb-notification-item pb-notification-item--unread"
                            data-notification-id="{{ alerte.id }}">
                             <div class="pb-notification-item__title">
                                 {% if alerte.vehicule %}
@@ -33,15 +34,16 @@
                             <div class="pb-notification-item__message">{{ alerte.message }}</div>
                             <div class="pb-notification-item__time">{{ alerte.created_at }}</div>
                         </a>
+                        {% endif %}
                     {% endfor %}
                 {% else %}
                     <div class="pb-notification-empty" id="pb-notifications-empty">
-                        Aucune notification pour le moment.
+                        Aucune notification non lue.
                     </div>
                 {% endif %}
             </div>
             <div class="pb-notifications-card__footer">
-                <a href="{% url 'alerte' %}" id="pb-notifications-footer">Voir tout →</a>
+                <a href="{% url 'notifications_page' %}" id="pb-notifications-footer">Voir +</a>
             </div>
         </div>
     </li>

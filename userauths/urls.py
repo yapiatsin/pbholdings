@@ -7,31 +7,33 @@ name = "userauths"
 
 urlpatterns = [
     
-    path("se connecter", loginview, name="login"),
+    path("se-connecter/", loginview, name="login"),
     path('activer-compte/<str:token>/', verify_email_view, name='verify-email'),
     path('renvoyer-activation/', ResendActivationView.as_view(), name='resend_activation'),
-    path("deconnexion", logout_view, name="log_out"),
+    path("deconnexion/", logout_view, name="log_out"),
     path("pb", pb_home, name="pb_holdind"),
 
-    path("Compte-utilisateur", register, name="compte"),
+    path("Compte-utilisateur/", register, name="compte"),
     path('compte/<int:user_id>/modifier/', edit_account, name='edit_account'),
     path('compte/<int:user_id>/supprimer/', delete_account, name='delete_account'),
     path('Utilisateur/<int:user_id>/permissions/', edit_user_permissions, name='edit_user_permissions'),
-    path('mot de passe oublié', ForgotPasswordView.as_view(), name="mot_passe_oublie"),
+    path('mot-de-passe-oublie/', ForgotPasswordView.as_view(), name="mot_passe_oublie"),
     
     path('otp/', OptValid.as_view(), name='otp'),
     path('request-email/', RequestEmailView.as_view(), name='request_email'),
     
     path('verify-otp/', VerifyOtpView.as_view(), name='verify_otp'),
-    path('password_change/', PasswordChangeView.as_view(), name='change_password'),
+    path('password-change/', PasswordChangeView.as_view(), name='change_password'),
     
-    path('Changer mot de passe/',PasswordChangeView.as_view(template_name="userauths/chang_password.html"), name="chang_pass"),
-    path('password_success/',password_success, name="password_success"),
+    path('Changer-mot-de-passe/',PasswordChangeView.as_view(template_name="userauths/chang_password.html"), name="chang_pass"),
+    path('password-success/',password_success, name="password_success"),
 
-    path('toggle-active/<int:pk>/', toggle_active_user, name='toggle_active_user'),
+    path('toggle-active/<int:pk>/compte/', toggle_active_user, name='toggle_active_user'),
 
     path('notifications/', notifications_list_api, name='notifications_list'),
+    path('notifications/inbox/', notifications_inbox_api, name='notifications_inbox'),
     path('notifications/<int:pk>/read/', notification_mark_read_api, name='notification_mark_read'),
+    path('notifications/<int:pk>/unread/', notification_mark_unread_api, name='notification_mark_unread'),
     path('notifications/read-all/', notification_mark_all_read_api, name='notifications_mark_all_read'),
     
     # ==================== GESTION DES PERMISSIONS ====================

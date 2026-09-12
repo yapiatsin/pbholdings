@@ -43,281 +43,272 @@
 <div class="col-md-12">
     <div class="row">
         <div class="col-md-9">
-            <div class="" style="border-radius:20px">
-                <div id="" class="">
-                    <div class="row p-0 m-0">
-                        <div class="col-md-12 p-0">
-                            <div class="card" style="box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);
-                            border: 1px solid rgba(168, 50, 50, 0.2);
-                            backdrop-filter: blur(5.2px);
-                            -webkit-backdrop-filter: blur(5.2px); border-radius:20px;">
-                                <div class="card-header text-center" style="font-size:18px; font-weight: 700; line-height: 1; color: #a83232; background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.98)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 20px 20px 0 0;">
-                                    SITUATION DE LA CAISSE DU {{dates|date:"d-m-y"}}
-                                </div>
-                                <div class="card-header pb-caisse-actions-header d-flex flex-wrap align-items-center">
-                                    {% if forms.is_valid %}
-                                    {% else %}
-                                    <div class="pb-caisse-actions">
-                                        {% for categorie, perms in grouped_permissions.items %}
-                                            {% if categorie.categorie == 'permsolde' %}
-                                                <a href="{% url 'add_solde' %}" id="lien_solde" class="pb-caisse-action pb-caisse-action--solde">
-                                                    <span class="pb-caisse-action__icon" aria-hidden="true"><i class="fa fa-clipboard-check"></i></span>
-                                                    <span class="pb-caisse-action__label">Saisir le solde de fin de journée</span>
-                                                    <span class="pb-caisse-action__arrow" aria-hidden="true"><i class="fa fa-chevron-right"></i></span>
-                                                </a>
-                                            {% endif %}
-                                            {% if categorie.categorie == 'permencais' %}
-                                                <a href="{% url 'addencaisse' %}" id="entrer" class="pb-caisse-action pb-caisse-action--entree">
-                                                    <span class="pb-caisse-action__icon" aria-hidden="true"><i class="fa fa-arrow-circle-down"></i></span>
-                                                    <span class="pb-caisse-action__label">Entrée de caisse</span>
-                                                    <span class="pb-caisse-action__arrow" aria-hidden="true"><i class="fa fa-chevron-right"></i></span>
-                                                </a>
-                                            {% endif %}
-                                            {% if categorie.categorie == 'permdecais' %}
-                                                <a href="{% url 'add_decaisse' %}" id="sortir" class="pb-caisse-action pb-caisse-action--sortie">
-                                                    <span class="pb-caisse-action__icon" aria-hidden="true"><i class="fa fa-arrow-circle-up"></i></span>
-                                                    <span class="pb-caisse-action__label">Sortie de caisse</span>
-                                                    <span class="pb-caisse-action__arrow" aria-hidden="true"><i class="fa fa-chevron-right"></i></span>
-                                                </a>
-                                            {% endif %}
-                                        {% endfor %}
-                                    </div>
-                                    {% endif %}
-                                    <div class="card-tools ml-auto">
-                                        <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
-                                    </div>
-                                </div>
-                                <div class="card-body">
-                                    <table id="example1" class="table table-bordered table-striped text-center">
-                                        <thead>
-                                            <tr class="text-center" style="color: #a83232;">
-                                                <th>DATE</th>
-                                                <th>LIBELLE</th>
-                                                <th>N°FACTURE</th>
-                                                <th>ENTREE</th>
-                                                <th>SORTIE</th>
-                                                <th>SOLDE</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td>{{dates}}</td>
-                                                <td>SOLDE DE DEBUT DE JOURNEE</td>
-                                                <td></td>
-                                                <td>{{solde_initial}}</td>
-                                                <td></td>
-                                                <td>{{solde_initial}}</td>
-                                            </tr>
-                                            {% comment %} entree en caisse {% endcomment %}
-                                            {% for e in ent %}
-                                                <tr>
-                                                    <td>{{e.date}}</td>
-                                                    <td><a style="color: #a83232;" type="button" data-toggle="tooltip" data-placement="top" title="{{e.libelle}}">{{e.libelle|slice:":100"}}{% if e.libelle|length > 70 %}...{% endif %}</a></td>
-                                                    <td>{{e.Num_piece}}</td>
-                                                    <td>{{e.montant}}</td>
-                                                    <td></td>
-                                                    <td></td>
-                                                </tr>
-                                            {% endfor %}
-
-                                            {% comment %} sortie en caisse {% endcomment %}
-                                            {% for s in sort %}
-                                                <tr>
-                                                    <td>{{s.date}}</td>
-                                                    <td><a style="color: #a83232;" type="button" data-toggle="tooltip" data-placement="top" title="{{s.libelle}}">{{s.libelle|slice:":100"}}{% if s.libelle|length > 70 %}...{% endif %}</a></td>
-                                                    <td>{{s.Num_piece}}</td>
-                                                    <td></td>
-                                                    <td>{{s.montant}}</td>
-                                                    <td></td>
-                                                </tr>
-                                            {% endfor %}
-                                        </tbody>
-                                        <tfoot>
-                                            <tr class="text-center">
-                                                <th colspan="6">
-                                                {% if forms.is_valid %} 
-                                                {% else %} 
-                                                    {% if ecart == 0 %}
-                                                        <button id="fermerButton" type="submit" class="btn" style="border-radius:50px; border: 1px solid #a83232; color: #a83232; background: transparent; font-weight: 600;">
-                                                            <img class="profile-user-img" style="border:none; height:45px;width:45px;text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);" src="{% static 'padlock.png' %}" alt="lock caisse">
-                                                            Fermer la Caisse
-                                                        </button> 
-                                                    {% endif %}
-                                                    <script>
-                                                        document.addEventListener('DOMContentLoaded', function() {
-                                                            const today = new Date().toISOString().split('T')[0];
-                                                            const closeButton = document.getElementById('fermerButton');
-                                                            const entrees = document.getElementById('entrer');
-                                                            const sorties = document.getElementById('sortir');
-                                                            const saisiesolde = document.getElementById('lien_solde');
-                                                            const billeta = document.getElementById('billetage');
-                                                            closeButton.addEventListener('click', function() {
-                                                                // Enregistrer la date de fermeture
-                                                                localStorage.setItem('dateFermeture', today);
-                                                                // Faire disparaître le bouton
-                                                                closeButton.style.display = 'none';
-                                                                entrees.style.display = 'none';
-                                                                sorties.style.display = 'none';
-                                                                saisiesolde.style.display = 'none';
-                                                                billeta.style.display = 'none';
-                                                            });
-                                                            // Vérifier si le bouton doit être masqué
-                                                            const dateFermeture = localStorage.getItem('dateFermeture');
-                                                            if (dateFermeture === today) {
-                                                                closeButton.style.display = 'none';
-                                                                entrees.style.display = 'none';
-                                                                sorties.style.display = 'none';
-                                                                saisiesolde.style.display = 'none';
-                                                                billeta.style.display = 'none';
-                                                            }
-                                                        });
-                                                    </script>
-                                                {% endif %}
-                                                </th>
-                                            </tr>
-                                        </tfoot>
-                                        <tfoot>
-                                            <tr class="text-center">
-                                                <th colspan="3">Total</th>
-                                                <th>{{tot_ent}}</th>
-                                                <th>{{tot_sor}}</th>
-                                                <th>{{solde_day}}</th>
-                                            </tr>
-                                        </tfoot>
-                                    </table>
-                                </div>
-                                <!-- /.card-body -->
-                            </div>
-                        </div>
+            <div class="card pb-panel">
+                <div class="card-header pb-panel__header">
+                    <div class="pb-panel__heading">
+                        <span class="pb-panel__title">Situation de la caisse</span>
+                        <span class="pb-panel__hint">Journée du {{dates|date:"d-m-y"}}</span>
+                    </div>
+                    <div class="pb-panel__tools">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Réduire">
+                            <i class="fas fa-minus"></i>
+                        </button>
                     </div>
                 </div>
+                {% if forms.is_valid %}
+                {% else %}
+                <div class="card-header pb-caisse-actions-header d-flex flex-wrap align-items-center">
+                    <div class="pb-caisse-actions">
+                        {% for categorie, perms in grouped_permissions.items %}
+                            {% if categorie.categorie == 'permsolde' %}
+                                <a href="{% url 'add_solde' %}" id="lien_solde" class="pb-caisse-action pb-caisse-action--solde">
+                                    <span class="pb-caisse-action__icon" aria-hidden="true"><i class="fa fa-clipboard-check"></i></span>
+                                    <span class="pb-caisse-action__label">Saisir le solde de fin de journée</span>
+                                    <span class="pb-caisse-action__arrow" aria-hidden="true"><i class="fa fa-chevron-right"></i></span>
+                                </a>
+                            {% endif %}
+                            {% if categorie.categorie == 'permencais' %}
+                                <a href="{% url 'addencaisse' %}" id="entrer" class="pb-caisse-action pb-caisse-action--entree">
+                                    <span class="pb-caisse-action__icon" aria-hidden="true"><i class="fa fa-arrow-circle-down"></i></span>
+                                    <span class="pb-caisse-action__label">Entrée de caisse</span>
+                                    <span class="pb-caisse-action__arrow" aria-hidden="true"><i class="fa fa-chevron-right"></i></span>
+                                </a>
+                            {% endif %}
+                            {% if categorie.categorie == 'permdecais' %}
+                                <a href="{% url 'add_decaisse' %}" id="sortir" class="pb-caisse-action pb-caisse-action--sortie">
+                                    <span class="pb-caisse-action__icon" aria-hidden="true"><i class="fa fa-arrow-circle-up"></i></span>
+                                    <span class="pb-caisse-action__label">Sortie de caisse</span>
+                                    <span class="pb-caisse-action__arrow" aria-hidden="true"><i class="fa fa-chevron-right"></i></span>
+                                </a>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                <div class="card-body pb-panel__body pb-panel__body--flush">
+                    <div class="pb-table-wrap">
+                        <table id="example1" class="table pb-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Libellé</th>
+                                    <th>N° facture</th>
+                                    <th>Entrée</th>
+                                    <th>Sortie</th>
+                                    <th>Solde</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="pb-table__muted">{{dates}}</td>
+                                    <td><span class="pb-table__key">SOLDE DE DEBUT DE JOURNEE</span></td>
+                                    <td></td>
+                                    <td>{{solde_initial}}</td>
+                                    <td></td>
+                                    <td>{{solde_initial}}</td>
+                                </tr>
+                                {% comment %} entree en caisse {% endcomment %}
+                                {% for e in ent %}
+                                    <tr>
+                                        <td class="pb-table__muted">{{e.date}}</td>
+                                        <td><span class="pb-table__key" data-toggle="tooltip" data-placement="top" title="{{e.libelle}}">{{e.libelle|slice:":100"}}{% if e.libelle|length > 70 %}...{% endif %}</span></td>
+                                        <td class="pb-table__muted">{{e.Num_piece}}</td>
+                                        <td>{{e.montant}}</td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
+                                {% endfor %}
+
+                                {% comment %} sortie en caisse {% endcomment %}
+                                {% for s in sort %}
+                                    <tr>
+                                        <td class="pb-table__muted">{{s.date}}</td>
+                                        <td><span class="pb-table__key" data-toggle="tooltip" data-placement="top" title="{{s.libelle}}">{{s.libelle|slice:":100"}}{% if s.libelle|length > 70 %}...{% endif %}</span></td>
+                                        <td class="pb-table__muted">{{s.Num_piece}}</td>
+                                        <td></td>
+                                        <td>{{s.montant}}</td>
+                                        <td></td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th colspan="3">Total</th>
+                                    <th>{{tot_ent}}</th>
+                                    <th>{{tot_sor}}</th>
+                                    <th>{{solde_day}}</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+                {% if forms.is_valid %} 
+                {% else %} 
+                    {% if ecart == 0 %}
+                        <div class="pb-panel__footer">
+                            <button id="fermerButton" type="submit" class="pb-panel__action">
+                                <i class="fas fa-lock" aria-hidden="true"></i> Fermer la Caisse
+                            </button>
+                        </div>
+                    {% endif %}
+                    <script>
+                        document.addEventListener('DOMContentLoaded', function() {
+                            const today = new Date().toISOString().split('T')[0];
+                            const closeButton = document.getElementById('fermerButton');
+                            const entrees = document.getElementById('entrer');
+                            const sorties = document.getElementById('sortir');
+                            const saisiesolde = document.getElementById('lien_solde');
+                            const billeta = document.getElementById('billetage');
+                            closeButton.addEventListener('click', function() {
+                                // Enregistrer la date de fermeture
+                                localStorage.setItem('dateFermeture', today);
+                                // Faire disparaître le bouton
+                                closeButton.style.display = 'none';
+                                entrees.style.display = 'none';
+                                sorties.style.display = 'none';
+                                saisiesolde.style.display = 'none';
+                                billeta.style.display = 'none';
+                            });
+                            // Vérifier si le bouton doit être masqué
+                            const dateFermeture = localStorage.getItem('dateFermeture');
+                            if (dateFermeture === today) {
+                                closeButton.style.display = 'none';
+                                entrees.style.display = 'none';
+                                sorties.style.display = 'none';
+                                saisiesolde.style.display = 'none';
+                                billeta.style.display = 'none';
+                            }
+                        });
+                    </script>
+                {% endif %}
             </div>
         </div>
 
         <div class="col-md-3">
-            <div class="" style="border-radius:20px">
-                <div class="">
-                    <div class="row p-0 m-0">
-                        <div class="col-md-12 p-0">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="card" style="box-shadow: 0 10px 24px rgba(0, 0, 0, 0.06);
-                                            border: 1px solid rgba(168, 50, 50, 0.2);
-                                            backdrop-filter: blur(5.2px);
-                                            -webkit-backdrop-filter: blur(5.2px); border-radius:20px;">
-                                            <div class="card-header text-center" style="font-size:15px; font-weight: 700; line-height: 1; color: #a83232; background: linear-gradient(180deg, rgba(251, 237, 237, 0.95), rgba(255, 255, 255, 0.98)); border-bottom: 1px solid rgba(168, 50, 50, 0.15); border-radius: 20px 20px 0 0;">
-                                            BIELLETAGE
-                                        </div>
-                                        <div class="card-header" style="font-weight:700; color: #1a1a1a;">
-                                            Billets
-                                            <div class="card-tools">
-                                                <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="card-body" style="background: rgba(255, 255, 255, 0.3);border-radius: 4px;box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-                                        backdrop-filter: blur(8px);
-                                        -webkit-backdrop-filter: blur(8px); border-radius:20px;">
-                                            <div class="card">
-                                                <div class="card-body table-responsive p-0" style="">
-                                                    <table class="table table-head-fixed text-nowrap">
-                                                        <thead>
-                                                            <tr>
-                                                                <th>Billet</th>
-                                                                <th>Nombre</th>
-                                                                <th>Total</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            {% for b in biels %}
-                                                                <tr>
-                                                                    <td>{{b.val}}</td>
-                                                                    <td>{{b.nb}}</td>
-                                                                    <td>{{b.res}}</td>
-                                                                </tr>
-                                                            {% endfor %}
-                                                            <tr class="total">
-                                                                <td colspan="1" style="font-weight:700">Total</td>
-                                                                <td colspan="2" class="text-center">{{sombiels}}</td>
-                                                            </tr>
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="card-header" style="font-weight:700; color: #1a1a1a;">
-                                            Pièce
-                                            <div class="card-tools">
-                                                <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
-                                            </div>
-                                        </div>
-                                        <div class="card-body" style="background: rgba(255, 255, 255, 0.3);border-radius: 4px;box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-                                        backdrop-filter: blur(8px);
-                                        -webkit-backdrop-filter: blur(8px); border-radius:20px;">
-                                            <div class="card">
-                                                <div class="card-body table-responsive p-0" style="">
-                                                    <table class="table table-head-fixed text-nowrap">
-                                                        <thead>
-                                                            <tr>
-                                                                <th>Pièce</th>
-                                                                <th>Nombre</th>
-                                                                <th>Total</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            {% for p in piecs %}
-                                                                <tr>
-                                                                    <td>{{p.val}}</td>
-                                                                    <td>{{p.nb}}</td>
-                                                                    <td>{{p.res}}</td>
-                                                                </tr>
-                                                            {% endfor %}
-                                                            
-                                                            <tr class="total">
-                                                                <td colspan="1" style="font-weight:700">Total</td>
-                                                                <td colspan="2" class="text-center">{{sompiecs}}</td>
-                                                            </tr>
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="card-header" style="font-weight:700; color: #1a1a1a;">
-                                            Bielletage total
-                                            <div class="card-tools">
-                                                <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
-                                            </div>
-                                        </div>
-                                        <div class="card-body" style="background: rgba(255, 255, 255, 0.3);border-radius: 4px;box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-                                        backdrop-filter: blur(8px);
-                                        -webkit-backdrop-filter: blur(8px); border-radius:20px;">
-                                            <div class="card">
-                                                <div class="card-body table-responsive p-0" style="">
-                                                    <table class="table table-head-fixed text-nowrap">
-                                                        <thead>
-                                                            <tr>
-                                                                <th colspan="1">Libelle</th>
-                                                                <th colspan="2" class="text-center">Valeur</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            <tr>
-                                                                <td colspan="1" style="font-weight:700">Total</td>
-                                                                <td colspan="2" class="text-center">{{tot_bi_pi}}</td>
-                                                            </tr>
-                                                            <tr class="total">
-                                                                <td colspan="1" style="font-weight:700">Ecart</td>
-                                                                <td colspan="2" class="text-center">{{ecart}}</td>
-                                                            </tr>
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+            <div class="card pb-panel">
+                <div class="card-header pb-panel__header">
+                    <div class="pb-panel__heading">
+                        <span class="pb-panel__title">Billets</span>
+                        <span class="pb-panel__hint">Billetage</span>
+                    </div>
+                    <div class="pb-panel__tools">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Réduire">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body pb-panel__body pb-panel__body--flush">
+                    <div class="pb-table-wrap">
+                        <table class="table pb-table">
+                            <thead>
+                                <tr>
+                                    <th>Billet</th>
+                                    <th>Nombre</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for b in biels %}
+                                    <tr>
+                                        <td><span class="pb-table__key">{{b.val}}</span></td>
+                                        <td class="pb-table__muted">{{b.nb}}</td>
+                                        <td>{{b.res}}</td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="3" class="pb-empty">Aucun billet saisi pour le moment.</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th colspan="1">Total</th>
+                                    <th colspan="2" class="text-center">{{sombiels}}</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card pb-panel">
+                <div class="card-header pb-panel__header">
+                    <div class="pb-panel__heading">
+                        <span class="pb-panel__title">Pièces</span>
+                        <span class="pb-panel__hint">Billetage</span>
+                    </div>
+                    <div class="pb-panel__tools">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Réduire">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body pb-panel__body pb-panel__body--flush">
+                    <div class="pb-table-wrap">
+                        <table class="table pb-table">
+                            <thead>
+                                <tr>
+                                    <th>Pièce</th>
+                                    <th>Nombre</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for p in piecs %}
+                                    <tr>
+                                        <td><span class="pb-table__key">{{p.val}}</span></td>
+                                        <td class="pb-table__muted">{{p.nb}}</td>
+                                        <td>{{p.res}}</td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="3" class="pb-empty">Aucune pièce saisie pour le moment.</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th colspan="1">Total</th>
+                                    <th colspan="2" class="text-center">{{sompiecs}}</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card pb-panel">
+                <div class="card-header pb-panel__header">
+                    <div class="pb-panel__heading">
+                        <span class="pb-panel__title">Billetage total</span>
+                        <span class="pb-panel__hint">Billetage</span>
+                    </div>
+                    <div class="pb-panel__tools">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Réduire">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body pb-panel__body pb-panel__body--flush">
+                    <div class="pb-table-wrap">
+                        <table class="table pb-table">
+                            <thead>
+                                <tr>
+                                    <th colspan="1">Libellé</th>
+                                    <th colspan="2" class="text-center">Valeur</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="1"><span class="pb-table__key">Total</span></td>
+                                    <td colspan="2" class="text-center">{{tot_bi_pi}}</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="1"><span class="pb-table__key">Ecart</span></td>
+                                    <td colspan="2" class="text-center">{{ecart}}</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>

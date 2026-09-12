@@ -1,11 +1,65 @@
-{% load static %}
-<div class="pb-stats-kpi-card{% if highlight %} pb-stats-kpi-card--highlight{% endif %}">
-    <div class="pb-stats-kpi-card__icon">
-        {% if icon %}<i class="fas {{ icon }}" aria-hidden="true"></i>{% elif icon_img %}<img src="{% static icon_img %}" alt="">{% endif %}
+{% load static pb_kpi %}
+{% comment %}
+Carte de statistique standard de l'application.
+
+Disposition :
+    [icône]  label
+             subtitle
+
+    value ▲delta          side_value (pastille)
+    sublabel              side_label
+
+Paramètres :
+  label       : intitulé (obligatoire)
+  subtitle    : ligne grise sous l'intitulé
+  value       : valeur principale (obligatoire)
+  unit        : unité en petit après la valeur (ex. "frs cfa")
+  delta       : variation affichée à côté de la valeur (ex. "45%")
+  delta_dir   : sens du chevron, "up" (défaut) ou "down"
+  delta_tone  : couleur, "good" (vert) ou "bad" (rouge). À défaut, une baisse
+                est rouge et une hausse verte. Une hausse de charges se passe
+                donc en delta_dir="up" + delta_tone="bad".
+  sublabel    : légende sous la valeur
+  icon        : classe Font Awesome (ex. "fa-users")
+  icon_img    : image statique alternative (ex. "recet.png")
+  highlight   : met la carte en avant
+  side_value  : valeur secondaire, en pastille à droite
+  side_icon   : classe Font Awesome dans cette pastille
+  side_label  : légende sous la pastille
+  side_tone   : "bad" colore la pastille en rouge (échecs, suppressions…)
+  side_url    : rend la pastille cliquable
+  sparkline   : série de nombres, affichée à droite à défaut de side_value
+  spark_type  : "line" (défaut) ou "bar"
+{% endcomment %}
+{% with avec_spark=sparkline|has_sparkline %}
+<div class="pb-kpi{% if highlight %} pb-kpi--highlight{% endif %}">
+    <div class="pb-kpi__header">
+        <span class="pb-kpi__icon{% if not icon and icon_img %} pb-kpi__icon--img{% endif %}">
+            {% if icon %}<i class="fas {{ icon }}" aria-hidden="true"></i>{% elif icon_img %}<img src="{% static icon_img %}" alt="">{% endif %}
+        </span>
+        <span class="pb-kpi__heading">
+            <span class="pb-kpi__label">{{ label }}</span>
+            {% if subtitle %}<span class="pb-kpi__subtitle">{{ subtitle }}</span>{% endif %}
+        </span>
     </div>
-    <div class="pb-stats-kpi-card__body">
-        <span class="pb-stats-kpi-card__label">{{ label }}</span>
-        <span class="pb-stats-kpi-card__value">{{ value }}</span>
-        {% if sublabel %}<span class="pb-stats-kpi-card__sub">{{ sublabel }}</span>{% endif %}
+    <div class="pb-kpi__metrics">
+        <div class="pb-kpi__metric">
+            <span class="pb-kpi__value">{{ value }}{% if unit %} <small class="pb-kpi__unit">{{ unit }}</small>{% endif %}{% if delta %}<span class="pb-kpi__delta{% if delta_tone == 'bad' or not delta_tone and delta_dir == 'down' %} pb-kpi__delta--down{% endif %}"><i class="fas {% if delta_dir == 'down' %}fa-caret-down{% else %}fa-caret-up{% endif %}" aria-hidden="true"></i>{{ delta }}</span>{% endif %}</span>
+            {% if sublabel %}<span class="pb-kpi__sub">{{ sublabel }}</span>{% endif %}
+        </div>
+        {% if side_value %}
+            <div class="pb-kpi__metric pb-kpi__metric--side">
+                {% if side_url %}<a class="pb-kpi__pill{% if side_tone == 'bad' %} pb-kpi__pill--danger{% endif %}" href="{{ side_url }}">{% else %}<span class="pb-kpi__pill{% if side_tone == 'bad' %} pb-kpi__pill--danger{% endif %}">{% endif %}
+                    {% if side_icon %}<i class="fas {{ side_icon }}" aria-hidden="true"></i>{% endif %}{{ side_value }}
+                {% if side_url %}</a>{% else %}</span>{% endif %}
+                {% if side_label %}<span class="pb-kpi__sub">{{ side_label }}</span>{% endif %}
+            </div>
+        {% elif avec_spark %}
+            <div class="pb-kpi__metric pb-kpi__metric--side">
+                {% kpi_sparkline sparkline spark_type|default:"line" %}
+                {% if side_label %}<span class="pb-kpi__sub">{{ side_label }}</span>{% endif %}
+            </div>
+        {% endif %}
     </div>
 </div>
+{% endwith %}

@@ -244,7 +244,6 @@ def password_success(request):
 
 def pb_home(request):
     return render(request,'no_acces.html')
-    # return render(request,'perfect/pb_home.html')
     
 MAX_LOGIN_ATTEMPTS = 3  # nombre d'échecs autorisés avant blocage automatique
 
@@ -601,28 +600,56 @@ class VerifyOtpView(View):
         return redirect('login')
 
 
+def _notification_popup_payload(user):
+    from userauths.notification_utils import notifications_payload
+    payload = notifications_payload(user, unread_only=True)
+    payload['success'] = True
+    return payload
+
+
 @login_required(login_url='login')
 def notifications_list_api(request):
-    from userauths.notification_utils import notifications_payload
-    return JsonResponse(notifications_payload(request.user))
+    return JsonResponse(_notification_popup_payload(request.user))
+
+
+@login_required(login_url='login')
+def notifications_inbox_api(request):
+    from userauths.notification_utils import notifications_inbox_payload
+    return JsonResponse(notifications_inbox_payload(
+        request.user,
+        status=request.GET.get('status') or '',
+        categorie=request.GET.get('categorie') or '',
+        selected_id=request.GET.get('id'),
+    ))
 
 
 @login_required(login_url='login')
 @require_POST
 def notification_mark_read_api(request, pk):
-    from userauths.notification_utils import mark_notification_read, notifications_payload
+    from userauths.notification_utils import mark_notification_read
     mark_notification_read(request.user, pk)
-    payload = notifications_payload(request.user)
-    return JsonResponse({'success': True, 'unread_count': payload['unread_count']})
+    payload = _notification_popup_payload(request.user)
+    return JsonResponse(payload)
+
+
+@login_required(login_url='login')
+@require_POST
+def notification_mark_unread_api(request, pk):
+    from userauths.notification_utils import mark_notification_unread
+    mark_notification_unread(request.user, pk)
+    payload = _notification_popup_payload(request.user)
+    return JsonResponse(payload)
 
 
 @login_required(login_url='login')
 @require_POST
 def notification_mark_all_read_api(request):
-    from userauths.notification_utils import mark_all_notifications_read, notifications_payload
+    from userauths.notification_utils import mark_all_notifications_read
     mark_all_notifications_read(request.user)
-    payload = notifications_payload(request.user)
-    return JsonResponse({'success': True, 'unread_count': payload['unread_count']})
+    payload = _notification_popup_payload(request.user)
+    return JsonResponse(payload)
+
+
 class OptValid(View):
     def get(self, request):
         email = request.session.get('password_reset_email')
@@ -749,7 +776,6 @@ class PermissionListView(LoginRequiredMixin, ListView):
     model = CustomPermission
     template_name = 'perfect/permission.html'
     context_object_name = 'permissions'
-    paginate_by = 20
     
     def get_queryset(self):
         queryset = CustomPermission.objects.select_related('categorie').all()

@@ -1,0 +1,132 @@
+/* Habillage autonome de /manage/statistiques/
+   Cartes, panneaux, listes, tableaux : kpi-card.css
+   Badge période : mes-statistics.css */
+
+:root {
+    --pb-primary: #a83232;
+    --pb-primary-dark: #8a2929;
+    --pb-text: #1a1a1a;
+    --pb-text-muted: #6b7280;
+    --pb-border: #ece9e4;
+    --pb-bg: #f4f6f9;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    background: var(--pb-bg);
+    font-family: 'Inter', 'Segoe UI', -apple-system, sans-serif;
+    color: var(--pb-text);
+}
+
+.pb-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1030;
+    background: #fff;
+    border-bottom: 1px solid var(--pb-border);
+    padding: 14px 0;
+    box-shadow: 0 1px 2px rgba(17, 24, 39, 0.04);
+}
+
+.pb-header h1 {
+    color: var(--pb-text);
+    font-weight: 700;
+    margin: 0;
+    font-size: 1.35rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.15rem 0;
+}
+
+.pb-header p {
+    margin: 0.2rem 0 0;
+    color: var(--pb-text-muted);
+    font-size: 0.88rem;
+}
+
+main.pb-main { padding-top: 7.25rem; }
+
+@media (max-width: 991.98px) {
+    main.pb-main { padding-top: 8.25rem; }
+}
+
+@media (max-width: 575.98px) {
+    main.pb-main { padding-top: 10.5rem; }
+}
+
+.breadcrumb {
+    background: transparent;
+    padding: 0;
+    margin-bottom: 14px;
+}
+
+.breadcrumb a {
+    color: var(--pb-primary);
+    text-decoration: none;
+}
+
+.pb-stats-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.pb-stats-toolbar__hint {
+    color: var(--pb-text-muted);
+    font-size: 0.86rem;
+}
+
+.btn-pb-primary {
+    background: var(--pb-primary);
+    border-color: var(--pb-primary);
+    color: #fff;
+}
+
+.btn-pb-primary:hover,
+.btn-pb-primary:focus {
+    background: var(--pb-primary-dark);
+    border-color: var(--pb-primary-dark);
+    color: #fff;
+}
+
+/* Bootstrap 5 : le .card par défaut ne doit pas écraser .pb-panel */
+.card.pb-panel {
+    --bs-card-border-width: 0;
+    --bs-card-border-radius: 0;
+    --bs-card-bg: transparent;
+}
+
+.card.pb-panel > .card-header.pb-panel__header {
+    background-color: var(--pb-kpi-bg);
+    background-image: radial-gradient(circle, var(--pb-kpi-dot) 1px, transparent 1.15px);
+    background-size: 14px 14px;
+    background-position: 6px 10px;
+}
+
+.card.pb-panel > .card-body.pb-panel__body {
+    background: var(--pb-kpi-bg);
+}
+
+/* Pastilles BS4 utilisées par les partiels (.badge-danger) */
+.badge-danger { background: #dc2626; color: #fff; }
+.badge-success { background: #16a34a; color: #fff; }
+.badge-warning { background: #ca8a04; color: #fff; }
+.badge-info { background: #0284c7; color: #fff; }
+.badge-secondary { background: #6b7280; color: #fff; }
+
+.modal-header,
+.modal-footer {
+    border-color: var(--pb-border);
+}
+
+.modal-title {
+    font-weight: 700;
+    color: var(--pb-text);
+}

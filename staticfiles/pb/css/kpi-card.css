@@ -1,0 +1,1174 @@
+/* ==========================================================================
+   Cartes de statistiques P&B — design unique pour toute l'application
+   --------------------------------------------------------------------------
+   Disposition du contenu :
+
+       [icône]  Intitulé
+                Sous-titre
+
+       Valeur ▲variation            [ pastille ]
+       Légende                       Légende
+
+   1. Composant `.pb-kpi` (partiel perfect/partials/stats/kpi_card.html)
+   2. Panneau `.pb-panel` : graphiques et listes dans le même habillage
+   3. Tableaux `.pb-table` et listes `.pb-list` logés dans un panneau
+   4. Couche de compatibilité : les anciennes cartes AdminLTE `.info-box`
+      adoptent la même disposition sans modification de gabarit.
+   ========================================================================== */
+
+:root {
+    --pb-kpi-radius: 16px;
+    --pb-kpi-bg: #ffffff;
+    --pb-kpi-border: #ece9e4;
+    --pb-kpi-border-hover: #dcd7cf;
+    --pb-kpi-shadow: 0 1px 2px rgba(17, 24, 39, 0.04);
+    --pb-kpi-shadow-hover: 0 10px 24px rgba(17, 24, 39, 0.08);
+    --pb-kpi-accent: #f97316;
+    --pb-kpi-accent-soft: #fdeade;
+    --pb-kpi-title: #1f2937;
+    --pb-kpi-value: #111827;
+    --pb-kpi-sub: #9aa0a6;
+    --pb-kpi-up: #16a34a;
+    --pb-kpi-down: #dc2626;
+    --pb-kpi-pill-bg: #f4f5f7;
+    --pb-kpi-dot: rgba(17, 24, 39, 0.07);
+    --pb-kpi-chip: 40px;
+    --pb-kpi-pad-y: 0.8rem;
+    --pb-kpi-pad-x: 1rem;
+    /* Espace entre l'en-tête et le bloc métrique */
+    --pb-kpi-gap: 1rem;
+}
+
+/* ==========================================================================
+   1. Composant
+   ========================================================================== */
+
+.pb-kpi {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    min-height: 142px;
+    padding: var(--pb-kpi-pad-y) var(--pb-kpi-pad-x);
+    background-color: var(--pb-kpi-bg);
+    background-image: radial-gradient(circle, var(--pb-kpi-dot) 1px, transparent 1.15px);
+    background-size: 14px 14px;
+    background-position: 6px 10px;
+    border: 1px solid var(--pb-kpi-border);
+    border-radius: var(--pb-kpi-radius);
+    box-shadow: var(--pb-kpi-shadow);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.pb-kpi:hover {
+    border-color: var(--pb-kpi-border-hover);
+    box-shadow: var(--pb-kpi-shadow-hover);
+    transform: translateY(-2px);
+}
+
+/* ---- Étage 1 : icône + intitulé / sous-titre ---- */
+
+.pb-kpi__header {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.85rem;
+}
+
+.pb-kpi__icon {
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--pb-kpi-chip);
+    height: var(--pb-kpi-chip);
+    border-radius: 12px;
+    background: var(--pb-kpi-accent-soft);
+    color: var(--pb-kpi-accent);
+    overflow: hidden;
+}
+
+.pb-kpi__icon i {
+    font-size: 1.2rem;
+    line-height: 1;
+    color: var(--pb-kpi-accent);
+}
+
+.pb-kpi__icon img {
+    width: 23px;
+    height: 23px;
+    object-fit: contain;
+}
+
+/* Les icônes illustrées (PNG du parc) gardent leurs couleurs : fond neutre. */
+.pb-kpi__icon--img {
+    background: #f3f4f6;
+}
+
+.pb-kpi__heading {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: var(--pb-kpi-chip);
+}
+
+.pb-kpi__label {
+    display: block;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.3;
+    color: var(--pb-kpi-title);
+}
+
+.pb-kpi__subtitle {
+    display: block;
+    margin-top: 0.1rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    line-height: 1.3;
+    color: var(--pb-kpi-sub);
+}
+
+/* ---- Étage 2 : valeur (+ variation) à gauche, bloc secondaire à droite ---- */
+
+.pb-kpi__metrics {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-top: var(--pb-kpi-gap);
+}
+
+.pb-kpi__metric {
+    min-width: 0;
+}
+
+.pb-kpi__metric--side {
+    flex: none;
+    text-align: right;
+}
+
+.pb-kpi__value {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+    line-height: 1.15;
+    color: var(--pb-kpi-value);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+    word-break: break-word;
+}
+
+.pb-kpi__value small,
+.pb-kpi__unit {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--pb-kpi-sub);
+    white-space: nowrap;
+}
+
+/* Variation (▲ 45 %) accolée à la valeur */
+.pb-kpi__delta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
+    color: var(--pb-kpi-up);
+}
+
+.pb-kpi__delta--down {
+    color: var(--pb-kpi-down);
+}
+
+.pb-kpi__delta i {
+    font-size: 0.7rem;
+}
+
+/* Légende sous la valeur (et sous le bloc secondaire) */
+.pb-kpi__sub {
+    display: block;
+    margin-top: 0.3rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    line-height: 1.3;
+    color: var(--pb-kpi-sub);
+}
+
+/* Pastille du bloc secondaire */
+.pb-kpi__pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.35rem 0.8rem;
+    background: var(--pb-kpi-pill-bg);
+    border-radius: 999px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1.3;
+    color: var(--pb-kpi-value);
+    text-decoration: none;
+    transition: background 0.15s ease;
+}
+
+a.pb-kpi__pill:hover {
+    background: var(--pb-kpi-accent-soft);
+    color: var(--pb-kpi-value);
+    text-decoration: none;
+}
+
+.pb-kpi__pill i {
+    font-size: 0.9rem;
+    color: var(--pb-kpi-accent);
+}
+
+/* Mini-graphique optionnel, à la place du bloc secondaire */
+.pb-kpi__spark {
+    display: block;
+    width: 84px;
+    height: 30px;
+    color: var(--pb-kpi-accent);
+    pointer-events: none;
+}
+
+.pb-kpi__spark svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+
+/* Variante mise en avant */
+.pb-kpi--highlight {
+    border-color: rgba(249, 115, 22, 0.38);
+}
+
+/* Grille d'affichage */
+.pb-kpi-grid {
+    display: grid;
+    gap: 0.85rem;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    margin-bottom: 1rem;
+}
+
+/* Nombre de colonnes imposé pour que les cartes remplissent des rangées
+   entières au lieu de laisser des orphelines sur la dernière ligne. Le
+   suffixe est le nombre de colonnes visé sur grand écran : `--3` pour une
+   rangée de 3 cartes, `--4` pour un lot de 8, `--5` pour un lot de 10. */
+@media (min-width: 768px) {
+    .pb-kpi-grid--2,
+    .pb-kpi-grid--4,
+    .pb-kpi-grid--5 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .pb-kpi-grid--3,
+    .pb-kpi-grid--6 {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 1200px) {
+    .pb-kpi-grid--4 {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .pb-kpi-grid--5 {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+
+    .pb-kpi-grid--6 {
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+}
+
+/* ==========================================================================
+   2. Panneau `.pb-panel` : graphiques et listes dans le même habillage
+   --------------------------------------------------------------------------
+   S'applique en complément de `.card` d'AdminLTE, dont il neutralise le
+   cadre et l'en-tête pour reprendre les jetons des cartes de statistiques.
+
+       .card.pb-panel > .card-header.pb-panel__header
+                            > .pb-panel__heading
+                                > .pb-panel__title
+                                > .pb-panel__hint     -> précision grise
+                            > .pb-panel__tools        -> actions à droite
+                      > .card-body.pb-panel__body     -> `--flush` sans marge
+   ========================================================================== */
+
+.pb-panel {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 0.85rem;
+    background-color: var(--pb-kpi-bg);
+    border: 1px solid var(--pb-kpi-border);
+    border-radius: 0;
+    box-shadow: var(--pb-kpi-shadow);
+    overflow: hidden;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.pb-panel:hover {
+    border-color: var(--pb-kpi-border-hover);
+    box-shadow: var(--pb-kpi-shadow-hover);
+}
+
+/* AdminLTE arrondit l'en-tête et le corps en premier/dernier enfant : on
+   neutralise, les angles du panneau sont droits. */
+.pb-panel > .pb-panel__header,
+.pb-panel > .pb-panel__body {
+    border-radius: 0;
+}
+
+.pb-panel__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    /* Hauteur réservée pour la ligne de précision, présente ou non : les
+       en-têtes restent alignés d'une carte à l'autre. */
+    min-height: calc(var(--pb-kpi-pad-y) * 2 + 2.75rem);
+    padding: var(--pb-kpi-pad-y) var(--pb-kpi-pad-x);
+    background-color: var(--pb-kpi-bg);
+    background-image: radial-gradient(circle, var(--pb-kpi-dot) 1px, transparent 1.15px);
+    background-size: 14px 14px;
+    background-position: 6px 10px;
+    border-bottom: 1px solid var(--pb-kpi-border);
+}
+
+/* AdminLTE ajoute un clearfix `::after` à `.card-header` : en contexte flex
+   il devient un troisième élément qui occupe le bord droit et repousse les
+   actions vers le centre. */
+.pb-panel__header::after {
+    display: none;
+}
+
+.pb-panel__heading {
+    min-width: 0;
+}
+
+.pb-panel__title {
+    display: block;
+    float: none;
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1.3;
+    color: var(--pb-kpi-title);
+}
+
+.pb-panel__hint {
+    display: block;
+    margin-top: 0.15rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    line-height: 1.3;
+    color: var(--pb-kpi-sub);
+}
+
+.pb-panel__tools {
+    flex: none;
+    float: none;
+    margin: 0 0 0 auto;
+}
+
+/* Action d'en-tête, sur le modèle de la pastille des cartes de statistiques */
+.pb-panel__action {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.3rem 0.75rem;
+    background: var(--pb-kpi-pill-bg);
+    border: 1px solid transparent;
+    border-radius: 999px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    line-height: 1.3;
+    color: var(--pb-kpi-value);
+    white-space: nowrap;
+    text-decoration: none;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.pb-panel__action:hover,
+.pb-panel__action:focus {
+    background: var(--pb-kpi-accent-soft);
+    border-color: rgba(249, 115, 22, 0.35);
+    color: var(--pb-kpi-value);
+    text-decoration: none;
+}
+
+.pb-panel__action i {
+    font-size: 0.72rem;
+    color: var(--pb-kpi-accent);
+}
+
+button.pb-panel__action {
+    cursor: pointer;
+    font-family: inherit;
+}
+
+/* Recherche / filtre logé dans l'en-tête d'un panneau */
+.pb-panel__filter {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.4rem;
+    margin: 0;
+}
+
+.pb-panel__filter .form-control,
+.pb-panel__filter select.form-control {
+    width: auto;
+    height: 32px;
+    padding: 0 0.75rem;
+    background: var(--pb-kpi-bg);
+    border: 1px solid var(--pb-kpi-border);
+    border-radius: 999px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--pb-kpi-value);
+}
+
+.pb-panel__filter .form-control:focus {
+    outline: none;
+    border-color: var(--pb-kpi-accent);
+    box-shadow: 0 0 0 3px var(--pb-kpi-accent-soft);
+}
+
+.pb-panel__filter .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 32px;
+    padding: 0 0.85rem;
+    background: var(--pb-kpi-pill-bg);
+    border: 1px solid transparent;
+    border-radius: 999px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--pb-kpi-value);
+}
+
+.pb-panel__filter .btn:hover {
+    background: var(--pb-kpi-accent-soft);
+    border-color: rgba(249, 115, 22, 0.35);
+}
+
+.pb-panel__filter .btn i {
+    font-size: 0.78rem;
+    color: var(--pb-kpi-accent);
+}
+
+.pb-panel__body {
+    flex: 1 1 auto;
+    padding: 0.85rem 1rem 1rem;
+}
+
+.pb-panel__body--flush {
+    padding: 0;
+}
+
+/* Rangée de panneaux : toutes les cartes d'une même ligne prennent la
+   hauteur de la plus haute. */
+.pb-panel-row > [class*="col-"] {
+    display: flex;
+    flex-direction: column;
+}
+
+.pb-panel-row .pb-panel {
+    flex: 1 1 auto;
+}
+
+.pb-panel-row .pb-panel__body {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+.pb-panel__chart {
+    position: relative;
+    flex: 1 1 auto;
+    min-height: 240px;
+    height: 260px;
+}
+
+.pb-panel__chart canvas {
+    display: block;
+    width: 100% !important;
+    max-width: 100%;
+    height: 100% !important;
+    max-height: none !important;
+    min-height: 0 !important;
+}
+
+.pb-panel__stat {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.85rem 0;
+    border-bottom: 1px solid var(--pb-kpi-border);
+}
+
+.pb-panel__stat:last-child {
+    border-bottom: 0;
+    padding-bottom: 0;
+}
+
+.pb-panel__stat-label {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--pb-kpi-sub);
+}
+
+.pb-panel__stat-value {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--pb-kpi-value);
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+}
+
+.pb-panel__stat-value small {
+    margin-left: 0.25rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--pb-kpi-sub);
+}
+
+/* Pied de panneau : actions groupées sous le contenu (suppression en lot…) */
+.pb-panel__footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    padding: 0.65rem var(--pb-kpi-pad-x);
+    background-color: var(--pb-kpi-bg);
+    border-top: 1px solid var(--pb-kpi-border);
+}
+
+.pb-panel__action--danger {
+    color: var(--pb-kpi-down);
+}
+
+.pb-panel__action--danger i {
+    color: var(--pb-kpi-down);
+}
+
+.pb-panel__action--danger:hover,
+.pb-panel__action--danger:focus {
+    background: rgba(220, 38, 38, 0.08);
+    border-color: rgba(220, 38, 38, 0.35);
+    color: var(--pb-kpi-down);
+}
+
+/* ==========================================================================
+   3. Tableaux `.pb-table` et listes `.pb-list` logés dans un panneau
+   --------------------------------------------------------------------------
+       .card-body.pb-panel__body.pb-panel__body--flush
+           > .pb-table-wrap
+               > table.table.pb-table
+   Les habillages DataTables (recherche, pagination) sont repris ci-dessous
+   pour rester cohérents avec les jetons du système.
+   ========================================================================== */
+
+.pb-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.pb-table.table {
+    width: 100%;
+    margin: 0;
+    border: 0;
+    font-size: 0.875rem;
+    color: var(--pb-kpi-value);
+}
+
+.pb-table.table thead th {
+    padding: 0.7rem 0.9rem;
+    background: var(--pb-kpi-pill-bg);
+    border: 0;
+    border-bottom: 1px solid var(--pb-kpi-border);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    line-height: 1.2;
+    white-space: nowrap;
+    color: var(--pb-kpi-sub);
+    vertical-align: middle;
+}
+
+/* DataTables place ses chevrons de tri en absolu à droite de l'intitulé. */
+.pb-table.dataTable thead th {
+    padding-right: 1.75rem;
+}
+
+.pb-table.table tbody td {
+    padding: 0.6rem 0.9rem;
+    border: 0;
+    border-top: 1px solid var(--pb-kpi-border);
+    vertical-align: middle;
+}
+
+.pb-table.table tbody tr:first-child td {
+    border-top: 0;
+}
+
+/* Les rayures d'AdminLTE écrasent la teinte de survol : fond uni au départ. */
+.pb-table.table tbody tr,
+.pb-table.table.table-striped tbody tr:nth-of-type(odd) {
+    background-color: transparent;
+}
+
+.pb-table.table tbody tr:hover {
+    background-color: var(--pb-kpi-pill-bg);
+}
+
+.pb-table.table tfoot th {
+    padding: 0.6rem 0.9rem;
+    background: var(--pb-kpi-bg);
+    border: 0;
+    border-top: 1px solid var(--pb-kpi-border);
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--pb-kpi-sub);
+}
+
+/* Colonne repère (immatriculation, libellé…) */
+.pb-table__key {
+    font-weight: 700;
+    color: var(--pb-kpi-value);
+}
+
+a.pb-table__key,
+.pb-table.table tbody td a.pb-table__key {
+    color: var(--pb-kpi-accent);
+}
+
+a.pb-table__key:hover {
+    color: var(--pb-kpi-accent);
+    text-decoration: underline;
+}
+
+.pb-table__muted {
+    color: var(--pb-kpi-sub);
+}
+
+.pb-table__num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Pastilles d'état : mêmes proportions quelle que soit la couleur AdminLTE */
+.pb-table.table .badge {
+    padding: 0.25rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+}
+
+/* Actions de fin de ligne */
+.pb-table__actions {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+    white-space: nowrap;
+}
+
+.pb-table__action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    background: var(--pb-kpi-bg);
+    border: 1px solid var(--pb-kpi-border);
+    border-radius: 8px;
+    color: var(--pb-kpi-sub);
+    font-size: 0.82rem;
+    line-height: 1;
+    text-decoration: none;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.pb-table__action i {
+    font-size: 0.82rem;
+}
+
+.pb-table__action:hover,
+.pb-table__action:focus {
+    background: var(--pb-kpi-accent-soft);
+    border-color: rgba(249, 115, 22, 0.35);
+    color: var(--pb-kpi-accent);
+    text-decoration: none;
+}
+
+.pb-table__action--danger:hover,
+.pb-table__action--danger:focus {
+    background: rgba(220, 38, 38, 0.08);
+    border-color: rgba(220, 38, 38, 0.35);
+    color: var(--pb-kpi-down);
+}
+
+.pb-table code {
+    background: var(--pb-kpi-pill-bg);
+    color: var(--pb-kpi-sub);
+    padding: 0.15rem 0.45rem;
+    border-radius: 6px;
+    font-size: 0.78rem;
+}
+
+/* Pagination Django dans le pied de panneau, même dessin que DataTables */
+.pb-panel__footer .pagination {
+    margin: 0;
+}
+
+.pb-panel__footer .page-item {
+    margin-left: 0.25rem;
+}
+
+.pb-panel__footer .page-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 32px;
+    padding: 0 0.55rem;
+    background: var(--pb-kpi-bg);
+    border: 1px solid var(--pb-kpi-border);
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--pb-kpi-sub);
+}
+
+.pb-panel__footer .page-link:hover {
+    background: var(--pb-kpi-pill-bg);
+    color: var(--pb-kpi-value);
+}
+
+.pb-panel__footer .page-item.active .page-link {
+    background: var(--pb-kpi-accent);
+    border-color: var(--pb-kpi-accent);
+    color: #ffffff;
+}
+
+/* ---- Habillage DataTables ---- */
+
+.pb-panel .dataTables_wrapper > .row {
+    margin: 0;
+    align-items: center;
+}
+
+/* Les colonnes de DataTables sont mises à plat : le tableau touche les bords
+   du panneau, seuls les blocs de commande reprennent la marge interne. */
+.pb-panel .dataTables_wrapper > .row > [class*="col-"] {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.pb-panel .dataTables_length,
+.pb-panel .dataTables_filter,
+.pb-panel .dataTables_info,
+.pb-panel .dataTables_paginate {
+    padding: 0 var(--pb-kpi-pad-x);
+}
+
+.pb-panel .dataTables_wrapper > .row:first-child {
+    padding: 0.7rem 0;
+    border-bottom: 1px solid var(--pb-kpi-border);
+}
+
+.pb-panel .dataTables_wrapper > .row:last-child {
+    padding: 0.65rem 0;
+    border-top: 1px solid var(--pb-kpi-border);
+}
+
+.pb-panel .dataTables_length label,
+.pb-panel .dataTables_filter label {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin: 0;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--pb-kpi-sub);
+}
+
+.pb-panel .dataTables_filter label {
+    justify-content: flex-end;
+}
+
+.pb-panel .dataTables_length select,
+.pb-panel .dataTables_filter input {
+    height: 32px;
+    width: auto;
+    margin: 0;
+    padding: 0 0.75rem;
+    background: var(--pb-kpi-bg);
+    border: 1px solid var(--pb-kpi-border);
+    border-radius: 999px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--pb-kpi-value);
+}
+
+.pb-panel .dataTables_filter input {
+    min-width: 200px;
+}
+
+.pb-panel .dataTables_length select:focus,
+.pb-panel .dataTables_filter input:focus {
+    outline: none;
+    border-color: var(--pb-kpi-accent);
+    box-shadow: 0 0 0 3px var(--pb-kpi-accent-soft);
+}
+
+.pb-panel .dataTables_info {
+    font-size: 0.78rem;
+    color: var(--pb-kpi-sub);
+}
+
+.pb-panel .dataTables_paginate {
+    margin: 0;
+}
+
+/* Pagination DataTables comme pagination Django rendue à la main */
+.pb-panel .pagination {
+    margin: 0;
+    justify-content: flex-end;
+}
+
+.pb-panel .page-item {
+    margin-left: 0.25rem;
+}
+
+.pb-panel .page-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 32px;
+    padding: 0 0.55rem;
+    background: var(--pb-kpi-bg);
+    border: 1px solid var(--pb-kpi-border);
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--pb-kpi-sub);
+}
+
+.pb-panel .page-link:hover {
+    background: var(--pb-kpi-pill-bg);
+    color: var(--pb-kpi-value);
+}
+
+.pb-panel .page-item.active .page-link {
+    background: var(--pb-kpi-accent);
+    border-color: var(--pb-kpi-accent);
+    color: #ffffff;
+}
+
+.pb-panel .page-item.disabled .page-link {
+    background: var(--pb-kpi-bg);
+    color: var(--pb-kpi-border-hover);
+}
+
+/* ---- Liste verticale (catégories, raccourcis) ---- */
+
+.pb-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.pb-list__item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.6rem var(--pb-kpi-pad-x);
+    border-bottom: 1px solid var(--pb-kpi-border);
+    transition: background 0.15s ease;
+}
+
+.pb-list__item:last-child {
+    border-bottom: 0;
+}
+
+.pb-list__item:hover {
+    background: var(--pb-kpi-pill-bg);
+}
+
+.pb-list__link {
+    min-width: 0;
+    overflow: hidden;
+    font-size: 0.9rem;
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--pb-kpi-title);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-decoration: none;
+}
+
+.pb-list__link:hover {
+    color: var(--pb-kpi-accent);
+    text-decoration: none;
+}
+
+.pb-list__count {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.1rem;
+    padding: 0.15rem 0.55rem;
+    background: var(--pb-kpi-pill-bg);
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--pb-kpi-value);
+}
+
+/* Entrée correspondant à la page affichée */
+.pb-list__item--current {
+    background: var(--pb-kpi-accent-soft);
+    box-shadow: inset 3px 0 0 var(--pb-kpi-accent);
+}
+
+.pb-list__item--current .pb-list__link {
+    color: var(--pb-kpi-accent);
+}
+
+.pb-list__item--current .pb-list__count {
+    background: var(--pb-kpi-bg);
+    color: var(--pb-kpi-accent);
+}
+
+/* Message affiché à la place d'un tableau ou d'une liste vide */
+.pb-empty {
+    padding: 2rem 1rem;
+    text-align: center;
+    font-size: 0.88rem;
+    color: var(--pb-kpi-sub);
+}
+
+.pb-empty i {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 1.5rem;
+    color: var(--pb-kpi-border-hover);
+}
+
+/* ==========================================================================
+   4. Compatibilité AdminLTE : `.info-box` reprend la même disposition
+   --------------------------------------------------------------------------
+   Gabarit historique :
+       .info-box > .info-box-icon           -> icône de l'en-tête
+                 > .info-box-content
+                     > .info-box-text       -> intitulé (peut contenir un lien)
+                     > .info-box-number     -> valeur, avec <small> en légende
+   Les styles en ligne des gabarits imposent `!important`.
+   ========================================================================== */
+
+.info-box {
+    position: relative;
+    display: block !important;
+    width: 100%;
+    /* Les colonnes Bootstrap s'étirent à la plus haute : la carte remplit la
+       sienne (moins sa marge basse) pour que la ligne soit d'aplomb. */
+    height: calc(100% - 0.85rem);
+    min-height: 142px !important;
+    margin-bottom: 0.85rem;
+    padding: var(--pb-kpi-pad-y) var(--pb-kpi-pad-x) !important;
+    background-color: var(--pb-kpi-bg) !important;
+    background-image: radial-gradient(circle, var(--pb-kpi-dot) 1px, transparent 1.15px) !important;
+    background-size: 14px 14px;
+    background-position: 6px 10px;
+    border: 1px solid var(--pb-kpi-border);
+    border-radius: var(--pb-kpi-radius) !important;
+    box-shadow: var(--pb-kpi-shadow) !important;
+    color: var(--pb-kpi-value) !important;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.info-box:hover {
+    border-color: var(--pb-kpi-border-hover);
+    box-shadow: var(--pb-kpi-shadow-hover) !important;
+    transform: translateY(-2px);
+}
+
+/* Étage 1 — icône, calée en haut à gauche */
+.info-box .info-box-icon {
+    position: absolute;
+    top: var(--pb-kpi-pad-y);
+    left: var(--pb-kpi-pad-x);
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: var(--pb-kpi-chip) !important;
+    height: var(--pb-kpi-chip) !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border-radius: 12px !important;
+    background: var(--pb-kpi-accent-soft) !important;
+    background-color: var(--pb-kpi-accent-soft) !important;
+    color: var(--pb-kpi-accent) !important;
+    font-size: 1.2rem !important;
+    line-height: 1 !important;
+    box-shadow: none !important;
+    overflow: hidden;
+}
+
+.info-box .info-box-icon i,
+.info-box .info-box-icon .fa,
+.info-box .info-box-icon .fas,
+.info-box .info-box-icon .far {
+    margin: 0 !important;
+    font-size: 1.2rem !important;
+    line-height: 1 !important;
+    color: var(--pb-kpi-accent) !important;
+}
+
+.info-box .info-box-icon img {
+    position: static !important;
+    width: 23px !important;
+    height: 23px !important;
+    margin: 0 !important;
+    object-fit: contain;
+}
+
+/* Idem côté AdminLTE lorsque la pastille contient une illustration. */
+.info-box .info-box-icon:has(img) {
+    background: #f3f4f6 !important;
+}
+
+.info-box .info-box-content {
+    display: block !important;
+    flex: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1.3 !important;
+}
+
+/* Étage 1 — intitulé, à droite de l'icône */
+.info-box .info-box-text,
+.info-box .progress-description {
+    display: flex !important;
+    flex-direction: column;
+    justify-content: center;
+    min-height: var(--pb-kpi-chip);
+    margin: 0 0 0 calc(var(--pb-kpi-chip) + 0.85rem) !important;
+    font-size: 1rem !important;
+    font-weight: 700 !important;
+    line-height: 1.3 !important;
+    color: var(--pb-kpi-title) !important;
+    text-transform: none !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+}
+
+/* Étage 2 — valeur, sur toute la largeur */
+.info-box .info-box-number {
+    display: block !important;
+    margin: var(--pb-kpi-gap) 0 0 !important;
+    font-size: 1.5rem !important;
+    font-weight: 700 !important;
+    line-height: 1.15 !important;
+    letter-spacing: -0.01em;
+    color: var(--pb-kpi-value) !important;
+    font-variant-numeric: tabular-nums;
+    white-space: normal !important;
+}
+
+/* Étage 2 — légende sous la valeur (l'unité des gabarits historiques) */
+.info-box .info-box-number small {
+    display: block;
+    margin-top: 0.3rem;
+    font-size: 0.85rem !important;
+    font-weight: 500 !important;
+    line-height: 1.3;
+    color: var(--pb-kpi-sub) !important;
+}
+
+/* Étage 2, à droite — le lien-raccourci d'un intitulé devient la pastille
+   du bloc secondaire, alignée sur la valeur. */
+.info-box .info-box-text > a {
+    position: absolute;
+    right: var(--pb-kpi-pad-x);
+    /* Calé sur la ligne de la valeur (marge haute + hauteur d'en-tête + écart),
+       donc indépendant de la hauteur à laquelle la colonne étire la carte. */
+    top: calc(var(--pb-kpi-pad-y) + var(--pb-kpi-chip) + var(--pb-kpi-gap));
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.35rem 0.8rem;
+    background: var(--pb-kpi-pill-bg);
+    border-radius: 999px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1.3;
+    color: var(--pb-kpi-value) !important;
+    text-decoration: none;
+    transition: background 0.15s ease;
+}
+
+.info-box .info-box-text > a:hover {
+    background: var(--pb-kpi-accent-soft);
+    text-decoration: none;
+}
+
+.info-box .info-box-text .badge {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 0.35rem;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    border-radius: 0 !important;
+    color: inherit !important;
+    font-size: 0.95rem !important;
+    font-weight: 700 !important;
+    float: none !important;
+}
+
+.info-box .info-box-text .badge i {
+    color: var(--pb-kpi-accent) !important;
+    font-size: 0.9rem !important;
+}
+
+@media (max-width: 575.98px) {
+    :root {
+        --pb-kpi-gap: 0.8rem;
+    }
+
+    .pb-kpi,
+    .info-box {
+        min-height: 128px !important;
+    }
+
+    .pb-kpi__value,
+    .info-box .info-box-number {
+        font-size: 1.35rem !important;
+    }
+}

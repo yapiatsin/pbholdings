@@ -1,0 +1,148 @@
+{% load static %}
+{% if not search_query %}
+<div class="pb-saisie-empty" data-hint="Recherche instantanée">
+    <i class="fas fa-keyboard" aria-hidden="true"></i>
+    <strong>Recherchez un véhicule</strong>
+    Saisissez l’immatriculation, la marque ou le n° de carte grise.
+</div>
+{% elif not vehicules %}
+<div class="pb-saisie-empty" data-hint="Aucun résultat">
+    <i class="fas fa-car-side" aria-hidden="true"></i>
+    <strong>Aucun véhicule trouvé</strong>
+    Aucun résultat pour « {{ search_query }} ».
+</div>
+{% else %}
+<div class="pb-saisie-grid" data-hint="{% if result_limited %}{{ vehicules|length }} affichés sur {{ result_total }}{% else %}{{ result_total }} résultat{{ result_total|pluralize }}{% endif %}">
+    {% for v in vehicules %}
+    <article class="pb-saisie-card">
+        <div class="pb-saisie-card__head">
+            <span class="pb-saisie-card__icon" aria-hidden="true"><i class="fas fa-car"></i></span>
+            <div>
+                <h3 class="pb-saisie-card__plate">{{ v.immatriculation }}</h3>
+                <span class="pb-saisie-card__meta">{{ v.marque }}{% if v.category %} · {{ v.category }}{% endif %}</span>
+            </div>
+        </div>
+        <div class="pb-saisie-card__actions">
+            {% if saisie_mode == 'garage' %}
+                {% for categorie, perms in grouped_permissions.items %}
+                    {% if categorie.categorie == "permassurance" %}
+                        {% for perm in perms %}
+                            {% if perm.name == "add assurance" %}
+                                <a href="{% url perm.url v.pk %}" class="pb-saisie-card__action" title="Ajouter une assurance">
+                                    <i class="fas fa-plus-circle" aria-hidden="true"></i> Assurance
+                                </a>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                    {% if categorie.categorie == "permvign" %}
+                        {% for perm in perms %}
+                            {% if perm.name == "add vignette" %}
+                                <a href="{% url perm.url v.pk %}" class="pb-saisie-card__action" title="Ajouter une vignette">
+                                    <i class="fas fa-plus-circle" aria-hidden="true"></i> Vignette
+                                </a>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                    {% if categorie.categorie == "permpate" %}
+                        {% for perm in perms %}
+                            {% if perm.name == "add patente" %}
+                                <a href="{% url perm.url v.pk %}" class="pb-saisie-card__action" title="Ajouter une patente">
+                                    <i class="fas fa-plus-circle" aria-hidden="true"></i> Patente
+                                </a>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                    {% if categorie.categorie == "permstation" %}
+                        {% for perm in perms %}
+                            {% if perm.name == "add stationnement" %}
+                                <a href="{% url perm.url v.pk %}" class="pb-saisie-card__action" title="Ajouter un stationnement">
+                                    <i class="fas fa-plus-circle" aria-hidden="true"></i> Stationnement
+                                </a>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                    {% if categorie.categorie == "permpiechang" %}
+                        {% for perm in perms %}
+                            {% if perm.name == "add piece changée" %}
+                                <a href="{% url perm.url v.pk %}" class="pb-saisie-card__action" title="Ajouter une pièce changée">
+                                    <i class="fas fa-plus-circle" aria-hidden="true"></i> Pièce changée
+                                </a>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                {% endfor %}
+            {% elif saisie_mode == 'arret' %}
+                {% for categorie, perms in grouped_permissions.items %}
+                    {% if categorie.categorie == "permvisit" %}
+                        {% for perm in perms %}
+                            {% if perm.name == "add visite" %}
+                                <a href="{% url perm.url v.pk %}" class="pb-saisie-card__action" title="Ajouter une visite">
+                                    <i class="fas fa-plus-circle" aria-hidden="true"></i> Visite technique
+                                </a>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                    {% if categorie.categorie == "permentretien" %}
+                        {% for perm in perms %}
+                            {% if perm.name == "add entretien" %}
+                                <a href="{% url perm.url v.pk %}" class="pb-saisie-card__action" title="Ajouter un entretien">
+                                    <i class="fas fa-plus-circle" aria-hidden="true"></i> Entretien
+                                </a>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                    {% if categorie.categorie == "permreparation" %}
+                        {% for perm in perms %}
+                            {% if perm.name == "add reparation" %}
+                                <a href="{% url perm.url v.pk %}" class="pb-saisie-card__action" title="Ajouter une réparation">
+                                    <i class="fas fa-plus-circle" aria-hidden="true"></i> Réparation
+                                </a>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                    {% if categorie.categorie == "permarret" %}
+                        {% for perm in perms %}
+                            {% if perm.name == "add autre arrêt" %}
+                                <a href="{% url perm.url v.pk %}" class="pb-saisie-card__action" title="Ajouter un autre arrêt">
+                                    <i class="fas fa-plus-circle" aria-hidden="true"></i> Autre arrêt
+                                </a>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                {% endfor %}
+            {% elif saisie_mode == 'compta' %}
+                {% for categorie, perms in grouped_permissions.items %}
+                    {% if categorie.categorie == "permrecette" %}
+                        {% for perm in perms %}
+                            {% if perm.name == "add recette" %}
+                                <a href="{% url perm.url v.pk %}" class="pb-saisie-card__action" title="Ajouter une recette">
+                                    <i class="fas fa-plus-circle" aria-hidden="true"></i> Recette
+                                </a>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                    {% if categorie.categorie == "permchargfix" %}
+                        {% for perm in perms %}
+                            {% if perm.name == "add charge fixe" %}
+                                <a href="{% url perm.url v.pk %}" class="pb-saisie-card__action" title="Ajouter une charge fixe">
+                                    <i class="fas fa-plus-circle" aria-hidden="true"></i> Charge fixe
+                                </a>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                    {% if categorie.categorie == "permchargvar" %}
+                        {% for perm in perms %}
+                            {% if perm.name == "add charge variable" %}
+                                <a href="{% url perm.url v.pk %}" class="pb-saisie-card__action" title="Ajouter une charge variable">
+                                    <i class="fas fa-plus-circle" aria-hidden="true"></i> Charge variable
+                                </a>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        </div>
+    </article>
+    {% endfor %}
+</div>
+{% endif %}

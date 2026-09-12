@@ -15,198 +15,106 @@
 {% block main_content%}
 
 <div class="col-md-12">
-    <div class="card" style="color: #0176bf; border-radius: 20px; border-color: #00217b; font-weight: 700;">
-        <div class="card-body table-responsive p-0" style="border-radius:8px; border:none">
-            <table class="table table text-nowrap" >
-                <tr style="border-color:red">
-                    <div class="col-md-12">
-                        <div class="row ">
-                            <div class="col-md-2" >
-                                <td style="border:none">
-                                    <div style="display: flex; align-items: center;">
-                                        <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 9px; margin-left: 0px;" src="{% static 'visit.png' %}" alt="" srcset="">
-                                        </div>
-                                        <div>
-                                        <div style="font-size: 15px;color: #a83232">Visite</div>
-                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #1a1a1a;">
-                                                {{ visites }}
-                                                <small style="color: #a83232; font-weight: 700; line-height: 1;"></small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td style="border:none">
-                                    <div style="display: flex; align-items: center;">
-                                        <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 9px; margin-left: 0px;" src="{% static 'entret.png' %}" alt="" srcset="">
-                                        </div>
-                                        <div>
-                                            <div style="font-size: 15px;color: #a83232">Entretien{% if entr_all > 1  %}s{% endif %}</div>
-                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #1a1a1a;">
-                                                {{ entr_all }}
-                                                <small style="color: #a83232; font-weight: 700; line-height: 1;"></small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td style="border:none">
-                                    <div style="display: flex; align-items: center;">
-                                        <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 7px; margin-left: 0px;" src="{% static 'assurance.png' %}" alt="" srcset="">
-                                        </div>
-                                        <div>
-                                            <div style="font-size: 15px;color: #a83232">Assurance{% if assu_all > 1  %}s{% endif %}</div>
-                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #1a1a1a;">
-                                                {{ assu_all }}
-                                                <small style="color: #a83232; font-weight: 700; line-height: 1;"></small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td style="border:none">
-                                    <div style="display: flex; align-items: center;">
-                                        <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 9px; margin-left: 0px;" src="{% static 'vignette.png' %}" alt="" srcset="">
-                                        </div>
-                                        <div>
-                                            <div style="font-size: 15px;color: #a83232">Vignette{% if vign_all > 1  %}s{% endif %}</div>
-                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #1a1a1a;">
-                                                {{ vign_all }}
-                                                <small style="color: #a83232; font-weight: 700; line-height: 1;"></small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td style="border:none">
-                                    <div style="display: flex; align-items: center;">
-                                        <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 9px; margin-left: px;" src="{% static 'gear.png' %}" alt="" srcset="">
-                                        </div>
-                                        <div>
-                                            <div style="font-size: 15px;color: #a83232">Patente{% if pat_all > 1  %}s{% endif %}</div>
-                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #1a1a1a;">
-                                                {{ pat_all}} 
-                                                <small style="color: #a83232; font-weight: 700; line-height: 1;"></small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td style="border:none">
-                                    <div style="display: flex; align-items: center;">
-                                        <div style="height: 50px; width: 50px; background-color: #f4f6f9; border-radius: 50px; box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px, rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;" class="mr-3 text-center">
-                                            <img style="height: 35px; width: 35px; position:relative; margin-top: 9px; margin-left: 0px;" src="{% static 'update.png' %}" alt="" srcset="">
-                                        </div>
-                                        <div>
-                                            <div style="font-size: 15px;color: #a83232">Stationnement{% if stat_all > 1  %}s{% endif %}</div>
-                                            <div style="font-size:18px; font-weight: 700; line-height: 1; color: #1a1a1a;">{{ stat_all }}  <small style="color: #a83232; font-weight: 700; line-height: 1;"></small></div>
-                                        </div>
-                                    </div>
-                                </td>
-                            </div>
-                        </div>
-                    </div>
-                </tr>
-            </table>
-        </div>
+    <div class="pb-kpi-grid pb-kpi-grid--6">
+        {% include 'perfect/partials/stats/kpi_card.html' with label="Visites" subtitle="Conformité" value=visites sublabel="Échéances en cours" icon_img='visit.png' %}
+        {% include 'perfect/partials/stats/kpi_card.html' with label="Entretiens" subtitle="Atelier" value=entr_all sublabel="Échéances en cours" icon_img='entret.png' %}
+        {% include 'perfect/partials/stats/kpi_card.html' with label="Assurances" subtitle="Conformité" value=assu_all unit="frs cfa" sublabel="Total période" icon_img='assurance.png' %}
+        {% include 'perfect/partials/stats/kpi_card.html' with label="Vignettes" subtitle="Conformité" value=vign_all unit="frs cfa" sublabel="Total période" icon_img='vignette.png' %}
+        {% include 'perfect/partials/stats/kpi_card.html' with label="Patentes" subtitle="Conformité" value=pat_all unit="frs cfa" sublabel="Total période" icon_img='gear.png' %}
+        {% include 'perfect/partials/stats/kpi_card.html' with label="Stationnements" subtitle="Exploitation" value=stat_all unit="frs cfa" sublabel="Total période" icon_img='update.png' %}
     </div>
 </div>
 
 <div class="col-md-12">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="">
-                <div id="" class="">
-                    <div class="row p-0 m-0">
-                        <div class="col-md-12 p-0">
-                            <div class="card" style="box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);backdrop-filter: blur(5.2px);-webkit-backdrop-filter: blur(5.2px);border-radius:20px">
-                                <div class="card-header">
-                                    <h3 class="card-title">
-                                    </h3>
-                                    <div class="card-tools">
-                                        <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
-                                    </div>
-                                </div>
-                                <div class="card-body">
-                                    <table id="example1" class="table table-bordered table-striped">
-                                        <thead>
-                                            <tr class="text-center text-danger">
-                                                <th>IMMAT</th>
-                                                <th>MARQUE</th>
-                                                <th>CATEGORIE</th>
-                                                <th>VISITE</th>
-                                                <th>ENTRETIEN</th>
-                                                <th>ASSURANCE</th>
-                                                <th>VIGNETTE</th>
-                                                <th>PATENTE</th>
-                                                <th>STATIONNEMENT</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody> 
-                                           {% if resultat_vehicule %}
-                                            {% for v in resultat_vehicule %}
-                                                <tr class="text-center">
-                                                    <td><span style="font-weight:700;"><a class="text-danger" href="" title="{{v.vehicule.category}}" >{{v.vehicule.immatriculation}}</a></span></td>
-                                                    <td><span>{{v.vehicule.marque}}</span></td>
-                                                    <td><span>{{v.vehicule.category}}</span></td>
-                                                    <td>
-                                                        {% if v.jours_restant == 0 %}
-                                                            <span class="badge badge-secondary">-</span>
-                                                        {% else %}
-                                                            <span class="badge badge-{{ v.alert_color }} p-2" style="color:white;font-weight:700;border-radius:50px;">{{v.jours_restant}} jour{{ v.jours_restant|pluralize }}</span>
-                                                        {% endif %}
-                                                    </td>
-                                                    <td>
-                                                        {% if v.jours_ent_restant == 0 %}
-                                                            <span class="badge badge-secondary">-</span>
-                                                        {% else %}
-                                                            <span class="badge badge-{{ v.alert_ent_color }} p-2" style="color:white;font-weight:700;border-radius:50px;">{{v.jours_ent_restant}} jour{{ v.jours_ent_restant|pluralize }}</span>
-                                                        {% endif %}
-                                                    </td>
-                                                    <td>
-                                                        {% if v.jours_assu_restant == 0 %}
-                                                            <span class="badge badge-secondary">-</span>
-                                                        {% else %}
-                                                            <span class="badge badge-{{ v.alert_assu_color }} p-2" style="color:white;font-weight:700;border-radius:50px;">{{v.jours_assu_restant}} jour{{ v.jours_assu_restant|pluralize }}</span>
-                                                        {% endif %}
-                                                    </td>
-                                                    <td>
-                                                        {% if v.jours_vign_restant == 0 %}
-                                                            <span class="badge badge-secondary">-</span>
-                                                        {% else %}
-                                                            <span class="badge badge-{{ v.alert_vign_color }} p-2" style="color:white;font-weight:700;border-radius:50px;">{{v.jours_vign_restant}} jour{{ v.jours_vign_restant|pluralize }}</span>
-                                                        {% endif %}
-                                                    </td>
-                                                    <td>
-                                                        {% if v.jours_pate_restant == 0 %}
-                                                            <span class="badge badge-secondary">-</span>
-                                                        {% else %}
-                                                            <span class="badge badge-{{ v.alert_pate_color }} p-2" style="color:white;font-weight:700;border-radius:50px;">{{v.jours_pate_restant}} jour{{ v.jours_pate_restant|pluralize }}</span>
-                                                        {% endif %}
-                                                    </td>
-                                                    <td>
-                                                        {% if v.jours_cartsta_restant == 0 %}
-                                                            <span class="badge badge-secondary">-</span>
-                                                        {% else %}
-                                                            <span class="badge badge-{{ v.alert_cartsta_color }} p-2" style="color:white;font-weight:700;border-radius:50px;">{{v.jours_cartsta_restant}} jour{{ v.jours_cartsta_restant|pluralize }}</span>
-                                                        {% endif %}
-                                                    </td>
-                                                </tr>
-                                            {% endfor %}
+    <div class="card pb-panel">
+        <div class="card-header pb-panel__header">
+            <div class="pb-panel__heading">
+                <span class="pb-panel__title">Échéances par véhicule</span>
+                <span class="pb-panel__hint">Jours restants avant expiration</span>
+            </div>
+            <div class="pb-panel__tools">
+                <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Réduire">
+                    <i class="fas fa-minus"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-body pb-panel__body pb-panel__body--flush">
+            <div class="pb-table-wrap">
+                <table id="example1" class="table pb-table">
+                    <thead>
+                        <tr>
+                            <th>Immat</th>
+                            <th>Marque</th>
+                            <th>Catégorie</th>
+                            <th>Visite</th>
+                            <th>Entretien</th>
+                            <th>Assurance</th>
+                            <th>Vignette</th>
+                            <th>Patente</th>
+                            <th>Stationnement</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if resultat_vehicule %}
+                            {% for v in resultat_vehicule %}
+                                <tr>
+                                    <td><span class="pb-table__key" title="{{v.vehicule.category}}">{{v.vehicule.immatriculation}}</span></td>
+                                    <td>{{v.vehicule.marque}}</td>
+                                    <td class="pb-table__muted">{{v.vehicule.category}}</td>
+                                    <td>
+                                        {% if v.jours_restant == 0 %}
+                                            <span class="badge badge-secondary">-</span>
                                         {% else %}
-                                            <tr>
-                                                <td colspan="12" class="text-center text-muted">
-                                                    <i class="fa fa-info-circle"></i> Aucun véhicule trouvé
-                                                </td>
-                                            </tr>
+                                            <span class="badge badge-{{ v.alert_color }}">{{v.jours_restant}} jour{{ v.jours_restant|pluralize }}</span>
                                         {% endif %}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                                    </td>
+                                    <td>
+                                        {% if v.jours_ent_restant == 0 %}
+                                            <span class="badge badge-secondary">-</span>
+                                        {% else %}
+                                            <span class="badge badge-{{ v.alert_ent_color }}">{{v.jours_ent_restant}} jour{{ v.jours_ent_restant|pluralize }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if v.jours_assu_restant == 0 %}
+                                            <span class="badge badge-secondary">-</span>
+                                        {% else %}
+                                            <span class="badge badge-{{ v.alert_assu_color }}">{{v.jours_assu_restant}} jour{{ v.jours_assu_restant|pluralize }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if v.jours_vign_restant == 0 %}
+                                            <span class="badge badge-secondary">-</span>
+                                        {% else %}
+                                            <span class="badge badge-{{ v.alert_vign_color }}">{{v.jours_vign_restant}} jour{{ v.jours_vign_restant|pluralize }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if v.jours_pate_restant == 0 %}
+                                            <span class="badge badge-secondary">-</span>
+                                        {% else %}
+                                            <span class="badge badge-{{ v.alert_pate_color }}">{{v.jours_pate_restant}} jour{{ v.jours_pate_restant|pluralize }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if v.jours_cartsta_restant == 0 %}
+                                            <span class="badge badge-secondary">-</span>
+                                        {% else %}
+                                            <span class="badge badge-{{ v.alert_cartsta_color }}">{{v.jours_cartsta_restant}} jour{{ v.jours_cartsta_restant|pluralize }}</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="9" class="pb-empty">
+                                    <i class="fas fa-inbox" aria-hidden="true"></i>
+                                    Aucun véhicule trouvé
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>

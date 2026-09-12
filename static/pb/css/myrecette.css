@@ -1,0 +1,676 @@
+.pb-panel__header {
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 1rem;
+}
+
+.pb-panel__header .pb-panel__heading {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.myrecette-filterbar {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: flex-end;
+    gap: 0.65rem;
+    flex: 0 0 auto;
+    width: auto;
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    border: none;
+}
+
+.myrecette-filterbar__field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.28rem;
+    min-width: 0;
+}
+
+.myrecette-filterbar__field--cat {
+    flex: 0 0 220px;
+    width: 220px;
+}
+
+.myrecette-filterbar__field--month {
+    flex: 0 0 150px;
+    width: 150px;
+}
+
+.myrecette-filterbar__field--year {
+    flex: 0 0 108px;
+    width: 108px;
+}
+
+.myrecette-filterbar__label {
+    margin: 0;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #64748b;
+}
+
+.myrecette-filterbar__control {
+    position: relative;
+}
+
+.myrecette-filterbar__control > i {
+    position: absolute;
+    left: 0.8rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    font-size: 0.78rem;
+    pointer-events: none;
+}
+
+.myrecette-filterbar select.form-control {
+    display: block;
+    width: 100%;
+    height: 40px;
+    min-height: 40px;
+    padding: 0.35rem 2rem 0.35rem 2.15rem;
+    border: 1px solid var(--pb-kpi-border, #ece9e4);
+    border-radius: 10px;
+    background-color: #fff;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%2364748b' d='M1.4.6 6 5.2 10.6.6 12 2 6 8 0 2z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 10px;
+    appearance: none;
+    -webkit-appearance: none;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--pb-kpi-title, #1f2937);
+    box-shadow: none;
+}
+
+.myrecette-filterbar select.form-control:focus {
+    outline: none;
+    border-color: rgba(168, 50, 50, 0.4);
+    box-shadow: 0 0 0 3px rgba(168, 50, 50, 0.08);
+}
+
+@media (max-width: 991.98px) {
+    .pb-panel__header {
+        flex-wrap: wrap;
+        align-items: flex-start;
+    }
+
+    .myrecette-filterbar {
+        flex: 1 1 100%;
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .myrecette-filterbar {
+        flex-wrap: wrap;
+    }
+
+    .myrecette-filterbar__field--cat,
+    .myrecette-filterbar__field--month,
+    .myrecette-filterbar__field--year {
+        flex: 1 1 calc(50% - 0.4rem);
+        width: auto;
+    }
+}
+
+html, body {
+    overflow: hidden;
+    height: 100%;
+}
+
+.wrapper {
+    height: 100%;
+    overflow: hidden;
+}
+
+.layout-top-nav .content-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: calc(100dvh - 58px - 3.5rem - 1px);
+    max-height: calc(100dvh - 58px - 3.5rem - 1px);
+    overflow: hidden !important;
+}
+
+[data-live-filter-root] {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.content-header {
+    flex: 0 0 auto;
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.content > .container-fluid {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.content > .container-fluid > .row {
+    display: flex;
+    flex: 1 1 auto;
+    min-height: 0;
+    height: 100%;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.content > .container-fluid > .row > .col-lg-12 {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    height: 100%;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.myrecette-page.pb-panel {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    height: 100%;
+    max-height: 100%;
+    min-height: 0;
+    margin-bottom: 0;
+}
+
+.myrecette-page > .pb-panel__header {
+    flex: 0 0 auto;
+}
+
+.myrecette-page > .pb-panel__body {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: hidden;
+}
+
+@media (max-width: 767.98px) {
+    html,
+    body,
+    .wrapper {
+        height: auto;
+        min-height: 100%;
+        overflow: auto;
+    }
+
+    .layout-top-nav .content-wrapper {
+        height: auto;
+        max-height: none;
+        overflow: visible !important;
+    }
+
+    [data-live-filter-root],
+    .content,
+    .content > .container-fluid,
+    .content > .container-fluid > .row,
+    .content > .container-fluid > .row > .col-lg-12,
+    .myrecette-page.pb-panel,
+    .myrecette-page > .pb-panel__body {
+        height: auto;
+        max-height: none;
+        overflow: visible;
+    }
+
+    .myrecette-table-scroll {
+        flex: 0 0 auto;
+        min-height: 22rem;
+        max-height: 62dvh;
+        overflow: auto;
+    }
+}
+
+.myrecette-table-scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+    width: 100%;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+}
+
+.myrecette-table-scroll > .table,
+#myrecette-table,
+#temp-arret-table {
+    width: max-content;
+    min-width: 100%;
+    margin-bottom: 0;
+    white-space: nowrap;
+}
+
+#temp-arret-table thead th {
+    position: sticky;
+    z-index: 3;
+    background: var(--pb-kpi-pill-bg, #f7f4f0);
+}
+
+#temp-arret-table thead tr:first-child th {
+    top: 0;
+}
+
+#temp-arret-table thead tr:nth-child(2) th {
+    top: 2.35rem;
+}
+
+#temp-arret-table tfoot th {
+    position: sticky;
+    bottom: 0;
+    z-index: 4;
+    background: #fff8e1;
+    font-weight: 700;
+    box-shadow: 0 -4px 10px rgba(28, 25, 23, 0.06);
+}
+
+.myrecette-page .pb-table-wrap.myrecette-freeze,
+.myrecette-page .myrecette-freeze {
+    flex: 1 1 auto;
+    min-height: 0;
+    width: 100%;
+    overflow: hidden;
+}
+
+.myrecette-freeze {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+}
+
+#temp-arret-foot {
+    flex: 0 0 auto;
+    position: relative;
+    z-index: 2;
+    border-top: 1px solid var(--pb-kpi-border, #ece9e4);
+    box-shadow: 0 -6px 14px rgba(28, 25, 23, 0.06);
+}
+
+#temp-arret-foot th {
+    background: #fff8e1;
+    font-weight: 700;
+}
+
+.myrecette-freeze__x {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: thin;
+}
+
+.myrecette-freeze__inner {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
+    height: 100%;
+    min-width: max-content;
+}
+
+.myrecette-freeze__inner > .myrecette-grid {
+    flex: 0 0 auto;
+}
+
+.myrecette-freeze__body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+}
+
+.myrecette-grid {
+    width: max-content;
+    min-width: 100%;
+    margin: 0;
+    table-layout: fixed;
+    border-collapse: collapse;
+    white-space: nowrap;
+    font-size: 0.75rem;
+}
+
+.myrecette-col--immat,
+.myrecette-col--marque {
+    width: 96px;
+}
+
+.myrecette-col--day {
+    width: 52px;
+}
+
+.myrecette-col--sum {
+    width: 88px;
+}
+
+.myrecette-col--motif {
+    width: 140px;
+}
+
+.myrecette-grid thead th,
+.myrecette-grid tbody td,
+.myrecette-grid tfoot td {
+    padding: 0.32rem 0.4rem;
+    vertical-align: middle;
+}
+
+.myrecette-grid thead th {
+    background: var(--pb-kpi-pill-bg);
+    font-size: 0.68rem;
+}
+
+.myrecette-grid thead .btn-prev,
+.myrecette-grid thead .btn-next {
+    font-size: 10px;
+    padding: 0.1rem 0.35rem;
+    line-height: 1.2;
+}
+
+.myrecette-grid tbody td {
+    background: #fff;
+    font-weight: 700;
+}
+
+.myrecette-grid tbody tr:hover td {
+    background: var(--pb-kpi-pill-bg);
+}
+
+.myrecette-grid tfoot td {
+    background: var(--pb-kpi-bg);
+    border-top: 1px solid var(--pb-kpi-border);
+}
+
+.myrecette-grid tfoot .myrecette-total-day {
+    background: #fff3cd;
+}
+
+.myrecette-grid tfoot .myrecette-recap-gap {
+    background: rgb(244, 225, 225);
+}
+
+.temparret-header {
+    padding-top: 0.7rem;
+    padding-bottom: 0.35rem;
+}
+
+.temparret-header__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.65rem;
+}
+
+.temparret-header__title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--pb-primary, #a83232);
+    white-space: nowrap;
+}
+
+.temparret-header__actions {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    gap: 0.35rem;
+}
+
+.temparret-legend {
+    flex: 0 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.9rem 1.35rem;
+    padding: 0.85rem 1rem 1rem;
+    background: #fff;
+    border-top: 1px solid #ece9e4;
+}
+
+.temparret-legend--header {
+    padding: 0;
+    background: transparent;
+    border: none;
+    gap: 0.7rem 1.1rem;
+}
+
+.temparret-legend__group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex: 1 1 360px;
+    min-width: min(100%, 280px);
+}
+
+.temparret-legend__heading {
+    margin: 0;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--pb-primary, #a83232);
+}
+
+.temparret-legend__chips {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(168px, 1fr));
+    gap: 0.5rem;
+}
+
+.temparret-legend--header .temparret-legend__group {
+    flex: 1 1 280px;
+    min-width: min(100%, 200px);
+}
+
+.temparret-legend--header .temparret-legend__chips {
+    grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
+    gap: 0.4rem;
+}
+
+.temparret-legend--header .temparret-legend__chip {
+    min-height: 46px;
+    padding: 0.35rem 0.55rem;
+}
+
+.temparret-legend--header .temparret-legend__label {
+    font-size: 0.72rem;
+}
+
+.temparret-legend--header .temparret-legend__value {
+    font-size: 1.05rem;
+}
+
+.temparret-legend__chip {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    min-height: 56px;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #ece9e4;
+    border-left-width: 4px;
+    border-radius: 10px;
+    background: #fafbfc;
+}
+
+.temparret-legend__dot {
+    flex-shrink: 0;
+    width: 0.7rem;
+    height: 0.7rem;
+    border-radius: 999px;
+    background: currentColor;
+}
+
+.temparret-legend__meta {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.08rem;
+}
+
+.temparret-legend__code {
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #64748b;
+}
+
+.temparret-legend__label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #1e293b;
+    line-height: 1.25;
+}
+
+.temparret-legend__value {
+    margin-left: auto;
+    font-size: 1.2rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+}
+
+.temparret-legend__chip--success {
+    border-left-color: #16a34a;
+    color: #16a34a;
+}
+
+.temparret-legend__chip--warning {
+    border-left-color: #d97706;
+    color: #d97706;
+}
+
+.temparret-legend__chip--danger {
+    border-left-color: #dc2626;
+    color: #dc2626;
+}
+
+.temparret-legend__chip--info {
+    border-left-color: #0891b2;
+    color: #0891b2;
+}
+
+.temparret-legend__chip--primary {
+    border-left-color: var(--pb-primary, #a83232);
+    color: var(--pb-primary, #a83232);
+}
+
+.temparret-legend__chip--success .temparret-legend__value,
+.temparret-legend__chip--warning .temparret-legend__value,
+.temparret-legend__chip--danger .temparret-legend__value,
+.temparret-legend__chip--info .temparret-legend__value,
+.temparret-legend__chip--primary .temparret-legend__value {
+    color: inherit;
+}
+
+@media (max-width: 991.98px) {
+    .temparret-legend--header .temparret-legend__chips {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .temparret-header__top {
+        flex-wrap: wrap;
+    }
+
+    .temparret-legend {
+        padding: 0.75rem 0.75rem 0.9rem;
+    }
+
+    .temparret-legend--header {
+        padding: 0;
+        gap: 0.45rem;
+    }
+
+    .temparret-legend__chips,
+    .temparret-legend--header .temparret-legend__chips {
+        grid-template-columns: 1fr 1fr;
+        gap: 0.35rem;
+    }
+
+    .temparret-legend__chip {
+        min-height: 40px;
+        padding: 0.3rem 0.45rem;
+    }
+
+    .temparret-legend--header .temparret-legend__chip {
+        min-height: 34px;
+    }
+
+    .temparret-legend__value {
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .temparret-legend--header .temparret-legend__label {
+        display: none;
+    }
+
+    .temparret-legend--header .temparret-legend__chips {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.temparret-mini {
+    display: inline-flex;
+    align-items: center;
+    margin: 0 0.2rem 0.2rem 0;
+    padding: 0.12rem 0.4rem;
+    border-radius: 999px;
+    background: #f4ecec;
+    color: var(--pb-primary, #a83232);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+}
+
+.myrecette-freeze.is-loading,
+.myrecette-table-scroll.is-loading {
+    position: relative;
+    min-height: 8rem;
+}
+
+.myrecette-freeze.is-loading::after,
+.myrecette-table-scroll.is-loading::after {
+    content: "Chargement…";
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.62);
+    color: var(--pb-primary, #a83232);
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.myrecette-total-day {
+    background: #fff3cd;
+}

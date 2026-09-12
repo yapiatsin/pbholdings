@@ -1,0 +1,51 @@
+{% load static %}
+<div class="col-md-12">
+    <div class="card pb-panel">
+        <div class="card-header pb-panel__header">
+            <div class="pb-panel__heading">
+                <strong class="pb-panel__title">{{ panel_title }}</strong>
+                <span class="pb-panel__hint" id="pb-live-count">
+                    {% if search_query %}
+                        {% if result_limited %}{{ vehicules|length }} affichés sur {{ result_total }}{% else %}{{ result_total }} résultat{{ result_total|pluralize }}{% endif %}
+                    {% else %}
+                        Recherche instantanée
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+        <div class="card-body pb-panel__body">
+            <form class="pb-live-search mb-3"
+                  data-live-search
+                  data-search-url="{{ request.path }}"
+                  data-results="#pb-live-results"
+                  data-count="#pb-live-count"
+                  autocomplete="off"
+                  role="search">
+                <div class="pb-live-search__field">
+                    <i class="fas fa-search pb-live-search__icon" aria-hidden="true"></i>
+                    <input type="text"
+                           name="search"
+                           value="{{ search_query }}"
+                           class="pb-live-search__input"
+                           data-live-input
+                           placeholder="Immatriculation, marque ou carte grise…"
+                           autocomplete="off"
+                           spellcheck="false"
+                           inputmode="search"
+                           aria-label="Rechercher un véhicule">
+                    <button type="button" class="pb-live-search__clear" data-live-clear hidden aria-label="Effacer la recherche">
+                        <i class="fas fa-times" aria-hidden="true"></i>
+                    </button>
+                    <span class="pb-live-search__spinner" data-live-spinner hidden aria-hidden="true"></span>
+                    <a href="{{ reset_url }}" class="pb-live-search__reset" title="Réinitialiser" aria-label="Réinitialiser">
+                        <i class="fas fa-sync-alt" aria-hidden="true"></i>
+                    </a>
+                </div>
+            </form>
+            <div id="pb-live-results">
+                {% include 'perfect/partials/saisie/vehicule_live_results.html' %}
+            </div>
+        </div>
+    </div>
+</div>
+<script src="{% static 'pb/js/saisie-live-search.js' %}?v=3"></script>

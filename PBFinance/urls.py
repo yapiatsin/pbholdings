@@ -20,7 +20,6 @@ urlpatterns = [
         views.blog_article_increment_vues,
         name='blog_article_vue',
     ),
-
     # ----- Tableau de bord de gestion -----
     path('manage/', views.ManageDashboardView.as_view(), name='manage_dashboard'),
 

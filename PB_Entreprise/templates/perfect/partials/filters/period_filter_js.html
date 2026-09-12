@@ -24,8 +24,16 @@
         document.querySelectorAll('.pb-modal-default__form').forEach(initPeriodFilterToggle);
     }
 
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initAllPeriodFilters);
+    window.pbInitPeriodFilters = initAllPeriodFilters;
+
+    if (!window.pbPeriodFilterListenerBound) {
+        window.pbPeriodFilterListenerBound = true;
+        document.addEventListener('pb:livefilter', initAllPeriodFilters);
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initAllPeriodFilters);
+        } else {
+            initAllPeriodFilters();
+        }
     } else {
         initAllPeriodFilters();
     }

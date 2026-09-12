@@ -1,13 +1,20 @@
-<div class="pb-stats-card pb-stats-card--chart">
-    <div class="pb-stats-card__header">
-        <h3 class="pb-stats-card__title">
-            {{ title }}{% if hint %} <small class="pb-stats-card__hint">{{ hint }}</small>{% endif %}
-        </h3>
-        {% if badge %}<span class="badge badge-danger">{{ badge }}</span>{% endif %}
-    </div>
-    <div class="pb-stats-card__body">
-        <div class="pb-stats-chart-wrap">
-            <canvas id="{{ chart_id }}"></canvas>
+<div class="col-md-{{ col|default:'4' }}">
+    <div class="card pb-panel">
+        <div class="card-header pb-panel__header">
+            <div class="pb-panel__heading">
+                <strong class="pb-panel__title">{{ title }}</strong>
+                {% if hint %}<span class="pb-panel__hint">{{ hint }}</span>{% endif %}
+            </div>
+            {% if badge %}
+            <div class="pb-panel__tools">
+                <span class="badge badge-danger">{{ badge }}</span>
+            </div>
+            {% endif %}
+        </div>
+        <div class="card-body pb-panel__body">
+            <div class="chart pb-panel__chart{% if chart_class %} {{ chart_class }}{% endif %}"{% if height %} style="height: {{ height }}px; min-height: {{ height }}px;"{% endif %}>
+                <canvas id="{{ chart_id }}"></canvas>
+            </div>
         </div>
     </div>
 </div>

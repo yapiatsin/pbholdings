@@ -3,11 +3,12 @@
 {% block title %}Mes statistiques{% endblock title %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'pb/css/mes-statistics.css' %}">
+<link rel="stylesheet" href="{% static 'pb/css/dashboard.css' %}?v=stat-pad">
+<link rel="stylesheet" href="{% static 'pb/css/mes-statistics.css' %}?v=tbody-scroll">
 {% endblock extra_css %}
 
 {% block page_title %}
-    <img class="profile-user-img" style="border:none; height:55px;width:55px" src="{% static 'dash.png' %}" alt="Statistiques">
+    <img class="profile-user-img" style="border:none; height:55px;width:55px" src="{% static 'dash.png' %}" alt="">
     Mes statistiques
     <span class="pb-stats-period-badge"><i class="far fa-calendar-alt" aria-hidden="true"></i> {{ period_label }}</span>
 {% endblock page_title %}
@@ -22,504 +23,446 @@
 {% endblock page_action %}
 
 {% block main_content %}
-<div class="col-md-12 pb-stats-page">
-
 {% url 'mes_stats' as stats_reset_url %}
 {% include 'perfect/partials/modal_default.html' with modal_id='modal-sm' modal_title='Filtre' body_template='perfect/partials/filters/dashboard_filter_body.html' form=form reset_url=stats_reset_url submit_label='Appliquer' %}
 
-{# ——— Parc & utilisateurs ——— #}
-<section class="pb-stats-section">
-    <h2 class="pb-stats-section__title"><i class="fas fa-users" aria-hidden="true"></i> Parc &amp; utilisateurs</h2>
-    <div class="pb-stats-kpi-grid pb-stats-kpi-grid--6">
-        {% include 'perfect/partials/stats/kpi_card.html' with label="Utilisateurs" value=users_total sublabel=users_active|add:" actifs" icon="fa-users" %}
-        {% include 'perfect/partials/stats/kpi_card.html' with label="Comptes bloqués" value=users_blocked sublabel=users_inactive|add:" inactifs" icon="fa-lock" %}
-        {% include 'perfect/partials/stats/kpi_card.html' with label="Connexions" value=login_success sublabel=login_failed|add:" échec(s)" icon="fa-sign-in-alt" %}
-        {% with en_parc_sub="/ "|add:vehicules_total|add:" total" %}
-        {% include 'perfect/partials/stats/kpi_card.html' with label="En parc" value=vehicules_in_parc sublabel=en_parc_sub icon="fa-car" %}
-        {% endwith %}
-        {% include 'perfect/partials/stats/kpi_card.html' with label="Hors parc" value=vehicules_out_parc sublabel="sortis / inactifs" icon="fa-car-side" %}
-        {% include 'perfect/partials/stats/kpi_card.html' with label="Notifications" value=notif_total sublabel=notif_unread|add:" non lues" icon="fa-bell" %}
+<div class="col-md-12">
+    <div class="pb-kpi-grid pb-kpi-grid--6">
+        {% include 'perfect/partials/stats/kpi_card.html' with label="Utilisateurs" subtitle="Comptes" value=users_total sublabel="Comptes actifs" side_value=users_active side_label="Actifs" icon="fa-users" %}
+        {% include 'perfect/partials/stats/kpi_card.html' with label="Comptes bloqués" subtitle="Sécurité" value=users_blocked sublabel="Comptes inactifs" side_value=users_inactive side_label="Inactifs" icon="fa-lock" %}
+        {% include 'perfect/partials/stats/kpi_card.html' with label="Connexions" subtitle="Période" value=login_success sublabel="Connexions réussies" side_value=login_failed side_label="Échecs" side_tone="bad" icon="fa-sign-in-alt" %}
+        {% include 'perfect/partials/stats/kpi_card.html' with label="En parc" subtitle="Flotte" value=vehicules_in_parc sublabel="Véhicules actifs" side_value=vehicules_total side_label="Total" icon="fa-car" %}
+        {% include 'perfect/partials/stats/kpi_card.html' with label="Hors parc" subtitle="Flotte" value=vehicules_out_parc sublabel="Sortis / inactifs" icon="fa-car-side" %}
+        {% include 'perfect/partials/stats/kpi_card.html' with label="Notifications" subtitle="Alertes" value=notif_total sublabel="Notifications période" side_value=notif_unread side_label="Non lues" icon="fa-bell" %}
     </div>
-</section>
+</div>
 
-{# ——— Finances & garage ——— #}
-<section class="pb-stats-section">
-    <h2 class="pb-stats-section__title"><i class="fas fa-chart-line" aria-hidden="true"></i> Finances &amp; garage</h2>
-    <div class="pb-stats-kpi-grid pb-stats-kpi-grid--4">
-        {% include 'perfect/partials/stats/kpi_card.html' with label="Recette" value=totals_fmt.recettes icon_img="recet.png" highlight=True %}
-        {% include 'perfect/partials/stats/kpi_card.html' with label="Marge directe" value=totals_fmt.marge icon_img="marge.png" highlight=True %}
-        {% include 'perfect/partials/stats/kpi_card.html' with label="Charges totales" value=totals_fmt.charges_total icon_img="sum.png" %}
-        {% include 'perfect/partials/stats/kpi_card.html' with label="Charges fixes" value=totals_fmt.charges_fixes icon_img="chargfix.png" %}
-        {% include 'perfect/partials/stats/kpi_card.html' with label="Charges variables" value=totals_fmt.charges_variables icon_img="chargvar.png" %}
-        {% with repar_sub=counts.pannes|add:" panne(s) · "|add:counts.accidents|add:" accident(s)" ent_sub=counts.entretiens|add:" entretien(s)" enc_sub="Déc. "|add:totals_fmt.decaissements %}
-        {% include 'perfect/partials/stats/kpi_card.html' with label="Réparations" value=totals_fmt.reparations sublabel=repar_sub icon_img="gear.png" %}
-        {% include 'perfect/partials/stats/kpi_card.html' with label="Pièces / Entretiens" value=totals_fmt.pieces sublabel=ent_sub icon_img="update.png" %}
-        {% include 'perfect/partials/stats/kpi_card.html' with label="Encaissements" value=totals_fmt.encaissements sublabel=enc_sub icon_img="brute.png" %}
-        {% endwith %}
+<div class="col-md-12">
+    <div class="pb-kpi-grid pb-kpi-grid--4">
+        {% include 'perfect/partials/stats/kpi_card.html' with label="Recette" subtitle="Produits" value=totals_fmt.recettes unit="FCFA" sublabel="Total encaissé" side_value=counts.recettes side_label="Saisies" icon_img="recet.png" highlight=True %}
+        {% include 'perfect/partials/stats/kpi_card.html' with label="Marge directe" subtitle="Rentabilité" value=totals_fmt.marge unit="FCFA" sublabel="Recette − charges" icon_img="marge.png" highlight=True %}
+        {% include 'perfect/partials/stats/kpi_card.html' with label="Charges totales" subtitle="Charges" value=totals_fmt.charges_total unit="FCFA" sublabel="Fixes + variables + admin" icon_img="sum.png" %}
+        {% include 'perfect/partials/stats/kpi_card.html' with label="Charges fixes" subtitle="Charges" value=totals_fmt.charges_fixes unit="FCFA" sublabel="Total période" icon_img="chargfix.png" %}
+        {% include 'perfect/partials/stats/kpi_card.html' with label="Charges variables" subtitle="Charges" value=totals_fmt.charges_variables unit="FCFA" sublabel="Total période" icon_img="chargvar.png" %}
+        {% include 'perfect/partials/stats/kpi_card.html' with label="Réparations" subtitle="Garage" value=totals_fmt.reparations unit="FCFA" sublabel="Montant période" side_value=counts.reparations side_label="Dossiers" icon_img="gear.png" %}
+        {% include 'perfect/partials/stats/kpi_card.html' with label="Pièces" subtitle="Maintenance" value=totals_fmt.pieces unit="FCFA" sublabel="Pièces / entretiens" side_value=counts.entretiens side_label="Entretiens" icon_img="update.png" %}
+        {% include 'perfect/partials/stats/kpi_card.html' with label="Encaissements" subtitle="Trésorerie" value=totals_fmt.encaissements unit="FCFA" sublabel="Décaissements" side_value=totals_fmt.decaissements side_label="FCFA" icon_img="brute.png" %}
     </div>
-</section>
+</div>
 
-{# ——— Graphiques ——— #}
-<section class="pb-stats-section">
-    <h2 class="pb-stats-section__title"><i class="fas fa-chart-area" aria-hidden="true"></i> Visualisations</h2>
-    <div class="pb-stats-charts-grid">
-        {% include 'perfect/partials/stats/chart_card.html' with title="Évolution des recettes" hint=chart_axis_hint chart_id="chartFinance" %}
-        {% include 'perfect/partials/stats/chart_card.html' with title="Évolution des charges" hint=chart_axis_hint chart_id="chartChargesBar" %}
+<div class="col-md-12">
+    <div class="row pb-panel-row">
+        {% include 'perfect/partials/stats/chart_card.html' with title="Évolution des recettes" hint=chart_axis_hint chart_id="chartFinance" height="280" %}
+        {% include 'perfect/partials/stats/chart_card.html' with title="Évolution des charges" hint=chart_axis_hint chart_id="chartChargesBar" height="280" %}
         {% include 'perfect/partials/stats/chart_card.html' with title="Répartition des charges" chart_id="chartChargesPie" %}
+    </div>
+</div>
+
+<div class="col-md-12">
+    <div class="row pb-panel-row">
         {% include 'perfect/partials/stats/chart_card.html' with title="Évolution des réparations" hint=chart_axis_hint chart_id="chartReparations" %}
         {% include 'perfect/partials/stats/chart_card.html' with title="Réparations par motif" chart_id="chartReparMotif" %}
         {% include 'perfect/partials/stats/chart_card.html' with title="Véhicules par catégorie" chart_id="chartVehicules" %}
-        {% include 'perfect/partials/stats/chart_card.html' with title="Connexions (réussies / échouées)" chart_id="chartLogin" %}
+    </div>
+</div>
+
+<div class="col-md-12">
+    <div class="row pb-panel-row">
+        {% include 'perfect/partials/stats/chart_card.html' with title="Connexions" hint="Réussies / échouées" chart_id="chartLogin" %}
         {% include 'perfect/partials/stats/chart_card.html' with title="Audit — types d'actions" chart_id="chartAudit" %}
         {% include 'perfect/partials/stats/chart_card.html' with title="Notifications par type" chart_id="chartNotif" %}
-
-        {# Classements #}
-        <div class="pb-stats-card">
-            <div class="pb-stats-card__header">
-                <h3 class="pb-stats-card__title">{{ top_recettes|length }} Meilleure{% if top_recettes|length > 1 %}s{% endif %} recette{% if top_recettes|length > 1 %}s{% endif %}</h3>
-            </div>
-            <div class="pb-stats-card__body pb-stats-card__body--flush">
-                <ul class="pb-stats-rank-list">
-                    {% for c in top_recettes %}
-                    <li class="pb-stats-rank-list__item">
-                        <span class="pb-stats-rank-list__label">{{ c.vehicule__immatriculation }}</span>
-                        <span class="pb-stats-rank-list__value">{{ c.total }}</span>
-                    </li>
-                    {% empty %}
-                    <li class="pb-stats-empty">Aucune donnée sur la période.</li>
-                    {% endfor %}
-                </ul>
-            </div>
-        </div>
-
-        <div class="pb-stats-card">
-            <div class="pb-stats-card__header">
-                <h3 class="pb-stats-card__title">{{ top_reparations|length }} Top réparation{% if top_reparations|length > 1 %}s{% endif %}</h3>
-            </div>
-            <div class="pb-stats-card__body pb-stats-card__body--flush">
-                <ul class="pb-stats-rank-list">
-                    {% for c in top_reparations %}
-                    <li class="pb-stats-rank-list__item">
-                        <span class="pb-stats-rank-list__label">{{ c.vehicule__immatriculation }} <small class="text-muted">({{ c.motif }})</small></span>
-                        <span class="pb-stats-rank-list__value">{{ c.total }}</span>
-                    </li>
-                    {% empty %}
-                    <li class="pb-stats-empty">Aucune donnée sur la période.</li>
-                    {% endfor %}
-                </ul>
-            </div>
-        </div>
-
-        <div class="pb-stats-card">
-            <div class="pb-stats-card__header">
-                <h3 class="pb-stats-card__title">Utilisateurs par profil</h3>
-            </div>
-            <div class="pb-stats-card__body pb-stats-card__body--flush">
-                <ul class="pb-stats-rank-list">
-                    {% for row in users_by_type %}
-                    <li class="pb-stats-rank-list__item">
-                        <span class="pb-stats-rank-list__label">{% for k,v in user_type_choices.items %}{% if k == row.user_type %}{{ v }}{% endif %}{% endfor %}</span>
-                        <span class="pb-stats-rank-list__value">{{ row.count }}</span>
-                    </li>
-                    {% empty %}
-                    <li class="pb-stats-empty">Aucune donnée.</li>
-                    {% endfor %}
-                </ul>
-            </div>
-        </div>
     </div>
-</section>
-
-{# ——— Connexions & sécurité ——— #}
-<section class="pb-stats-section">
-    <h2 class="pb-stats-section__title"><i class="fas fa-shield-alt" aria-hidden="true"></i> Connexions &amp; sécurité</h2>
-    <div class="pb-stats-split pb-stats-split--8-4">
-        <div class="pb-stats-split__main">
-            <div class="pb-stats-card">
-                <div class="pb-stats-card__header">
-                    <h3 class="pb-stats-card__title"><i class="fas fa-sign-in-alt mr-1" aria-hidden="true"></i> Historique des connexions</h3>
-                </div>
-                <div class="pb-stats-card__body pb-stats-card__body--flush pb-stats-scroll">
-                    <table class="table table-sm table-hover pb-stats-table mb-0 text-nowrap">
-                        <thead>
-                            <tr>
-                                <th>Date / heure</th>
-                                <th>Utilisateur</th>
-                                <th>IP</th>
-                                <th>Statut</th>
-                                <th>Raison échec</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for log in login_recent %}
-                            <tr>
-                                <td>{{ log.created_at|date:"d/m/Y H:i" }}</td>
-                                <td>{{ log.user.email }}</td>
-                                <td><small>{{ log.ip_address }}</small></td>
-                                <td>{% if log.login_successful %}<span class="badge badge-success">Réussi</span>{% else %}<span class="badge badge-danger">Échoué</span>{% endif %}</td>
-                                <td><small>{{ log.failure_reason|default:"—" }}</small></td>
-                            </tr>
-                            {% empty %}
-                            <tr><td colspan="5" class="pb-stats-empty">Aucune connexion sur cette période.</td></tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-        <div class="pb-stats-split__side pb-stats-side-stack">
-            <div class="pb-stats-card">
-                <div class="pb-stats-card__header">
-                    <h3 class="pb-stats-card__title">Tentatives échouées</h3>
-                </div>
-                <div class="pb-stats-card__body pb-stats-card__body--flush pb-stats-scroll pb-stats-scroll--sm">
-                    <ul class="pb-stats-rank-list">
-                        {% for u in users_failed_attempts %}
-                        <li class="pb-stats-rank-list__item">
-                            <span class="pb-stats-rank-list__label">{{ u.email }}</span>
-                            <span class="badge badge-warning">{{ u.failed_login_attempts }}</span>
-                        </li>
-                        {% empty %}
-                        <li class="pb-stats-empty">Aucun compte en échec.</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            </div>
-            <div class="pb-stats-card">
-                <div class="pb-stats-card__header">
-                    <h3 class="pb-stats-card__title">Sécurité compte</h3>
-                </div>
-                <div class="pb-stats-card__body">
-                    <div class="pb-stats-metric-row"><span>OTP reset</span><strong>{{ password_resets }}</strong></div>
-                    <div class="pb-stats-metric-row"><span>Vérifications email</span><strong>{{ email_verifications }}</strong></div>
-                    <div class="pb-stats-metric-row"><span>Changements MDP</span><strong>{{ password_changes }}</strong></div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-{# ——— Notifications ——— #}
-<section class="pb-stats-section">
-    <h2 class="pb-stats-section__title"><i class="fas fa-bell" aria-hidden="true"></i> Notifications</h2>
-    <div class="pb-stats-split pb-stats-split--8-4">
-        <div class="pb-stats-split__main">
-            <div class="pb-stats-card">
-                <div class="pb-stats-card__header">
-                    <h3 class="pb-stats-card__title"><i class="fas fa-bell mr-1" aria-hidden="true"></i> Notifications &amp; alertes</h3>
-                    <span class="badge badge-danger">{{ notif_alerts }} alerte(s)</span>
-                </div>
-                <div class="pb-stats-card__body pb-stats-card__body--flush pb-stats-scroll">
-                    <table class="table table-sm table-hover pb-stats-table mb-0">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Destinataire</th>
-                                <th>Titre</th>
-                                <th>Type</th>
-                                <th>Lu</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for n in notif_recent %}
-                            <tr class="{% if not n.lu %}font-weight-bold{% endif %}">
-                                <td><small>{{ n.created_at|date:"d/m/Y H:i" }}</small></td>
-                                <td><small>{{ n.user.email }}</small></td>
-                                <td>{{ n.titre|truncatechars:45 }}</td>
-                                <td><span class="badge badge-{% if n.type_notif == 'alert' %}danger{% elif n.type_notif == 'compte' %}info{% else %}secondary{% endif %}">{{ n.get_type_notif_display }}</span></td>
-                                <td>{% if n.lu %}<i class="fas fa-check text-success"></i>{% else %}<i class="fas fa-circle text-warning" style="font-size: 8px;"></i>{% endif %}</td>
-                            </tr>
-                            {% empty %}
-                            <tr><td colspan="5" class="pb-stats-empty">Aucune notification sur cette période.</td></tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-        <div class="pb-stats-split__side">
-            <div class="pb-stats-card">
-                <div class="pb-stats-card__header">
-                    <h3 class="pb-stats-card__title">Notifications par catégorie</h3>
-                </div>
-                <div class="pb-stats-card__body pb-stats-card__body--flush">
-                    <ul class="pb-stats-rank-list">
-                        {% for row in notif_by_category %}
-                        <li class="pb-stats-rank-list__item">
-                            <span class="pb-stats-rank-list__label">{{ row.categorie|default:"autre" }}</span>
-                            <span class="pb-stats-rank-list__value">{{ row.count }}</span>
-                        </li>
-                        {% empty %}
-                        <li class="pb-stats-empty">—</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-{# ——— Audit ——— #}
-<section class="pb-stats-section">
-    <h2 class="pb-stats-section__title"><i class="fas fa-history" aria-hidden="true"></i> Piste d'audit</h2>
-    <div class="pb-stats-card">
-        <div class="pb-stats-card__header">
-            <h3 class="pb-stats-card__title"><i class="fas fa-history mr-1" aria-hidden="true"></i> Piste d'audit (simple-history)</h3>
-        </div>
-        <div class="pb-stats-card__body pb-stats-card__body--flush pb-stats-scroll">
-            <table class="table table-sm table-hover pb-stats-table mb-0 text-nowrap">
-                <thead>
-                    <tr>
-                        <th>Date / heure</th>
-                        <th>Module</th>
-                        <th>Action</th>
-                        <th>Détail</th>
-                        <th>Montant</th>
-                        <th>Utilisateur</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for entry in audit_trail %}
-                    <tr>
-                        <td><small>{{ entry.date|date:"d/m/Y H:i" }}</small></td>
-                        <td>{{ entry.model }}</td>
-                        <td>
-                            {% if entry.action_code == '+' %}<span class="badge badge-success">{{ entry.action }}</span>
-                            {% elif entry.action_code == '~' %}<span class="badge badge-warning">{{ entry.action }}</span>
-                            {% else %}<span class="badge badge-danger">{{ entry.action }}</span>{% endif %}
-                        </td>
-                        <td><small>{{ entry.detail|truncatechars:50 }}</small></td>
-                        <td>{% if entry.montant %}{{ entry.montant|floatformat:0 }}{% else %}—{% endif %}</td>
-                        <td><small>{% if entry.user %}{{ entry.user.email }}{% else %}—{% endif %}</small></td>
-                    </tr>
-                    {% empty %}
-                    <tr><td colspan="6" class="pb-stats-empty">Aucune action enregistrée sur cette période.</td></tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-</section>
-
-{# ——— Volume des opérations ——— #}
-<section class="pb-stats-section">
-    <h2 class="pb-stats-section__title"><i class="fas fa-list" aria-hidden="true"></i> Volume des opérations</h2>
-    <div class="pb-stats-card">
-        <div class="pb-stats-card__header">
-            <h3 class="pb-stats-card__title"><i class="fas fa-list mr-1" aria-hidden="true"></i> Volume des opérations par module</h3>
-        </div>
-        <div class="pb-stats-card__body pb-stats-card__body--flush">
-            <table class="table table-sm table-hover pb-stats-table mb-0">
-                <thead>
-                    <tr>
-                        <th>Module</th>
-                        <th class="text-right">Nombre</th>
-                        <th class="text-right">Montant (FCFA)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr><td>Recettes</td><td class="text-right">{{ counts.recettes }}</td><td class="text-right">{{ totals_fmt.recettes }}</td></tr>
-                    <tr><td>Charges fixes</td><td class="text-right">{{ counts.charges_fixes }}</td><td class="text-right">{{ totals_fmt.charges_fixes }}</td></tr>
-                    <tr><td>Charges variables</td><td class="text-right">{{ counts.charges_variables }}</td><td class="text-right">{{ totals_fmt.charges_variables }}</td></tr>
-                    <tr><td>Charges administratives</td><td class="text-right">{{ counts.charges_admin }}</td><td class="text-right">{{ totals_fmt.charges_admin }}</td></tr>
-                    <tr><td>Réparations</td><td class="text-right">{{ counts.reparations }}</td><td class="text-right">{{ totals_fmt.reparations }}</td></tr>
-                    <tr><td>Pièces réparation / échange</td><td class="text-right">{{ counts.pieces }} / {{ counts.pieces_echange }}</td><td class="text-right">{{ totals_fmt.pieces }} / {{ totals_fmt.pieces_echange }}</td></tr>
-                    <tr><td>Entretiens / Temps d'arrêt</td><td class="text-right">{{ counts.entretiens }} / {{ counts.arrets }}</td><td class="text-right">{{ totals_fmt.entretiens }} / {{ totals_fmt.arrets }}</td></tr>
-                    <tr><td>Vignettes / Patentes / Stationnement</td><td class="text-right">{{ counts.vignettes }} / {{ counts.patentes }} / {{ counts.stationnements }}</td><td class="text-right">{{ totals_fmt.vignettes }} / {{ totals_fmt.patentes }} / {{ totals_fmt.stationnements }}</td></tr>
-                    <tr><td>Assurances / Visites techniques</td><td class="text-right">{{ counts.assurances }} / {{ counts.visites }}</td><td class="text-right">{{ totals_fmt.assurances }} / {{ totals_fmt.visites }}</td></tr>
-                    <tr><td>Encaissements / Décaissements</td><td class="text-right">{{ counts.encaissements }} / {{ counts.decaissements }}</td><td class="text-right">{{ totals_fmt.encaissements }} / {{ totals_fmt.decaissements }}</td></tr>
-                    <tr><td>Billetage / Soldes jour</td><td class="text-right">{{ counts.billetages }} / {{ counts.soldes }}</td><td class="text-right">—</td></tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</section>
-
 </div>
+
+<div class="col-md-12">
+    <div class="row pb-panel-row">
+        <div class="col-md-4">
+            <div class="card pb-panel">
+                <div class="card-header pb-panel__header">
+                    <div class="pb-panel__heading">
+                        <strong class="pb-panel__title">{{ top_recettes|length }} meilleure{% if top_recettes|length > 1 %}s{% endif %} recette{% if top_recettes|length > 1 %}s{% endif %}</strong>
+                    </div>
+                </div>
+                <div class="card-body pb-panel__body pb-panel__body--flush">
+                    {% if top_recettes %}
+                    <ul class="pb-list">
+                        {% for c in top_recettes %}
+                        <li class="pb-list__item">
+                            <span class="pb-list__link">{{ c.vehicule__immatriculation }}</span>
+                            <span class="pb-list__count">{{ c.total|floatformat:0 }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="pb-empty"><i class="far fa-folder-open"></i> Aucune donnée sur la période.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card pb-panel">
+                <div class="card-header pb-panel__header">
+                    <div class="pb-panel__heading">
+                        <strong class="pb-panel__title">{{ top_reparations|length }} top réparation{% if top_reparations|length > 1 %}s{% endif %}</strong>
+                    </div>
+                </div>
+                <div class="card-body pb-panel__body pb-panel__body--flush">
+                    {% if top_reparations %}
+                    <ul class="pb-list">
+                        {% for c in top_reparations %}
+                        <li class="pb-list__item">
+                            <span class="pb-list__link">{{ c.vehicule__immatriculation }} · {{ c.motif }}</span>
+                            <span class="pb-list__count">{{ c.total }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="pb-empty"><i class="far fa-folder-open"></i> Aucune donnée sur la période.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card pb-panel">
+                <div class="card-header pb-panel__header">
+                    <div class="pb-panel__heading">
+                        <strong class="pb-panel__title">Utilisateurs par profil</strong>
+                    </div>
+                </div>
+                <div class="card-body pb-panel__body pb-panel__body--flush">
+                    {% if users_by_type %}
+                    <ul class="pb-list">
+                        {% for row in users_by_type %}
+                        <li class="pb-list__item">
+                            <span class="pb-list__link">{% for k,v in user_type_choices.items %}{% if k == row.user_type %}{{ v }}{% endif %}{% endfor %}</span>
+                            <span class="pb-list__count">{{ row.count }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="pb-empty"><i class="far fa-folder-open"></i> Aucune donnée.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-md-12">
+    <div class="row pb-panel-row">
+        <div class="col-md-8">
+            <div class="card pb-panel">
+                <div class="card-header pb-panel__header">
+                    <div class="pb-panel__heading">
+                        <strong class="pb-panel__title">Historique des connexions</strong>
+                    </div>
+                </div>
+                <div class="card-body pb-panel__body pb-panel__body--flush">
+                    <div class="pb-table-wrap pb-table-wrap--body-scroll">
+                        <table class="table pb-table mb-0 text-nowrap">
+                            <thead>
+                                <tr>
+                                    <th>Date / heure</th>
+                                    <th>Utilisateur</th>
+                                    <th>IP</th>
+                                    <th>Statut</th>
+                                    <th>Raison échec</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for log in login_recent %}
+                                <tr>
+                                    <td>{{ log.created_at|date:"d/m/Y H:i" }}</td>
+                                    <td class="pb-table__key">{{ log.user.email }}</td>
+                                    <td class="pb-table__muted">{{ log.ip_address }}</td>
+                                    <td>{% if log.login_successful %}<span class="badge badge-success">Réussi</span>{% else %}<span class="badge badge-danger">Échoué</span>{% endif %}</td>
+                                    <td class="pb-table__muted">{{ log.failure_reason|default:"—" }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="5"><p class="pb-empty mb-0">Aucune connexion sur cette période.</p></td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card pb-panel mb-3">
+                <div class="card-header pb-panel__header">
+                    <div class="pb-panel__heading">
+                        <strong class="pb-panel__title">Tentatives échouées</strong>
+                    </div>
+                </div>
+                <div class="card-body pb-panel__body pb-panel__body--flush">
+                    {% if users_failed_attempts %}
+                    <ul class="pb-list">
+                        {% for u in users_failed_attempts %}
+                        <li class="pb-list__item">
+                            <span class="pb-list__link">{{ u.email }}</span>
+                            <span class="pb-list__count pb-list__count--danger">{{ u.failed_login_attempts }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="pb-empty"><i class="far fa-folder-open"></i> Aucun compte en échec.</p>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card pb-panel">
+                <div class="card-header pb-panel__header">
+                    <div class="pb-panel__heading">
+                        <strong class="pb-panel__title">Sécurité compte</strong>
+                    </div>
+                </div>
+                <div class="card-body pb-panel__body pb-panel__body--padded">
+                    <div class="pb-panel__stat"><span class="pb-panel__stat-label">OTP reset</span><span class="pb-panel__stat-value">{{ password_resets }}</span></div>
+                    <div class="pb-panel__stat"><span class="pb-panel__stat-label">Vérifications email</span><span class="pb-panel__stat-value">{{ email_verifications }}</span></div>
+                    <div class="pb-panel__stat"><span class="pb-panel__stat-label">Changements MDP</span><span class="pb-panel__stat-value">{{ password_changes }}</span></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-md-12">
+    <div class="row pb-panel-row">
+        <div class="col-md-8">
+            <div class="card pb-panel">
+                <div class="card-header pb-panel__header">
+                    <div class="pb-panel__heading">
+                        <strong class="pb-panel__title">Notifications &amp; alertes</strong>
+                    </div>
+                    <div class="pb-panel__tools">
+                        <span class="badge badge-danger">{{ notif_alerts }} alerte(s)</span>
+                    </div>
+                </div>
+                <div class="card-body pb-panel__body pb-panel__body--flush">
+                    <div class="pb-table-wrap pb-table-wrap--body-scroll">
+                        <table class="table pb-table mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Destinataire</th>
+                                    <th>Titre</th>
+                                    <th>Type</th>
+                                    <th>Lu</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for n in notif_recent %}
+                                <tr>
+                                    <td class="pb-table__muted">{{ n.created_at|date:"d/m/Y H:i" }}</td>
+                                    <td class="pb-table__muted">{{ n.user.email }}</td>
+                                    <td class="pb-table__key">{{ n.titre|truncatechars:45 }}</td>
+                                    <td><span class="badge badge-{% if n.type_notif == 'alert' %}danger{% elif n.type_notif == 'compte' %}info{% else %}secondary{% endif %}">{{ n.get_type_notif_display }}</span></td>
+                                    <td>{% if n.lu %}<i class="fas fa-check text-success"></i>{% else %}<span class="badge badge-warning">Non lu</span>{% endif %}</td>
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="5"><p class="pb-empty mb-0">Aucune notification sur cette période.</p></td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card pb-panel">
+                <div class="card-header pb-panel__header">
+                    <div class="pb-panel__heading">
+                        <strong class="pb-panel__title">Notifications par catégorie</strong>
+                    </div>
+                </div>
+                <div class="card-body pb-panel__body pb-panel__body--flush">
+                    {% if notif_by_category %}
+                    <ul class="pb-list">
+                        {% for row in notif_by_category %}
+                        <li class="pb-list__item">
+                            <span class="pb-list__link">{{ row.categorie|default:"autre" }}</span>
+                            <span class="pb-list__count">{{ row.count }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <p class="pb-empty"><i class="far fa-folder-open"></i> Aucune donnée.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-md-12">
+    <div class="card pb-panel">
+        <div class="card-header pb-panel__header">
+            <div class="pb-panel__heading">
+                <strong class="pb-panel__title">Piste d'audit</strong>
+                <span class="pb-panel__hint">simple-history</span>
+            </div>
+        </div>
+        <div class="card-body pb-panel__body pb-panel__body--flush">
+            <div class="pb-table-wrap pb-table-wrap--body-scroll">
+                <table class="table pb-table mb-0 text-nowrap">
+                    <thead>
+                        <tr>
+                            <th>Date / heure</th>
+                            <th>Module</th>
+                            <th>Action</th>
+                            <th>Détail</th>
+                            <th class="text-right">Montant</th>
+                            <th>Utilisateur</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for entry in audit_trail %}
+                        <tr>
+                            <td class="pb-table__muted">{{ entry.date|date:"d/m/Y H:i" }}</td>
+                            <td>{{ entry.model }}</td>
+                            <td>
+                                {% if entry.action_code == '+' %}<span class="badge badge-success">{{ entry.action }}</span>
+                                {% elif entry.action_code == '~' %}<span class="badge badge-warning">{{ entry.action }}</span>
+                                {% else %}<span class="badge badge-danger">{{ entry.action }}</span>{% endif %}
+                            </td>
+                            <td>{{ entry.detail|truncatechars:50 }}</td>
+                            <td class="pb-table__num">{% if entry.montant %}{{ entry.montant|floatformat:0 }}{% else %}—{% endif %}</td>
+                            <td class="pb-table__muted">{% if entry.user %}{{ entry.user.email }}{% else %}—{% endif %}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="6"><p class="pb-empty mb-0">Aucune action enregistrée sur cette période.</p></td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-md-12">
+    <div class="card pb-panel">
+        <div class="card-header pb-panel__header">
+            <div class="pb-panel__heading">
+                <strong class="pb-panel__title">Volume des opérations</strong>
+                <span class="pb-panel__hint">par module</span>
+            </div>
+        </div>
+        <div class="card-body pb-panel__body pb-panel__body--flush">
+            <div class="pb-table-wrap pb-table-wrap--body-scroll">
+                <table class="table pb-table mb-0">
+                    <thead>
+                        <tr>
+                            <th>Module</th>
+                            <th class="text-right">Nombre</th>
+                            <th class="text-right">Montant (FCFA)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Recettes</td><td class="pb-table__num">{{ counts.recettes }}</td><td class="pb-table__num">{{ totals_fmt.recettes }}</td></tr>
+                        <tr><td>Charges fixes</td><td class="pb-table__num">{{ counts.charges_fixes }}</td><td class="pb-table__num">{{ totals_fmt.charges_fixes }}</td></tr>
+                        <tr><td>Charges variables</td><td class="pb-table__num">{{ counts.charges_variables }}</td><td class="pb-table__num">{{ totals_fmt.charges_variables }}</td></tr>
+                        <tr><td>Charges administratives</td><td class="pb-table__num">{{ counts.charges_admin }}</td><td class="pb-table__num">{{ totals_fmt.charges_admin }}</td></tr>
+                        <tr><td>Réparations</td><td class="pb-table__num">{{ counts.reparations }}</td><td class="pb-table__num">{{ totals_fmt.reparations }}</td></tr>
+                        <tr><td>Pièces / échange</td><td class="pb-table__num">{{ counts.pieces }} / {{ counts.pieces_echange }}</td><td class="pb-table__num">{{ totals_fmt.pieces }} / {{ totals_fmt.pieces_echange }}</td></tr>
+                        <tr><td>Entretiens / arrêts</td><td class="pb-table__num">{{ counts.entretiens }} / {{ counts.arrets }}</td><td class="pb-table__num">{{ totals_fmt.entretiens }} / {{ totals_fmt.arrets }}</td></tr>
+                        <tr><td>Vignettes / patentes / stationnement</td><td class="pb-table__num">{{ counts.vignettes }} / {{ counts.patentes }} / {{ counts.stationnements }}</td><td class="pb-table__num">{{ totals_fmt.vignettes }} / {{ totals_fmt.patentes }} / {{ totals_fmt.stationnements }}</td></tr>
+                        <tr><td>Assurances / visites</td><td class="pb-table__num">{{ counts.assurances }} / {{ counts.visites }}</td><td class="pb-table__num">{{ totals_fmt.assurances }} / {{ totals_fmt.visites }}</td></tr>
+                        <tr><td>Encaissements / décaissements</td><td class="pb-table__num">{{ counts.encaissements }} / {{ counts.decaissements }}</td><td class="pb-table__num">{{ totals_fmt.encaissements }} / {{ totals_fmt.decaissements }}</td></tr>
+                        <tr><td>Billetage / soldes jour</td><td class="pb-table__num">{{ counts.billetages }} / {{ counts.soldes }}</td><td class="pb-table__num">—</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{% static 'pb/js/dashboard-charts.js' %}?v=bar-hover2"></script>
+<script>
+(function () {
+    if (typeof pbMakeLineChart !== 'function') return;
+    const chartLabels = {{ chart_labels_json|safe }};
+    const palette = window.pbDoughnutColors || ['37, 99, 235', '249, 115, 22', '234, 179, 8', '236, 72, 153', '16, 185, 129', '139, 92, 246'];
+
+    pbMakeLineChart(
+        document.getElementById('chartFinance'),
+        chartLabels,
+        {{ chart_recettes_json|safe }},
+        'Recettes',
+        '168, 50, 50'
+    );
+    pbMakeBarChart(
+        document.getElementById('chartChargesBar'),
+        chartLabels,
+        [
+            { label: 'Charges fixes', data: {{ chart_chargfix_json|safe }}, rgb: '168, 50, 50' },
+            { label: 'Charges variables', data: {{ chart_chargvar_json|safe }}, rgb: '26, 26, 26' }
+        ]
+    );
+    pbMakeDoughnutChart(
+        document.getElementById('chartChargesPie'),
+        {{ charges_pie_labels|safe }},
+        {{ charges_pie_data|safe }}
+    );
+    pbMakeLineChart(
+        document.getElementById('chartReparations'),
+        chartLabels,
+        {{ chart_reparations_json|safe }},
+        'Réparations',
+        '249, 115, 22'
+    );
+    pbMakeDoughnutChart(
+        document.getElementById('chartReparMotif'),
+        {{ repar_motif_labels|safe }},
+        {{ repar_motif_data|safe }}
+    );
+    pbMakeBarChart(
+        document.getElementById('chartVehicules'),
+        {{ vehicules_by_cat_labels|safe }},
+        [{ label: 'Véhicules', data: {{ vehicules_by_cat_data|safe }}, rgb: '168, 50, 50' }]
+    );
+    pbMakeBarChart(
+        document.getElementById('chartLogin'),
+        {{ login_labels_json|safe }},
+        [
+            { label: 'Réussies', data: {{ login_success_json|safe }}, rgb: '16, 185, 129' },
+            { label: 'Échouées', data: {{ login_failure_json|safe }}, rgb: '220, 38, 38' }
+        ],
+        { stacked: true }
+    );
+
+    const auditLabels = {{ audit_by_action_labels|safe }};
+    const auditColors = auditLabels.map(function (label) {
+        if (label === 'Création') return '16, 185, 129';
+        if (label === 'Modification') return '234, 179, 8';
+        if (label === 'Suppression') return '220, 38, 38';
+        return palette[5] || '139, 92, 246';
+    });
+    pbMakeDoughnutChart(
+        document.getElementById('chartAudit'),
+        auditLabels,
+        {{ audit_by_action_data|safe }},
+        auditColors
+    );
+    pbMakeDoughnutChart(
+        document.getElementById('chartNotif'),
+        {{ notif_type_labels|safe }},
+        {{ notif_type_data|safe }}
+    );
+})();
+</script>
 {% endblock main_content %}
 
 {% block custom_js %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 (function () {
-    const chartLabels = {{ chart_labels_json|safe }};
-    const legendBottom = {
-        display: true,
-        position: 'bottom',
-        labels: { usePointStyle: true, boxWidth: 8, color: '#1a1a1a', padding: 12 }
-    };
-    const gridY = { beginAtZero: true, grid: { color: 'rgba(136, 136, 136, 0.18)' }, ticks: { color: '#888', maxTicksLimit: 6 } };
+    const periodSelect = document.getElementById('period-select');
+    const customFields = document.getElementById('custom-period-fields');
+    if (!periodSelect || !customFields) return;
 
-    const ctxFinance = document.getElementById('chartFinance').getContext('2d');
-    const gradFinance = ctxFinance.createLinearGradient(0, 0, 0, 400);
-    gradFinance.addColorStop(0, 'rgba(168, 50, 50, 0.22)');
-    gradFinance.addColorStop(0.45, 'rgba(168, 50, 50, 0.08)');
-    gradFinance.addColorStop(1, 'rgba(168, 50, 50, 0.01)');
-    new Chart(ctxFinance, {
-        type: 'line',
-        data: {
-            labels: chartLabels,
-            datasets: [{
-                label: 'Recettes',
-                data: {{ chart_recettes_json|safe }},
-                borderWidth: 2,
-                borderColor: 'rgb(168, 50, 50,.85)',
-                tension: 0.4,
-                fill: true,
-                backgroundColor: gradFinance,
-                pointRadius: 2,
-                pointHoverRadius: 4,
-            }]
-        },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: legendBottom }, scales: { x: { grid: { display: false }, ticks: { color: '#888' } }, y: gridY } }
-    });
-
-    new Chart(document.getElementById('chartChargesBar'), {
-        type: 'bar',
-        data: {
-            labels: chartLabels,
-            datasets: [
-                {
-                    label: 'Charges fixes',
-                    data: {{ chart_chargfix_json|safe }},
-                    borderWidth: 1,
-                    borderColor: 'rgba(168, 50, 50, 0.9)',
-                    backgroundColor: 'rgba(168, 50, 50, 0.16)',
-                    borderRadius: 8,
-                    barThickness: 18,
-                },
-                {
-                    label: 'Charges variables',
-                    data: {{ chart_chargvar_json|safe }},
-                    borderWidth: 1,
-                    borderColor: 'rgba(182, 81, 41, 0.9)',
-                    backgroundColor: 'rgba(182, 81, 41, 0.18)',
-                    borderRadius: 8,
-                    barThickness: 18,
-                },
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: legendBottom },
-            scales: {
-                x: { grid: { display: false }, ticks: { color: '#888' } },
-                y: gridY
-            }
-        }
-    });
-
-    const ctxPie = document.getElementById('chartChargesPie').getContext('2d');
-    const pieColors = ['168, 50, 50', '182, 81, 41', '108, 117, 125'];
-    const pieGradients = pieColors.map((color) => {
-        const g = ctxPie.createRadialGradient(150, 100, 35, 150, 100, 120);
-        g.addColorStop(0, `rgba(${color}, 0.02)`);
-        g.addColorStop(0.68, `rgba(${color}, 0.12)`);
-        g.addColorStop(1, `rgba(${color}, 0.42)`);
-        return g;
-    });
-    new Chart(ctxPie, {
-        type: 'doughnut',
-        data: {
-            labels: {{ charges_pie_labels|safe }},
-            datasets: [{
-                data: {{ charges_pie_data|safe }},
-                backgroundColor: pieGradients,
-                borderColor: pieColors.map((c) => `rgba(${c}, 0.75)`),
-                borderWidth: 1
-            }]
-        },
-        options: { responsive: true, maintainAspectRatio: false, cutout: '58%', plugins: { legend: { ...legendBottom, position: 'right' } } }
-    });
-
-    const ctxRepar = document.getElementById('chartReparations').getContext('2d');
-    const gradRepar = ctxRepar.createLinearGradient(0, 0, 0, 400);
-    gradRepar.addColorStop(0, 'rgba(220, 53, 69, 0.22)');
-    gradRepar.addColorStop(1, 'rgba(220, 53, 69, 0.01)');
-    new Chart(ctxRepar, {
-        type: 'line',
-        data: {
-            labels: chartLabels,
-            datasets: [{
-                label: 'Réparations',
-                data: {{ chart_reparations_json|safe }},
-                borderWidth: 2,
-                borderColor: 'rgba(220, 53, 69, 0.85)',
-                tension: 0.4,
-                fill: true,
-                backgroundColor: gradRepar,
-                pointRadius: 2,
-            }]
-        },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: legendBottom }, scales: { x: { grid: { display: false }, ticks: { color: '#888' } }, y: gridY } }
-    });
-
-    new Chart(document.getElementById('chartReparMotif'), {
-        type: 'doughnut',
-        data: {
-            labels: {{ repar_motif_labels|safe }},
-            datasets: [{ data: {{ repar_motif_data|safe }}, backgroundColor: ['#a83232', '#ffc107', '#17a2b8', '#6c757d'], borderWidth: 0 }]
-        },
-        options: { responsive: true, maintainAspectRatio: false, cutout: '58%', plugins: { legend: { ...legendBottom, position: 'right' } } }
-    });
-
-    new Chart(document.getElementById('chartVehicules'), {
-        type: 'bar',
-        data: {
-            labels: {{ vehicules_by_cat_labels|safe }},
-            datasets: [{
-                label: 'Véhicules',
-                data: {{ vehicules_by_cat_data|safe }},
-                borderWidth: 1,
-                borderColor: 'rgba(168, 50, 50, 0.9)',
-                backgroundColor: 'rgba(168, 50, 50, 0.16)',
-                borderRadius: 8,
-                barThickness: 28,
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: { x: { grid: { display: false }, ticks: { color: '#888' } }, y: { ...gridY, ticks: { ...gridY.ticks, stepSize: 1 } } }
-        }
-    });
-
-    new Chart(document.getElementById('chartLogin'), {
-        type: 'bar',
-        data: {
-            labels: {{ login_labels_json|safe }},
-            datasets: [
-                { label: 'Réussies', data: {{ login_success_json|safe }}, backgroundColor: 'rgba(40, 167, 69, 0.75)', borderRadius: 6, barThickness: 16 },
-                { label: 'Échouées', data: {{ login_failure_json|safe }}, backgroundColor: 'rgba(220, 53, 69, 0.75)', borderRadius: 6, barThickness: 16 },
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: legendBottom },
-            scales: { x: { stacked: true, grid: { display: false }, ticks: { color: '#888' } }, y: { ...gridY, stacked: true } }
-        }
-    });
-
-    new Chart(document.getElementById('chartAudit'), {
-        type: 'doughnut',
-        data: {
-            labels: {{ audit_by_action_labels|safe }},
-            datasets: [{ data: {{ audit_by_action_data|safe }}, backgroundColor: ['#28a745', '#ffc107', '#dc3545'], borderWidth: 0 }]
-        },
-        options: { responsive: true, maintainAspectRatio: false, cutout: '58%', plugins: { legend: { ...legendBottom, position: 'right' } } }
-    });
-
-    new Chart(document.getElementById('chartNotif'), {
-        type: 'doughnut',
-        data: {
-            labels: {{ notif_type_labels|safe }},
-            datasets: [{ data: {{ notif_type_data|safe }}, backgroundColor: ['#17a2b8', '#dc3545', '#6f42c1', '#6c757d'], borderWidth: 0 }]
-        },
-        options: { responsive: true, maintainAspectRatio: false, cutout: '58%', plugins: { legend: { ...legendBottom, position: 'right' } } }
-    });
+    function toggleCustomFields() {
+        customFields.style.display = periodSelect.value === 'custom' ? 'block' : 'none';
+    }
+    periodSelect.addEventListener('change', toggleCustomFields);
+    toggleCustomFields();
 })();
 </script>
 {% endblock custom_js %}

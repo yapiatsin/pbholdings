@@ -238,6 +238,10 @@ def sync_user_notifications(user):
         notify_account_blocked(user, reason='auto' if user.failed_login_attempts >= 3 else 'admin')
 
 
+TYPE_LABELS = dict(Notification.TYPE_CHOICES)
+CATEGORIE_LABELS = dict(Notification.CATEGORIE_CHOICES)
+
+
 def get_notifications_queryset(user, *, unread_only=False, limit=20):
     if not can_receive_notifications(user):
         return Notification.objects.none()
@@ -255,30 +259,84 @@ def serialize_notification(notification):
         'message': notification.message,
         'lien': notification.lien,
         'type_notif': notification.type_notif,
+        'type_label': TYPE_LABELS.get(notification.type_notif, notification.type_notif),
         'categorie': notification.categorie,
+        'categorie_label': CATEGORIE_LABELS.get(notification.categorie, notification.categorie or 'Autre'),
         'lu': notification.lu,
         'jours': meta.get('jours'),
         'vehicule': meta.get('vehicule', ''),
         'label': meta.get('label', notification.titre),
         'created_at': notification.created_at.strftime('%d/%m/%Y • %H:%M'),
+        'created_at_iso': notification.created_at.isoformat(),
     }
 
 
-def notifications_payload(user, *, limit=15):
+def notifications_payload(user, *, limit=15, unread_only=False):
+    empty = {'unread_count': 0, 'total_count': 0, 'notifications': []}
     if not can_receive_notifications(user):
-        return {'unread_count': 0, 'total_count': 0, 'notifications': []}
+        return empty
     sync_user_notifications(user)
-    notifications = list(get_notifications_queryset(user, limit=limit))
+    notifications = list(get_notifications_queryset(user, unread_only=unread_only, limit=limit))
     unread_count = Notification.objects.filter(user=user, lu=False).count()
     return {
         'unread_count': unread_count,
-        'total_count': len(notifications),
+        'total_count': unread_count if unread_only else len(notifications),
         'notifications': [serialize_notification(n) for n in notifications],
+    }
+
+
+def notifications_inbox_payload(user, *, status='', categorie='', selected_id=None, limit=80):
+    empty = {
+        'ok': True,
+        'unread_count': 0,
+        'stats': {'total': 0, 'non_lues': 0, 'lues': 0, 'alertes': 0},
+        'notifications': [],
+        'selected': None,
+    }
+    if not can_receive_notifications(user):
+        return empty
+    sync_user_notifications(user)
+    qs = Notification.objects.filter(user=user)
+    stats = {
+        'total': qs.count(),
+        'non_lues': qs.filter(lu=False).count(),
+        'lues': qs.filter(lu=True).count(),
+        'alertes': qs.filter(type_notif='alert').count(),
+    }
+    filtered = qs
+    if status == 'unread':
+        filtered = filtered.filter(lu=False)
+    elif status == 'read':
+        filtered = filtered.filter(lu=True)
+    elif status == 'alert':
+        filtered = filtered.filter(type_notif='alert')
+    if categorie:
+        filtered = filtered.filter(categorie=categorie)
+    items = [serialize_notification(n) for n in filtered.order_by('-created_at')[:limit]]
+    selected = None
+    if selected_id:
+        try:
+            selected = serialize_notification(
+                Notification.objects.get(user=user, pk=int(selected_id))
+            )
+        except (Notification.DoesNotExist, TypeError, ValueError):
+            selected = None
+    return {
+        'ok': True,
+        'unread_count': stats['non_lues'],
+        'stats': stats,
+        'notifications': items,
+        'selected': selected,
     }
 
 
 def mark_notification_read(user, notification_id):
     updated = Notification.objects.filter(user=user, pk=notification_id, lu=False).update(lu=True)
+    return updated > 0
+
+
+def mark_notification_unread(user, notification_id):
+    updated = Notification.objects.filter(user=user, pk=notification_id, lu=True).update(lu=False)
     return updated > 0
 
 

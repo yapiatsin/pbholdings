@@ -1,0 +1,10 @@
+.pb-panel__chart--fill {
+    min-height: 300px;
+    height: 300px;
+}
+
+.pb-panel__chart--fill canvas {
+    min-height: 300px !important;
+    height: 300px !important;
+    max-height: 300px !important;
+}

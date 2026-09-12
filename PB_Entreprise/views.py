@@ -1,6 +1,7 @@
 from datetime import date, datetime, time, timedelta, timezone, timedelta
 from collections import defaultdict
 import json
+import unicodedata
 from typing import Any
 from django.db.models import Q
 from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
@@ -16,7 +17,7 @@ from .models import *
 from .forms import *
 from django.contrib.auth import logout
 from django.db.models import Count
-from django.db.models import Sum, F, Value
+from django.db.models import Sum, F, Value, Avg
 import calendar
 from django.db.models.functions import ExtractMonth, TruncDate, TruncMonth
 from django.db.models.functions import Coalesce
@@ -35,14 +36,22 @@ from django.utils import timezone as dj_timezone
 
 from django.core.mail import send_mail
 from userauths.utils import search_vehicules
-from .saisie_dates import is_saisie_date_allowed
+from .saisie_dates import is_saisie_date_allowed, is_saisie_date_too_old, saisie_min_date
+from .monthly_grids import (
+    build_recette_payload,
+    build_temps_arret_payload,
+    grid_shell_context,
+    wants_json,
+)
 
 import io
 import openpyxl
 from openpyxl import load_workbook
 from openpyxl.utils import get_column_letter
 from openpyxl.utils.datetime import from_excel as openpyxl_from_excel
-from openpyxl.styles import Font, PatternFill, Alignment
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side, Protection
+from openpyxl.comments import Comment
+from openpyxl.worksheet.datavalidation import DataValidation
 from xhtml2pdf import pisa
 from django.conf import settings
 import os
@@ -386,331 +395,45 @@ class ExportBilandayExcelView(LoginRequiredMixin, View):
         wb.save(response)
         return response
 
-class TableaustopView(CustomPermissionRequiredMixin,TemplateView):
+class TableaustopView(CustomPermissionRequiredMixin, TemplateView):
     model = Vehicule
     permission_url = 'temps'
     template_name = "perfect/temp_arret.html"
+
+    def get(self, request, *args, **kwargs):
+        if wants_json(request):
+            return JsonResponse(build_temps_arret_payload(request))
+        return super().get(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        month = self.request.GET.get('month', timezone.now().month)
-        year = self.request.GET.get('year', timezone.now().year)
-        month = int(month)
-        year = int(year)
-        days_in_month = monthrange(year, month)[1]
-        mois_fr = ('', 'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre')
-        month_name = mois_fr[month] if 1 <= month <= 12 else datetime(year, month, 1).strftime("%B")
-        month_choices = [(i, mois_fr[i]) for i in range(1, 13)]
-        user = self.request.user
-        if user.user_type == "4":
-            try:
-                gerant = user.profile
-                categories_gerant = gerant.gerant_voiture.all()
-                if categories_gerant.exists():  
-                    vehicules = Vehicule.objects.filter(category__in=categories_gerant, car_statut=True)
-                else:
-                    vehicules = Vehicule.objects.none()
-            except UserProfile.DoesNotExist:
-                vehicules = Vehicule.objects.none()
-        else:
-            vehicules = Vehicule.objects.filter(car_statut=True)
-
-        # Filtre par catégorie si sélectionnée
-        selected_categorie_id = self.request.GET.get('categorie', '').strip()
-        if selected_categorie_id:
-            try:
-                selected_categorie_id = int(selected_categorie_id)
-                vehicules = vehicules.filter(category_id=selected_categorie_id)
-            except (ValueError, TypeError):
-                selected_categorie_id = None
-        else:
-            selected_categorie_id = None
-        categories_list = CategoVehi.objects.all().order_by('category')
-
-        # Filtre par catégorie si sélectionnée
-        selected_categorie_id = self.request.GET.get('categorie', '').strip()
-        if selected_categorie_id:
-            try:
-                selected_categorie_id = int(selected_categorie_id)
-                vehicules = vehicules.filter(category_id=selected_categorie_id)
-            except (ValueError, TypeError):
-                selected_categorie_id = None
-        else:
-            selected_categorie_id = None
-        categories_list = CategoVehi.objects.all().order_by('category')
-
-        context['current_date'] = date.today()
-        total_actions_sum = total_cost_parts_sum = total_income_sum = total_piece_sum = total_visit_sum = total_panne_sum = total_accident_sum = total_autrarret_sum = total_visitechique_sum = total_entretien_sum = total_repairs_by_motifs = total_motif_arrets = 0
-        # Calculer les totaux par jour
-        daily_totals = [0] * days_in_month
-        for day in range(1, days_in_month + 1):
-            for model in [Reparation, VisiteTechnique, Entretien, Autrarret]:
-                count = model.objects.filter(
-                    date_saisie__day=day,
-                    date_saisie__month=month,
-                    date_saisie__year=year
-                )
-                if user.user_type == "4":
-                    try:
-                        gerant = user.profile
-                        categories_gerant = gerant.gerant_voiture.all()
-                        if categories_gerant.exists():
-                            count = count.filter(vehicule__category__in=categories_gerant)
-                        else:
-                            count = count.none()
-                    except UserProfile.DoesNotExist:
-                        count = count.none()
-                if selected_categorie_id:
-                    count = count.filter(vehicule__category_id=selected_categorie_id)
-                daily_totals[day - 1] += count.count()
-        
-        vehicule_data = []
-        for vehicule in vehicules:
-            total_actions = (
-                Entretien.objects.filter(vehicule=vehicule, date_saisie__month=month, date_saisie__year=year).count() +
-                VisiteTechnique.objects.filter(vehicule=vehicule, date_saisie__month=month, date_saisie__year=year).count() +
-                Autrarret.objects.filter(vehicule=vehicule, date_saisie__month=month, date_saisie__year=year).count() +
-                Reparation.objects.filter(vehicule=vehicule,motif="Visite", date_saisie__month=month, date_saisie__year=year).count() +
-                Reparation.objects.filter(vehicule=vehicule,motif="Panne", date_saisie__month=month, date_saisie__year=year).count() +
-                Reparation.objects.filter(vehicule=vehicule,motif="Accident", date_saisie__month=month, date_saisie__year=year).count()
-            )
-            total_cost_parts = Piece.objects.filter(
-                reparation__vehicule=vehicule, date_saisie__month=month, date_saisie__year=year
-            ).aggregate(total_cost=models.Sum('montant'))['total_cost'] or 0
-
-            total_income = Recette.objects.filter(
-                vehicule=vehicule, date_saisie__month=month, date_saisie__year=year
-            ).aggregate(total_income=models.Sum('montant'))['total_income'] or 0
-
-            part_details_queryset = Piece.objects.filter(
-                reparation__vehicule=vehicule, date_saisie__month=month, date_saisie__year=year
-            ).values('libelle').annotate(count=models.Count('libelle'), total_price=models.Sum('montant'))
-            
-            all_piece = Piece.objects.filter(reparation__vehicule=vehicule, date_saisie__month=month, date_saisie__year=year).count()
-            all_visitechnique = VisiteTechnique.objects.filter(vehicule=vehicule, date_saisie__month=month, date_saisie__year=year).count()
-            all_entretien = Entretien.objects.filter(vehicule=vehicule, date_saisie__month=month, date_saisie__year=year).count()
-
-            part_details = "; ".join(
-                f"{part['libelle']} ({part['count']}) {part['total_price']}" for part in part_details_queryset
-            )
-
-            daily_actions = [0] * days_in_month
-            for day in range(1, days_in_month + 1):
-                for model in [Reparation, VisiteTechnique, Entretien, Autrarret]:
-                    count = model.objects.filter(
-                        vehicule=vehicule, date_saisie__day=day, date_saisie__month=month, date_saisie__year=year
-                    ).count()
-                    daily_actions[day - 1] += count
-            
-            repairs_by_motif = {
-                'P-vis': Reparation.objects.filter(vehicule=vehicule, motif="Visite", date_saisie__month=month, date_saisie__year=year).count(),
-                'pan': Reparation.objects.filter(vehicule=vehicule, motif="Panne", date_saisie__month=month, date_saisie__year=year).count(),
-                'acc': Reparation.objects.filter(vehicule=vehicule, motif="Accident", date_saisie__month=month, date_saisie__year=year).count(),
-            }
-            total_repairs_by_motif = (
-                Reparation.objects.filter(vehicule=vehicule, motif="Visite", date_saisie__month=month, date_saisie__year=year).count()+
-                Reparation.objects.filter(vehicule=vehicule, motif="Panne", date_saisie__month=month, date_saisie__year=year).count()+
-                Reparation.objects.filter(vehicule=vehicule, motif="Accident", date_saisie__month=month, date_saisie__year=year).count()
-            )
-            motif_arret = {
-                'vis': VisiteTechnique.objects.filter(vehicule=vehicule,date_saisie__month=month, date_saisie__year=year).count(),
-                'ent': Entretien.objects.filter(vehicule=vehicule, date_saisie__month=month, date_saisie__year=year).count(),
-                'aut': Autrarret.objects.filter(vehicule=vehicule, date_saisie__month=month, date_saisie__year=year).count(),
-            }
-            total_motif_arret = (
-                VisiteTechnique.objects.filter(vehicule=vehicule,date_saisie__month=month, date_saisie__year=year).count()+
-                Entretien.objects.filter(vehicule=vehicule, date_saisie__month=month, date_saisie__year=year).count()+
-                Autrarret.objects.filter(vehicule=vehicule, date_saisie__month=month, date_saisie__year=year).count()
-            )
-            total_repairs_by_motifs += total_repairs_by_motif
-            total_motif_arrets += total_motif_arret 
-            
-            all_rep_visit = Reparation.objects.filter(vehicule=vehicule, motif="Visite", date_saisie__month=month, date_saisie__year=year).count()
-            all_rep_panne = Reparation.objects.filter(vehicule=vehicule, motif="Panne", date_saisie__month=month, date_saisie__year=year).count()
-            all_rep_accident = Reparation.objects.filter(vehicule=vehicule, motif="Accident", date_saisie__month=month, date_saisie__year=year).count()
-            all_autre_arret = Autrarret.objects.filter(vehicule=vehicule, date_saisie__month=month, date_saisie__year=year).count()
-            
-            vehicule_data.append({
-                'immatriculation': vehicule.immatriculation,
-                'marque': vehicule.marque,
-                'category': vehicule.category.category,
-                'total_actions': total_actions,
-                'total_cost_parts': total_cost_parts,
-                'total_income': total_income,
-                'part_details': part_details,
-                'daily_actions': daily_actions,
-                'repairs_by_motif': repairs_by_motif,
-                'motif_arret': motif_arret,
-            })
-            total_actions_sum += total_actions
-            total_cost_parts_sum += total_cost_parts
-            total_income_sum += total_income
-            total_piece_sum += all_piece
-            total_visitechique_sum += all_visitechnique
-            total_entretien_sum += all_entretien
-            total_visit_sum += all_rep_visit
-            total_panne_sum += all_rep_panne
-            total_accident_sum += all_rep_accident
-            total_autrarret_sum += all_autre_arret
-
-        context['vehicule_data'] = vehicule_data
-        context['categories_list'] = categories_list
-        context['selected_categorie_id'] = selected_categorie_id
-        
-        context['total_repairs_by_motifs'] = total_repairs_by_motifs
-        context['total_motif_arrets'] = total_motif_arrets
-        
-        context['total_visit_sum'] = total_visit_sum
-        context['total_panne_sum'] = total_panne_sum
-        context['total_accident_sum'] = total_accident_sum
-        context['total_autrarret_sum'] = total_autrarret_sum
-        
-        context['total_visitechique_sum'] = total_visitechique_sum
-        context['total_entretien_sum'] = total_entretien_sum
-        
-        context['total_actions_sum'] = total_actions_sum
-        context['total_cost_parts_sum'] = total_cost_parts_sum
-        context['total_income_sum'] = total_income_sum
-        context['total_piece_sum'] = total_piece_sum
-        
-        context['days_in_month'] = range(1, days_in_month + 1)
-        context['month_name'] = month_name
-        context['month'] = month
-        context['year'] = year
-        context['years'] = range(timezone.now().year - 4, timezone.now().year + 1)
-        context['month_range'] = range(1, 13)
-        context['month_choices'] = month_choices
-        context['days_in_month_plus_two'] = days_in_month + 2
-        context['daily_totals'] = daily_totals
+        context.update(grid_shell_context(self.request))
         return context
+
 
 class ExportTempsArretExcelView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
-        month = request.GET.get('month', timezone.now().month)
-        year = request.GET.get('year', timezone.now().year)
-        month = int(month)
-        year = int(year)
-        days_in_month = monthrange(year, month)[1]
-        month_name = datetime(year, month, 1).strftime("%B")
-        
-        user = request.user
-        if user.user_type == "4":
-            try:
-                gerant = user.profile
-                categories_gerant = gerant.gerant_voiture.all()
-                if categories_gerant.exists():  
-                    vehicules = Vehicule.objects.filter(category__in=categories_gerant)
-                else:
-                    vehicules = Vehicule.objects.none()
-            except UserProfile.DoesNotExist:
-                vehicules = Vehicule.objects.none()
-        else:
-            vehicules = Vehicule.objects.all()
+        payload = build_temps_arret_payload(request)
+        month = payload['month']
+        year = payload['year']
+        month_name = payload['month_name']
+        days_in_month = len(payload['days'])
+        vehicule_data = payload['vehicles']
+        daily_totals = payload['daily_totals']
+        totals = payload['totals']
+        total_actions_sum = totals['actions']
+        total_cost_parts_sum = totals['cost_parts']
+        total_income_sum = totals['income']
+        total_piece_sum = totals['pieces']
+        total_visit_sum = totals['visit']
+        total_panne_sum = totals['panne']
+        total_accident_sum = totals['accident']
+        total_autrarret_sum = totals['autrarret']
+        total_visitechique_sum = totals['visite_technique']
+        total_entretien_sum = totals['entretien']
+        total_repairs_by_motifs = totals['repairs_by_motif']
+        total_motif_arrets = totals['motif_arrets']
 
-        selected_categorie_id = request.GET.get('categorie', '').strip()
-        if selected_categorie_id:
-            try:
-                selected_categorie_id = int(selected_categorie_id)
-                vehicules = vehicules.filter(category_id=selected_categorie_id)
-            except (ValueError, TypeError):
-                selected_categorie_id = None
-        else:
-            selected_categorie_id = None
-
-        total_actions_sum = total_cost_parts_sum = total_income_sum = total_piece_sum = 0
-        total_visit_sum = total_panne_sum = total_accident_sum = total_autrarret_sum = 0
-        total_visitechique_sum = total_entretien_sum = total_repairs_by_motifs = total_motif_arrets = 0
-
-        vehicule_data = []
-        daily_totals = [0] * days_in_month
-
-        for vehicule in vehicules:
-            total_actions = (
-                Entretien.objects.filter(vehicule=vehicule, date_saisie__month=month, date_saisie__year=year).count() +
-                VisiteTechnique.objects.filter(vehicule=vehicule, date_saisie__month=month, date_saisie__year=year).count() +
-                Autrarret.objects.filter(vehicule=vehicule, date_saisie__month=month, date_saisie__year=year).count() +
-                Reparation.objects.filter(vehicule=vehicule, motif="Visite", date_saisie__month=month, date_saisie__year=year).count() +
-                Reparation.objects.filter(vehicule=vehicule, motif="Panne", date_saisie__month=month, date_saisie__year=year).count() +
-                Reparation.objects.filter(vehicule=vehicule, motif="Accident", date_saisie__month=month, date_saisie__year=year).count()
-            )
-            total_cost_parts = Piece.objects.filter(
-                reparation__vehicule=vehicule, date_saisie__month=month, date_saisie__year=year
-            ).aggregate(total_cost=Sum('montant'))['total_cost'] or 0
-
-            total_income = Recette.objects.filter(
-                vehicule=vehicule, date_saisie__month=month, date_saisie__year=year
-            ).aggregate(total_income=Sum('montant'))['total_income'] or 0
-
-            part_details_queryset = Piece.objects.filter(
-                reparation__vehicule=vehicule, date_saisie__month=month, date_saisie__year=year
-            ).values('libelle').annotate(count=models.Count('libelle'), total_price=models.Sum('montant'))
-            
-            all_piece = Piece.objects.filter(reparation__vehicule=vehicule, date_saisie__month=month, date_saisie__year=year).count()
-            all_visitechnique = VisiteTechnique.objects.filter(vehicule=vehicule, date_saisie__month=month, date_saisie__year=year).count()
-            all_entretien = Entretien.objects.filter(vehicule=vehicule, date_saisie__month=month, date_saisie__year=year).count()
-
-            part_details = "; ".join(
-                f"{part['libelle']} ({part['count']}) {part['total_price']}" for part in part_details_queryset
-            )
-
-            daily_actions = [0] * days_in_month
-            for day in range(1, days_in_month + 1):
-                for model in [Reparation, VisiteTechnique, Entretien, Autrarret]:
-                    count = model.objects.filter(
-                        vehicule=vehicule, date_saisie__day=day, date_saisie__month=month, date_saisie__year=year
-                    ).count()
-                    daily_actions[day - 1] += count
-                    daily_totals[day - 1] += count
-            
-            repairs_by_motif = {
-                'P-vis': Reparation.objects.filter(vehicule=vehicule, motif="Visite", date_saisie__month=month, date_saisie__year=year).count(),
-                'pan': Reparation.objects.filter(vehicule=vehicule, motif="Panne", date_saisie__month=month, date_saisie__year=year).count(),
-                'acc': Reparation.objects.filter(vehicule=vehicule, motif="Accident", date_saisie__month=month, date_saisie__year=year).count(),
-            }
-            total_repairs_by_motif = (
-                Reparation.objects.filter(vehicule=vehicule, motif="Visite", date_saisie__month=month, date_saisie__year=year).count()+
-                Reparation.objects.filter(vehicule=vehicule, motif="Panne", date_saisie__month=month, date_saisie__year=year).count()+
-                Reparation.objects.filter(vehicule=vehicule, motif="Accident", date_saisie__month=month, date_saisie__year=year).count()
-            )
-            motif_arret = {
-                'vis': VisiteTechnique.objects.filter(vehicule=vehicule, date_saisie__month=month, date_saisie__year=year).count(),
-                'ent': Entretien.objects.filter(vehicule=vehicule, date_saisie__month=month, date_saisie__year=year).count(),
-                'aut': Autrarret.objects.filter(vehicule=vehicule, date_saisie__month=month, date_saisie__year=year).count(),
-            }
-            total_motif_arret = (
-                VisiteTechnique.objects.filter(vehicule=vehicule, date_saisie__month=month, date_saisie__year=year).count()+
-                Entretien.objects.filter(vehicule=vehicule, date_saisie__month=month, date_saisie__year=year).count()+
-                Autrarret.objects.filter(vehicule=vehicule, date_saisie__month=month, date_saisie__year=year).count()
-            )
-            
-            all_rep_visit = Reparation.objects.filter(vehicule=vehicule, motif="Visite", date_saisie__month=month, date_saisie__year=year).count()
-            all_rep_panne = Reparation.objects.filter(vehicule=vehicule, motif="Panne", date_saisie__month=month, date_saisie__year=year).count()
-            all_rep_accident = Reparation.objects.filter(vehicule=vehicule, motif="Accident", date_saisie__month=month, date_saisie__year=year).count()
-            all_autre_arret = Autrarret.objects.filter(vehicule=vehicule, date_saisie__month=month, date_saisie__year=year).count()
-            
-            vehicule_data.append({
-                'immatriculation': vehicule.immatriculation,
-                'marque': vehicule.marque,
-                'total_actions': total_actions,
-                'total_cost_parts': total_cost_parts,
-                'total_income': total_income,
-                'part_details': part_details,
-                'daily_actions': daily_actions,
-                'repairs_by_motif': repairs_by_motif,
-                'motif_arret': motif_arret,
-            })
-            total_actions_sum += total_actions
-            total_cost_parts_sum += total_cost_parts
-            total_income_sum += total_income
-            total_piece_sum += all_piece
-            total_visitechique_sum += all_visitechnique
-            total_entretien_sum += all_entretien
-            total_visit_sum += all_rep_visit
-            total_panne_sum += all_rep_panne
-            total_accident_sum += all_rep_accident
-            total_autrarret_sum += all_autre_arret
-            total_repairs_by_motifs += total_repairs_by_motif
-            total_motif_arrets += total_motif_arret
-        
         # Créer le fichier Excel
         wb = openpyxl.Workbook()
         ws = wb.active
@@ -766,7 +489,10 @@ class ExportTempsArretExcelView(LoginRequiredMixin, View):
                 detail['total_actions'],
                 detail['total_cost_parts'],
                 detail['total_income'],
-                detail['part_details'],
+                "; ".join(
+                    f"{part['libelle']} ({part['count']}) {part['total_price']}"
+                    for part in (detail.get('part_details') or [])
+                ),
                 f"P-vis:{detail['repairs_by_motif']['P-vis']}, pan:{detail['repairs_by_motif']['pan']}, acc:{detail['repairs_by_motif']['acc']}",
                 f"vis:{detail['motif_arret']['vis']}, ent:{detail['motif_arret']['ent']}, aut:{detail['motif_arret']['aut']}"
             ])
@@ -1164,267 +890,34 @@ class MyRecetteView(CustomPermissionRequiredMixin, LoginRequiredMixin, TemplateV
     login_url = 'login'
     template_name = "perfect/myrecette.html"
     permission_url = 'rec_day'
+
+    def get(self, request, *args, **kwargs):
+        if wants_json(request):
+            return JsonResponse(build_recette_payload(request))
+        return super().get(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        today = now().date()
-        month = self.request.GET.get('month', today.month)
-        year = self.request.GET.get('year', today.year)
-        month = int(month)
-        year = int(year)
-        days_in_month = monthrange(year, month)[1]
-        mois_fr = ('', 'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre')
-        month_name = mois_fr[month] if 1 <= month <= 12 else datetime(year, month, 1).strftime("%B")
-        month_choices = [(i, mois_fr[i]) for i in range(1, 13)]
-        # Calculer les dimanches dans le mois
-        dimanches = [
-            day for day in range(1, days_in_month + 1)
-            if datetime(year, month, day).weekday() == SUNDAY
-        ]
-        jours_ouvrables = days_in_month - len(dimanches)
-        vehicules = Vehicule.objects.select_related('category').filter(car_statut=True)
-        # Filtre par catégorie si sélectionnée
-        selected_categorie_id = self.request.GET.get('categorie', '').strip()
-        if selected_categorie_id:
-            try:
-                selected_categorie_id = int(selected_categorie_id)
-                vehicules = vehicules.filter(category_id=selected_categorie_id)
-            except (ValueError, TypeError):
-                selected_categorie_id = None
-        else:
-            selected_categorie_id = None
-        categories_list = CategoVehi.objects.all().order_by('category')
-        recette_details = []
-        total_recette_mensuelle = 0
-        total_recette_annuelle = 0
-        sum_recets_jours = 0
-        sum_difference_mensuelle = 0
-        sum_recettes_vehicule_mois = 0
-        sum_difference = 0
-        sum_motif_arrets = 0
-        for vehicule in vehicules:
-            # Recette journalière
-            recettes_vehicule_jour = Recette.objects.filter(
-                vehicule=vehicule,
-                date_saisie=date.today()
-            ).aggregate(total_recette=Sum('montant'))['total_recette'] or 0
-            # Recette mensuelle
-            recettes_vehicule_mois = Recette.objects.filter(
-                vehicule=vehicule,
-                date_saisie__month=month,
-                date_saisie__year=year
-            ).aggregate(total_recette=Sum('montant'))['total_recette'] or 0
-            # Recette annuelle
-            recettes_vehicule_an = Recette.objects.filter(
-                vehicule=vehicule,
-                date_saisie__year=year
-            ).aggregate(total_recette=Sum('montant'))['total_recette'] or 0
-            # Recette par défaut de la catégorie
-            recette_defaut = vehicule.category.recette_defaut
-            # Calcul de la recette mensuelle attendue sans dimanches
-            recette_attendue_mensuelle = recette_defaut * jours_ouvrables
-            # Calcul de la différence pour aujourd'hui
-            difference = recettes_vehicule_jour - recette_defaut
-            difference_mensuelle = recettes_vehicule_mois - recette_attendue_mensuelle
-            sum_difference_mensuelle += difference_mensuelle
-            sum_recettes_vehicule_mois += recettes_vehicule_mois
-            sum_difference += difference
-            
-            motif_arrets = {
-                'vis': VisiteTechnique.objects.filter(vehicule=vehicule,date_saisie=date.today()).count(),
-                'ent': Entretien.objects.filter(vehicule=vehicule, date_saisie=date.today()).count(),
-                'rep': Reparation.objects.filter(vehicule=vehicule, date_saisie=date.today()).count(),
-            }
-            visite = VisiteTechnique.objects.filter(vehicule=vehicule,date_saisie=date.today()).count()
-            entretien = Entretien.objects.filter(vehicule=vehicule, date_saisie=date.today()).count()
-            reparation = Reparation.objects.filter(vehicule=vehicule, date_saisie=date.today()).count()
-            som_des_motifs = visite+entretien+reparation
-            
-            sum_motif_arrets += som_des_motifs
-            sum_recets_jours += recettes_vehicule_jour
-            daily_actions = [0] * days_in_month
-            for day in range(1, days_in_month + 1):
-                for model in [Recette]:
-                    motant = model.objects.filter(
-                        vehicule=vehicule, date_saisie__day=day, date_saisie__month=month, date_saisie__year=year
-                    ).aggregate(somme=Sum('montant'))['somme'] or 0
-                    daily_actions[day - 1] += motant
-            
-            recette_details.append({
-                'vehicule': vehicule.immatriculation,
-                'marque': vehicule.marque,
-                'category': vehicule.category.category,
-                'recette_versee': recettes_vehicule_jour,
-                'recette_attendue': recette_defaut,
-                'daily_actions': daily_actions,
-                'difference': difference,
-                'difference_mensuelle': difference_mensuelle,
-                'recette_mensuelle': recettes_vehicule_mois,
-                'recette_annuelle': recettes_vehicule_an,
-                'motif_arrets': motif_arrets,
-            })
-        
-        recette_par_categorie = (
-            Recette.objects.filter(date_saisie__month=month, date_saisie__year=year)
-            .values('vehicule__category__id', 'vehicule__category__category')
-            .annotate(total_verse=Sum('montant'))
-            .order_by('vehicule__category__category')
-        )
-
-        verse_dict = {item['vehicule__category__id']: item['total_verse'] for item in recette_par_categorie}
-        categories = CategoVehi.objects.annotate(nb_vehicules=Count('catego_vehicule'))
-        if selected_categorie_id:
-            categories = categories.filter(id=selected_categorie_id)
-        recap_categorie = []
-
-        for cat in categories:
-            nb_vehicules = cat.nb_vehicules
-            recette_defaut = cat.recette_defaut
-            recette_attendue = recette_defaut * jours_ouvrables * nb_vehicules
-            recette_verse = verse_dict.get(cat.id, 0) or 0
-            ecart = recette_verse - recette_attendue
-
-            recap_categorie.append({
-                'categorie': cat.category,
-                'nb_vehicules': nb_vehicules,
-                'recette_defaut': recette_defaut,
-                'recette_attendue': recette_attendue,
-                'recette_verse': recette_verse,
-                'ecart': ecart,
-            })
-        # Calculer les totaux par date (colonne)
-        total_cost_parts_sum = sum(vehicule.category.recette_defaut for vehicule in vehicules)
-        totals_by_day = []
-        for day in range(1, days_in_month + 1):
-            qs = Recette.objects.filter(
-                date_saisie__day=day,
-                date_saisie__month=month,
-                date_saisie__year=year
-            )
-            if selected_categorie_id:
-                qs = qs.filter(vehicule__category_id=selected_categorie_id)
-            total_day = qs.aggregate(somme=Sum('montant'))['somme'] or 0
-            totals_by_day.append(total_day)
-        
-        context={
-            'recap_categorie': recap_categorie,
-            'sum_motif_arrets': sum_motif_arrets,
-            'sum_difference': sum_difference,
-            'sum_recettes_vehicule_mois': sum_recettes_vehicule_mois,
-            'sum_difference_mensuelle': sum_difference_mensuelle,
-            'sum_recets_jours': sum_recets_jours,
-            'recette_details': recette_details,
-            'total_recette_mensuelle': total_recette_mensuelle,
-            'total_recette_annuelle': total_recette_annuelle,
-            'current_date': today,
-            'days_in_month': range(1, days_in_month + 1),
-            'month_name': month_name,
-            'month': month,
-            'year': year,
-            'years': range(today.year - 4, today.year + 1),
-            'month_range': range(1, 13),
-            'month_choices': month_choices,
-            'days_in_month_plus_two': days_in_month + 2,
-            'totals_by_day': totals_by_day,
-            'total_cost_parts_sum': total_cost_parts_sum,
-            'categories_list': categories_list,
-            'selected_categorie_id': selected_categorie_id,
-        }
+        context.update(grid_shell_context(self.request))
         return context
+
 
 class ExportRecetteMensuelleExcelView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
-        today = now().date()
-        month = request.GET.get('month', today.month)
-        year = request.GET.get('year', today.year)
-        month = int(month)
-        year = int(year)
-        days_in_month = monthrange(year, month)[1]
-        month_name = datetime(year, month, 1).strftime("%B")
-        
-        # Calculer les dimanches dans le mois
-        dimanches = [
-            day for day in range(1, days_in_month + 1)
-            if datetime(year, month, day).weekday() == SUNDAY
-        ]
-        jours_ouvrables = days_in_month - len(dimanches)
+        payload = build_recette_payload(request)
+        month = payload['month']
+        year = payload['year']
+        month_name = payload['month_name']
+        days_in_month = len(payload['days'])
+        recette_details = payload['vehicles']
+        totals_by_day = payload['daily_totals']
+        totals = payload['totals']
+        sum_recets_jours = totals['today']
+        total_cost_parts_sum = totals['a_verser']
+        sum_difference = totals['ecart']
+        sum_recettes_vehicule_mois = totals['recette_mois']
+        sum_difference_mensuelle = totals['a_payer']
 
-        vehicules = Vehicule.objects.select_related('category').all()
-        selected_categorie_id = request.GET.get('categorie', '').strip()
-        if selected_categorie_id:
-            try:
-                selected_categorie_id = int(selected_categorie_id)
-                vehicules = vehicules.filter(category_id=selected_categorie_id)
-            except (ValueError, TypeError):
-                selected_categorie_id = None
-        else:
-            selected_categorie_id = None
-        recette_details = []
-
-        # Calculer les totaux par date
-        totals_by_day = []
-        for day in range(1, days_in_month + 1):
-            qs = Recette.objects.filter(
-                date_saisie__day=day,
-                date_saisie__month=month,
-                date_saisie__year=year
-            )
-            if selected_categorie_id:
-                qs = qs.filter(vehicule__category_id=selected_categorie_id)
-            total_day = qs.aggregate(somme=Sum('montant'))['somme'] or 0
-            totals_by_day.append(total_day)
-
-        for vehicule in vehicules:
-            recettes_vehicule_jour = Recette.objects.filter(
-                vehicule=vehicule,
-                date_saisie=date.today()
-            ).aggregate(total_recette=Sum('montant'))['total_recette'] or 0
-            
-            recettes_vehicule_mois = Recette.objects.filter(
-                vehicule=vehicule,
-                date_saisie__month=month,
-                date_saisie__year=year
-            ).aggregate(total_recette=Sum('montant'))['total_recette'] or 0
-            
-            recette_defaut = vehicule.category.recette_defaut
-            recette_attendue_mensuelle = recette_defaut * jours_ouvrables
-            difference = recettes_vehicule_jour - recette_defaut
-            difference_mensuelle = recettes_vehicule_mois - recette_attendue_mensuelle
-            
-            motif_arrets = {
-                'vis': VisiteTechnique.objects.filter(vehicule=vehicule, date_saisie=date.today()).count(),
-                'ent': Entretien.objects.filter(vehicule=vehicule, date_saisie=date.today()).count(),
-                'rep': Reparation.objects.filter(vehicule=vehicule, date_saisie=date.today()).count(),
-            }
-            
-            daily_actions = [0] * days_in_month
-            for day in range(1, days_in_month + 1):
-                motant = Recette.objects.filter(
-                    vehicule=vehicule, 
-                    date_saisie__day=day, 
-                    date_saisie__month=month, 
-                    date_saisie__year=year
-                ).aggregate(somme=Sum('montant'))['somme'] or 0
-                daily_actions[day - 1] = motant
-            
-            recette_details.append({
-                'vehicule': vehicule.immatriculation,
-                'marque': vehicule.marque,
-                'recette_versee': recettes_vehicule_jour,
-                'recette_attendue': recette_defaut,
-                'daily_actions': daily_actions,
-                'difference': difference,
-                'difference_mensuelle': difference_mensuelle,
-                'recette_mensuelle': recettes_vehicule_mois,
-                'motif_arrets': motif_arrets,
-            })
-        
-        # Calculer les totaux
-        sum_recets_jours = sum(r['recette_versee'] for r in recette_details)
-        sum_difference = sum(r['difference'] for r in recette_details)
-        sum_recettes_vehicule_mois = sum(r['recette_mensuelle'] for r in recette_details)
-        sum_difference_mensuelle = sum(r['difference_mensuelle'] for r in recette_details)
-        total_cost_parts_sum = sum(vehicule.category.recette_defaut for vehicule in vehicules)
-        
         # Créer le fichier Excel
         wb = openpyxl.Workbook()
         ws = wb.active
@@ -1456,7 +949,7 @@ class ExportRecetteMensuelleExcelView(LoginRequiredMixin, View):
         # Données des véhicules
         for detail in recette_details:
             row = [
-                detail['vehicule'],
+                detail.get('immatriculation') or detail.get('vehicule'),
                 detail['marque'],
             ]
             row.extend(detail['daily_actions'])
@@ -1568,6 +1061,50 @@ def _dashboard_get_period_bounds(request, form=None):
     start = today.replace(day=1)
     last_day = monthrange(today.year, today.month)[1]
     return start, today.replace(day=last_day), 'month', 'day'
+
+
+def _dashboard_previous_period(date_debut, date_fin):
+    """Période de même durée précédant immédiatement celle analysée."""
+    duree = (date_fin - date_debut).days + 1
+    fin = date_debut - timedelta(days=1)
+    return fin - timedelta(days=duree - 1), fin
+
+
+def _kpi_somme(queryset, bornes, date_field='date_saisie'):
+    """Somme des montants d'un queryset sur une plage (debut, fin)."""
+    debut, fin = bornes
+    return queryset.filter(**{f'{date_field}__range': [debut, fin]}).aggregate(
+        somme=Sum('montant')
+    )['somme'] or 0
+
+
+def _kpi_variation(courant, precedent, hausse_favorable=True):
+    """Variation d'une carte KPI : (texte, sens du chevron, tonalité).
+    `hausse_favorable=False` pour les charges, dont la hausse se colore en rouge.
+    Texte vide lorsque la comparaison n'a pas de sens (aucune donnée).
+    """
+    courant = courant or 0
+    precedent = precedent or 0
+    if not precedent:
+        if not courant:
+            return '', 'up', 'good'
+        return '100 %', 'up', 'good' if hausse_favorable else 'bad'
+    # Base absolue : une référence négative garde le bon sens de variation.
+    ecart = (courant - precedent) * 100 / abs(precedent)
+    favorable = (ecart >= 0) == hausse_favorable
+    return (
+        '{:.0f} %'.format(abs(ecart)),
+        'up' if ecart >= 0 else 'down',
+        'good' if favorable else 'bad',
+    )
+
+
+def _kpi_part(valeur, total):
+    """Part d'un montant dans un total, arrondie au pour cent."""
+    if not total:
+        return '0 %'
+    return '{:.0f} %'.format((valeur or 0) * 100 / total)
+
 
 def _dashboard_chart_date_range(start, end):
     return [start + timedelta(days=i) for i in range((end - start).days + 1)]
@@ -1726,26 +1263,68 @@ class DashboardView(CustomPermissionRequiredMixin,LoginRequiredMixin,TemplateVie
         filtre_chargvar = chargvar_queryset.filter(date_saisie__range=[date_debut, date_fin])
         filtre_reparation = reparation_queryset.filter(date_saisie__range=[date_debut, date_fin])
 
-        total_recettes = filtre_recette.aggregate(somme=Sum('montant'))['somme'] or 1
+        agg_recette = filtre_recette.aggregate(somme=Sum('montant'), nb=Count('id'))
+        total_recettes = agg_recette['somme'] or 0
         total_recette_format = '{:,}'.format(total_recettes).replace(',', ' ')
-        total_piece = filtre_piece.aggregate(somme=Sum('montant'))['somme'] or 0
+        agg_piece = filtre_piece.aggregate(somme=Sum('montant'), nb=Count('id'))
+        total_piece = agg_piece['somme'] or 0
         total_piece_format = '{:,}'.format(total_piece).replace(',', ' ')
-        total_piec_echange = filtre_piec_echange.aggregate(somme=Sum('montant'))['somme'] or 0
+        agg_piec_echange = filtre_piec_echange.aggregate(somme=Sum('montant'), nb=Count('id'))
+        total_piec_echange = agg_piec_echange['somme'] or 0
         total_piece_echang_format = '{:,}'.format(total_piec_echange).replace(',', ' ')
-        total_charg_fix = filtre_chargfix.aggregate(somme=Sum('montant'))['somme'] or 0
+        agg_chargfix = filtre_chargfix.aggregate(somme=Sum('montant'), nb=Count('id'))
+        total_charg_fix = agg_chargfix['somme'] or 0
         total_chargfix_format = '{:,}'.format(total_charg_fix).replace(',', ' ')
-        total_charg_var = filtre_chargvar.aggregate(somme=Sum('montant'))['somme'] or 0
+        agg_chargvar = filtre_chargvar.aggregate(somme=Sum('montant'), nb=Count('id'))
+        total_charg_var = agg_chargvar['somme'] or 0
         total_chargvar_format = '{:,}'.format(total_charg_var).replace(',', ' ')
         total_charg = total_charg_fix + total_charg_var
         total_charge_format = '{:,}'.format(total_charg).replace(',', ' ')
         marge_contribution = total_recettes - total_charg_var
-        if total_recettes == 1:
+        if not total_recettes:
             taux_marge = 0
         else:
             taux_marge = (marge_contribution * 100 / total_recettes)
         taux_marge_format = '{:.2f}'.format(taux_marge)
+        marge_contribution_format = '{:,}'.format(marge_contribution).replace(',', ' ')
         marge_brute = total_recettes - total_charg
         marge_brute_format = '{:,}'.format(marge_brute).replace(',', ' ')
+        taux_marge_brute_format = '{:.2f}'.format(
+            marge_brute * 100 / total_recettes if total_recettes else 0
+        )
+
+        # Variations par rapport à la période de même durée qui précède.
+        periode_precedente = _dashboard_previous_period(date_debut, date_fin)
+        recette_prec = _kpi_somme(recette_queryset, periode_precedente)
+        chargfix_prec = _kpi_somme(chargfix_queryset, periode_precedente)
+        chargvar_prec = _kpi_somme(chargvar_queryset, periode_precedente)
+        piece_prec = _kpi_somme(piece_queryset, periode_precedente)
+        piechang_prec = _kpi_somme(piechan_queryset, periode_precedente)
+        charges_prec = chargfix_prec + chargvar_prec
+        recette_delta, recette_delta_dir, recette_delta_tone = _kpi_variation(
+            total_recettes, recette_prec
+        )
+        chargfix_delta, chargfix_delta_dir, chargfix_delta_tone = _kpi_variation(
+            total_charg_fix, chargfix_prec, hausse_favorable=False
+        )
+        chargvar_delta, chargvar_delta_dir, chargvar_delta_tone = _kpi_variation(
+            total_charg_var, chargvar_prec, hausse_favorable=False
+        )
+        charges_delta, charges_delta_dir, charges_delta_tone = _kpi_variation(
+            total_charg, charges_prec, hausse_favorable=False
+        )
+        piece_delta, piece_delta_dir, piece_delta_tone = _kpi_variation(
+            total_piece, piece_prec, hausse_favorable=False
+        )
+        piechang_delta, piechang_delta_dir, piechang_delta_tone = _kpi_variation(
+            total_piec_echange, piechang_prec, hausse_favorable=False
+        )
+        marge_contrib_delta, marge_contrib_delta_dir, marge_contrib_delta_tone = _kpi_variation(
+            marge_contribution, recette_prec - chargvar_prec
+        )
+        marge_brute_delta, marge_brute_delta_dir, marge_brute_delta_tone = _kpi_variation(
+            marge_brute, recette_prec - charges_prec
+        )
 
         label, recet_mois_data = _dashboard_aggregate_montant(
             recette_queryset, 'date_saisie', date_debut, date_fin, chart_granularity
@@ -1838,7 +1417,7 @@ class DashboardView(CustomPermissionRequiredMixin,LoginRequiredMixin,TemplateVie
             .order_by('-total_reparations')[:5]
         )
 
-        context = {
+        context.update({
             'total_recette_format': total_recette_format,
             'datasets_json': json.dumps(datasets),
             'jours_semaine': json.dumps(jours_semaine),
@@ -1850,6 +1429,40 @@ class DashboardView(CustomPermissionRequiredMixin,LoginRequiredMixin,TemplateVie
             'charge_totale': total_charge_format,
             'marge_brute_format': marge_brute_format,
             'taux_marge': taux_marge_format,
+            'marge_contribution_format': marge_contribution_format,
+            'taux_marge_brute': taux_marge_brute_format,
+            'nb_recettes': agg_recette['nb'],
+            'nb_chargfix': agg_chargfix['nb'],
+            'nb_chargvar': agg_chargvar['nb'],
+            'nb_pieces': agg_piece['nb'],
+            'nb_piec_echange': agg_piec_echange['nb'],
+            'part_chargfix': _kpi_part(total_charg_fix, total_charg),
+            'part_chargvar': _kpi_part(total_charg_var, total_charg),
+            'part_charges': _kpi_part(total_charg, total_recettes),
+            'recette_delta': recette_delta,
+            'recette_delta_dir': recette_delta_dir,
+            'recette_delta_tone': recette_delta_tone,
+            'marge_contrib_delta': marge_contrib_delta,
+            'marge_contrib_delta_dir': marge_contrib_delta_dir,
+            'marge_contrib_delta_tone': marge_contrib_delta_tone,
+            'marge_brute_delta': marge_brute_delta,
+            'marge_brute_delta_dir': marge_brute_delta_dir,
+            'marge_brute_delta_tone': marge_brute_delta_tone,
+            'chargfix_delta': chargfix_delta,
+            'chargfix_delta_dir': chargfix_delta_dir,
+            'chargfix_delta_tone': chargfix_delta_tone,
+            'chargvar_delta': chargvar_delta,
+            'chargvar_delta_dir': chargvar_delta_dir,
+            'chargvar_delta_tone': chargvar_delta_tone,
+            'charges_delta': charges_delta,
+            'charges_delta_dir': charges_delta_dir,
+            'charges_delta_tone': charges_delta_tone,
+            'piece_delta': piece_delta,
+            'piece_delta_dir': piece_delta_dir,
+            'piece_delta_tone': piece_delta_tone,
+            'piechang_delta': piechang_delta,
+            'piechang_delta_dir': piechang_delta_dir,
+            'piechang_delta_tone': piechang_delta_tone,
             'best_recettes': best_recets,
             'top_reparations': top_reparations,
             'bests_taux': best_taux,
@@ -1870,7 +1483,7 @@ class DashboardView(CustomPermissionRequiredMixin,LoginRequiredMixin,TemplateVie
             'radar_follows_filter': radar_follows_filter,
             'radar_custom_week': radar_custom_week,
             'chart_axis_hint': _dashboard_chart_axis_hint(selected_period, chart_granularity),
-        }
+        })
         return context
 
 
@@ -1960,28 +1573,33 @@ class DashboardGaragView(LoginRequiredMixin, CustomPermissionRequiredMixin, Temp
         filtre_vignette = vignette_queryset.filter(date_saisie__range=[date_debut, date_fin])
         filtre_assurance = assurance_queryset.filter(date_saisie__range=[date_debut, date_fin])
 
-        nb_reparat = filtre_reparation.count()
-        total_reparat = filtre_reparation.aggregate(somme=Sum('montant'))['somme'] or 0
+        agg_reparat = filtre_reparation.aggregate(somme=Sum('montant'), nb=Count('id'))
+        nb_reparat = agg_reparat['nb']
+        total_reparat = agg_reparat['somme'] or 0
         total_reparat_format ='{:,}'.format(total_reparat).replace(',', ' ')
         
-        nb_reparatvtc = filtre_reparation.count()
-        total_reparatvtc = filtre_reparation.aggregate(somme=Sum('montant'))['somme'] or 0
+        nb_reparatvtc = nb_reparat
+        total_reparatvtc = total_reparat
         total_reparatvtc_format ='{:,}'.format(total_reparatvtc).replace(',', ' ')
         
-        nb_reparataxi = filtre_reparation.count()
-        total_reparataxi = filtre_reparation.aggregate(somme=Sum('montant'))['somme'] or 0
+        nb_reparataxi = nb_reparat
+        total_reparataxi = total_reparat
         total_reparataxi_format ='{:,}'.format(total_reparataxi).replace(',', ' ')
         
-        total_visit = filtre_visitech.aggregate(somme=Sum('montant'))['somme'] or 0
+        agg_visit = filtre_visitech.aggregate(somme=Sum('montant'), nb=Count('id'))
+        total_visit = agg_visit['somme'] or 0
         total_visit_format ='{:,}'.format(total_visit).replace(',', ' ')
         
-        total_entret = filtre_entretien.aggregate(somme=Sum('montant'))['somme'] or 0
+        agg_entret = filtre_entretien.aggregate(somme=Sum('montant'), nb=Count('id'))
+        total_entret = agg_entret['somme'] or 0
         total_ent_format ='{:,}'.format(total_entret).replace(',', ' ')
         
-        total_piece = filtre_piece.aggregate(somme=Sum('montant'))['somme'] or 0
+        agg_piece = filtre_piece.aggregate(somme=Sum('montant'), nb=Count('id'))
+        total_piece = agg_piece['somme'] or 0
         total_piece_format ='{:,}'.format(total_piece).replace(',', ' ')
         
-        total_piecechang = filtre_piechan.aggregate(somme=Sum('montant'))['somme'] or 0
+        agg_piecechang = filtre_piechan.aggregate(somme=Sum('montant'), nb=Count('id'))
+        total_piecechang = agg_piecechang['somme'] or 0
         total_piececha_format ='{:,}'.format(total_piecechang).replace(',', ' ')
         
         total_piece_int = filtre_piece.filter(lieu="INTERNE").aggregate(somme=Sum('montant'))['somme'] or 0
@@ -1992,17 +1610,53 @@ class DashboardGaragView(LoginRequiredMixin, CustomPermissionRequiredMixin, Temp
         total_pieces_int = total_piece_int + total_piecechang_int
         total_pieces_format_int = '{:,}'.format(total_pieces_int).replace(',', ' ')
 
-        total_stationnement = filtre_stationnement.aggregate(somme=Sum('montant'))['somme'] or 0
+        agg_stationnement = filtre_stationnement.aggregate(somme=Sum('montant'), nb=Count('id'))
+        total_stationnement = agg_stationnement['somme'] or 0
         total_stationnement_format ='{:,}'.format(total_stationnement).replace(',', ' ')
         
-        total_patente = filtre_patente.aggregate(somme=Sum('montant'))['somme'] or 0
+        agg_patente = filtre_patente.aggregate(somme=Sum('montant'), nb=Count('id'))
+        total_patente = agg_patente['somme'] or 0
         total_patente_format ='{:,}'.format(total_patente).replace(',', ' ')
         
-        total_vignette = filtre_vignette.aggregate(somme=Sum('montant'))['somme'] or 0
+        agg_vignette = filtre_vignette.aggregate(somme=Sum('montant'), nb=Count('id'))
+        total_vignette = agg_vignette['somme'] or 0
         total_vignette_format ='{:,}'.format(total_vignette).replace(',', ' ')
         
-        total_assurance = filtre_assurance.aggregate(somme=Sum('montant'))['somme'] or 0
+        agg_assurance = filtre_assurance.aggregate(somme=Sum('montant'), nb=Count('id'))
+        total_assurance = agg_assurance['somme'] or 0
         total_assurance_format ='{:,}'.format(total_assurance).replace(',', ' ')
+
+        # Variations par rapport à la période de même durée qui précède.
+        periode_precedente = _dashboard_previous_period(date_debut, date_fin)
+        reparat_delta, reparat_delta_dir, reparat_delta_tone = _kpi_variation(
+            total_reparat, _kpi_somme(reparation_queryset, periode_precedente), hausse_favorable=False
+        )
+        visit_delta, visit_delta_dir, visit_delta_tone = _kpi_variation(
+            total_visit, _kpi_somme(visitech_queryset, periode_precedente), hausse_favorable=False
+        )
+        entret_delta, entret_delta_dir, entret_delta_tone = _kpi_variation(
+            total_entret, _kpi_somme(entretien_queryset, periode_precedente), hausse_favorable=False
+        )
+        piece_delta, piece_delta_dir, piece_delta_tone = _kpi_variation(
+            total_piece, _kpi_somme(piece_queryset, periode_precedente), hausse_favorable=False
+        )
+        piechang_delta, piechang_delta_dir, piechang_delta_tone = _kpi_variation(
+            total_piecechang, _kpi_somme(piechan_queryset, periode_precedente), hausse_favorable=False
+        )
+        stationnement_delta, stationnement_delta_dir, stationnement_delta_tone = _kpi_variation(
+            total_stationnement,
+            _kpi_somme(stationnement_queryset, periode_precedente),
+            hausse_favorable=False,
+        )
+        patente_delta, patente_delta_dir, patente_delta_tone = _kpi_variation(
+            total_patente, _kpi_somme(patente_queryset, periode_precedente), hausse_favorable=False
+        )
+        vignette_delta, vignette_delta_dir, vignette_delta_tone = _kpi_variation(
+            total_vignette, _kpi_somme(vignette_queryset, periode_precedente), hausse_favorable=False
+        )
+        assurance_delta, assurance_delta_dir, assurance_delta_tone = _kpi_variation(
+            total_assurance, _kpi_somme(assurance_queryset, periode_precedente), hausse_favorable=False
+        )
 
         label, rep_mois_data = _dashboard_aggregate_montant(
             reparation_queryset, 'date_saisie', date_debut, date_fin, chart_granularity
@@ -2054,6 +1708,42 @@ class DashboardGaragView(LoginRequiredMixin, CustomPermissionRequiredMixin, Temp
             'nb_reparataxi': nb_reparataxi,
             'total_reparataxi_format': total_reparataxi_format,
             'total_pieces_format_int': total_pieces_format_int,
+            'nb_visit': agg_visit['nb'],
+            'nb_entret': agg_entret['nb'],
+            'nb_piece': agg_piece['nb'],
+            'nb_piecechang': agg_piecechang['nb'],
+            'nb_stationnement': agg_stationnement['nb'],
+            'nb_patente': agg_patente['nb'],
+            'nb_vignette': agg_vignette['nb'],
+            'nb_assurance': agg_assurance['nb'],
+            'part_pieces_int': _kpi_part(total_pieces_int, total_piece + total_piecechang),
+            'reparat_delta': reparat_delta,
+            'reparat_delta_dir': reparat_delta_dir,
+            'reparat_delta_tone': reparat_delta_tone,
+            'visit_delta': visit_delta,
+            'visit_delta_dir': visit_delta_dir,
+            'visit_delta_tone': visit_delta_tone,
+            'entret_delta': entret_delta,
+            'entret_delta_dir': entret_delta_dir,
+            'entret_delta_tone': entret_delta_tone,
+            'piece_delta': piece_delta,
+            'piece_delta_dir': piece_delta_dir,
+            'piece_delta_tone': piece_delta_tone,
+            'piechang_delta': piechang_delta,
+            'piechang_delta_dir': piechang_delta_dir,
+            'piechang_delta_tone': piechang_delta_tone,
+            'stationnement_delta': stationnement_delta,
+            'stationnement_delta_dir': stationnement_delta_dir,
+            'stationnement_delta_tone': stationnement_delta_tone,
+            'patente_delta': patente_delta,
+            'patente_delta_dir': patente_delta_dir,
+            'patente_delta_tone': patente_delta_tone,
+            'vignette_delta': vignette_delta,
+            'vignette_delta_dir': vignette_delta_dir,
+            'vignette_delta_tone': vignette_delta_tone,
+            'assurance_delta': assurance_delta,
+            'assurance_delta_dir': assurance_delta_dir,
+            'assurance_delta_tone': assurance_delta_tone,
             'labels': json.dumps(label),
             'form': form,
             'dates': dates,
@@ -2223,7 +1913,7 @@ class BilletageView(CustomPermissionRequiredMixin, CreateView):
 
             self.request.user.save()
             
-        context={
+        context.update({
             'forms':forms,
             'formset':formset,
             'solde_initial':solde_initial,
@@ -2245,7 +1935,7 @@ class BilletageView(CustomPermissionRequiredMixin, CreateView):
             'solde_day':solde_jour,
             'tot_bi_pi':Total_piec_bill,
             'dates':dates,
-        }
+        })
         return context
     def post(self, request, *args, **kwargs):
         formset = BilletageFormSet(self.request.POST, queryset=Billetage.objects.none())
@@ -2494,7 +2184,7 @@ class AddDecaissementView(LoginRequiredMixin, CustomPermissionRequiredMixin, Cre
         sorti_jours_format = '{:,}'.format(tot_sort_jour).replace(',', ' ')
         sorti_mois_format = '{:,}'.format(tot_sort_mois).replace(',', ' ')
         sorti_an_format = '{:,}'.format(tot_sort_annuel).replace(',', ' ')
-        context = {
+        context.update({
             'form': form,
             'forms': forms,
             'formset': formset,
@@ -2503,7 +2193,7 @@ class AddDecaissementView(LoginRequiredMixin, CustomPermissionRequiredMixin, Cre
             'tot_sort_annuel': sorti_an_format,
             'sorties_liste': sorties_liste,
             'dates': today,
-        }
+        })
         return context
     # def get_success_url(self):
     #     return reverse('add_decaisse')
@@ -2523,7 +2213,6 @@ class AddDecaissementView(LoginRequiredMixin, CustomPermissionRequiredMixin, Cre
 class ExportDecaissementExcelView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         decaissements = Decaissement.objects.all().select_related('auteur')
-
         date_debut = request.GET.get('date_debut')
         date_fin = request.GET.get('date_fin')
         num_piece = request.GET.get('num_piece')
@@ -2675,7 +2364,7 @@ class AddEncaissementView(LoginRequiredMixin, CustomPermissionRequiredMixin, Cre
         entret_mois_format = '{:,}'.format(tot_entre_mois).replace(',', ' ')
         entret_an_format = '{:,}'.format(tot_entre_annuel).replace(',', ' ')
         
-        context = {
+        context.update({
             'form': form,
             'formset': formset,
             'entret_jours_format': entret_jours_format,
@@ -2685,7 +2374,7 @@ class AddEncaissementView(LoginRequiredMixin, CustomPermissionRequiredMixin, Cre
             'forms': forms,
             'entres_liste': liste_entret,
             # 'liste_entret': liste_entret,
-        }
+        })
         return context
     def post(self, request, *args, **kwargs):
         formset = EncaissementFormSet(self.request.POST, queryset=Encaissement.objects.none())
@@ -2802,11 +2491,11 @@ class AddSoldeJourView(CustomPermissionRequiredMixin, CreateView):
         else:
             solde_liste = SoldeJour.objects.filter(date_saisie__month=date.today().month)
         solde_jour = solde_liste.order_by('-id')
-        context = {
+        context.update({
             'form': form,
             'soldes_liste': solde_jour,
             'forms': forms,
-        }
+        })
         return context
 
 class ExportSoldeJourExcelView(LoginRequiredMixin, View):
@@ -2861,6 +2550,17 @@ def delete_solde(request, pk):
         messages.error(request, f"Erreur lors de la suppression : {str(e)}")
     return redirect('add_solde')
      
+class NotificationsPageView(LoginRequiredMixin, TemplateView):
+    login_url = 'login'
+    template_name = 'perfect/notifications.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        selected_id = self.kwargs.get('pk') or self.request.GET.get('id') or ''
+        context['selected_notification_id'] = selected_id
+        return context
+
+
 class GestionalerteView(LoginRequiredMixin, CustomPermissionRequiredMixin, TemplateView):  
     permission_url = 'alerte'  
     login_url = 'login'                                                                      
@@ -3104,7 +2804,7 @@ class GestionalerteView(LoginRequiredMixin, CustomPermissionRequiredMixin, Templ
                     'alert_cartsta_color': alert_cartsta_color,
                     'alert_types': alert_types
                 })
-        context={
+        context.update({
             'dates':dates,
             'vehicules':vehicules,
             'resultat_vehicule':resultat_vehicule,
@@ -3117,7 +2817,7 @@ class GestionalerteView(LoginRequiredMixin, CustomPermissionRequiredMixin, Templ
             'entr_all':entretiens,
             'form':forms,
             'mois_en_cours':libelle_mois_en_cours,
-        }
+        })
         return context 
 
 class AddCategoriVehi(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateView):  
@@ -3152,13 +2852,21 @@ class AddCategoriVehi(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateV
             nb_vehicules=Count('catego_vehicule', filter=Q(catego_vehicule__car_statut=True))
         ).order_by('id')
         total_veh = Vehicule.objects.filter(car_statut=True).order_by('id').count()
+        # Repères du bandeau de statistiques
+        moyennes = catego_vehi.aggregate(
+            recette=Avg('recette_defaut'),
+            perte=Avg('perte_par_30min'),
+        )
         forms = self.get_form()
-        context = {
+        context.update({
             'form':forms,
             'catego_vehi':catego_vehi,
             'categories':categories,
             'total_veh':total_veh,
-        }
+            'total_catego': catego_vehi.count(),
+            'recette_moyenne': '{:,.0f}'.format(moyennes['recette'] or 0).replace(',', ' '),
+            'perte_moyenne': '{:,.0f}'.format(moyennes['perte'] or 0).replace(',', ' '),
+        })
         return context
 
 class UpdateCategoView(LoginRequiredMixin, CustomPermissionRequiredMixin, UpdateView):
@@ -3309,6 +3017,96 @@ class AllVehiculeHorsParrcView(LoginRequiredMixin, CustomPermissionRequiredMixin
             'total_veh_hors_parc': total_veh_hors_parc
         })
 
+# --- Import Excel des vehicules -------------------------------------------
+# La catégorie n'est jamais dans le fichier : elle vient de l'écran d'où part
+# l'import (URL add_vehi/<pk>). Les en-têtes sont reconnus indifféremment sous
+# leur libellé lisible (exemplaire téléchargé) ou sous leur nom technique
+# (anciens fichiers), accents et casse ignorés.
+_VEHICULE_EXCEL_HEADER_TO_FIELD = {
+    'immatriculation': 'immatriculation',
+    'immat': 'immatriculation',
+    'marque': 'marque',
+    'duree': 'duree',
+    'duree (annees)': 'duree',
+    'num cart grise': 'num_cart_grise',
+    'num_cart_grise': 'num_cart_grise',
+    'numero carte grise': 'num_cart_grise',
+    'n carte grise': 'num_cart_grise',
+    'num chassis': 'num_Chassis',
+    'num_chassis': 'num_Chassis',
+    'numero chassis': 'num_Chassis',
+    'n chassis': 'num_Chassis',
+    'date acquisition': 'date_acquisition',
+    'date_acquisition': 'date_acquisition',
+    "date d'acquisition": 'date_acquisition',
+    'cout acquisition': 'cout_acquisition',
+    'cout_acquisition': 'cout_acquisition',
+    "cout d'acquisition": 'cout_acquisition',
+    'date edition carte grise': 'dat_edit_carte_grise',
+    'dat_edit_carte_grise': 'dat_edit_carte_grise',
+    "date d'edition carte grise": 'dat_edit_carte_grise',
+    'date mise en service': 'date_mis_service',
+    'date_mis_service': 'date_mis_service',
+    'date mis service': 'date_mis_service',
+}
+
+# Intitulés affichés a l'utilisateur quand une colonne manque.
+_VEHICULE_EXCEL_FIELD_LABELS = {
+    'immatriculation': 'Immatriculation',
+    'marque': 'Marque',
+    'duree': 'Duree',
+    'num_cart_grise': 'Numero carte grise',
+    'num_Chassis': 'Numero chassis',
+    'date_acquisition': 'Date acquisition',
+    'cout_acquisition': 'Cout acquisition',
+    'dat_edit_carte_grise': 'Date edition carte grise',
+    'date_mis_service': 'Date mise en service',
+}
+
+
+def _vehicule_normalize_excel_header(val):
+    """Minuscule, sans accent, espaces normalisés : 'Numero chassis' -> 'numero chassis'."""
+    if val is None:
+        return ''
+    texte = unicodedata.normalize('NFKD', str(val).strip().lower())
+    texte = ''.join(c for c in texte if not unicodedata.combining(c))
+    texte = texte.replace('°', ' ').replace('’', "'")
+    return ' '.join(texte.split())
+
+
+def _vehicule_excel_columns(df):
+    """Associe chaque champ du modèle au nom reel de sa colonne dans le fichier."""
+    colonnes = {}
+    for col in df.columns:
+        champ = _VEHICULE_EXCEL_HEADER_TO_FIELD.get(_vehicule_normalize_excel_header(col))
+        if champ and champ not in colonnes:
+            colonnes[champ] = col
+    return colonnes
+
+
+def _vehicule_excel_date(row, colonnes, champ):
+    valeur = row.get(colonnes[champ]) if champ in colonnes else None
+    if valeur in (None, ''):
+        return None
+    parsee = pd.to_datetime(valeur, errors='coerce', dayfirst=True)
+    return parsee.date() if pd.notna(parsee) else None
+
+
+def _vehicule_excel_texte(row, colonnes, champ):
+    if champ not in colonnes:
+        return ''
+    return str(row.get(colonnes[champ], '') or '').strip()
+
+
+def _vehicule_excel_entier(row, colonnes, champ):
+    if champ not in colonnes:
+        return 0
+    try:
+        return int(float(row.get(colonnes[champ], 0) or 0))
+    except (TypeError, ValueError):
+        return 0
+
+
 class AddVehiculeExcelView(LoginRequiredMixin, View):
     login_url = 'login'
     template_name = 'perfect/add_vehicule.html'
@@ -3331,6 +3129,12 @@ class AddVehiculeExcelView(LoginRequiredMixin, View):
             cars = Vehicule.objects.none()
             cout_total = 0
             total_veh = 0
+        # Compteur des vehicules sortis du parc, cadre sur la categorie affichee
+        # (meme regle que les vues Historique et Vehicules hors parc).
+        vehicules_hors_parc = Vehicule.objects.filter(car_statut=False)
+        if categorie:
+            vehicules_hors_parc = vehicules_hors_parc.filter(category=categorie)
+        total_veh_hors_parc = vehicules_hors_parc.count()
         form = VehiculeForm()
         return render(request, self.template_name, {
             'forms': form,
@@ -3339,6 +3143,7 @@ class AddVehiculeExcelView(LoginRequiredMixin, View):
             'categories': categories,
             'cout_total': cout_total,
             'total_veh': total_veh,
+            'total_veh_hors_parc': total_veh_hors_parc,
         })
     def post(self, request, pk=None):
         categorie = get_object_or_404(CategoVehi, pk=pk)
@@ -3349,45 +3154,90 @@ class AddVehiculeExcelView(LoginRequiredMixin, View):
             try:
                 df = pd.read_excel(excel_file)
                 df = df.fillna('')
-                required_columns = [
-                    'immatriculation', 'marque', 'duree', 'num_cart_grise',
-                    'num_Chassis', 'date_acquisition', 'cout_acquisition',
-                    'dat_edit_carte_grise', 'date_mis_service',
+                colonnes = _vehicule_excel_columns(df)
+                manquantes = [
+                    _VEHICULE_EXCEL_FIELD_LABELS[champ]
+                    for champ in _VEHICULE_EXCEL_FIELD_LABELS
+                    if champ not in colonnes
                 ]
-                missing_columns = [col for col in required_columns if col not in df.columns]
-                if missing_columns:
-                    messages.error(request, f"Colonnes manquantes : {', '.join(missing_columns)}")
+                if manquantes:
+                    messages.error(request, f"Colonnes manquantes : {', '.join(manquantes)}")
                     return redirect('add_vehi', pk=pk)
+
+                # Doublons : on compare en majuscules pour que « tx-1003-ci » et
+                # « TX-1003-CI » soient bien reconnus comme la même plaque.
+                immat_existantes = {
+                    (v or '').strip().upper()
+                    for v in Vehicule.objects.values_list('immatriculation', flat=True)
+                }
+                cartes_existantes = {
+                    (v or '').strip().upper()
+                    for v in Vehicule.objects.values_list('num_cart_grise', flat=True) if v
+                }
+                chassis_existants = {
+                    (v or '').strip().upper()
+                    for v in Vehicule.objects.values_list('num_Chassis', flat=True) if v
+                }
+
                 created_count = 0
-                updated_count = 0
+                ignores_doublon = 0
+                ignores_incomplet = 0
                 for _, row in df.iterrows():
-                    immatriculation = str(row.get('immatriculation', '')).strip()
+                    immatriculation = _vehicule_excel_texte(row, colonnes, 'immatriculation')
                     if not immatriculation:
                         continue
-                    date_acquisition = pd.to_datetime(row.get('date_acquisition'), errors='coerce')
-                    dat_edit_carte_grise = pd.to_datetime(row.get('dat_edit_carte_grise'), errors='coerce')
-                    date_mis_service = pd.to_datetime(row.get('date_mis_service'), errors='coerce')
-                    vehicule_data = {
-                        'marque': str(row.get('marque', '')).strip(),
-                        'duree': int(float(row.get('duree', 0) or 0)),
-                        'num_cart_grise': str(row.get('num_cart_grise', '')).strip(),
-                        'num_Chassis': str(row.get('num_Chassis', '')).strip(),
-                        'date_acquisition': date_acquisition.date() if pd.notna(date_acquisition) else None,
-                        'cout_acquisition': int(float(row.get('cout_acquisition', 0) or 0)),
-                        'dat_edit_carte_grise': dat_edit_carte_grise.date() if pd.notna(dat_edit_carte_grise) else None,
-                        'date_mis_service': date_mis_service.date() if pd.notna(date_mis_service) else None,
-                        'category': categorie,
-                        'auteur': request.user,
-                    }
-                    cars, created = Vehicule.objects.update_or_create(
+                    cle = immatriculation.upper()
+                    # Règle demandée : immatriculation déjà enregistrée -> ligne ignorée.
+                    if cle in immat_existantes:
+                        ignores_doublon += 1
+                        continue
+
+                    num_cart_grise = _vehicule_excel_texte(row, colonnes, 'num_cart_grise')
+                    num_chassis = _vehicule_excel_texte(row, colonnes, 'num_Chassis')
+                    # num_cart_grise et num_Chassis sont uniques en base : sans ce
+                    # contrôle, une ligne en double ferait échouer tout l'import.
+                    if num_cart_grise and num_cart_grise.upper() in cartes_existantes:
+                        ignores_doublon += 1
+                        continue
+                    if num_chassis and num_chassis.upper() in chassis_existants:
+                        ignores_doublon += 1
+                        continue
+
+                    date_acquisition = _vehicule_excel_date(row, colonnes, 'date_acquisition')
+                    dat_edit_carte_grise = _vehicule_excel_date(row, colonnes, 'dat_edit_carte_grise')
+                    date_mis_service = _vehicule_excel_date(row, colonnes, 'date_mis_service')
+                    # Les trois dates sont obligatoires en base (aucune n'accepte NULL).
+                    if not (date_acquisition and dat_edit_carte_grise and date_mis_service):
+                        ignores_incomplet += 1
+                        continue
+
+                    Vehicule.objects.create(
                         immatriculation=immatriculation,
-                        defaults=vehicule_data
+                        marque=_vehicule_excel_texte(row, colonnes, 'marque'),
+                        duree=_vehicule_excel_entier(row, colonnes, 'duree'),
+                        num_cart_grise=num_cart_grise,
+                        num_Chassis=num_chassis,
+                        date_acquisition=date_acquisition,
+                        cout_acquisition=_vehicule_excel_entier(row, colonnes, 'cout_acquisition'),
+                        dat_edit_carte_grise=dat_edit_carte_grise,
+                        date_mis_service=date_mis_service,
+                        category=categorie,
+                        auteur=request.user,
                     )
-                    if created:
-                        created_count += 1
-                    else:
-                        updated_count += 1
-                messages.success(request, f"✅ {created_count} véhicule(s) créé(s), {updated_count} mis à jour.")
+                    created_count += 1
+                    # Le fichier peut lui-même contenir deux fois la même plaque.
+                    immat_existantes.add(cle)
+                    if num_cart_grise:
+                        cartes_existantes.add(num_cart_grise.upper())
+                    if num_chassis:
+                        chassis_existants.add(num_chassis.upper())
+
+                resume = f"✅ {created_count} véhicule(s) créé(s) dans « {categorie} »."
+                if ignores_doublon:
+                    resume += f" {ignores_doublon} ligne(s) ignorée(s) : véhicule déjà enregistré."
+                if ignores_incomplet:
+                    resume += f" {ignores_incomplet} ligne(s) ignorée(s) : date obligatoire manquante ou illisible."
+                messages.success(request, resume)
                 return redirect('add_vehi', pk=pk)
 
             except Exception as e:
@@ -4136,13 +3986,62 @@ class DetailVehiculeView(LoginRequiredMixin, DetailView):
             'labels':label,
         })    
         return context 
-    
-class SaisieGaragView(LoginRequiredMixin, CustomPermissionRequiredMixin, TemplateView):
+
+
+SAISIE_LIVE_SEARCH_LIMIT = 36
+
+
+def vehicules_queryset_for_saisie(user):
+    qs = Vehicule.objects.select_related('category')
+    if str(getattr(user, 'user_type', '')) == '4':
+        try:
+            gerant = user.profile
+            categories_gerant = gerant.gerant_voiture.all()
+            qs = qs.filter(category__in=categories_gerant) if categories_gerant.exists() else qs.none()
+        except UserProfile.DoesNotExist:
+            qs = qs.none()
+    return qs
+
+
+class SaisieLiveSearchMixin:
+    """Recherche véhicules en AJAX (fragment HTML) pour les journaux de saisie."""
+    saisie_mode = ''
+    results_partial = 'perfect/partials/saisie/vehicule_live_results.html'
+    search_limit = SAISIE_LIVE_SEARCH_LIMIT
+
+    def get_search_results(self):
+        search_query = (self.request.GET.get('search') or '').strip()
+        vehicules = vehicules_queryset_for_saisie(self.request.user)
+        result_total = 0
+        result_limited = False
+        if search_query:
+            vehicules = search_vehicules(vehicules, search_query).order_by('immatriculation')
+            result_total = vehicules.count()
+            result_limited = result_total > self.search_limit
+            vehicules = list(vehicules[:self.search_limit])
+        else:
+            vehicules = []
+        return {
+            'vehicules': vehicules,
+            'search_query': search_query,
+            'saisie_mode': self.saisie_mode,
+            'result_total': result_total,
+            'result_limited': result_limited,
+        }
+
+    def get(self, request, *args, **kwargs):
+        if request.GET.get('partial') == '1' or request.headers.get('X-PB-Live-Search') == '1':
+            return render(request, self.results_partial, self.get_search_results())
+        return super().get(request, *args, **kwargs)
+
+
+class SaisieGaragView(LoginRequiredMixin, CustomPermissionRequiredMixin, SaisieLiveSearchMixin, TemplateView):
     login_url = 'login'
     permission_url = 'saisi_garag'
     template_name = 'perfect/saisi_garag.html'
     timeout_minutes = 500
     form_class = DateFormMJR
+    saisie_mode = 'garage'
     def dispatch(self, request, *args, **kwargs):
         last_activity = request.session.get('last_activity')
         if last_activity:
@@ -4155,23 +4054,7 @@ class SaisieGaragView(LoginRequiredMixin, CustomPermissionRequiredMixin, Templat
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = self.request.user
-        if user.user_type == "4":
-            try:
-                gerant = user.profile
-                categories_gerant = gerant.gerant_voiture.all()
-                if categories_gerant.exists():  
-                    vehicules = Vehicule.objects.filter(category__in=categories_gerant)
-                else:
-                    vehicules = Vehicule.objects.none() 
-            except UserProfile.DoesNotExist:
-                vehicules = Vehicule.objects.none()
-        else:
-            vehicules = Vehicule.objects.all()
-        search_query = self.request.GET.get("search", "").strip()
-        if search_query:  
-            vehicules = search_vehicules(vehicules, search_query)
-        else:
-            vehicules = Vehicule.objects.none()
+        context.update(self.get_search_results())
         
         # Initialiser les variables de filtre par défaut (pour le filtrage du mois en cours)
         date_debut = None
@@ -4238,25 +4121,30 @@ class SaisieGaragView(LoginRequiredMixin, CustomPermissionRequiredMixin, Templat
                     grouped_permissions[perm.categorie] = []
                 grouped_permissions[perm.categorie].append(perm)
 
-        context={
-            'vehicules': vehicules,
+        context.update({
+            'vehicules': context['vehicules'],
+            'search_query': context['search_query'],
+            'saisie_mode': context['saisie_mode'],
+            'result_total': context['result_total'],
+            'result_limited': context['result_limited'],
             'assure_mois_format': assure_mois_format,
             'vigne_mois_format': vigne_mois_format,
             'patent_mois_format': patent_mois_format,
             'station_mois_format': station_mois_format,
             'piechang_mois_format': piechang_mois_format,
             'form': form,
-            'search_query': search_query,
             'grouped_permissions': grouped_permissions,
-        }
+        })
         return context
 
-class TempsArretsView(LoginRequiredMixin, CustomPermissionRequiredMixin, TemplateView):
+
+class TempsArretsView(LoginRequiredMixin, CustomPermissionRequiredMixin, SaisieLiveSearchMixin, TemplateView):
     login_url = 'login'
     permission_url = 'temps_arrets'
     template_name = 'perfect/saisi_temp_arret.html'
     timeout_minutes = 500
     form_class = DateFormMJR
+    saisie_mode = 'arret'
     def dispatch(self, request, *args, **kwargs):
         last_activity = request.session.get('last_activity')
         if last_activity:
@@ -4271,26 +4159,7 @@ class TempsArretsView(LoginRequiredMixin, CustomPermissionRequiredMixin, Templat
         dates = date.today()
         annee = date.today().year
         mois = date.today().month
-        user = self.request.user
-
-        if user.user_type == "4":
-            try:
-                gerant = user.profile
-                categories_gerant = gerant.gerant_voiture.all()
-                if categories_gerant.exists():  
-                    vehicules = Vehicule.objects.filter(category__in=categories_gerant)
-                else:
-                    vehicules = Vehicule.objects.none() 
-            except UserProfile.DoesNotExist:
-                vehicules = Vehicule.objects.none()
-        else:
-            vehicules = Vehicule.objects.all()
-            
-        search_query = self.request.GET.get("search", "").strip()
-        if search_query:  
-            vehicules = search_vehicules(vehicules, search_query)
-        else:
-            vehicules = Vehicule.objects.none()
+        search_ctx = self.get_search_results()
         
         visit_queryset = VisiteTechnique.objects.all()
         entretien_queryset = Entretien.objects.all()
@@ -4331,7 +4200,11 @@ class TempsArretsView(LoginRequiredMixin, CustomPermissionRequiredMixin, Templat
 
         context.update({
             'dates': dates,
-            'vehicules': vehicules, 
+            'vehicules': search_ctx['vehicules'],
+            'search_query': search_ctx['search_query'],
+            'saisie_mode': search_ctx['saisie_mode'],
+            'result_total': search_ctx['result_total'],
+            'result_limited': search_ctx['result_limited'],
             'total_visit': total_visit,
             'total_entretien': total_entretien,
             'total_reparat': total_reparat,
@@ -4342,16 +4215,16 @@ class TempsArretsView(LoginRequiredMixin, CustomPermissionRequiredMixin, Templat
             'reparat_mois_format': reparat_mois_format,
             'autarret_mois_format': autarret_mois_format,
             'form': form,
-            'search_query': search_query,
         })
         return context
 
-class SaisiComptaView(LoginRequiredMixin, CustomPermissionRequiredMixin,TemplateView):
+class SaisiComptaView(LoginRequiredMixin, CustomPermissionRequiredMixin, SaisieLiveSearchMixin, TemplateView):
     login_url = 'login'
     permission_url = 'saisi_compta'
     template_name = 'perfect/saisi_comptable.html'
     timeout_minutes = 600
     form_class = DateFormMJR
+    saisie_mode = 'compta'
     def dispatch(self, request, *args, **kwargs):
         last_activity = request.session.get('last_activity')
         if last_activity:
@@ -4367,23 +4240,7 @@ class SaisiComptaView(LoginRequiredMixin, CustomPermissionRequiredMixin,Template
         annee = date.today().year
         mois = date.today().month
         user = self.request.user
-        if user.user_type == "4":
-            try:
-                gerant = user.profile
-                categories_gerant = gerant.gerant_voiture.all()
-                if categories_gerant.exists():  
-                    vehicules = Vehicule.objects.filter(category__in=categories_gerant)
-                else:
-                    vehicules = Vehicule.objects.none()
-            except UserProfile.DoesNotExist:
-                vehicules = Vehicule.objects.none()
-        else:
-            vehicules = Vehicule.objects.all()
-        search_query = self.request.GET.get("search", "").strip()
-        if search_query:  
-            vehicules = search_vehicules(vehicules, search_query)
-        else:
-            vehicules = Vehicule.objects.none()
+        search_ctx = self.get_search_results()
         # Initialiser les variables de filtre par défaut (pour le filtrage du mois en cours)
         date_debut = None
         date_fin = None
@@ -4439,9 +4296,13 @@ class SaisiComptaView(LoginRequiredMixin, CustomPermissionRequiredMixin,Template
 
         result_mois = recette_mois - chargtot_mois
         result_mois_format ='{:,}'.format(result_mois).replace(',', ' ')
-        context={
+        context.update({
             'dates':dates,
-            'vehicules':vehicules,
+            'vehicules': search_ctx['vehicules'],
+            'search_query': search_ctx['search_query'],
+            'saisie_mode': search_ctx['saisie_mode'],
+            'result_total': search_ctx['result_total'],
+            'result_limited': search_ctx['result_limited'],
             'recette_mois_format':recette_mois_format,
             'chargvariale_mois_format':chargvariale_mois_format,
             'chargefixe_mois_format':chargefixe_mois_format,
@@ -4451,17 +4312,18 @@ class SaisiComptaView(LoginRequiredMixin, CustomPermissionRequiredMixin,Template
             'result_mois_format':result_mois_format,
             
             'form':form,
-        }
+        })
         return context
 
 #########################################---COMPTABLE---#########################################
 
-class AddRecetteView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateView):
+class AddRecetteView(LoginRequiredMixin, CustomPermissionRequiredMixin, SaisieLiveSearchMixin, CreateView):
     login_url = 'login'
     permission_url = 'add_recettes'
     model = Recette
     form_class = RecetteForm
     template_name= "perfect/add_recet.html"
+    saisie_mode = 'compta'
     success_message = 'Recette Ajoutée avec succès ✓✓'
     error_message = "Erreur de saisie ✘✘"
     timeout_minutes = 500
@@ -4494,12 +4356,7 @@ class AddRecetteView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateVi
         form = DateForm(self.request.GET)
         forms = self.get_form()
         date_debut = date_fin = None
-        search_query = self.request.GET.get("search", "").strip()
-        vehicules = Vehicule.objects.all()
-        if search_query:  
-            vehicules = search_vehicules(vehicules, search_query)
-        else:
-            vehicules = Vehicule.objects.none()
+        search_ctx = self.get_search_results()
         # Traitement des filtres de date
         if form.is_valid():
             date_debut = form.cleaned_data.get('date_debut')
@@ -4522,8 +4379,12 @@ class AddRecetteView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateVi
         recette_an_format = '{:,}'.format(recette_an).replace(',', ' ')
         liste_recette = recette_queryset_filtre.order_by('-id')
 
-        context = {
-            "vehicules": vehicules,
+        context.update({
+            "vehicules": search_ctx['vehicules'],
+            "search_query": search_ctx['search_query'],
+            "saisie_mode": search_ctx['saisie_mode'],
+            "result_total": search_ctx['result_total'],
+            "result_limited": search_ctx['result_limited'],
             "vehicule": vehicule,
             "recette_jours_format": recette_jours_format,
             "recette_mois_format": recette_mois_format,
@@ -4531,7 +4392,7 @@ class AddRecetteView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateVi
             "liste_recette": liste_recette,
             'form': form,
             'forms': forms,
-        }   
+        })
         return context  
     def get_success_url(self):
         return reverse('add_recettes', kwargs={'pk': self.kwargs['pk']})
@@ -4655,10 +4516,50 @@ class ExportRecetteExcelView(LoginRequiredMixin, View):
         return response
 
 
-def _apply_recette_excel_filters(request, queryset):
+# Champ de référence des pages d'import Excel : la date métier saisie par
+# l'utilisateur, et non la date d'importation du fichier.
+EXCEL_IMPORT_DATE_FIELD = 'date_saisie'
+
+
+def _excel_period_lookups(date_field):
+    """Lookups de période adaptés au type du champ (DateTimeField ou DateField)."""
+    base = f'{date_field}__date' if date_field == 'date' else date_field
+    return {
+        'exact': base,
+        'range': f'{base}__range',
+        'gte': f'{base}__gte',
+        'lte': f'{base}__lte',
+        'year': f'{date_field}__year',
+        'month': f'{date_field}__month',
+    }
+
+
+def _excel_period_totals(base_qs, today, date_field='date'):
+    """Totaux jour / semaine / mois / année calculés sur `date_field`."""
+    lk = _excel_period_lookups(date_field)
+    week_start = today - timedelta(days=today.weekday())
+
+    def _somme(**filtre):
+        return base_qs.filter(**filtre).aggregate(somme=Sum('montant'))['somme'] or 0
+
+    return {
+        'jour': _somme(**{lk['exact']: today}),
+        'semaine': _somme(**{lk['range']: [week_start, week_start + timedelta(days=6)]}),
+        'mois': _somme(**{lk['year']: today.year, lk['month']: today.month}),
+        'annee': _somme(**{lk['year']: today.year}),
+    }
+
+
+def _apply_recette_excel_filters(request, queryset, date_field='date'):
+    """Filtre de période des pages d'import Excel.
+
+    `date_field` vaut 'date' (date d'importation du fichier) ou 'date_saisie'
+    (date métier de la donnée).
+    """
     today = dj_timezone.localdate()
     selected_period = request.GET.get('periode', 'week')
     custom_filter_form = DateFormAnalytique(request.GET or None)
+    lk = _excel_period_lookups(date_field)
 
     filter_start = today
     filter_end = today
@@ -4667,15 +4568,15 @@ def _apply_recette_excel_filters(request, queryset):
     if selected_period == 'week':
         filter_start = today - timedelta(days=today.weekday())
         filter_end = filter_start + timedelta(days=6)
-        filtered_qs = filtered_qs.filter(date__date__range=[filter_start, filter_end])
+        filtered_qs = filtered_qs.filter(**{lk['range']: [filter_start, filter_end]})
     elif selected_period == 'month':
         filter_start = today.replace(day=1)
         filter_end = today
-        filtered_qs = filtered_qs.filter(date__year=today.year, date__month=today.month)
+        filtered_qs = filtered_qs.filter(**{lk['year']: today.year, lk['month']: today.month})
     elif selected_period == 'year':
         filter_start = date(today.year, 1, 1)
         filter_end = today
-        filtered_qs = filtered_qs.filter(date__year=today.year)
+        filtered_qs = filtered_qs.filter(**{lk['year']: today.year})
     elif selected_period == 'custom':
         if custom_filter_form.is_valid():
             date_debut = custom_filter_form.cleaned_data.get('date_debut')
@@ -4684,10 +4585,10 @@ def _apply_recette_excel_filters(request, queryset):
             immatriculation = custom_filter_form.cleaned_data.get('immatriculation')
 
             if date_debut:
-                filtered_qs = filtered_qs.filter(date__date__gte=date_debut)
+                filtered_qs = filtered_qs.filter(**{lk['gte']: date_debut})
                 filter_start = date_debut
             if date_fin:
-                filtered_qs = filtered_qs.filter(date__date__lte=date_fin)
+                filtered_qs = filtered_qs.filter(**{lk['lte']: date_fin})
                 filter_end = date_fin
             if categorie:
                 filtered_qs = filtered_qs.filter(vehicule__category=categorie)
@@ -4695,7 +4596,7 @@ def _apply_recette_excel_filters(request, queryset):
                 filtered_qs = filtered_qs.filter(vehicule__immatriculation__icontains=immatriculation.strip())
     else:
         selected_period = 'today'
-        filtered_qs = filtered_qs.filter(date__date=today)
+        filtered_qs = filtered_qs.filter(**{lk['exact']: today})
 
     if filter_start > filter_end:
         filter_start, filter_end = filter_end, filter_start
@@ -4713,10 +4614,11 @@ _EXCEL_CHART_PALETTE = [
 ]
 
 _EXCEL_MOIS_LABELS = ('', 'Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc')
+def _build_excel_category_chart_data(filtered_qs, selected_period, filter_start, filter_end, date_field='date'):
+    """Construit labels et séries du graphique par catégorie (jour ou mois selon la période).
 
-
-def _build_excel_category_chart_data(filtered_qs, selected_period, filter_start, filter_end):
-    """Construit labels et séries du graphique par catégorie (jour ou mois selon la période)."""
+    Le regroupement suit `date_field` : 'date' (import) ou 'date_saisie' (date métier).
+    """
     categories = CategoVehi.objects.all().order_by('id')
     cat_totals_map = defaultdict(int)
 
@@ -4724,7 +4626,7 @@ def _build_excel_category_chart_data(filtered_qs, selected_period, filter_start,
         period_keys = [(filter_start.year, month) for month in range(1, 13)]
         grouped = (
             filtered_qs
-            .annotate(month=TruncMonth('date'))
+            .annotate(month=TruncMonth(date_field))
             .values('month', 'vehicule__category_id')
             .annotate(total=Sum('montant'))
         )
@@ -4732,7 +4634,7 @@ def _build_excel_category_chart_data(filtered_qs, selected_period, filter_start,
             month_dt = row['month']
             if month_dt:
                 key = (month_dt.year, month_dt.month)
-                cat_totals_map[(key, row['vehicule__category_id'])] = row['total'] or 0
+                cat_totals_map[(key, row['vehicule__category_id'])] += row['total'] or 0
         axis_labels = [_EXCEL_MOIS_LABELS[month] for _, month in period_keys]
     else:
         period_keys = []
@@ -4740,14 +4642,19 @@ def _build_excel_category_chart_data(filtered_qs, selected_period, filter_start,
         while cursor_day <= filter_end:
             period_keys.append(cursor_day)
             cursor_day += timedelta(days=1)
+        # TruncDate n'accepte qu'un DateTimeField : sur un DateField on regroupe le champ tel quel.
+        day_expr = TruncDate(date_field) if date_field == 'date' else F(date_field)
         grouped = (
             filtered_qs
-            .annotate(day=TruncDate('date'))
+            .annotate(day=day_expr)
             .values('day', 'vehicule__category_id')
             .annotate(total=Sum('montant'))
         )
         for row in grouped:
-            cat_totals_map[(row['day'], row['vehicule__category_id'])] = row['total'] or 0
+            day_value = row['day']
+            if isinstance(day_value, datetime):
+                day_value = day_value.date()
+            cat_totals_map[(day_value, row['vehicule__category_id'])] += row['total'] or 0
         axis_labels = [d.strftime('%d/%m') for d in period_keys]
 
     chart_datasets = []
@@ -4819,16 +4726,201 @@ def _chargevar_excel_col_index(header_row):
     return idx
 
 
-def _excel_import_template_http_response(headers, example_rows, sheet_title, filename):
-    """Génère un classeur .xlsx avec en-têtes + lignes d'exemple pour l'import (openpyxl)."""
+# Nombre de lignes pré-formatées (et déverrouillées) dans l'exemplaire d'import.
+_EXCEL_TEMPLATE_ROWS = 1000
+_EXCEL_TEMPLATE_SHEET_REF = 'Referentiel'
+
+_EXCEL_TEMPLATE_KIND_HELP = {
+    'immat': "Immatriculation telle qu'enregistrée dans le parc (liste déroulante).",
+    'montant': 'Nombre entier, sans espace ni « FCFA » (ex. 50000).',
+    'date': 'Date au format JJ-MM-AAAA (une vraie date Excel est également acceptée).',
+    'date_passee': 'Date au format JJ-MM-AAAA, passée ou du jour (les dates futures sont refusées).',
+    'texte': 'Texte libre.',
+    'info': 'Colonne informative : reprise de l’export, ignorée à l’import.',
+}
+
+
+def _excel_template_vehicule_immatriculations():
+    return list(
+        Vehicule.objects.order_by('immatriculation').values_list('immatriculation', flat=True)
+    )
+
+
+def _excel_template_add_referentiel(wb, immatriculations):
+    """Feuille masquée listant les immatriculations pour la liste déroulante."""
+    ws_ref = wb.create_sheet(_EXCEL_TEMPLATE_SHEET_REF)
+    ws_ref['A1'] = 'Immatriculations du parc'
+    ws_ref['A1'].font = Font(bold=True)
+    for i, immat in enumerate(immatriculations, start=2):
+        ws_ref.cell(row=i, column=1, value=immat)
+    ws_ref.column_dimensions['A'].width = 24
+    ws_ref.sheet_state = 'hidden'
+    return f"'{_EXCEL_TEMPLATE_SHEET_REF}'!$A$2:$A${len(immatriculations) + 1}"
+
+
+def _excel_template_add_notice(wb, sheet_title, columns, rules):
+    """Feuille « Mode d'emploi » : rôle et format attendu de chaque colonne."""
+    ws = wb.create_sheet("Mode d'emploi")
+    titre = ws.cell(row=1, column=1, value=f'Mode d\'emploi — import « {sheet_title} »')
+    titre.font = Font(bold=True, size=13, color='A83232')
+
+    entetes = ['Colonne', 'Obligatoire', 'Format attendu', 'Exemple']
+    ligne = 3
+    for col_num, libelle in enumerate(entetes, 1):
+        cell = ws.cell(row=ligne, column=col_num, value=libelle)
+        cell.font = Font(bold=True, color='FFFFFF')
+        cell.fill = PatternFill('solid', fgColor='A83232')
+        cell.alignment = Alignment(horizontal='center', vertical='center')
+
+    for col in columns:
+        ligne += 1
+        ws.cell(row=ligne, column=1, value=col['title'])
+        ws.cell(row=ligne, column=2, value='Oui' if col.get('required') else 'Non')
+        ws.cell(row=ligne, column=3, value=col.get('help') or _EXCEL_TEMPLATE_KIND_HELP.get(col.get('kind'), ''))
+        exemple = col.get('example')
+        ws.cell(row=ligne, column=4, value='' if exemple is None else exemple)
+        ws.cell(row=ligne, column=3).alignment = Alignment(wrap_text=True, vertical='top')
+
+    ligne += 2
+    cell = ws.cell(row=ligne, column=1, value="Règles d'import")
+    cell.font = Font(bold=True, size=12, color='A83232')
+    for regle in rules:
+        ligne += 1
+        cell = ws.cell(row=ligne, column=1, value=f'• {regle}')
+        cell.alignment = Alignment(wrap_text=True, vertical='top')
+        ws.merge_cells(start_row=ligne, start_column=1, end_row=ligne, end_column=4)
+        # Une cellule fusionnée ne s'ajuste pas seule : hauteur estimée d'après la longueur.
+        ws.row_dimensions[ligne].height = 15 * max(1, -(-len(regle) // 120))
+
+    for lettre, largeur in (('A', 32), ('B', 14), ('C', 62), ('D', 24)):
+        ws.column_dimensions[lettre].width = largeur
+    return ws
+
+
+def _excel_import_template_http_response(columns, sheet_title, filename, rules=(), with_immat_list=False,
+                                         date_window_note=True):
+    """Génère l'exemplaire .xlsx d'import : en-têtes figés, formats et contrôles de saisie.
+
+    `columns` est la liste ordonnée des colonnes attendues par l'import, chacune
+    décrite par un dict : title, kind ('immat', 'texte', 'montant', 'date', 'info'),
+    required (bool), help et example. La disposition produite ici est exactement
+    celle que lit l'import, ce qui évite les erreurs de colonnes au chargement.
+    """
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = sheet_title[:31]
-    ws.append(headers)
-    for row in example_rows:
-        ws.append(row)
-    for col_num in range(1, len(headers) + 1):
-        ws.column_dimensions[get_column_letter(col_num)].width = 20
+
+    fine = Side(style='thin', color='D9D9D9')
+    bordure = Border(left=fine, right=fine, top=fine, bottom=fine)
+    fill_obligatoire = PatternFill('solid', fgColor='A83232')
+    fill_facultatif = PatternFill('solid', fgColor='8C8C8C')
+
+    plancher = saisie_min_date()
+    aujourdhui = dj_timezone.localdate()
+    plage_immat = None
+    if with_immat_list:
+        immatriculations = _excel_template_vehicule_immatriculations()
+        if immatriculations:
+            plage_immat = _excel_template_add_referentiel(wb, immatriculations)
+
+    derniere_ligne = _EXCEL_TEMPLATE_ROWS + 1
+
+    for col_num, col in enumerate(columns, 1):
+        lettre = get_column_letter(col_num)
+        kind = col.get('kind', 'texte')
+        obligatoire = bool(col.get('required'))
+        aide = col.get('help') or _EXCEL_TEMPLATE_KIND_HELP.get(kind, '')
+
+        entete = ws.cell(row=1, column=col_num, value=col['title'])
+        entete.font = Font(bold=True, color='FFFFFF', size=11)
+        entete.fill = fill_obligatoire if obligatoire else fill_facultatif
+        entete.alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
+        entete.border = bordure
+        commentaire = ['{} — {}'.format(col['title'], 'OBLIGATOIRE' if obligatoire else 'FACULTATIF')]
+        if aide:
+            commentaire.append(aide)
+        if col.get('example') not in (None, ''):
+            commentaire.append('Exemple : {}'.format(col['example']))
+        note = Comment('\n'.join(commentaire), 'PB Holdings')
+        note.width, note.height = 280, 130
+        entete.comment = note
+        ws.column_dimensions[lettre].width = col.get('width', 22)
+
+        # Cellules de saisie : format, bordure et déverrouillage (l'en-tête reste protégé).
+        for row_num in range(2, derniere_ligne + 1):
+            cell = ws.cell(row=row_num, column=col_num)
+            cell.protection = Protection(locked=False)
+            cell.border = bordure
+            if kind == 'montant':
+                cell.number_format = '#,##0'
+            elif kind in ('date', 'date_passee'):
+                cell.number_format = 'DD-MM-YYYY'
+
+        plage = f'{lettre}2:{lettre}{derniere_ligne}'
+        controle = None
+        if kind == 'date':
+            controle = DataValidation(
+                type='date', operator='between',
+                formula1=f'DATE({plancher.year},{plancher.month},{plancher.day})',
+                formula2='TODAY()', allow_blank=True,
+            )
+            controle.errorTitle = 'Date de saisie invalide'
+            controle.error = (
+                'Saisissez une date comprise entre le {} et aujourd\'hui ({}), '
+                'au format JJ-MM-AAAA.'.format(
+                    plancher.strftime('%d/%m/%Y'), aujourdhui.strftime('%d/%m/%Y')
+                )
+            )
+        elif kind == 'date_passee':
+            # Dates historiques (acquisition, mise en service) : pas de plancher de
+            # saisie, seule une date future est refusée.
+            controle = DataValidation(
+                type='date', operator='lessThanOrEqual', formula1='TODAY()', allow_blank=True,
+            )
+            controle.errorTitle = 'Date invalide'
+            controle.error = (
+                'Saisissez une date au format JJ-MM-AAAA. Une date postérieure '
+                "à aujourd'hui est refusée."
+            )
+        elif kind == 'montant':
+            controle = DataValidation(
+                type='whole', operator='greaterThanOrEqual', formula1='0', allow_blank=True,
+            )
+            controle.errorTitle = 'Montant invalide'
+            controle.error = 'Le montant doit être un nombre entier positif (sans espace ni devise).'
+        elif kind == 'immat' and plage_immat:
+            controle = DataValidation(type='list', formula1=f'={plage_immat}', allow_blank=True)
+            controle.errorTitle = 'Immatriculation inconnue'
+            controle.error = (
+                "Choisissez une immatriculation existante dans le parc : "
+                "les autres lignes sont rejetées à l'import."
+            )
+        if controle is not None:
+            controle.showErrorMessage = True
+            controle.errorStyle = 'stop'
+            ws.add_data_validation(controle)
+            controle.add(plage)
+
+    ws.freeze_panes = 'A2'
+    ws.row_dimensions[1].height = 32
+    ws.auto_filter.ref = f'A1:{get_column_letter(len(columns))}{derniere_ligne}'
+    # En-têtes verrouillés (sans mot de passe) : la disposition des colonnes reste
+    # celle attendue par l'import, les lignes de saisie restent librement modifiables.
+    ws.protection.sheet = True
+    for autorise in ('insertRows', 'deleteRows', 'formatCells', 'formatColumns',
+                     'formatRows', 'sort', 'autoFilter'):
+        setattr(ws.protection, autorise, False)
+
+    fenetre = (
+        'Fenêtre de dates autorisée à ce jour : du {} au {} inclus.'.format(
+            plancher.strftime('%d/%m/%Y'), aujourdhui.strftime('%d/%m/%Y')
+        )
+    )
+    notes = list(rules)
+    if date_window_note:
+        notes.insert(0, fenetre)
+    _excel_template_add_notice(wb, sheet_title, columns, notes)
+
     response = HttpResponse(
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     )
@@ -4842,34 +4934,35 @@ class DownloadRecetteExcelTemplateView(LoginRequiredMixin, CustomPermissionRequi
     permission_url = 'add_recette_excel'
 
     def get(self, request, *args, **kwargs):
-        sample_date = dj_timezone.localdate().strftime('%d-%m-%Y')
-        headers = [
-            'Immatriculation',
-            'Marque',
-            'Catégorie',
-            'Chauffeur',
-            'Montant',
-            'Date saisie',
-            'Compte comptable',
-            'N° Facture',
-            'N° Pièce',
+        colonnes = [
+            {'title': 'Immatriculation', 'kind': 'immat', 'required': True, 'example': 'AB-123-CD'},
+            {'title': 'Marque', 'kind': 'info', 'required': False, 'example': 'Toyota'},
+            {'title': 'Catégorie', 'kind': 'info', 'required': False, 'example': 'TAXI'},
+            {'title': 'Chauffeur', 'kind': 'texte', 'required': True, 'example': 'KOUAME Yao', 'help': 'Nom du chauffeur (50 caractères max).', 'width': 26},
+            {'title': 'Montant', 'kind': 'montant', 'required': True, 'example': 10000},
+            {'title': 'Date saisie', 'kind': 'date', 'required': True, 'example': '31-01-2026', 'help': 'Date métier de la charge : elle pilote le classement, le graphique et les statistiques.'},
+            {'title': 'Compte comptable', 'kind': 'texte', 'required': False, 'example': '701000', 'help': 'Numéro de compte comptable (texte, 100 caractères max).'},
+            {'title': 'N° Facture', 'kind': 'texte', 'required': False, 'example': 'FAC-001', 'help': 'Référence de la facture (20 caractères max).'},
+            {'title': 'N° Pièce', 'kind': 'texte', 'required': False, 'example': 'PC-001', 'help': 'Référence de la pièce justificative ; unique sur le mois de la date de saisie.'},
         ]
-        example_rows = [[
-            'AB-123-CD',
-            'Marque exemple',
-            'Catégorie exemple',
-            'Nom du chauffeur',
-            10000,
-            sample_date,
-            '701000',
-            'FAC-001',
-            'PC-001',
-        ]]
+        regles = [
+            'Ne modifiez pas la ligne 1 : les intitulés de colonnes servent à reconnaître les données (l\'ordre des colonnes, lui, peut changer).',
+            'Une colonne facultative peut rester vide, mais elle doit conserver son intitulé si vous la gardez.',
+            'Date de saisie : format JJ-MM-AAAA, comprise entre le plancher autorisé et aujourd\'hui ; les dates futures sont refusées.',
+            'Montant : nombre entier positif, sans espace, sans séparateur de milliers ni devise.',
+            'Commencez à saisir en ligne 2 : le modèle ne contient volontairement aucune ligne d\'exemple à supprimer (voir la colonne Exemple du mode d\'emploi).',
+            'Les lignes entièrement vides sont ignorées.',
+            'Immatriculation : elle doit exister dans le parc, sinon la ligne est rejetée (utilisez la liste déroulante de la colonne).',
+            'Chauffeur : colonne obligatoire, la ligne est rejetée si elle est vide.',
+            'Doublon : pour un même véhicule à une même date de saisie, un montant différent met la ligne à jour, un montant identique l\'ignore.',
+            'N° pièce : s\'il est renseigné, il doit être unique sur le mois calendaire de la date de saisie ; plusieurs lignes portant la même date peuvent en revanche partager le même N° pièce.',
+        ]
         return _excel_import_template_http_response(
-            headers,
-            example_rows,
+            colonnes,
             'Recettes',
             'Exemplaire-Recettes-import.xlsx',
+            rules=regles,
+            with_immat_list=True,
         )
 
 
@@ -4878,34 +4971,34 @@ class DownloadChargeFixeExcelTemplateView(LoginRequiredMixin, CustomPermissionRe
     permission_url = 'list_charg_fix'
 
     def get(self, request, *args, **kwargs):
-        sample_date = dj_timezone.localdate().strftime('%d-%m-%Y')
-        headers = [
-            'Immatriculation',
-            'Marque',
-            'Catégorie',
-            'Libellé',
-            'Compte comptable',
-            'N° Pièce',
-            'N° Facture',
-            'Montant',
-            'Date saisie',
+        colonnes = [
+            {'title': 'Immatriculation', 'kind': 'immat', 'required': True, 'example': 'AB-123-CD'},
+            {'title': 'Marque', 'kind': 'info', 'required': False, 'example': 'Toyota'},
+            {'title': 'Catégorie', 'kind': 'info', 'required': False, 'example': 'TAXI'},
+            {'title': 'Libellé', 'kind': 'texte', 'required': False, 'example': 'Assurance mensuelle', 'help': 'Intitulé de la charge (100 caractères max).', 'width': 30},
+            {'title': 'Compte comptable', 'kind': 'texte', 'required': False, 'example': '616000', 'help': 'Numéro de compte comptable (texte, 100 caractères max).'},
+            {'title': 'N° Pièce', 'kind': 'texte', 'required': False, 'example': 'PC-001', 'help': 'Référence de la pièce justificative ; unique sur le mois de la date de saisie.'},
+            {'title': 'N° Facture', 'kind': 'texte', 'required': False, 'example': 'FAC-001', 'help': 'Référence de la facture (100 caractères max).'},
+            {'title': 'Montant', 'kind': 'montant', 'required': True, 'example': 50000},
+            {'title': 'Date saisie', 'kind': 'date', 'required': True, 'example': '31-01-2026', 'help': 'Date métier de la charge : elle pilote le classement, le graphique et les statistiques.'},
         ]
-        example_rows = [[
-            'AB-123-CD',
-            'Marque exemple',
-            'Catégorie exemple',
-            'Libellé charge fixe',
-            '616000',
-            'PC-001',
-            'FAC-001',
-            50000,
-            sample_date,
-        ]]
+        regles = [
+            'Ne modifiez pas la ligne 1 : les intitulés de colonnes servent à reconnaître les données (l\'ordre des colonnes, lui, peut changer).',
+            'Une colonne facultative peut rester vide, mais elle doit conserver son intitulé si vous la gardez.',
+            'Date de saisie : format JJ-MM-AAAA, comprise entre le plancher autorisé et aujourd\'hui ; les dates futures sont refusées.',
+            'Montant : nombre entier positif, sans espace, sans séparateur de milliers ni devise.',
+            'Commencez à saisir en ligne 2 : le modèle ne contient volontairement aucune ligne d\'exemple à supprimer (voir la colonne Exemple du mode d\'emploi).',
+            'Les lignes entièrement vides sont ignorées.',
+            'Immatriculation : elle doit exister dans le parc, sinon la ligne est rejetée (utilisez la liste déroulante de la colonne).',
+            'Un même véhicule peut porter plusieurs charges fixes à la même date de saisie : seule une ligne strictement identique (mêmes montant, libellé, compte comptable, N° pièce et N° facture) est ignorée.',
+            'N° pièce : s\'il est renseigné, il doit être unique sur le mois calendaire de la date de saisie ; plusieurs lignes portant la même date peuvent en revanche partager le même N° pièce.',
+        ]
         return _excel_import_template_http_response(
-            headers,
-            example_rows,
+            colonnes,
             'Charges Fixes',
             'Exemplaire-Charges-Fixes-import.xlsx',
+            rules=regles,
+            with_immat_list=True,
         )
 
 
@@ -4914,28 +5007,29 @@ class DownloadChargeAdminExcelTemplateView(LoginRequiredMixin, CustomPermissionR
     permission_url = 'add_chargadminist'
 
     def get(self, request, *args, **kwargs):
-        sample_date = dj_timezone.localdate().strftime('%d-%m-%Y')
-        headers = [
-            'Libellé',
-            'Montant',
-            'Compte comptable',
-            'Date saisie',
-            'N° Pièce',
-            'N° Facture',
+        colonnes = [
+            {'title': 'Libellé', 'kind': 'texte', 'required': True, 'example': 'Fournitures de bureau', 'help': 'Intitulé de la charge administrative (100 caractères max).', 'width': 30},
+            {'title': 'Montant', 'kind': 'montant', 'required': True, 'example': 15000},
+            {'title': 'Compte comptable', 'kind': 'texte', 'required': False, 'example': '645000', 'help': 'Numéro de compte comptable (texte, 100 caractères max).'},
+            {'title': 'Date saisie', 'kind': 'date', 'required': True, 'example': '31-01-2026', 'help': 'Date métier de la charge : elle pilote le classement, le graphique et les statistiques.'},
+            {'title': 'N° Pièce', 'kind': 'texte', 'required': False, 'example': 'PC-ADM-001', 'help': 'Référence de la pièce justificative ; unique sur le mois de la date de saisie.'},
+            {'title': 'N° Facture', 'kind': 'texte', 'required': False, 'example': 'FAC-ADM-001', 'help': 'Référence de la facture (100 caractères max).'},
         ]
-        example_rows = [[
-            'Frais administratifs exemple',
-            15000,
-            '645000',
-            sample_date,
-            'PC-ADM-001',
-            'FAC-ADM-001',
-        ]]
+        regles = [
+            'Ne modifiez pas la ligne 1 : les intitulés de colonnes servent à reconnaître les données (l\'ordre des colonnes, lui, peut changer).',
+            'Une colonne facultative peut rester vide, mais elle doit conserver son intitulé si vous la gardez.',
+            'Date de saisie : format JJ-MM-AAAA, comprise entre le plancher autorisé et aujourd\'hui ; les dates futures sont refusées.',
+            'Montant : nombre entier positif, sans espace, sans séparateur de milliers ni devise.',
+            'Commencez à saisir en ligne 2 : le modèle ne contient volontairement aucune ligne d\'exemple à supprimer (voir la colonne Exemple du mode d\'emploi).',
+            'Les lignes entièrement vides sont ignorées.',
+            'Libellé : colonne obligatoire, la ligne est rejetée si elle est vide.',
+            'N° pièce : s\'il est renseigné, il doit être unique sur le mois calendaire de la date de saisie ; plusieurs lignes portant la même date peuvent en revanche partager le même N° pièce.',
+        ]
         return _excel_import_template_http_response(
-            headers,
-            example_rows,
+            colonnes,
             'Charges Admin',
             'Exemplaire-Charges-Administratives-import.xlsx',
+            rules=regles,
         )
 
 
@@ -4944,34 +5038,97 @@ class DownloadChargeVariableExcelTemplateView(LoginRequiredMixin, CustomPermissi
     permission_url = 'list_charg_var'
 
     def get(self, request, *args, **kwargs):
-        sample_date = dj_timezone.localdate().strftime('%d-%m-%Y')
-        headers = [
-            'Immatriculation',
-            'Marque',
-            'Catégorie',
-            'Libellé',
-            'Compte comptable',
-            'N° Pièce',
-            'N° Facture',
-            'Montant',
-            'Date saisie',
+        colonnes = [
+            {'title': 'Immatriculation', 'kind': 'immat', 'required': True, 'example': 'AB-123-CD'},
+            {'title': 'Marque', 'kind': 'info', 'required': False, 'example': 'Toyota'},
+            {'title': 'Catégorie', 'kind': 'info', 'required': False, 'example': 'TAXI'},
+            {'title': 'Libellé', 'kind': 'texte', 'required': False, 'example': 'Carburant', 'help': 'Intitulé de la charge (100 caractères max).', 'width': 30},
+            {'title': 'Compte comptable', 'kind': 'texte', 'required': False, 'example': '606000', 'help': 'Numéro de compte comptable (texte, 100 caractères max).'},
+            {'title': 'N° Pièce', 'kind': 'texte', 'required': False, 'example': 'PC-001', 'help': 'Référence de la pièce justificative ; unique sur le mois de la date de saisie.'},
+            {'title': 'N° Facture', 'kind': 'texte', 'required': False, 'example': 'FAC-001', 'help': 'Référence de la facture (100 caractères max).'},
+            {'title': 'Montant', 'kind': 'montant', 'required': True, 'example': 25000},
+            {'title': 'Date saisie', 'kind': 'date', 'required': True, 'example': '31-01-2026', 'help': 'Date métier de la charge : elle pilote le classement, le graphique et les statistiques.'},
         ]
-        example_rows = [[
-            'AB-123-CD',
-            'Marque exemple',
-            'Catégorie exemple',
-            'Libellé charge variable',
-            '606000',
-            'PC-002',
-            'FAC-002',
-            25000,
-            sample_date,
-        ]]
+        regles = [
+            'Ne modifiez pas la ligne 1 : les intitulés de colonnes servent à reconnaître les données (l\'ordre des colonnes, lui, peut changer).',
+            'Une colonne facultative peut rester vide, mais elle doit conserver son intitulé si vous la gardez.',
+            'Date de saisie : format JJ-MM-AAAA, comprise entre le plancher autorisé et aujourd\'hui ; les dates futures sont refusées.',
+            'Montant : nombre entier positif, sans espace, sans séparateur de milliers ni devise.',
+            'Commencez à saisir en ligne 2 : le modèle ne contient volontairement aucune ligne d\'exemple à supprimer (voir la colonne Exemple du mode d\'emploi).',
+            'Les lignes entièrement vides sont ignorées.',
+            'Immatriculation : elle doit exister dans le parc, sinon la ligne est rejetée (utilisez la liste déroulante de la colonne).',
+            'Un même véhicule peut porter plusieurs charges variables à la même date de saisie : seule une ligne strictement identique (mêmes montant, libellé, compte comptable, N° pièce et N° facture) est ignorée.',
+            'N° pièce : s\'il est renseigné, il doit être unique sur le mois calendaire de la date de saisie ; plusieurs lignes portant la même date peuvent en revanche partager le même N° pièce.',
+        ]
         return _excel_import_template_http_response(
-            headers,
-            example_rows,
+            colonnes,
             'Charges Variables',
             'Exemplaire-Charges-Variables-import.xlsx',
+            rules=regles,
+            with_immat_list=True,
+        )
+
+
+class DownloadVehiculeExcelTemplateView(LoginRequiredMixin, View):
+    """Exemplaire .xlsx d'import des véhicules.
+
+    Aucune colonne « Catégorie » : la catégorie est celle déjà sélectionnée à
+    l'écran, elle est appliquée à toutes les lignes du fichier.
+    """
+    login_url = 'login'
+
+    def get(self, request, pk=None, *args, **kwargs):
+        categorie = CategoVehi.objects.filter(pk=pk).first() if pk else None
+        colonnes = [
+            {'title': 'Immatriculation', 'kind': 'texte', 'required': True, 'example': 'TX-1003-CI',
+             'help': "Plaque du véhicule (30 caractères max). Si elle existe déjà dans le parc, la ligne est ignorée."},
+            {'title': 'Marque', 'kind': 'texte', 'required': True, 'example': 'Suzuki',
+             'help': 'Marque du véhicule (20 caractères max).'},
+            {'title': 'Duree', 'kind': 'montant', 'required': False, 'example': 5,
+             'help': "Durée d'amortissement en années (nombre entier).", 'width': 14},
+            {'title': 'Numero carte grise', 'kind': 'texte', 'required': True, 'example': 'CG-2026-0001',
+             'help': 'Unique dans le parc : une valeur déjà utilisée fait ignorer la ligne.', 'width': 26},
+            {'title': 'Numero chassis', 'kind': 'texte', 'required': True, 'example': 'MA3ABC123XY456789',
+             'help': 'Unique dans le parc : une valeur déjà utilisée fait ignorer la ligne.', 'width': 26},
+            {'title': 'Date acquisition', 'kind': 'date_passee', 'required': True, 'example': '15-01-2024',
+             'help': "Date d'achat du véhicule, au format JJ-MM-AAAA.", 'width': 20},
+            {'title': 'Cout acquisition', 'kind': 'montant', 'required': False, 'example': 5000000,
+             'help': "Prix d'achat en FCFA : nombre entier, sans espace ni devise.", 'width': 20},
+            {'title': 'Date edition carte grise', 'kind': 'date_passee', 'required': True, 'example': '20-01-2024',
+             'help': "Date d'édition de la carte grise, au format JJ-MM-AAAA.", 'width': 24},
+            {'title': 'Date mise en service', 'kind': 'date_passee', 'required': True, 'example': '01-02-2024',
+             'help': "Date de mise en circulation : elle sert au calcul de l'âge du véhicule.", 'width': 22},
+        ]
+        regles = [
+            "Ne modifiez pas la ligne 1 : les intitulés de colonnes servent à reconnaître les données "
+            "(l'ordre des colonnes, lui, peut changer).",
+            "Aucune colonne « Catégorie » : la catégorie est celle choisie à l'écran avant le chargement "
+            "du fichier, elle est appliquée à toutes les lignes.",
+            "Immatriculation : si elle est déjà enregistrée dans le parc, la ligne est ignorée et aucun "
+            "véhicule existant n'est modifié.",
+            "Numéro de carte grise et numéro de châssis : uniques dans le parc, une valeur déjà utilisée "
+            "fait également ignorer la ligne.",
+            "Les trois dates (acquisition, édition carte grise, mise en service) sont obligatoires : une "
+            "ligne dont une date manque ou est illisible est ignorée.",
+            "Dates : format JJ-MM-AAAA. Une date postérieure à aujourd'hui est refusée.",
+            "Durée et coût d'acquisition : nombres entiers positifs, sans espace ni devise. Laissés vides, "
+            "ils valent 0.",
+            "Commencez à saisir en ligne 2 : le modèle ne contient volontairement aucune ligne d'exemple "
+            "à supprimer (voir la colonne Exemple du mode d'emploi).",
+            "Les lignes sans immatriculation sont ignorées.",
+        ]
+        if categorie:
+            regles.insert(2, "Fichier préparé pour la catégorie « {} » : toutes les lignes y seront "
+                             "rattachées.".format(categorie))
+            nom = 'Exemplaire-Vehicules-{}-import.xlsx'.format(categorie).replace(' ', '-')
+        else:
+            nom = 'Exemplaire-Vehicules-import.xlsx'
+        return _excel_import_template_http_response(
+            colonnes,
+            'Vehicules',
+            nom,
+            rules=regles,
+            date_window_note=False,
         )
 
 
@@ -4981,6 +5138,17 @@ def _recette_import_row_is_identical(existing, chauffeur, cpte, numero_fact, num
         and (existing.chauffeur or '') == chauffeur
         and (existing.cpte_comptable or '') == cpte
         and (existing.numero_fact or '') == numero_fact
+        and (existing.Num_piece or '') == num_piece
+    )
+
+
+def _charge_import_row_is_identical(existing, libelle, cpte, num_fact, num_piece, montant):
+    """Doublon strict d'une charge : à véhicule et date_saisie égaux, mêmes valeurs saisies."""
+    return (
+        existing.montant == montant
+        and (existing.libelle or '') == libelle
+        and (existing.cpte_comptable or '') == cpte
+        and (existing.Num_fact or '') == num_fact
         and (existing.Num_piece or '') == num_piece
     )
 
@@ -5053,7 +5221,9 @@ def _export_recettes_queryset(request):
 
 def _export_chargefix_queryset(request):
     if request.GET.get('source') == 'excel_import':
-        filtered_qs, _, _, _, _ = _apply_recette_excel_filters(request, ChargeFixe.objects.all())
+        filtered_qs, _, _, _, _ = _apply_recette_excel_filters(
+            request, ChargeFixe.objects.all(), date_field=EXCEL_IMPORT_DATE_FIELD
+        )
         return filtered_qs
     _, _, _, _, _, filtered_qs = _filter_chargefix_list_queryset(request)
     return filtered_qs
@@ -5061,7 +5231,9 @@ def _export_chargefix_queryset(request):
 
 def _export_chargevar_queryset(request):
     if request.GET.get('source') == 'excel_import':
-        filtered_qs, _, _, _, _ = _apply_recette_excel_filters(request, ChargeVariable.objects.all())
+        filtered_qs, _, _, _, _ = _apply_recette_excel_filters(
+            request, ChargeVariable.objects.all(), date_field=EXCEL_IMPORT_DATE_FIELD
+        )
         return filtered_qs
     _, _, _, _, _, filtered_qs = _filter_chargevar_list_queryset(request)
     return filtered_qs
@@ -5122,7 +5294,8 @@ class AddRecetteExcelView(LoginRequiredMixin, CustomPermissionRequiredMixin, For
             )
             return
 
-        created = updated = skipped_same = bad_rows = bad_immat = skipped_num_piece_month = bad_future_dates = 0
+        created = updated = skipped_same = bad_rows = bad_immat = 0
+        skipped_num_piece_month = bad_future_dates = bad_old_dates = 0
         seen_num_piece_month_dates = {}
 
         for rnum, row in enumerate(rows[1:], start=2):
@@ -5162,6 +5335,9 @@ class AddRecetteExcelView(LoginRequiredMixin, CustomPermissionRequiredMixin, For
             date_saisie, date_err = _excel_parse_saisie_date(_cell('date_saisie'))
             if date_err == 'future':
                 bad_future_dates += 1
+                continue
+            if date_err == 'too_old':
+                bad_old_dates += 1
                 continue
 
             if not chauffeur or montant is None or not date_saisie:
@@ -5231,12 +5407,19 @@ class AddRecetteExcelView(LoginRequiredMixin, CustomPermissionRequiredMixin, For
                 request,
                 f'{bad_future_dates} ligne(s) ignorée(s) : date de saisie postérieure à aujourd\'hui.',
             )
+        if bad_old_dates:
+            messages.error(
+                request,
+                f'{bad_old_dates} ligne(s) ignorée(s) : date de saisie antérieure au '
+                f'{saisie_min_date().strftime("%d/%m/%Y")}.',
+            )
         if skipped_num_piece_month:
             messages.error(
                 request,
                 f'{skipped_num_piece_month} {_NUM_PIECE_SKIP_MSG}',
             )
-        if not any([created, updated, skipped_same, bad_immat, bad_rows, bad_future_dates, skipped_num_piece_month]):
+        if not any([created, updated, skipped_same, bad_immat, bad_rows, bad_future_dates,
+                    bad_old_dates, skipped_num_piece_month]):
             messages.info(request, 'Aucune ligne de données exploitable.')
 
     def get_context_data(self, **kwargs):
@@ -5336,8 +5519,10 @@ class AddChargeFixExcelView(LoginRequiredMixin, CustomPermissionRequiredMixin, F
             )
             return
 
-        created = updated = skipped_same = bad_rows = bad_immat = skipped_num_piece_month = bad_future_dates = 0
+        created = skipped_same = bad_rows = bad_immat = 0
+        skipped_num_piece_month = bad_future_dates = bad_old_dates = 0
         seen_num_piece_month_dates = {}
+        seen_rows = set()
 
         for row in rows[1:]:
             if row is None or not any(cell not in (None, '') for cell in row):
@@ -5374,25 +5559,27 @@ class AddChargeFixExcelView(LoginRequiredMixin, CustomPermissionRequiredMixin, F
             if date_err == 'future':
                 bad_future_dates += 1
                 continue
+            if date_err == 'too_old':
+                bad_old_dates += 1
+                continue
 
             if montant is None or not date_saisie:
                 bad_rows += 1
                 continue
 
-            existing = (
-                ChargeFixe.objects.filter(vehicule=vehicule, date_saisie=date_saisie)
-                .order_by('-id')
-                .first()
+            # Un même véhicule peut porter plusieurs charges fixes à la même date_saisie :
+            # seule une ligne strictement identique (montant, libellé, compte comptable,
+            # N° pièce, N° facture) est un doublon et se voit ignorée.
+            row_key = (vehicule.pk, date_saisie, montant, libelle, cpte, num_piece, num_fact)
+            if row_key in seen_rows:
+                skipped_same += 1
+                continue
+            deja_en_base = any(
+                _charge_import_row_is_identical(existante, libelle, cpte, num_fact, num_piece, montant)
+                for existante in ChargeFixe.objects.filter(vehicule=vehicule, date_saisie=date_saisie)
             )
-
-            if existing:
-                if existing.montant != montant:
-                    existing.montant = montant
-                    existing.auteur = request.user
-                    existing.save(update_fields=['montant', 'auteur'])
-                    updated += 1
-                else:
-                    skipped_same += 1
+            if deja_en_base:
+                skipped_same += 1
                 continue
 
             if _excel_import_num_piece_strip(num_piece):
@@ -5414,16 +5601,17 @@ class AddChargeFixExcelView(LoginRequiredMixin, CustomPermissionRequiredMixin, F
                 montant=montant,
                 date_saisie=date_saisie,
             )
+            seen_rows.add(row_key)
             created += 1
 
         if created:
             messages.success(request, f'{created} charge(s) fixe(s) créée(s) (import sous le compte « {request.user.get_username()} »).')
-        if updated:
-            messages.success(request, f'{updated} charge(s) fixe(s) mise(s) à jour (montant différent pour la même date et le même véhicule).')
         if skipped_same:
             messages.warning(
                 request,
-                f'{skipped_same} ligne(s) ignorée(s) : une charge fixe existe déjà pour cette immatriculation à la même date_saisie avec le même montant.',
+                f'{skipped_same} ligne(s) ignorée(s) : une charge fixe identique existe déjà '
+                '(même véhicule, même date de saisie, même montant, même libellé, même compte '
+                'comptable et mêmes N° pièce / N° facture).',
             )
         if bad_immat:
             messages.error(request, f'{bad_immat} ligne(s) ignorée(s) : immatriculation inconnue (véhicule absent du parc).')
@@ -5434,12 +5622,18 @@ class AddChargeFixExcelView(LoginRequiredMixin, CustomPermissionRequiredMixin, F
                 request,
                 f'{bad_future_dates} ligne(s) ignorée(s) : date de saisie postérieure à aujourd\'hui.',
             )
+        if bad_old_dates:
+            messages.error(
+                request,
+                f'{bad_old_dates} ligne(s) ignorée(s) : date de saisie antérieure au '
+                f'{saisie_min_date().strftime("%d/%m/%Y")}.',
+            )
         if skipped_num_piece_month:
             messages.error(
                 request,
                 f'{skipped_num_piece_month} {_NUM_PIECE_SKIP_MSG}',
             )
-        if not any([created, updated, skipped_same, bad_immat, bad_rows, bad_future_dates, skipped_num_piece_month]):
+        if not any([created, skipped_same, bad_immat, bad_rows, bad_future_dates, bad_old_dates, skipped_num_piece_month]):
             messages.info(request, 'Aucune ligne de données exploitable.')
 
     def get_context_data(self, **kwargs):
@@ -5447,26 +5641,26 @@ class AddChargeFixExcelView(LoginRequiredMixin, CustomPermissionRequiredMixin, F
         today = dj_timezone.localdate()
         base_qs = ChargeFixe.objects.select_related('vehicule', 'vehicule__category', 'auteur')
         filtered_qs, selected_period, custom_filter_form, filter_start, filter_end = _apply_recette_excel_filters(
-            self.request, base_qs
+            self.request, base_qs, date_field=EXCEL_IMPORT_DATE_FIELD
         )
 
-        charges_filtered = filtered_qs.order_by('-date', '-id')
+        # Tri sur la date de saisie (plus récente -> plus ancienne), pas sur la date d'import.
+        charges_filtered = filtered_qs.order_by('-date_saisie', '-date', '-id')
 
         chart_labels, chart_datasets = _build_excel_category_chart_data(
-            filtered_qs, selected_period, filter_start, filter_end
+            filtered_qs, selected_period, filter_start, filter_end, date_field=EXCEL_IMPORT_DATE_FIELD
         )
 
-        week_start = today - timedelta(days=today.weekday())
-        total_jour = base_qs.filter(date__date=today).aggregate(somme=Sum('montant'))['somme'] or 0
-        total_semaine = base_qs.filter(date__date__range=[week_start, week_start + timedelta(days=6)]).aggregate(somme=Sum('montant'))['somme'] or 0
-        total_mois = base_qs.filter(date__year=today.year, date__month=today.month).aggregate(somme=Sum('montant'))['somme'] or 0
-        total_an = base_qs.filter(date__year=today.year).aggregate(somme=Sum('montant'))['somme'] or 0
+        totaux = _excel_period_totals(base_qs, today, date_field=EXCEL_IMPORT_DATE_FIELD)
 
         ctx['page_info'] = (
-            'Le fichier peut reprendre l\'export « Charges Fixes » (Immatriculation, Libellé, Montant, Date saisie). '
-            'Vous pouvez ajouter Compte comptable, N° facture, N° pièce. '
-            'Pour un même véhicule et la même date_saisie, si le montant change la ligne est mise à jour ; sinon elle est ignorée. '
-            'Si le N° pièce est renseigné, il doit être unique pour le mois calendaire de la date de saisie (plusieurs lignes à la même date peuvent partager le même N° pièce).'
+            'Le fichier peut reprendre l\'export « Charges Fixes » ou l\'exemplaire téléchargeable '
+            '(Immatriculation, Libellé, Compte comptable, N° pièce, N° facture, Montant, Date saisie). '
+            'Un même véhicule peut recevoir plusieurs charges fixes à la même date de saisie : '
+            'seule une ligne strictement identique (mêmes montant, libellé, compte, N° pièce et N° facture) est ignorée. '
+            'Si le N° pièce est renseigné, il doit être unique pour le mois calendaire de la date de saisie '
+            '(plusieurs lignes à la même date peuvent partager le même N° pièce). '
+            'Le graphique, les statistiques et le tableau sont classés sur la date de saisie, de la plus récente à la plus ancienne.'
         )
         ctx['charges_fixes_page'] = charges_filtered
         ctx['today_date'] = today
@@ -5475,10 +5669,10 @@ class AddChargeFixExcelView(LoginRequiredMixin, CustomPermissionRequiredMixin, F
         ctx['period_start'] = filter_start
         ctx['period_end'] = filter_end
         ctx['export_querystring'] = _build_list_export_querystring(self.request)
-        ctx['recette_jours_format'] = '{:,}'.format(total_jour).replace(',', ' ')
-        ctx['recette_semaine_format'] = '{:,}'.format(total_semaine).replace(',', ' ')
-        ctx['recette_mois_format'] = '{:,}'.format(total_mois).replace(',', ' ')
-        ctx['recette_an_format'] = '{:,}'.format(total_an).replace(',', ' ')
+        ctx['recette_jours_format'] = '{:,}'.format(totaux['jour']).replace(',', ' ')
+        ctx['recette_semaine_format'] = '{:,}'.format(totaux['semaine']).replace(',', ' ')
+        ctx['recette_mois_format'] = '{:,}'.format(totaux['mois']).replace(',', ' ')
+        ctx['recette_an_format'] = '{:,}'.format(totaux['annee']).replace(',', ' ')
         ctx['chart_labels'] = json.dumps(chart_labels)
         ctx['chart_datasets'] = json.dumps(chart_datasets)
         return ctx
@@ -5538,8 +5732,10 @@ class AddChargeVarExcelView(LoginRequiredMixin, CustomPermissionRequiredMixin, F
             )
             return
 
-        created = updated = skipped_same = bad_rows = bad_immat = skipped_num_piece_month = bad_future_dates = 0
+        created = skipped_same = bad_rows = bad_immat = 0
+        skipped_num_piece_month = bad_future_dates = bad_old_dates = 0
         seen_num_piece_month_dates = {}
+        seen_rows = set()
 
         for row in rows[1:]:
             if row is None or not any(cell not in (None, '') for cell in row):
@@ -5576,25 +5772,27 @@ class AddChargeVarExcelView(LoginRequiredMixin, CustomPermissionRequiredMixin, F
             if date_err == 'future':
                 bad_future_dates += 1
                 continue
+            if date_err == 'too_old':
+                bad_old_dates += 1
+                continue
 
             if montant is None or not date_saisie:
                 bad_rows += 1
                 continue
 
-            existing = (
-                ChargeVariable.objects.filter(vehicule=vehicule, date_saisie=date_saisie)
-                .order_by('-id')
-                .first()
+            # Un même véhicule peut porter plusieurs charges variables à la même date_saisie :
+            # seule une ligne strictement identique (montant, libellé, compte comptable,
+            # N° pièce, N° facture) est un doublon et se voit ignorée.
+            row_key = (vehicule.pk, date_saisie, montant, libelle, cpte, num_piece, num_fact)
+            if row_key in seen_rows:
+                skipped_same += 1
+                continue
+            deja_en_base = any(
+                _charge_import_row_is_identical(existante, libelle, cpte, num_fact, num_piece, montant)
+                for existante in ChargeVariable.objects.filter(vehicule=vehicule, date_saisie=date_saisie)
             )
-
-            if existing:
-                if existing.montant != montant:
-                    existing.montant = montant
-                    existing.auteur = request.user
-                    existing.save(update_fields=['montant', 'auteur'])
-                    updated += 1
-                else:
-                    skipped_same += 1
+            if deja_en_base:
+                skipped_same += 1
                 continue
 
             if _excel_import_num_piece_strip(num_piece):
@@ -5616,16 +5814,17 @@ class AddChargeVarExcelView(LoginRequiredMixin, CustomPermissionRequiredMixin, F
                 montant=montant,
                 date_saisie=date_saisie,
             )
+            seen_rows.add(row_key)
             created += 1
 
         if created:
             messages.success(request, f'{created} charge(s) variable(s) créée(s) (import sous le compte « {request.user.get_username()} »).')
-        if updated:
-            messages.success(request, f'{updated} charge(s) variable(s) mise(s) à jour (montant différent pour la même date et le même véhicule).')
         if skipped_same:
             messages.warning(
                 request,
-                f'{skipped_same} ligne(s) ignorée(s) : une charge variable existe déjà pour cette immatriculation à la même date_saisie avec le même montant.',
+                f'{skipped_same} ligne(s) ignorée(s) : une charge variable identique existe déjà '
+                '(même véhicule, même date de saisie, même montant, même libellé, même compte '
+                'comptable et mêmes N° pièce / N° facture).',
             )
         if bad_immat:
             messages.error(request, f'{bad_immat} ligne(s) ignorée(s) : immatriculation inconnue (véhicule absent du parc).')
@@ -5636,12 +5835,18 @@ class AddChargeVarExcelView(LoginRequiredMixin, CustomPermissionRequiredMixin, F
                 request,
                 f'{bad_future_dates} ligne(s) ignorée(s) : date de saisie postérieure à aujourd\'hui.',
             )
+        if bad_old_dates:
+            messages.error(
+                request,
+                f'{bad_old_dates} ligne(s) ignorée(s) : date de saisie antérieure au '
+                f'{saisie_min_date().strftime("%d/%m/%Y")}.',
+            )
         if skipped_num_piece_month:
             messages.error(
                 request,
                 f'{skipped_num_piece_month} {_NUM_PIECE_SKIP_MSG}',
             )
-        if not any([created, updated, skipped_same, bad_immat, bad_rows, bad_future_dates, skipped_num_piece_month]):
+        if not any([created, skipped_same, bad_immat, bad_rows, bad_future_dates, bad_old_dates, skipped_num_piece_month]):
             messages.info(request, 'Aucune ligne de données exploitable.')
 
     def get_context_data(self, **kwargs):
@@ -5649,26 +5854,24 @@ class AddChargeVarExcelView(LoginRequiredMixin, CustomPermissionRequiredMixin, F
         today = dj_timezone.localdate()
         base_qs = ChargeVariable.objects.select_related('vehicule', 'vehicule__category', 'auteur')
         filtered_qs, selected_period, custom_filter_form, filter_start, filter_end = _apply_recette_excel_filters(
-            self.request, base_qs
+            self.request, base_qs, date_field=EXCEL_IMPORT_DATE_FIELD
         )
 
-        charges_filtered = filtered_qs.order_by('-date', '-id')
+        # Tri sur la date de saisie (plus récente -> plus ancienne), pas sur la date d'import.
+        charges_filtered = filtered_qs.order_by('-date_saisie', '-date', '-id')
 
         chart_labels, chart_datasets = _build_excel_category_chart_data(
-            filtered_qs, selected_period, filter_start, filter_end
+            filtered_qs, selected_period, filter_start, filter_end, date_field=EXCEL_IMPORT_DATE_FIELD
         )
-
-        week_start = today - timedelta(days=today.weekday())
-        total_jour = base_qs.filter(date__date=today).aggregate(somme=Sum('montant'))['somme'] or 0
-        total_semaine = base_qs.filter(date__date__range=[week_start, week_start + timedelta(days=6)]).aggregate(somme=Sum('montant'))['somme'] or 0
-        total_mois = base_qs.filter(date__year=today.year, date__month=today.month).aggregate(somme=Sum('montant'))['somme'] or 0
-        total_an = base_qs.filter(date__year=today.year).aggregate(somme=Sum('montant'))['somme'] or 0
-
+        totaux = _excel_period_totals(base_qs, today, date_field=EXCEL_IMPORT_DATE_FIELD)
         ctx['page_info'] = (
-            'Le fichier peut reprendre l\'export « Charges Variables » (Immatriculation, Libellé, Montant, Date saisie). '
-            'Vous pouvez ajouter Compte comptable, N° facture, N° pièce. '
-            'Pour un même véhicule et la même date_saisie, si le montant change la ligne est mise à jour ; sinon elle est ignorée. '
-            'Si le N° pièce est renseigné, il doit être unique pour le mois calendaire de la date de saisie (plusieurs lignes à la même date peuvent partager le même N° pièce).'
+            'Le fichier peut reprendre l\'export « Charges Variables » ou l\'exemplaire téléchargeable '
+            '(Immatriculation, Libellé, Compte comptable, N° pièce, N° facture, Montant, Date saisie). '
+            'Un même véhicule peut recevoir plusieurs charges variables à la même date de saisie : '
+            'seule une ligne strictement identique (mêmes montant, libellé, compte, N° pièce et N° facture) est ignorée. '
+            'Si le N° pièce est renseigné, il doit être unique pour le mois calendaire de la date de saisie '
+            '(plusieurs lignes à la même date peuvent partager le même N° pièce). '
+            'Le graphique, les statistiques et le tableau sont classés sur la date de saisie, de la plus récente à la plus ancienne.'
         )
         ctx['charges_variables_page'] = charges_filtered
         ctx['today_date'] = today
@@ -5677,13 +5880,14 @@ class AddChargeVarExcelView(LoginRequiredMixin, CustomPermissionRequiredMixin, F
         ctx['period_start'] = filter_start
         ctx['period_end'] = filter_end
         ctx['export_querystring'] = _build_list_export_querystring(self.request)
-        ctx['recette_jours_format'] = '{:,}'.format(total_jour).replace(',', ' ')
-        ctx['recette_semaine_format'] = '{:,}'.format(total_semaine).replace(',', ' ')
-        ctx['recette_mois_format'] = '{:,}'.format(total_mois).replace(',', ' ')
-        ctx['recette_an_format'] = '{:,}'.format(total_an).replace(',', ' ')
+        ctx['recette_jours_format'] = '{:,}'.format(totaux['jour']).replace(',', ' ')
+        ctx['recette_semaine_format'] = '{:,}'.format(totaux['semaine']).replace(',', ' ')
+        ctx['recette_mois_format'] = '{:,}'.format(totaux['mois']).replace(',', ' ')
+        ctx['recette_an_format'] = '{:,}'.format(totaux['annee']).replace(',', ' ')
         ctx['chart_labels'] = json.dumps(chart_labels)
         ctx['chart_datasets'] = json.dumps(chart_datasets)
         return ctx
+
 
 
 class UpdateRecetView(LoginRequiredMixin, CustomPermissionRequiredMixin, UpdateView):
@@ -6014,12 +6218,13 @@ class ExportHistoriqueRecetteExcelView(LoginRequiredMixin, View):
         wb.save(response)
         return response
 
-class AddAutrarretView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateView):
+class AddAutrarretView(LoginRequiredMixin, CustomPermissionRequiredMixin, SaisieLiveSearchMixin, CreateView):
     login_url = 'login'
     permission_url = 'add_autarrets'
     model = Autrarret
     form_class = AutrarretForm
     template_name= "perfect/add_autarret.html"
+    saisie_mode = 'arret'
     success_message = "Autre d'arrêt Ajouté avec succès ✓✓"
     error_message = "Erreur de saisie ✘✘ "
     timeout_minutes = 500
@@ -6051,25 +6256,7 @@ class AddAutrarretView(LoginRequiredMixin, CustomPermissionRequiredMixin, Create
         vehicule = get_object_or_404(Vehicule, pk=self.kwargs['pk'])
         form = DateForm(self.request.GET)
         forms = self.get_form()
-        user = self.request.user
-        if user.user_type == "4":
-            try:
-                gerant = user.profile
-                categories_gerant = gerant.gerant_voiture.all()
-                if categories_gerant.exists():  
-                    vehicules = Vehicule.objects.filter(category__in=categories_gerant)
-                else:
-                    vehicules = Vehicule.objects.none() 
-            except UserProfile.DoesNotExist:
-                vehicules = Vehicule.objects.none()
-        else:
-            vehicules = Vehicule.objects.all()
-        
-        search_query = self.request.GET.get("search", "").strip()
-        if search_query:  
-            vehicules = search_vehicules(vehicules, search_query)
-        else:
-            vehicules = Vehicule.objects.none()
+        search_ctx = self.get_search_results()
 
         autarret_queryset = Autrarret.objects.filter(vehicule=vehicule)
         if form.is_valid():
@@ -6090,8 +6277,12 @@ class AddAutrarretView(LoginRequiredMixin, CustomPermissionRequiredMixin, Create
         autarret_an_format ='{:,}'.format(autarret_an).replace(',', ' ')
         liste_autarret = autarret_queryset.filter(date_saisie__month=date.today().month).order_by('-id')    
 
-        context = {
-            "vehicules": vehicules,
+        context.update({
+            "vehicules": search_ctx['vehicules'],
+            "search_query": search_ctx['search_query'],
+            "saisie_mode": search_ctx['saisie_mode'],
+            "result_total": search_ctx['result_total'],
+            "result_limited": search_ctx['result_limited'],
             "vehicule": vehicule,
             "autarret_total": autarret_total,
             "autarret_jours_format": autarret_jours_format,
@@ -6104,7 +6295,7 @@ class AddAutrarretView(LoginRequiredMixin, CustomPermissionRequiredMixin, Create
             'annee': annee,
             'form': form,
             'forms': forms,
-        }   
+        })   
         return context  
     def get_success_url(self):
         return reverse('add_autarrets', kwargs={'pk': self.kwargs['pk']})
@@ -6507,12 +6698,13 @@ def delete_selected_chargfix(request):
         messages.warning(request, "Aucune charge fixe sélectionnée.")
     return redirect('list_charg_fix')
     
-class AddChargeFixView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateView):
+class AddChargeFixView(LoginRequiredMixin, CustomPermissionRequiredMixin, SaisieLiveSearchMixin, CreateView):
     login_url = 'login'
     permission_url = 'addcharg_fix'
     model = ChargeFixe
     form_class = ChargeFixForm
     template_name= "perfect/add_charg_fixe.html"
+    saisie_mode = 'compta'
     success_message = 'Charge fixe Ajoutée avec succès ✓✓'
     error_message = "Erreur de saisie ✘✘ "
     timeout_minutes = 500
@@ -6545,26 +6737,8 @@ class AddChargeFixView(LoginRequiredMixin, CustomPermissionRequiredMixin, Create
         chargfixe_queryset = ChargeFixe.objects.filter(vehicule=vehicule)
         form = DateForm(self.request.GET)
         forms = self.get_form()
-        user = self.request.user
         date_debut = date_fin = None
-        if user.user_type == "4":
-            try:
-                gerant = user.profile
-                categories_gerant = gerant.gerant_voiture.all()
-                if categories_gerant.exists():  
-                    vehicules = Vehicule.objects.filter(category__in=categories_gerant)
-                else:
-                    vehicules = Vehicule.objects.none() 
-            except UserProfile.DoesNotExist:
-                vehicules = Vehicule.objects.none()
-        else:
-            vehicules = Vehicule.objects.all()
-
-        search_query = self.request.GET.get("search", "").strip()
-        if search_query:  
-            vehicules = search_vehicules(vehicules, search_query)
-        else:
-            vehicules = Vehicule.objects.none()
+        search_ctx = self.get_search_results()
 
         if form.is_valid():
             date_debut = form.cleaned_data.get('date_debut')
@@ -6587,8 +6761,12 @@ class AddChargeFixView(LoginRequiredMixin, CustomPermissionRequiredMixin, Create
         chargfixe_an = chargfixe_base.filter(date_saisie__year=today.year).aggregate(somme=Sum('montant'))['somme'] or 0
         chargfixe_an_format = '{:,}'.format(chargfixe_an).replace(',', ' ')
         liste_chargfixe = filtre_chargfixe.order_by('-id')
-        context = {
-            "vehicules": vehicules,
+        context.update({
+            "vehicules": search_ctx['vehicules'],
+            "search_query": search_ctx['search_query'],
+            "saisie_mode": search_ctx['saisie_mode'],
+            "result_total": search_ctx['result_total'],
+            "result_limited": search_ctx['result_limited'],
             "vehicule": vehicule,
             "chargfixe_jours_format": chargfixe_jours_format,
             "chargfixe_mois_format": chargfixe_mois_format,
@@ -6600,7 +6778,7 @@ class AddChargeFixView(LoginRequiredMixin, CustomPermissionRequiredMixin, Create
             'annee': annee,
             'form': form,
             'forms': forms,
-        }   
+        })   
         return context  
     def get_success_url(self):
         return reverse('addcharg_fix', kwargs={'pk': self.kwargs['pk']})
@@ -6879,12 +7057,13 @@ class HistoriqueChargeFixeView(LoginRequiredMixin, CustomPermissionRequiredMixin
             context['grouped_permissions'] = grouped_permissions
         return context
 
-class AddChargeVarView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateView):
+class AddChargeVarView(LoginRequiredMixin, CustomPermissionRequiredMixin, SaisieLiveSearchMixin, CreateView):
     login_url = 'login'
     permission_url = 'addcharg_var'
     model = ChargeVariable
     form_class = ChargeVarForm
     template_name= "perfect/add_charg_var.html"
+    saisie_mode = 'compta'
     success_message = 'Charge variable Ajoutée avec succès ✓✓'
     error_message = "Erreur de saisie ✘✘"
     timeout_minutes = 500
@@ -6917,31 +7096,8 @@ class AddChargeVarView(LoginRequiredMixin, CustomPermissionRequiredMixin, Create
         chargvar_queryset = ChargeVariable.objects.filter(vehicule=vehicule)
         form = DateForm(self.request.GET)
         forms = self.get_form()
-        user = self.request.user
         date_debut = date_fin = None
-        if user.user_type == "4":
-            try:
-                gerant = user.profile
-                categories_gerant = gerant.gerant_voiture.all()
-                if categories_gerant.filter(category="VTC").exists():
-                    vehicules = Vehicule.objects.filter(category__category="VTC")
-                else:
-                    vehicules = Vehicule.objects.filter(category__category="TAXI")
-            except UserProfile.DoesNotExist:
-                vehicules = Vehicule.objects.none()  
-                # No vehicles if no Gerant linked
-        elif user:
-            try:
-                vehicules = Vehicule.objects.all()
-            except:
-                vehicules = Vehicule.objects.none()
-        else:
-            print()
-        search_query = self.request.GET.get("search", "").strip()
-        if search_query:  
-            vehicules = search_vehicules(vehicules, search_query)
-        else:
-            vehicules = Vehicule.objects.none()
+        search_ctx = self.get_search_results()
         if form.is_valid():
             date_debut = form.cleaned_data.get('date_debut')
             date_fin = form.cleaned_data.get('date_fin')
@@ -6964,7 +7120,11 @@ class AddChargeVarView(LoginRequiredMixin, CustomPermissionRequiredMixin, Create
         liste_chargvar = filtre_chargvar.order_by('-id')
 
         context = {
-            "vehicules": vehicules,
+            "vehicules": search_ctx['vehicules'],
+            "search_query": search_ctx['search_query'],
+            "saisie_mode": search_ctx['saisie_mode'],
+            "result_total": search_ctx['result_total'],
+            "result_limited": search_ctx['result_limited'],
             "vehicule": vehicule,
             'chargvar_jours_format': chargvar_jours_format,
             'chargvar_mois_format': chargvar_mois_format,
@@ -7470,13 +7630,19 @@ def _charge_admin_parse_excel_date(val):
     return None
 
 
-def _excel_parse_saisie_date(val):
-    """Parse une date Excel ; refuse les dates futures (après aujourd'hui)."""
+def _excel_parse_saisie_date(val, enforce_min=True):
+    """Parse une date Excel et la borne à la fenêtre de saisie autorisée.
+
+    Refuse les dates futures et, sauf `enforce_min=False`, celles antérieures au
+    plancher de saisie (cf. `saisie_min_date` : 1er janvier de l'année en cours - 4).
+    """
     parsed = _charge_admin_parse_excel_date(val)
     if parsed is None:
         return None, 'invalid'
     if not is_saisie_date_allowed(parsed):
         return None, 'future'
+    if enforce_min and is_saisie_date_too_old(parsed):
+        return None, 'too_old'
     return parsed, None
 
 
@@ -7576,6 +7742,7 @@ class AddChargeAdminisView(LoginRequiredMixin, CustomPermissionRequiredMixin, Cr
         skipped_samples = []
         row_errors = []
         future_row_errors = []
+        old_row_errors = []
 
         for rnum, row in enumerate(rows[1:], start=2):
             if row is None or not any(cell not in (None, '') for cell in row):
@@ -7607,6 +7774,9 @@ class AddChargeAdminisView(LoginRequiredMixin, CustomPermissionRequiredMixin, Cr
             date_saisie, date_err = _excel_parse_saisie_date(_cell('date_saisie'))
             if date_err == 'future':
                 future_row_errors.append(rnum)
+                continue
+            if date_err == 'too_old':
+                old_row_errors.append(rnum)
                 continue
 
             if not libelle or montant is None or not cpte or not date_saisie:
@@ -7669,7 +7839,15 @@ class AddChargeAdminisView(LoginRequiredMixin, CustomPermissionRequiredMixin, Cr
                 request,
                 f'Ligne(s) ignorée(s) (date de saisie postérieure à aujourd\'hui) : {preview}{more}.',
             )
-        if not created and not skipped_dup and not row_errors and not future_row_errors:
+        if old_row_errors:
+            preview = ', '.join(str(x) for x in old_row_errors[:15])
+            more = f' (+{len(old_row_errors) - 15} autres)' if len(old_row_errors) > 15 else ''
+            messages.error(
+                request,
+                f'Ligne(s) ignorée(s) (date de saisie antérieure au '
+                f'{saisie_min_date().strftime("%d/%m/%Y")}) : {preview}{more}.',
+            )
+        if not created and not skipped_dup and not row_errors and not future_row_errors and not old_row_errors:
             messages.info(request, 'Aucune ligne de données exploitable dans le fichier.')
 
         return redirect(self.success_url)
@@ -7793,7 +7971,7 @@ class AddChargeAdminisView(LoginRequiredMixin, CustomPermissionRequiredMixin, Cr
         label, chargadmin_mois_data = _dashboard_aggregate_montant(
             base_chargeadmin, 'date_saisie', date_debut, date_fin, chart_granularity
         )
-        context={
+        context.update({
             'total_recette_format': total_recette_mois_format,
             'total_recette_annuel_format': total_recette_annuel_format,
             'marge_contribution_annuel_format': marge_contribution_annuel_format,
@@ -7819,7 +7997,7 @@ class AddChargeAdminisView(LoginRequiredMixin, CustomPermissionRequiredMixin, Cr
             'chart_granularity': chart_granularity,
             'kpi_labels': kpi_labels,
             'excel_import_form': kwargs.get('excel_import_form') or ChargeAdminisExcelImportForm(),
-        }
+        })
         return context
 
 def delete_chargadmin(request, pk):
@@ -7895,12 +8073,13 @@ class ExportChargeAdminisExcelView(LoginRequiredMixin, View):
 
 #--------------/-/---------------@-----------------/-/--------------Garage---------------/-/--------------@----------------/-/------------#
 
-class AddCartStationnementView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateView):
+class AddCartStationnementView(LoginRequiredMixin, CustomPermissionRequiredMixin, SaisieLiveSearchMixin, CreateView):
     login_url = 'login'
     permission_url = 'add_station'
     model = Stationnement
     form_class = CartStationForm
     template_name= "perfect/add_station.html"
+    saisie_mode = 'garage'
     success_message = 'Carte de Stationnement enregistrée avec succès✓✓'
     error_message = "Erreur de saisie✘✘"
     timeout_minutes = 500
@@ -7934,25 +8113,7 @@ class AddCartStationnementView(LoginRequiredMixin, CustomPermissionRequiredMixin
         forms = self.get_form()
         user = self.request.user
         date_debut = date_fin = None
-
-        if user.user_type == "4":
-            try:
-                gerant = user.profile
-                categories_gerant = gerant.gerant_voiture.all()
-                if categories_gerant.exists():
-                    vehicules = Vehicule.objects.filter(category__in=categories_gerant)
-                else:
-                    vehicules = Vehicule.objects.none()
-            except UserProfile.DoesNotExist:
-                vehicules = Vehicule.objects.none()
-        else:
-            vehicules = Vehicule.objects.all()
-
-        search_query = self.request.GET.get("search", "").strip()
-        if search_query:
-            vehicules = search_vehicules(vehicules, search_query)
-        else:
-            vehicules = Vehicule.objects.none()
+        search_ctx = self.get_search_results()
 
         if form.is_valid():
             date_debut = form.cleaned_data.get('date_debut')
@@ -7990,8 +8151,12 @@ class AddCartStationnementView(LoginRequiredMixin, CustomPermissionRequiredMixin
                     grouped_permissions[perm.categorie] = []
                 grouped_permissions[perm.categorie].append(perm)
 
-        context = {
-            "vehicules": vehicules,
+        context.update({
+            "vehicules": search_ctx['vehicules'],
+            "search_query": search_ctx['search_query'],
+            "saisie_mode": search_ctx['saisie_mode'],
+            "result_total": search_ctx['result_total'],
+            "result_limited": search_ctx['result_limited'],
             "vehicule": vehicule,
             'station_jours_format': station_jours_format,
             'station_mois_format': station_mois_format,
@@ -8002,9 +8167,8 @@ class AddCartStationnementView(LoginRequiredMixin, CustomPermissionRequiredMixin
             'annee': annee,
             'form': form,
             'forms': forms,
-            'search_query': search_query,
             'grouped_permissions': grouped_permissions,
-        }
+        })
         return context  
     def get_success_url(self):
         return reverse('add_station', kwargs={'pk': self.kwargs['pk']})
@@ -8169,12 +8333,13 @@ class ExportStationnementExcelView(LoginRequiredMixin, View):
         wb.save(response)
         return response
 
-class AddPatenteView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateView):
+class AddPatenteView(LoginRequiredMixin, CustomPermissionRequiredMixin, SaisieLiveSearchMixin, CreateView):
     login_url = 'login'
     permission_url = 'add_patente'
     model = Patente
     form_class = PatenteForm
     template_name= "perfect/add_patente.html"
+    saisie_mode = 'garage'
     success_message = 'Patente enregistrée avec succès✓✓'
     error_message = "Erreur de saisie✘✘"
     timeout_minutes = 500
@@ -8206,27 +8371,8 @@ class AddPatenteView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateVi
 
         form = DateForm(self.request.GET)
         forms = self.get_form()
-        user = self.request.user
         date_debut = date_fin = None
-
-        if user.user_type == "4":
-            try:
-                gerant = user.profile
-                categories_gerant = gerant.gerant_voiture.all()
-                if categories_gerant.exists():  
-                    vehicules = Vehicule.objects.filter(category__in=categories_gerant)
-                else:
-                    vehicules = Vehicule.objects.none() 
-            except UserProfile.DoesNotExist:
-                vehicules = Vehicule.objects.none()
-        else:
-            vehicules = Vehicule.objects.all()
-
-        search_query = self.request.GET.get("search", "").strip()
-        if search_query:  
-            vehicules = search_vehicules(vehicules, search_query)
-        else:
-            vehicules = Vehicule.objects.none()
+        search_ctx = self.get_search_results()
         
         if form.is_valid():
             date_debut = form.cleaned_data.get('date_debut')
@@ -8249,8 +8395,12 @@ class AddPatenteView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateVi
         patente_an_format = '{:,}'.format(patente_an).replace(',', ' ')
         liste_patente = filtre_patente.order_by('-date_saisie')
 
-        context = {
-            "vehicules": vehicules,
+        context.update({
+            "vehicules": search_ctx['vehicules'],
+            "search_query": search_ctx['search_query'],
+            "saisie_mode": search_ctx['saisie_mode'],
+            "result_total": search_ctx['result_total'],
+            "result_limited": search_ctx['result_limited'],
             "vehicule": vehicule,
             'patente_jours_format': patente_jours_format,
             'patente_mois_format': patente_mois_format,
@@ -8258,7 +8408,7 @@ class AddPatenteView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateVi
             'liste_patente': liste_patente,
             'form': form,
             'forms': forms,
-        }   
+        })   
         return context  
     def get_success_url(self):
         return reverse('add_patente', kwargs={'pk': self.kwargs['pk']})
@@ -8418,12 +8568,13 @@ class ExportPatenteExcelView(LoginRequiredMixin, View):
         wb.save(response)
         return response
 
-class AddVignetteView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateView):
+class AddVignetteView(LoginRequiredMixin, CustomPermissionRequiredMixin, SaisieLiveSearchMixin, CreateView):
     login_url = 'login'
     permission_url = 'add_vignet'
     model = Vignette
     form_class = VignetteForm
     template_name= "perfect/add_vignette.html"
+    saisie_mode = 'garage'
     success_message = 'Vignette enregistrée avec succès✓✓'
     error_message = "Erreur de saisie✘✘"
     timeout_minutes = 500
@@ -8455,27 +8606,8 @@ class AddVignetteView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateV
 
         form = DateForm(self.request.GET)
         forms = self.get_form()
-        user = self.request.user
         date_debut = date_fin = None
-
-        if user.user_type == "4":
-            try:
-                gerant = user.profile
-                categories_gerant = gerant.gerant_voiture.all()
-                if categories_gerant.exists():  
-                    vehicules = Vehicule.objects.filter(category__in=categories_gerant)
-                else:
-                    vehicules = Vehicule.objects.none() 
-            except UserProfile.DoesNotExist:
-                vehicules = Vehicule.objects.none()
-        else:
-            vehicules = Vehicule.objects.all()
-        
-        search_query = self.request.GET.get("search", "").strip()
-        if search_query:  
-            vehicules = search_vehicules(vehicules, search_query)
-        else:
-            vehicules = Vehicule.objects.none()
+        search_ctx = self.get_search_results()
 
         if form.is_valid():
             date_debut = form.cleaned_data.get('date_debut')
@@ -8499,8 +8631,12 @@ class AddVignetteView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateV
         vignette_an_format = '{:,}'.format(vignette_an).replace(',', ' ')
         liste_vignette = filtre_vignette.order_by('-date_saisie')
 
-        context = {
-            "vehicules": vehicules,
+        context.update({
+            "vehicules": search_ctx['vehicules'],
+            "search_query": search_ctx['search_query'],
+            "saisie_mode": search_ctx['saisie_mode'],
+            "result_total": search_ctx['result_total'],
+            "result_limited": search_ctx['result_limited'],
             "vehicule": vehicule,
             'vignette_jours_format':vignette_jours_format,
             'vignette_mois_format':vignette_mois_format,
@@ -8511,7 +8647,7 @@ class AddVignetteView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateV
             'annee': annee,
             'form': form,
             'forms': forms,
-        }     
+        })     
         return context  
     def get_success_url(self):
         return reverse('add_vignet', kwargs={'pk': self.kwargs['pk']})
@@ -8685,12 +8821,13 @@ class ExportVignetteExcelView(LoginRequiredMixin, View):
         wb.save(response)
         return response
 
-class AddVisitView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateView):
+class AddVisitView(LoginRequiredMixin, CustomPermissionRequiredMixin, SaisieLiveSearchMixin, CreateView):
     login_url = 'login'
     permission_url = 'add_visit'
     model = VisiteTechnique
     form_class = VisiteTechniqueForm
     template_name= "perfect/add_visite.html"
+    saisie_mode = 'arret'
     success_message = 'Visite Ajoutée avec succès ✓✓'
     error_message = "Erreur de saisie ✘✘ "
     # success_url = reverse_lazy('journal_compta')
@@ -8724,32 +8861,8 @@ class AddVisitView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateView
         visitech_queryset = VisiteTechnique.objects.filter(vehicule=vehicule)
         form = DateForm(self.request.GET)
         forms = self.get_form()
-        user = self.request.user
         date_debut = date_fin = None
-        if user.user_type == "4":
-            try:
-                gerant = user.profile
-                categories_gerant = gerant.gerant_voiture.all()
-                if categories_gerant.filter(category="VTC").exists():
-                    vehicules = Vehicule.objects.filter(category__category="VTC")
-                else:
-                    vehicules = Vehicule.objects.filter(category__category="TAXI")
-            except UserProfile.DoesNotExist:
-                vehicules = Vehicule.objects.none()  
-                # No vehicles if no Gerant linked
-        elif user:
-            try:
-                vehicules = Vehicule.objects.all()
-            except:
-                vehicules = Vehicule.objects.none() 
-        else:
-            print()
-
-        search_query = self.request.GET.get("search", "").strip()
-        if search_query:  
-            vehicules = search_vehicules(vehicules, search_query)
-        else:
-            vehicules = Vehicule.objects.none()
+        search_ctx = self.get_search_results()
 
         if form.is_valid():
             date_debut = form.cleaned_data.get('date_debut')
@@ -8772,8 +8885,12 @@ class AddVisitView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateView
         visitech_an_format = '{:,}'.format(visitech_an).replace(',', ' ')
         liste_visitech = filtre_visitech.order_by('-date_saisie')
         
-        context = {
-            "vehicules": vehicules,
+        context.update({
+            "vehicules": search_ctx['vehicules'],
+            "search_query": search_ctx['search_query'],
+            "saisie_mode": search_ctx['saisie_mode'],
+            "result_total": search_ctx['result_total'],
+            "result_limited": search_ctx['result_limited'],
             "vehicule": vehicule,
             'liste_visitech':liste_visitech,
             'visitech_an_format':visitech_an_format,
@@ -8784,7 +8901,7 @@ class AddVisitView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateView
             'annee': annee,
             'form': form,
             'forms': forms,
-        }   
+        })   
         return context  
     def get_success_url(self):
         return reverse('add_visit', kwargs={'pk': self.kwargs['pk']})
@@ -8949,12 +9066,13 @@ class ExportVisiteTechniqueExcelView(LoginRequiredMixin, View):
         wb.save(response)
         return response
 
-class AddAssuranceView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateView):
+class AddAssuranceView(LoginRequiredMixin, CustomPermissionRequiredMixin, SaisieLiveSearchMixin, CreateView):
     login_url = 'login'
     permission_url = 'add_assurance'
     model = Assurance
     form_class = AssuranceForm
     template_name= "perfect/add_assurance.html"
+    saisie_mode = 'garage'
     success_message = 'Assurance enregistré avec succès✓✓'
     error_message = "Erreur de saisie✘✘"
     timeout_minutes = 500
@@ -8986,27 +9104,8 @@ class AddAssuranceView(LoginRequiredMixin, CustomPermissionRequiredMixin, Create
 
         form = DateForm(self.request.GET)
         forms = self.get_form()
-        user = self.request.user
         date_debut = date_fin = None
-
-        if user.user_type == "4":
-            try:
-                gerant = user.profile  
-                categories_gerant = gerant.gerant_voiture.all()
-                if categories_gerant.exists():  
-                    vehicules = Vehicule.objects.filter(category__in=categories_gerant)
-                else:
-                    vehicules = Vehicule.objects.none() 
-            except UserProfile.DoesNotExist:
-                vehicules = Vehicule.objects.none()
-        else:
-            vehicules = Vehicule.objects.all()
-
-        search_query = self.request.GET.get("search", "").strip()
-        if search_query:  
-            vehicules = search_vehicules(vehicules, search_query)
-        else:
-            vehicules = Vehicule.objects.none()
+        search_ctx = self.get_search_results()
         
         if form.is_valid():
             date_debut = form.cleaned_data.get('date_debut')
@@ -9030,8 +9129,12 @@ class AddAssuranceView(LoginRequiredMixin, CustomPermissionRequiredMixin, Create
         assurance_an_format = '{:,}'.format(assurance_an).replace(',', ' ')
         liste_recette = filtre_assurance.order_by('-date_saisie')
 
-        context = {
-            "vehicules": vehicules,
+        context.update({
+            "vehicules": search_ctx['vehicules'],
+            "search_query": search_ctx['search_query'],
+            "saisie_mode": search_ctx['saisie_mode'],
+            "result_total": search_ctx['result_total'],
+            "result_limited": search_ctx['result_limited'],
             "vehicule": vehicule,
             "assurance_an_format": assurance_an_format,
             "assurance_mois_format": assurance_mois_format,
@@ -9043,7 +9146,7 @@ class AddAssuranceView(LoginRequiredMixin, CustomPermissionRequiredMixin, Create
             'annee': annee,
             'form': form,
             'forms': forms,
-        }    
+        })    
         return context  
     def get_success_url(self):
         return reverse('add_assurance', kwargs={'pk': self.kwargs['pk']})
@@ -9107,7 +9210,7 @@ class ListAssuranceView(LoginRequiredMixin, CustomPermissionRequiredMixin, ListV
         assur_an = assur_base.filter(date_saisie__year=today.year).aggregate(somme=Sum('montant'))['somme'] or 0
         assur_an_format = '{:,}'.format(assur_an).replace(',', ' ')
 
-        context = {
+        context.update({
             'liste_assur': filtre_assur,
             'assur_an_format': assur_an_format,
             'assur_mois_format': assur_mois_format,
@@ -9115,7 +9218,7 @@ class ListAssuranceView(LoginRequiredMixin, CustomPermissionRequiredMixin, ListV
             'dates': today,
             'annees': today.year,
             'form': form,
-        }
+        })
         return context
 
 @require_POST
@@ -9227,12 +9330,13 @@ class ExportAssuranceExcelView(LoginRequiredMixin, View):
         wb.save(response)
         return response
 
-class AddReparationView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateView):
+class AddReparationView(LoginRequiredMixin, CustomPermissionRequiredMixin, SaisieLiveSearchMixin, CreateView):
     login_url = 'login'
     permission_url = 'add_reparation'
     model = Reparation
     form_class = ReparationForm
     template_name= "perfect/add_reparation.html"
+    saisie_mode = 'arret'
     success_message = 'Réparation enregistrée avec succès✓✓'
     error_message = "Erreur de saisie ✘✘"
     def get_context_data(self, **kwargs):
@@ -9251,25 +9355,7 @@ class AddReparationView(LoginRequiredMixin, CustomPermissionRequiredMixin, Creat
         else:
             piece_formset = PieceFormSet(instance=self.object)
         forms = self.get_form()
-        user = self.request.user
-        if user.user_type == "4":
-            try:
-                gerant = user.profile  
-                categories_gerant = gerant.gerant_voiture.all()
-                if categories_gerant.exists():  
-                    vehicules = Vehicule.objects.filter(category__in=categories_gerant)
-                else:
-                    vehicules = Vehicule.objects.none() 
-            except UserProfile.DoesNotExist:
-                vehicules = Vehicule.objects.none()
-        else:
-            vehicules = Vehicule.objects.all()
-
-        search_query = self.request.GET.get("search", "").strip()
-        if search_query:  
-            vehicules = search_vehicules(vehicules, search_query)
-        else:
-            vehicules = Vehicule.objects.none()
+        search_ctx = self.get_search_results()
 
         reparat_base = Reparation.objects.filter(vehicule=vehicule)
         date_debut = date_fin = None
@@ -9297,8 +9383,12 @@ class AddReparationView(LoginRequiredMixin, CustomPermissionRequiredMixin, Creat
         reparat_an = reparat_base.filter(date_saisie__year=today.year).aggregate(somme=Sum('montant'))['somme'] or 0
         reparat_an_format = '{:,}'.format(reparat_an).replace(',', ' ')
         liste_reparat = filtre_reparat.order_by('-date_saisie')
-        context = {
-            "vehicules": vehicules,
+        context.update({
+            "vehicules": search_ctx['vehicules'],
+            "search_query": search_ctx['search_query'],
+            "saisie_mode": search_ctx['saisie_mode'],
+            "result_total": search_ctx['result_total'],
+            "result_limited": search_ctx['result_limited'],
             "vehicule": vehicule,
             "piece_formset": piece_formset,
             "liste_reparat": liste_reparat,
@@ -9313,7 +9403,7 @@ class AddReparationView(LoginRequiredMixin, CustomPermissionRequiredMixin, Creat
             'annee': annee,
             'form': form,
             'forms': forms,
-        }
+        })
         return context
     
     def form_valid(self, form):
@@ -9445,12 +9535,13 @@ def delete_selected_reparation(request):
         messages.warning(request, "Aucune réparation sélectionnée.")
     return redirect('list_repa') 
 
-class AddPiecEchangeView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateView):
+class AddPiecEchangeView(LoginRequiredMixin, CustomPermissionRequiredMixin, SaisieLiveSearchMixin, CreateView):
     login_url = 'login'
     permission_url = 'add_piechange'
     model = PiecEchange
     form_class = PiecEchangeForm
     template_name = "perfect/add_piecechange.html"
+    saisie_mode = 'garage'
     success_message = 'Pièces enregistrées avec succès✓✓'
     error_message = "Erreur de saisie✘✘"
     timeout_minutes = 500
@@ -9516,29 +9607,8 @@ class AddPiecEchangeView(LoginRequiredMixin, CustomPermissionRequiredMixin, Crea
         piechange_queryset = PiecEchange.objects.filter(vehicule=vehicule)
         form = DateForm(self.request.GET)
         forms = self.get_form()
-        user = self.request.user
         date_debut = date_fin = None
-
-        # 🔹 Gestion des véhicules par rôle
-        if user.user_type == "4":
-            try:
-                gerant = user.profile  
-                categories_gerant = gerant.gerant_voiture.all()
-                if categories_gerant.exists():  
-                    vehicules = Vehicule.objects.filter(category__in=categories_gerant)
-                else:
-                    vehicules = Vehicule.objects.none() 
-            except UserProfile.DoesNotExist:
-                vehicules = Vehicule.objects.none()
-        else:
-            vehicules = Vehicule.objects.all()
-
-        # 🔹 Recherche véhicule
-        search_query = self.request.GET.get("search", "").strip()
-        if search_query:  
-            vehicules = search_vehicules(vehicules, search_query)
-        else:
-            vehicules = Vehicule.objects.none()
+        search_ctx = self.get_search_results()
         # 🔹 Filtres date
         today = date.today()
         if form.is_valid():
@@ -9571,7 +9641,11 @@ class AddPiecEchangeView(LoginRequiredMixin, CustomPermissionRequiredMixin, Crea
         ).aggregate(s=Sum('quantite'))['s'] or 0
 
         context.update({
-            "vehicules": vehicules,
+            "vehicules": search_ctx['vehicules'],
+            "search_query": search_ctx['search_query'],
+            "saisie_mode": search_ctx['saisie_mode'],
+            "result_total": search_ctx['result_total'],
+            "result_limited": search_ctx['result_limited'],
             "vehicule": vehicule,
             "liste_piechange": liste_piechange,
 
@@ -9662,7 +9736,7 @@ class DetailReparatView(LoginRequiredMixin, CustomPermissionRequiredMixin, Detai
         recette_nette = round(recette_categorie - perte, 2)
         total_piece= Piece.objects.filter(reparation = reparation,).aggregate(somme=Sum('montant'))['somme'] or 0
         
-        context={
+        context.update({
             'reparation':reparation,
             'duree_effective_heures':duree_effective_heures,
             'perte':perte,
@@ -9672,7 +9746,7 @@ class DetailReparatView(LoginRequiredMixin, CustomPermissionRequiredMixin, Detai
             'list_piece':list_piece,
             # 'list_reparation':list_reparation,
             'dates':dates
-        }
+        })
         return context
 
 class ExportReparationPDFView(LoginRequiredMixin, CustomPermissionRequiredMixin, View):
@@ -9740,7 +9814,7 @@ class ExportReparationPDFView(LoginRequiredMixin, CustomPermissionRequiredMixin,
         if logo_path and not os.path.exists(logo_path):
             logo_path = None
         
-        context = {
+        context.update({
             'reparation': reparation,
             'duree_effective_heures': duree_effective_heures,
             'perte': perte,
@@ -9750,7 +9824,7 @@ class ExportReparationPDFView(LoginRequiredMixin, CustomPermissionRequiredMixin,
             'dates': date.today(),
             'image_path': image_path,
             'logo_path': logo_path,
-        }
+        })
         
         # Rendre le template HTML
         html_content = render(request, 'perfect/detail_reparat_pdf.html', context).content.decode('utf-8')
@@ -10489,12 +10563,13 @@ class ExportBestReparationExcelView(LoginRequiredMixin, View):
         wb.save(response)
         return response
 
-class AddEntretienView(LoginRequiredMixin, CustomPermissionRequiredMixin, CreateView):
+class AddEntretienView(LoginRequiredMixin, CustomPermissionRequiredMixin, SaisieLiveSearchMixin, CreateView):
     login_url = 'login'
     permission_url = 'add_entretien'
     model = Entretien
     form_class = EntretienForm
     template_name= "perfect/add_entre.html"
+    saisie_mode = 'arret'
     success_message = 'Entretien Ajouté avec succès ✓✓'
     error_message = "Erreur de saisie ✘✘ "
     # success_url = reverse_lazy('journal_compta')
@@ -10528,33 +10603,8 @@ class AddEntretienView(LoginRequiredMixin, CustomPermissionRequiredMixin, Create
         entret_queryset = Entretien.objects.filter(vehicule=vehicule)
         form = DateForm(self.request.GET)
         forms = self.get_form()
-        user = self.request.user
         date_debut = date_fin = None
-
-        if user.user_type == "4":
-            try:
-                gerant = user.profile
-                categories_gerant = gerant.gerant_voiture.all()
-                if categories_gerant.filter(category="VTC").exists():
-                    vehicules = Vehicule.objects.filter(category__category="VTC")
-                else:
-                    vehicules = Vehicule.objects.filter(category__category="TAXI")
-            except UserProfile.DoesNotExist:
-                vehicules = Vehicule.objects.none()  
-                # No vehicles if no Gerant linked
-        elif user:
-            try:
-                vehicules = Vehicule.objects.all()
-            except:
-                vehicules = Vehicule.objects.none() 
-        else:
-            print()
-
-        search_query = self.request.GET.get("search", "").strip()
-        if search_query:  
-            vehicules = search_vehicules(vehicules, search_query)
-        else:
-            vehicules = Vehicule.objects.none()
+        search_ctx = self.get_search_results()
 
         if form.is_valid():
             date_debut = form.cleaned_data.get('date_debut')
@@ -10574,8 +10624,12 @@ class AddEntretienView(LoginRequiredMixin, CustomPermissionRequiredMixin, Create
         entret_an = entret_queryset.filter(date_saisie__year=today.year).aggregate(somme=Sum('montant'))['somme'] or 0
         entret_an_format = '{:,}'.format(entret_an).replace(',', ' ')
         liste_entret = entret_queryset.order_by('-date_saisie')
-        context = {
-            "vehicules": vehicules,
+        context.update({
+            "vehicules": search_ctx['vehicules'],
+            "search_query": search_ctx['search_query'],
+            "saisie_mode": search_ctx['saisie_mode'],
+            "result_total": search_ctx['result_total'],
+            "result_limited": search_ctx['result_limited'],
             "vehicule": vehicule,
             'entret_jours_format': entret_jours_format,
             'entret_mois_format': entret_mois_format,
@@ -10586,7 +10640,7 @@ class AddEntretienView(LoginRequiredMixin, CustomPermissionRequiredMixin, Create
             'annee': annee,
             'form': form,
             'forms': forms,
-        }   
+        })   
         return context  
     def get_success_url(self):
         return reverse('add_entretien', kwargs={'pk': self.kwargs['pk']})

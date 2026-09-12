@@ -1,0 +1,220 @@
+<style>
+/* ==========================================================================
+   Adaptation multi-supports (iOS, Android, macOS, Windows, tablettes).
+   Partial commun aux deux layouts : perfect/base.html (sidebar)
+   et perfect/bases.html (top-nav). Chargé APRES adminlte et
+   navbar_modern_styles pour pouvoir les corriger, AVANT le bloc
+   "style" des pages pour ne pas écraser leurs règles.
+   ========================================================================== */
+
+/* --- Bases ------------------------------------------------------------- */
+html {
+    /* Safari iOS grossit le texte en rotation paysage sans cette règle. */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+/* --- Navbar ------------------------------------------------------------ */
+/* La hauteur figée de .pb-navbar-modern faisait déborder les boutons
+   par-dessus le contenu sur petit écran : on la laisse grandir. */
+.main-header.pb-navbar-modern {
+    height: auto;
+    min-height: 58px;
+}
+
+/* Layout top-nav (bases.html) : barre collée en haut, contenu décalé. */
+.layout-top-nav.layout-navbar-fixed .wrapper .main-header.pb-navbar-modern {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1038;
+}
+.layout-top-nav.layout-navbar-fixed .wrapper .content-wrapper {
+    margin-top: 58px;
+}
+
+/* navbar-expand-md remet .navbar-nav en colonne sous 768px (layout top-nav) :
+   les actions (rôle, cloche, avatar) s'empilaient verticalement. */
+.main-header .navbar-nav.pb-navbar-actions {
+    flex-direction: row;
+    align-items: center;
+}
+
+/* Le menu déroulant de recherche doit passer SOUS la barre quand il s'ouvre,
+   pas se tasser à côté du logo. */
+@media (max-width: 767.98px) {
+    .main-header.pb-navbar-modern > .container-fluid {
+        flex-wrap: wrap !important;
+    }
+    .main-header .navbar-collapse {
+        flex-basis: 100%;
+        order: 10;
+    }
+    .main-header .brand-link .brand-text {
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .main-header.pb-navbar-modern {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
+    .pb-navbar-user__avatar {
+        width: 30px;
+        height: 30px;
+    }
+    .pb-navbar-actions > .nav-item > .nav-link {
+        padding: 0.3rem 0.35rem;
+    }
+}
+
+/* Cibles tactiles confortables sur écrans sans souris. */
+@media (hover: none) and (pointer: coarse) {
+    .main-header .nav-link,
+    .main-header .navbar-toggler {
+        min-height: 40px;
+    }
+}
+
+/* --- Pied de page ------------------------------------------------------ */
+/* .main-footer est en display:flex : les anciens float-right ne plaçaient
+   plus rien et les deux blocs se retrouvaient collés à gauche. */
+.main-footer.pb-app-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.pb-app-footer__copy {
+    margin: 0;
+    min-width: 0;
+}
+
+.pb-app-footer__brand {
+    margin-left: auto;
+    flex-shrink: 0;
+    color: var(--pb-primary);
+    font-size: 0.78rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+/* --- Encoches et barres système (iPhone, Android gestuel) -------------- */
+@supports (padding: max(0px)) {
+    .main-header {
+        padding-left: max(0.85rem, env(safe-area-inset-left));
+        padding-right: max(0.85rem, env(safe-area-inset-right));
+    }
+    .main-footer {
+        padding-bottom: max(0.55rem, env(safe-area-inset-bottom));
+    }
+    .content-wrapper {
+        padding-left: env(safe-area-inset-left);
+        padding-right: env(safe-area-inset-right);
+    }
+}
+
+/* --- Contenu ----------------------------------------------------------- */
+@media (max-width: 767.98px) {
+    .content-wrapper > .content > .container-fluid,
+    .content-wrapper > .content-header > .container-fluid {
+        padding-left: 0.6rem;
+        padding-right: 0.6rem;
+    }
+    .content-header .breadcrumb {
+        float: none !important;
+        padding-left: 0;
+    }
+    .main-footer {
+        font-size: 0.8rem;
+    }
+}
+
+/* Téléphone (<768px) : la sidebar sort complètement de l'écran, mais AdminLTE
+   garde un margin-left de 4.6rem dès que .sidebar-mini-md est présent
+   (règle dans son bloc max-width:991.98px). On le remet à zéro. */
+@media (max-width: 767.98px) {
+    .sidebar-mini-md .content-wrapper,
+    .sidebar-mini-md .main-footer,
+    .sidebar-mini-md .main-header {
+        margin-left: 0 !important;
+    }
+}
+
+/* Sur tablette (768–991px) la sidebar est hors écran : 3 colonnes par ligne
+   rendent les cartes et les graphiques illisibles, on passe à 2. */
+@media (min-width: 768px) and (max-width: 991.98px) {
+    .content-wrapper .col-md-4,
+    .content-wrapper .col-md-3 {
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
+    .content-wrapper .col-md-2 {
+        flex: 0 0 33.333333%;
+        max-width: 33.333333%;
+    }
+}
+
+/* Tableaux : défilement horizontal fluide plutôt que débordement de page. */
+.content-wrapper .table-responsive,
+.content-wrapper .dataTables_wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Les graphiques ne débordent jamais de leur carte. */
+.content-wrapper canvas {
+    max-width: 100%;
+}
+
+/* --- Formulaires ------------------------------------------------------- */
+/* Safari iOS zoome sur le champ dès que la police descend sous 16px. */
+@media (max-width: 767.98px) {
+    .content-wrapper input,
+    .content-wrapper select,
+    .content-wrapper textarea,
+    .pb-navbar-search__input {
+        font-size: 16px;
+    }
+}
+
+/* --- Téléphone en paysage (hauteur réduite) ---------------------------- */
+@media (max-height: 480px) and (orientation: landscape) {
+    .layout-footer-fixed .wrapper .main-footer {
+        position: static;
+    }
+    .layout-footer-fixed .wrapper .content-wrapper {
+        margin-bottom: 0;
+    }
+    /* Barre plus basse : la variable pilote aussi la règle 4 classes de
+       sidebar-profile.css, et le décalage du contenu suit pour éviter un trou. */
+    :root {
+        --pb-nav-height: 48px;
+    }
+    .main-header.pb-navbar-modern {
+        min-height: 48px;
+    }
+    .layout-navbar-fixed .wrapper .content-wrapper {
+        margin-top: 49px;
+    }
+}
+
+/* --- Impression -------------------------------------------------------- */
+@media print {
+    .main-header,
+    .main-sidebar,
+    .main-footer,
+    .control-sidebar {
+        display: none !important;
+    }
+    body.pb-app-bg::before {
+        display: none !important;
+    }
+    .content-wrapper {
+        margin: 0 !important;
+    }
+}
+</style>

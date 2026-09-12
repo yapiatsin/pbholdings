@@ -1,8 +1,0 @@
-<form class="pb-search-form" method="get" role="search">
-    <i class="fas fa-search search-icon"></i>
-    <input type="search"
-           name="immatriculation"
-           value="{% if form.immatriculation.value %}{{ form.immatriculation.value }}{% elif request.GET.immatriculation %}{{ request.GET.immatriculation }}{% endif %}"
-           placeholder="Rechercher véhicule, immatriculation..."
-           aria-label="Rechercher véhicule, immatriculation">
-</form>

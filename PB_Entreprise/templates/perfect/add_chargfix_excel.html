@@ -9,11 +9,11 @@
 {% endblock page_title %}
 
 {% block page_action %}
-    <button type="button" class="btn btn-default" style="font-weight:700; color: #a83232;" data-toggle="modal" data-target="#modal-import-chargesfixes">Importer<i class='fa fa-upload'></i></button>
+    <button type="button" class="btn btn-default" style="font-weight:700; color: #a83232;" data-toggle="modal" data-target="#modal-import-chargesfixes">Importer <i class='fa fa-upload'></i></button>
     <a href="{% url 'download_charge_fixe_excel_template' %}" class="btn btn-default" style="color: rgba(26, 26, 26, 0.75);">Exemplaire <i class="fa fa-download"></i></a>
     {% include 'perfect/partials/modal_filter_trigger.html' with modal_id='modal-filtre-chargesfixes' filter_label='Filtrer' icon='fa-filter' %}
     <a href="{% url 'export_charge_fixe_excel' %}{% if export_querystring %}?{{ export_querystring }}{% endif %}" class="btn btn-default" style="color: #a83232;">Exporter <i class="fa fa-file-excel-o"></i></a>
-    <a href="{% url 'add_chargfix_excel' %}" class="btn btn-default" style="font-size: 16px; color: #a83232;"><i style="font-size: 20px; color: rgba(168, 50, 50, 0.75);" class="fas fa-sync"></i></a>
+    <a href="{% url 'add_chargfix_excel' %}" class="btn btn-default" style="font-size: 16px; color: #a83232;"><i style="font-size: 20px;" class="fas fa-sync"></i></a>
 {% endblock page_action %}
 
 {% block main_content %}
@@ -22,55 +22,66 @@
 {% include 'perfect/partials/modal_default.html' with modal_id='modal-filtre-chargesfixes' modal_title='Filtre' modal_size='lg' body_template='perfect/partials/filters/dashboard_filter_body.html' form=period_form reset_url=filter_reset_url submit_label='Appliquer' %}
 {% include 'perfect/partials/modal_default.html' with modal_id='modal-import-chargesfixes' modal_size='lg' modal_title='Importer les charges fixes par Excel' form_method='post' enctype='multipart/form-data' body_template='perfect/partials/saisie/excel_import_body.html' submit_label='Importer' %}
 
-{% include 'perfect/partials/excel_import_kpi_chart.html' with chart_id='chargeFixCategoryDailyChart' chart_title='Evolution journalière des charges fixes par catégorie' %}
+{% include 'perfect/partials/excel_import_kpi_chart.html' with chart_id='chargeFixCategoryDailyChart' chart_title='Évolution des charges fixes par catégorie' stats_title='Totaux charges fixes' kpi_subtitle='Charges fixes' kpi_icon='fa-file-invoice-dollar' %}
 
-    <div class="card-header">
-        <h3 class="card-title">Charges fixes chargees ({{ period_start|date:"d/m/Y" }} - {{ period_end|date:"d/m/Y" }})</h3>
-        <div class="card-tools">
-            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
+<div class="col-md-12">
+    <div class="card pb-panel">
+        <div class="card-header pb-panel__header">
+            <div class="pb-panel__heading">
+                <span class="pb-panel__title">Charges fixes chargées</span>
+                <span class="pb-panel__hint">{{ charges_fixes_page|length }} ligne{{ charges_fixes_page|length|pluralize }} du {{ period_start|date:"d/m/Y" }} au {{ period_end|date:"d/m/Y" }}</span>
+            </div>
+            <div class="pb-panel__tools">
+                <button type="button" class="btn btn-tool" data-card-widget="collapse" aria-label="Réduire">
+                    <i class="fas fa-minus"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-body pb-panel__body pb-panel__body--flush">
+            {% if charges_fixes_page %}
+                <div class="pb-table-wrap">
+                    <table id="example1" class="table pb-table">
+                        <thead>
+                            <tr>
+                                <th>Immat</th>
+                                <th>Catégorie</th>
+                                <th>Libellé</th>
+                                <th>Compte</th>
+                                <th>N° pièce</th>
+                                <th>N° facture</th>
+                                <th>Montant</th>
+                                <th>Date saisie</th>
+                                <th>Date chargement</th>
+                                <th>Saisi par</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for c in charges_fixes_page %}
+                                <tr>
+                                    <td><span class="pb-table__key">{{ c.vehicule.immatriculation }}</span></td>
+                                    <td class="pb-table__muted">{{ c.vehicule.category.category }}</td>
+                                    <td>{{ c.libelle|default:"-" }}</td>
+                                    <td class="pb-table__muted">{{ c.cpte_comptable|default:"-" }}</td>
+                                    <td class="pb-table__muted">{{ c.Num_piece|default:"-" }}</td>
+                                    <td class="pb-table__muted">{{ c.Num_fact|default:"-" }}</td>
+                                    <td>{{ c.montant }}</td>
+                                    <td class="pb-table__muted">{{ c.date_saisie|date:"d/m/Y" }}</td>
+                                    <td class="pb-table__muted">{{ c.date|date:"d/m/Y à H:i:s" }}</td>
+                                    <td class="pb-table__muted">{% if c.auteur %}{{ c.auteur.username }}{% else %}-{% endif %}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="pb-empty">
+                    <i class="fas fa-inbox" aria-hidden="true"></i>
+                    Aucune charge fixe chargée sur la période.
+                </p>
+            {% endif %}
         </div>
     </div>
-    <div class="card-body table-responsive p-2">
-        <table id="example1" class="table table-bordered table-striped">
-            <thead>
-                <tr class="text-center text-danger">
-                    <th>IMMAT</th>
-                    <th>CATEGORIE</th>
-                    <th>LIBELLE</th>
-                    <th>COMPTE</th>
-                    <th>N° PIECE</th>
-                    <th>N° FACT</th>
-                    <th>MONTANT</th>
-                    <th>DATE CHARGEMENT</th>
-                    <th>DATE SAISIE</th>
-                    <th>SAISI PAR</th>
-                </tr>
-            </thead>
-            <tbody class="text-center">
-                {% if charges_fixes_page %}
-                    {% for c in charges_fixes_page %}
-                        <tr>
-                            <td>{{ c.vehicule.immatriculation }}</td>
-                            <td>{{ c.vehicule.category.category }}</td>
-                            <td>{{ c.libelle|default:"-" }}</td>
-                            <td>{{ c.cpte_comptable|default:"-" }}</td>
-                            <td>{{ c.Num_piece|default:"-" }}</td>
-                            <td>{{ c.Num_fact|default:"-" }}</td>
-                            <td>{{ c.montant }}</td>
-                            <td>{{ c.date|date:"d/m/Y à H:i:s" }}</td>
-                            <td>{{ c.date_saisie|date:"d/m/Y " }}</td>
-                            <td>{% if c.auteur %}{{ c.auteur.username }}{% else %}-{% endif %}</td>
-                        </tr>
-                    {% endfor %}
-                {% endif %}
-            </tbody>
-        </table>
-    </div>
-{% include 'perfect/partials/excel_import_dashboard_close.html' %}
-{% endblock main_content %}
-
-{% block custom_js %}
-{{ block.super }}
+</div>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     (function () {
@@ -118,4 +129,4 @@
         });
     })();
 </script>
-{% endblock custom_js %}
+{% endblock main_content %}

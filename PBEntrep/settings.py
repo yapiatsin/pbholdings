@@ -1,6 +1,7 @@
 import contextlib
 from pathlib import Path
 import os
+import sys
 from decouple import config 
 # type: ignore
 
@@ -12,13 +13,13 @@ TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
 SECRET_KEY = config('SECRET_KEY')
 # DEBUG = True--  django-insecure-of03a0_f)5yamk9g&p9p2f^a*l8!6t#+r_c4oq42+sb&#y5znt
 
-# ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['*']
 # ALLOWED_HOSTS = ['localhost','127.0.0.1','192.168.100.157']
 
-ALLOWED_HOSTS = ['pbholdingsite.com','www.pbholdingsite.com','45.92.109.86']
-CSRF_TRUSTED_ORIGINS = [
-    'https://pbholdingsite.com',
-]
+# ALLOWED_HOSTS = ['pbholdingsite.com','www.pbholdingsite.com','45.92.109.86']
+# CSRF_TRUSTED_ORIGINS = [
+#     'https://pbholdingsite.com',
+# ]
 
 handler403 = 'PB_Entreprise.views.permission_denied_view'
 handler404 = 'PB_Entreprise.views.custom_404_view'
@@ -108,18 +109,18 @@ DEBUG = False
 # DEBUG = config('DEBUG') 
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DB_NAME'),
-        'USER':config('DB_USER'),
-        'PASSWORD': config('DB_PASSWORD'),
-        'HOST':config('DB_HOST'),
-        'PORT':config('DB_PORT'),
-    }
     # 'default': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': BASE_DIR / 'db.sqlite3',
+    #     'ENGINE': 'django.db.backends.postgresql',
+    #     'NAME': config('DB_NAME'),
+    #     'USER':config('DB_USER'),
+    #     'PASSWORD': config('DB_PASSWORD'),
+    #     'HOST':config('DB_HOST'),
+    #     'PORT':config('DB_PORT'),
     # }
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
 }
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -161,6 +162,18 @@ STORAGES = {
     },
 }
 
+# WhiteNoise indexe les fichiers statiques UNE SEULE FOIS au démarrage : tout
+# fichier ajouté ensuite renvoie 404 (avec une page HTML, d'où les erreurs
+# « MIME type text/html is not executable » côté navigateur) jusqu'au
+# redémarrage du serveur. Sous runserver on lui demande donc de relire le
+# disque à chaque requête, et de servir directement depuis STATICFILES_DIRS
+# pour ne pas avoir à relancer collectstatic à chaque modification.
+# En production (gunicorn/uwsgi), les deux restent désactivés : index en
+# mémoire et fichiers compressés de STATIC_ROOT.
+_RUNSERVER = 'runserver' in sys.argv
+WHITENOISE_AUTOREFRESH = DEBUG or _RUNSERVER
+WHITENOISE_USE_FINDERS = DEBUG or _RUNSERVER
+
 # Jazzmin 3.x + AdminLTE 4
 JAZZMIN_UI_TWEAKS = {
     'theme': 'default',
@@ -186,8 +199,8 @@ EMAIL_PORT = config('EMAIL_PORT')
 EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 EMAIL_USE_TLS = config('EMAIL_USE_TLS')
-FRONTEND_URL = config('FRONTEND_URL', default='https://pbholdingsite.com').rstrip('/')
-# FRONTEND_URL = config('FRONTEND_URL', default='http://localhost:8004').rstrip('/')
+# FRONTEND_URL = config('FRONTEND_URL', default='https://pbholdingsite.com').rstrip('/')
+FRONTEND_URL = config('FRONTEND_URL', default='http://localhost:8004').rstrip('/')
 ########################---o---#######################---o---######################---o---###################
 JAZZMIN_SETTINGS = {
     'site_title': 'P&B Entreprise',

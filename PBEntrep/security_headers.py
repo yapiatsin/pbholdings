@@ -51,6 +51,13 @@ CSP_DIRECTIVES = {
         "https://kit.fontawesome.com",
         "https://router.project-osrm.org",  # Leaflet Routing Machine (itinéraires)
         "https://translation.googleapis.com",  # traduction site (script base)
+        # Les CDN ci-dessous servent aussi les source maps (*.js.map) que le
+        # navigateur/DevTools récupère en XHR : sans eux, la console est noyée
+        # sous des violations « connect-src » pour chart.js, bootstrap, etc.
+        "https://cdn.jsdelivr.net",
+        "https://cdnjs.cloudflare.com",
+        "https://code.jquery.com",
+        "https://unpkg.com",
     ],
     "frame-ancestors": ["'none'"],   # équivalent moderne de X-Frame-Options: DENY
     "form-action": ["'self'"],

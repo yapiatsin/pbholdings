@@ -47,184 +47,126 @@
 {% url 'list_repa' as filter_reset_url %}
 {% include 'perfect/partials/modal_default.html' with modal_id='modal-sm' modal_title='Filtre' body_template='perfect/partials/filters/reparation_filter_body.html' form=form reset_url=filter_reset_url submit_label='Appliquer' %}
 
-<div class="col-12 col-sm-6 col-md-3">
-    <div class="info-box" style="border-radius:25px;">
-        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-tools" style="color:rgba(168, 50, 50, 0.65);"></i></span>
-        <div class="info-box-content">
-            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">{{ kpi_labels.total }}</span>
-            <span class="info-box-number" style="font-size:20px; color: #1a1a1a;">
-            {{reparat_total}}
-            </span>
-        </div>
-    </div>
-</div>
-<div class="col-12 col-sm-6 col-md-3">
-    <div class="info-box" style="border-radius:25px;">
-        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-clock" style="color:rgba(168, 50, 50, 0.65);"></i></span>
-        <div class="info-box-content">
-            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">Aujourd'hui</span>
-            <span class="info-box-number" style="font-size:20px; color: #1a1a1a;">
-            {{reparat_jours_format}}
-            <small>frs cfa</small>
-            </span>
-        </div>
-    </div>
-</div>
-<div class="clearfix hidden-md-up"></div>
-<div class="col-12 col-sm-6 col-md-3">
-    <div class="info-box mb-3" style="border-radius:25px;">
-    <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fa fa-calendar" style="color:rgba(168, 50, 50, 0.65);"></i></span>
-    <div class="info-box-content">
-        <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">{{ kpi_labels.periode }}</span>
-        <span class="info-box-number" style="font-size:20px; color: #1a1a1a;">
-        {{reparat_mois_format}}
-        <small>frs cfa</small>
-        </span>
-    </div>
-    </div>
-</div>
-
-<div class="clearfix hidden-md-up"></div>
-<div class="col-12 col-sm-6 col-md-3">
-    <div class="info-box mb-3" style="border-radius:25px;">
-        <span class="info-box-icon elevation-1" style="border-radius:25px; background-color:rgba(229, 229, 229, 0.51);"><i class="fas fa-calendar" style="color:rgba(168, 50, 50, 0.65);"></i></span>
-        <div class="info-box-content">
-            <span class="info-box-text" style="font-size:18px; font-weight: 700; color: #a83232;">{{ kpi_labels.annuelle }}</span>
-            <span class="info-box-number" style="font-size:20px; color: #1a1a1a;">
-            {{reparat_an_format}}
-            <small>frs cfa</small>
-            </span>
-        </div>
+<div class="col-md-12">
+    <div class="pb-kpi-grid pb-kpi-grid--4">
+        {% include 'perfect/partials/stats/kpi_card.html' with label=kpi_labels.total subtitle="Réparations" value=reparat_total sublabel="Effectif" icon="fa-tools" %}
+        {% include 'perfect/partials/stats/kpi_card.html' with label="Aujourd'hui" subtitle="Réparations" value=reparat_jours_format unit="frs cfa" sublabel="Total du jour" icon="fa-clock" %}
+        {% include 'perfect/partials/stats/kpi_card.html' with label=kpi_labels.periode subtitle="Réparations" value=reparat_mois_format unit="frs cfa" sublabel="Total période" icon="fa-calendar" %}
+        {% include 'perfect/partials/stats/kpi_card.html' with label=kpi_labels.annuelle subtitle="Réparations" value=reparat_an_format unit="frs cfa" sublabel="Total de l'année" icon="fa-calendar" %}
     </div>
 </div>
 
 <div class="col-md-12">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="" style="border-radius:20px">
-                <div id="" class="">
-                    <div class="row p-0 m-0">
-                        <div class="col-md-12 p-0">
-                            <div class="card" style="box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);backdrop-filter: blur(5.2px);-webkit-backdrop-filter: blur(5.2px); border-radius:20px; " >
-                                <form method="post" action="{% url 'delete_selected_reparation' %}" id="deleteForm">
-                                    {% csrf_token %}
-                                    <div class="card-header">
-                                        <h3 class="card-title">
-                                        </h3>
-                                        <div class="card-tools">
-                                            <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i></button>
-                                        </div>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="card-body table-responsive p-2" style="border-radius:20px;height: 100%;">
-                                            <table id="example1" class="table table-bordered table-striped table-hover table-sm" style="border:none; border-bottom: 2px solid rgba(168, 50, 50, 0.12);">
-                                                <thead style="font-weight: 700; background-color:#a83232; font-size: 14px;">
-                                                    <tr class="text-center text-danger">
-                                                        <th>
-                                                            {% for categorie, perms in grouped_permissions.items %}
-                                                                {% if categorie.categorie == 'permreparation' %}
-                                                                    {% for perm in perms %}
-                                                                        {% if perm.name == "sup reparation" %}
-                                                                            <input type="checkbox" id="select-all">
-                                                                        {% endif %}
-                                                                    {% endfor %}
-                                                                {% endif %}
-                                                            {% endfor %}
-                                                        </th>
-                                                        <th>IMMAT</th>
-                                                        <th>MARQUE</th>
-                                                        <th>CATEGORIE</th>
-                                                        <th>MOTIF</th>
-                                                        <th>MONTANT</th>
-                                                        <th>PRESTATION</th>
-                                                        <th>DATE SAISIE</th>
-                                                        <th>SAISIR PAR </th>
-                                                        <th>ACTION</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {% if liste_reparat %} 
-                                                        {% for u in liste_reparat %}
-                                                            <tr class="text-center">
-                                                                <td>
-                                                                    {% for categorie, perms in grouped_permissions.items %}
-                                                                        {% if categorie.categorie == 'permreparation' %}
-                                                                            {% for perm in perms %}
-                                                                                {% if perm.name == "sup reparation" %}
-                                                                                    <input type="checkbox" name="reparation_ids" value="{{ u.id }}">
-                                                                                {% endif %}
-                                                                            {% endfor %}
-                                                                        {% endif %}
-                                                                    {% endfor %}
-                                                                </td>
-                                                                <td>
-                                                                    <a class="mr-3 text-primary">{{u.vehicule.immatriculation}}</a>
-                                                                </td>
-                                                                <td>{{u.vehicule.marque}}</td>
-                                                                <td>{{u.vehicule.category}}</td>
-                                                                <td>{{u.motif}}</td>
-                                                                <td>{{u.montant}}</td>
-                                                                <td>{{u.prestation}}</td>
-                                                                <td>{{u.date_saisie|date:"d-m-y"}}</td>
-                                                                <td>{{u.auteur.username}}</td>
-                                                                <td class="text-center">
-                                                                    {% for categorie, perms in grouped_permissions.items %}
-                                                                        {% if categorie.categorie == 'permreparation' %}
-                                                                            {% for perm in perms %}
-                                                                                {% if perm.name == "Détail réparation" %}
-                                                                                    <a href="{% url perm.url u.pk %}" class="text-primary" title="Détail">
-                                                                                        <i style="font-size: 20px;" class="fa fa-eye text-info"></i>
-                                                                                    </a>
-                                                                                {% endif %}
-                                                                                {% if perm.name == "modifier réparation" %}
-                                                                                    <a href="#" class="edit-reparation-link text-primary ml-2" data-url="{% url 'update_reparation' u.pk %}" data-immat="{{ u.vehicule.immatriculation }}" title="Modifier la réparation">
-                                                                                        <i style="font-size: 20px;" class="fa fa-edit text-warning"></i>
-                                                                                    </a>
-                                                                                {% endif %}
-                                                                            {% endfor %}
-                                                                        {% endif %}
-                                                                    {% endfor %}
-                                                                </td>
-                                                            </tr>
-                                                        {% endfor %} 
-                                                    {% endif %}
-                                                </tbody>
-                                                <tfoot>
-                                                    <tr class="text-center ">
-                                                        <th>
-                                                            {% for categorie, perms in grouped_permissions.items %}
-                                                                {% if categorie.categorie == 'permreparation' %}
-                                                                    {% for perm in perms %}
-                                                                        {% if perm.name == "sup reparation" %}
-                                                                            <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Confirmez-vous la suppression des reparations sélectionnées ?')">
-                                                                                <i class="fa fa-trash"></i>
-                                                                            </button>
-                                                                        {% endif %}
-                                                                    {% endfor %}
-                                                                {% endif %}
-                                                            {% endfor %}
-                                                        </th>
-                                                        <th>---</th>
-                                                        <th>---</th>
-                                                        <th>---</th>
-                                                        <th>---</th>
-                                                        <th>---</th>
-                                                        <th>---</th>
-                                                        <th>---</th>
-                                                        <th>---</th>
-                                                        <th>---</th>
-                                                    </tr>
-                                                </tfoot>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    <div class="card pb-panel">
+        <div class="card-header pb-panel__header">
+            <div class="pb-panel__heading">
+                <span class="pb-panel__title">Liste des réparations</span>
+                <span class="pb-panel__hint">{{ liste_reparat|length }} réparation{{ liste_reparat|length|pluralize }} sur la période</span>
+            </div>
+            <div class="pb-panel__tools">
+                <a href="#" class="pb-panel__action" data-toggle="modal" data-target="#modal-sm">
+                    Filtrer <i class="fas fa-sliders-h" aria-hidden="true"></i>
+                </a>
             </div>
         </div>
+        <form method="post" action="{% url 'delete_selected_reparation' %}" id="deleteForm">
+            {% csrf_token %}
+            <div class="card-body pb-panel__body pb-panel__body--flush">
+                {% if liste_reparat %}
+                    <div class="pb-table-wrap">
+                        <table id="example1" class="table pb-table">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        {% for categorie, perms in grouped_permissions.items %}
+                                            {% if categorie.categorie == 'permreparation' %}
+                                                {% for perm in perms %}
+                                                    {% if perm.name == "sup reparation" %}
+                                                        <input type="checkbox" id="select-all">
+                                                    {% endif %}
+                                                {% endfor %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </th>
+                                    <th>Immat</th>
+                                    <th>Marque</th>
+                                    <th>Catégorie</th>
+                                    <th>Motif</th>
+                                    <th>Montant</th>
+                                    <th>Prestation</th>
+                                    <th>Date saisie</th>
+                                    <th>Saisi par</th>
+                                    <th class="text-center">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for u in liste_reparat %}
+                                    <tr>
+                                        <td>
+                                            {% for categorie, perms in grouped_permissions.items %}
+                                                {% if categorie.categorie == 'permreparation' %}
+                                                    {% for perm in perms %}
+                                                        {% if perm.name == "sup reparation" %}
+                                                            <input type="checkbox" name="reparation_ids" value="{{ u.id }}">
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                {% endif %}
+                                            {% endfor %}
+                                        </td>
+                                        <td><span class="pb-table__key">{{u.vehicule.immatriculation}}</span></td>
+                                        <td>{{u.vehicule.marque}}</td>
+                                        <td class="pb-table__muted">{{u.vehicule.category}}</td>
+                                        <td>{{u.motif}}</td>
+                                        <td>{{u.montant}}</td>
+                                        <td>{{u.prestation}}</td>
+                                        <td class="pb-table__muted">{{u.date_saisie|date:"d-m-y"}}</td>
+                                        <td class="pb-table__muted">{{u.auteur.username}}</td>
+                                        <td class="text-center">
+                                            <span class="pb-table__actions">
+                                                {% for categorie, perms in grouped_permissions.items %}
+                                                    {% if categorie.categorie == 'permreparation' %}
+                                                        {% for perm in perms %}
+                                                            {% if perm.name == "Détail réparation" %}
+                                                                <a href="{% url perm.url u.pk %}" class="pb-table__action" title="Détail">
+                                                                    <i class="fas fa-eye" aria-hidden="true"></i>
+                                                                </a>
+                                                            {% endif %}
+                                                            {% if perm.name == "modifier réparation" %}
+                                                                <a href="#" class="pb-table__action edit-reparation-link" data-url="{% url 'update_reparation' u.pk %}" data-immat="{{ u.vehicule.immatriculation }}" title="Modifier la réparation">
+                                                                    <i class="fas fa-pen" aria-hidden="true"></i>
+                                                                </a>
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="pb-empty">
+                        <i class="fas fa-screwdriver-wrench" aria-hidden="true"></i>
+                        Aucune réparation enregistrée pour le moment.
+                    </p>
+                {% endif %}
+            </div>
+            <div class="pb-panel__footer">
+                {% for categorie, perms in grouped_permissions.items %}
+                    {% if categorie.categorie == 'permreparation' %}
+                        {% for perm in perms %}
+                            {% if perm.name == "sup reparation" %}
+                                <button type="submit" class="pb-panel__action pb-panel__action--danger" onclick="return confirm('Confirmez-vous la suppression des reparations sélectionnées ?')">
+                                    <i class="fas fa-trash" aria-hidden="true"></i> Supprimer la sélection
+                                </button>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </form>
     </div>
 </div>
 

@@ -5,7 +5,7 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <link href="{% static 'icn.png' %}" rel="icon">
     <title>
@@ -30,14 +30,22 @@
     <!-- Theme style -->
     <link rel="stylesheet" href="{% static 'pb/dists/css/adminlte.min.css' %}">
     {% include 'perfect/partials/navbar_modern_styles.html' %}
-    <link rel="stylesheet" href="{% static 'pb/css/sidebar-profile.css' %}">
-    <link rel="stylesheet" href="{% static 'pb/css/modal-default.css' %}">
-    {% block extra_css %}{% endblock extra_css %}
-    <style>{% block style %}{% endblock style %}</style>
+    <link rel="stylesheet" href="{% static 'pb/css/sidebar-profile.css' %}?v=grad-3">
+    <link rel="stylesheet" href="{% static 'pb/css/modal-default.css' %}?v=perm-1">
+    <link rel="stylesheet" href="{% static 'pb/css/kpi-card.css' %}?v=status-red">
+    <link rel="stylesheet" href="{% static 'pb/css/live-filter.css' %}?v=1">
+    {% include 'perfect/partials/app_background_styles.html' %}
+    {% include 'perfect/partials/responsive_styles.html' %}
 </head>
 
-<body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed" style="background-image: url('{% static "al_red.png" %}');
-    background-size: cover; background-position: center; background-repeat: no-repeat; opacity: .95">
+<body class="hold-transition sidebar-mini sidebar-mini-md layout-fixed layout-navbar-fixed layout-footer-fixed pb-app-bg"
+      x-data
+      data-live-layout="sidebar"
+      :class="{ 'pb-live-filter-busy': $store.pb && $store.pb.busy }">
+    <div data-live-extra-css>
+        {% block extra_css %}{% endblock extra_css %}
+        <style>{% block style %}{% endblock style %}</style>
+    </div>
     <div class="wrapper">
         <nav class="main-header navbar navbar-expand navbar-white navbar-light pb-navbar-modern">
             <ul class="navbar-nav flex-shrink-0">
@@ -45,7 +53,7 @@
                     <a class="nav-link" data-widget="pushmenu" href="#" aria-label="Menu"><i class="fas fa-bars"></i></a>
                 </li>
             </ul>
-            <div class="flex-grow-1 d-flex align-items-center px-2 px-md-3" style="min-width: 0;">
+            <div class="flex-grow-1 d-flex align-items-center px-2 px-md-3" style="min-width: 0;" data-live-navbar>
                 {% block navbar_nav %}
                     {% include 'perfect/partials/navbar_default_search.html' %}
                 {% endblock navbar_nav %}
@@ -53,38 +61,42 @@
             {% include 'perfect/partials/navbar_user_menu.html' %}
         </nav>
         <!-- Main Sidebar Container -->
-        <aside class="main-sidebar sidebar-dark-primary elevation-4" style="background-image: linear-gradient(var(--pb-primary), var(--pb-primary-light)); border-radius: 25px 25px 0px 0;">
+        <aside class="main-sidebar pb-sidebar pb-sidebar-glass">
             {% if user.user_type == '4' %}
-                <a href="{% url 'dashgarage' %}" class="brand-link" style="background-color: var(--pb-soft); border-radius: 0 25px 0 0;">
+                <a href="{% url 'dashgarage' %}" class="brand-link pb-sidebar-brand">
             {% else %}
-                <a href="{% url 'dash' %}" class="brand-link" style="background-color: var(--pb-soft); border-radius: 0 25px 0 0;">   
+                <a href="{% url 'dash' %}" class="brand-link pb-sidebar-brand">
             {% endif %}
-                    <img src="{% static 'pb.png' %}" alt="P&B Entreprise logo" class="brand-image img-circle elevation-3" style="opacity: .8">
-                    <span class="brand-text font-weight-danger text-danger" style="font-weight: 700; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);">P&BENTREPRISE</span>
+                    <span class="pb-sidebar-brand__mark">
+                        <img src="{% static 'pb.png' %}" alt="P&B Entreprise" class="brand-image">
+                    </span>
+                    <span class="brand-text">P&amp;B Entreprise</span>
                 </a>
             <div class="sidebar">
-                <nav class="mt-2">
+                <nav>
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                         {% for categorie, perms in grouped_permissions.items %}
                             {% if categorie.categorie == "bord" %}
                             <li class="nav-header">STATISTIQUES</li>
                                 <li class="nav-item has-treeview">
-                                    <a href="#" class="nav-link" style="background-color: rgba(255, 255, 255, .1);">
+                                    <a href="#" class="nav-link">
                                         <i class="nav-icon fa fa-pie-chart"></i>
                                         <p>
                                             Statistiques
-                                            <i class="right fas fa-angle-left"></i></i>
+                                            <i class="right fas fa-angle-left"></i>
                                         </p>
                                     </a>
-                                    <ul class="nav nav-treeview ">
-                                        <li class="nav-item">
-                                            {% for perm in perms %}
-                                                <a href="{% url perm.url %}" class="nav-link ">
-                                                    <i style="font-size: 10px;" class="far fa-circle nav-icon "></i>
-                                                    <p>{{ perm.name }}</p>
-                                                </a>
-                                            {% endfor %}
-                                        </li>
+                                    <ul class="nav nav-treeview">
+                                        {% for perm in perms %}
+                                            {% url perm.url as perm_href %}
+                                            {% if perm_href %}
+                                                <li class="nav-item">
+                                                    <a href="{{ perm_href }}" class="nav-link">
+                                                        <p>{{ perm.name }}</p>
+                                                    </a>
+                                                </li>
+                                            {% endif %}
+                                        {% endfor %}
                                     </ul>
                                 </li>
                             {% elif categorie.categorie == "comptabilite" %}
@@ -93,18 +105,20 @@
                                         <i class="nav-icon fas fa-coins"></i>
                                         <p>
                                             Comptabilité
-                                            <i class="right fas fa-angle-left"></i></i>
+                                            <i class="right fas fa-angle-left"></i>
                                         </p>
                                     </a>
-                                    <ul class="nav nav-treeview ">
-                                        <li class="nav-item">
-                                            {% for perm in perms %}
-                                                <a href="{% url perm.url %}" class="nav-link ">
-                                                    <i style="font-size: 10px;" class="far fa-circle nav-icon "></i>
-                                                    <p>{{ perm.name }}</p>
-                                                </a>
-                                            {% endfor %}
-                                        </li>
+                                    <ul class="nav nav-treeview">
+                                        {% for perm in perms %}
+                                            {% url perm.url as perm_href %}
+                                            {% if perm_href %}
+                                                <li class="nav-item">
+                                                    <a href="{{ perm_href }}" class="nav-link">
+                                                        <p>{{ perm.name }}</p>
+                                                    </a>
+                                                </li>
+                                            {% endif %}
+                                        {% endfor %}
                                     </ul>
                                 </li>
                             {% elif categorie.categorie == "garage" %}
@@ -113,18 +127,20 @@
                                         <i class="nav-icon fas fa-gears"></i>
                                         <p>
                                             Garage
-                                            <i class="right fas fa-angle-left"></i></i>
+                                            <i class="right fas fa-angle-left"></i>
                                         </p>
                                     </a>
-                                    <ul class="nav nav-treeview ">
-                                        <li class="nav-item">
-                                            {% for perm in perms %}
-                                                <a href="{% url perm.url %}" class="nav-link ">
-                                                    <i style="font-size: 10px;" class="far fa-circle nav-icon "></i>
-                                                    <p>{{ perm.name }}</p>
-                                                </a>
-                                            {% endfor %}
-                                        </li>
+                                    <ul class="nav nav-treeview">
+                                        {% for perm in perms %}
+                                            {% url perm.url as perm_href %}
+                                            {% if perm_href %}
+                                                <li class="nav-item">
+                                                    <a href="{{ perm_href }}" class="nav-link">
+                                                        <p>{{ perm.name }}</p>
+                                                    </a>
+                                                </li>
+                                            {% endif %}
+                                        {% endfor %}
                                     </ul>
                                 </li>
                             {% elif categorie.categorie == "saisiefinance" %}
@@ -136,15 +152,17 @@
                                             <i class="fas fa-angle-left right"></i>
                                         </p>
                                     </a>
-                                    <ul class="nav nav-treeview ">
-                                        <li class="nav-item">
-                                            {% for perm in perms %}
-                                                <a href="{% url perm.url %}" class="nav-link ">
-                                                    <i style="font-size: 10px;" class="far fa-circle nav-icon "></i>
-                                                    <p>{{ perm.name }}</p>
-                                                </a>
-                                            {% endfor %}
-                                        </li>
+                                    <ul class="nav nav-treeview">
+                                        {% for perm in perms %}
+                                            {% url perm.url as perm_href %}
+                                            {% if perm_href %}
+                                                <li class="nav-item">
+                                                    <a href="{{ perm_href }}" class="nav-link">
+                                                        <p>{{ perm.name }}</p>
+                                                    </a>
+                                                </li>
+                                            {% endif %}
+                                        {% endfor %}
                                     </ul>
                                 </li>
                             {% elif categorie.categorie == "saisiegarage" %}
@@ -156,35 +174,17 @@
                                             <i class="fas fa-angle-left right"></i>
                                         </p>
                                     </a>
-                                    <ul class="nav nav-treeview ">
-                                        <li class="nav-item">
-                                            {% for perm in perms %}
-                                                <a href="{% url perm.url %}" class="nav-link ">
-                                                    <i style="font-size: 10px;" class="far fa-circle nav-icon "></i>
-                                                    <p>{{ perm.name }}</p>
-                                                </a>
-                                            {% endfor %}
-                                        </li>
-                                    </ul>
-                                </li>
-                            {% elif categorie.categorie == "saisiegarage" %}
-                                <li class="nav-item has-treeview">
-                                    <a href="" class="nav-link ">
-                                        <i class="nav-icon fa fa-plus-circle"></i>
-                                        <p>
-                                            Saisie Garage
-                                            <i class="fas fa-angle-left right"></i>
-                                        </p>
-                                    </a>
-                                    <ul class="nav nav-treeview ">
-                                        <li class="nav-item">
-                                            {% for perm in perms %}
-                                                <a href="{% url perm.url %}" class="nav-link ">
-                                                    <i style="font-size: 10px;" class="far fa-circle nav-icon "></i>
-                                                    <p>{{ perm.name }}</p>
-                                                </a>
-                                            {% endfor %}
-                                        </li>
+                                    <ul class="nav nav-treeview">
+                                        {% for perm in perms %}
+                                            {% url perm.url as perm_href %}
+                                            {% if perm_href %}
+                                                <li class="nav-item">
+                                                    <a href="{{ perm_href }}" class="nav-link">
+                                                        <p>{{ perm.name }}</p>
+                                                    </a>
+                                                </li>
+                                            {% endif %}
+                                        {% endfor %}
                                     </ul>
                                 </li>
                             {% elif categorie.categorie == "car" %}
@@ -196,15 +196,17 @@
                                             <i class="fas fa-angle-left right"></i>
                                         </p>
                                     </a>
-                                    <ul class="nav nav-treeview ">
-                                        <li class="nav-item">
-                                            {% for perm in perms %}
-                                                <a href="{% url perm.url %}" class="nav-link ">
-                                                    <i style="font-size: 10px;" class="far fa-circle nav-icon"></i>
-                                                    <p>{{ perm.name }}</p>
-                                                </a>
-                                            {% endfor %}
-                                        </li>
+                                    <ul class="nav nav-treeview">
+                                        {% for perm in perms %}
+                                            {% url perm.url as perm_href %}
+                                            {% if perm_href %}
+                                                <li class="nav-item">
+                                                    <a href="{{ perm_href }}" class="nav-link">
+                                                        <p>{{ perm.name }}</p>
+                                                    </a>
+                                                </li>
+                                            {% endif %}
+                                        {% endfor %}
                                     </ul>
                                 </li>
                             {% elif categorie.categorie == "listfinance" %}
@@ -216,15 +218,17 @@
                                             <i class="fas fa-angle-left right"></i>
                                         </p>
                                     </a>
-                                    <ul class="nav nav-treeview ">
-                                        <li class="nav-item">
-                                            {% for perm in perms %}
-                                                <a href="{% url perm.url %}" class="nav-link ">
-                                                    <i style="font-size: 10px;" class="far fa-circle nav-icon "></i>
-                                                    <p>{{ perm.name }}</p>
-                                                </a>
-                                            {% endfor %}
-                                        </li>
+                                    <ul class="nav nav-treeview">
+                                        {% for perm in perms %}
+                                            {% url perm.url as perm_href %}
+                                            {% if perm_href %}
+                                                <li class="nav-item">
+                                                    <a href="{{ perm_href }}" class="nav-link">
+                                                        <p>{{ perm.name }}</p>
+                                                    </a>
+                                                </li>
+                                            {% endif %}
+                                        {% endfor %}
                                     </ul>
                                 </li>
                             {% elif categorie.categorie == "listgarage" %}
@@ -236,15 +240,17 @@
                                             <i class="fas fa-angle-left right"></i>
                                         </p>
                                     </a>
-                                    <ul class="nav nav-treeview ">
-                                        <li class="nav-item">
-                                            {% for perm in perms %}
-                                                <a href="{% url perm.url %}" class="nav-link ">
-                                                    <i style="font-size: 10px;" class="far fa-circle nav-icon "></i>
-                                                    <p>{{ perm.name }}</p>
-                                                </a>
-                                            {% endfor %}
-                                        </li>
+                                    <ul class="nav nav-treeview">
+                                        {% for perm in perms %}
+                                            {% url perm.url as perm_href %}
+                                            {% if perm_href %}
+                                                <li class="nav-item">
+                                                    <a href="{{ perm_href }}" class="nav-link">
+                                                        <p>{{ perm.name }}</p>
+                                                    </a>
+                                                </li>
+                                            {% endif %}
+                                        {% endfor %}
                                     </ul>
                                 </li>
                             {% elif categorie.categorie == "Gestuser"%}
@@ -257,16 +263,18 @@
                                             <i class="right fas fa-angle-left "></i>
                                         </p>
                                     </a>
-                                    <ul class="nav nav-treeview ">
+                                    <ul class="nav nav-treeview">
                                         {% if user.is_staff or user.user_type == '1' %}
-                                            <li class="nav-item">
-                                                {% for perm in perms %}
-                                                    <a href="{% url perm.url %}" class="nav-link ">
-                                                        <i style="font-size: 10px;" class="far fa-circle nav-icon "></i>
-                                                        <p>{{ perm.name }}</p>
-                                                    </a>
-                                                {% endfor %}
-                                            </li>
+                                            {% for perm in perms %}
+                                                {% url perm.url as perm_href %}
+                                                {% if perm_href %}
+                                                    <li class="nav-item">
+                                                        <a href="{{ perm_href }}" class="nav-link">
+                                                            <p>{{ perm.name }}</p>
+                                                        </a>
+                                                    </li>
+                                                {% endif %}
+                                            {% endfor %}
                                         {% endif %}
                                     </ul>
                                 </li>
@@ -280,15 +288,17 @@
                                             <i class="right fas fa-angle-left "></i>
                                         </p>
                                     </a>
-                                    <ul class="nav nav-treeview ">
-                                        <li class="nav-item">
-                                            {% for perm in perms %}
-                                                <a href="{% url perm.url %}" class="nav-link ">
-                                                    <i style="font-size: 10px;" class="far fa-circle nav-icon "></i>
-                                                    <p>{{ perm.name }}</p>
-                                                </a>
-                                            {% endfor %}
-                                        </li>
+                                    <ul class="nav nav-treeview">
+                                        {% for perm in perms %}
+                                            {% url perm.url as perm_href %}
+                                            {% if perm_href %}
+                                                <li class="nav-item">
+                                                    <a href="{{ perm_href }}" class="nav-link">
+                                                        <p>{{ perm.name }}</p>
+                                                    </a>
+                                                </li>
+                                            {% endif %}
+                                        {% endfor %}
                                     </ul>
                                 </li>
                             {% endif %}
@@ -305,14 +315,12 @@
                                 </a>
                                 <ul class="nav nav-treeview">
                                     <li class="nav-item">
-                                        <a href="{% url 'list_categories' %}" class="nav-link ">
-                                            <i style="font-size: 10px;" class="far fa-circle nav-icon "></i>
+                                        <a href="{% url 'list_categories' %}" class="nav-link">
                                             <p>Catégories</p>
                                         </a>
                                     </li>
                                     <li class="nav-item">
-                                        <a href="{% url 'list_permissions' %}" class="nav-link ">
-                                            <i style="font-size: 10px;" class="far fa-circle nav-icon "></i>
+                                        <a href="{% url 'list_permissions' %}" class="nav-link">
                                             <p>Permissions</p>
                                         </a>
                                     </li>
@@ -325,7 +333,8 @@
             {% include 'perfect/partials/sidebar_profile_footer.html' %}
         </aside>
 
-        <div class="content-wrapper" style="background-color: rgb(247,248,250)">
+        <div class="content-wrapper">
+            <div data-live-filter-root>
             {% block content_header %}
                 <div class="content-header">
                     <div class="container-fluid">
@@ -358,6 +367,7 @@
                     </div>
                 </div>
             </div>
+            </div>
         </div>
 
         <aside class="control-sidebar " style="border-radius: 4px; max-height: 100px; background: rgba(255, 255, 255, 0.22); border-radius: 16px;box-shadow: 0 5px 5px rgba(0, 0, 0, 0.1); backdrop-filter: blur(12.5px); -webkit-backdrop-filter: blur(12.5px);
@@ -370,35 +380,43 @@
             </div>
         </aside>
         
-        <footer class="main-footer">
-            <div class="float-right d-none d-sm-inline">
-                <b><small style="color: var(--pb-primary);">Thrive One</small></b>
-            </div>
-            <strong>Copyright &copy; <span id="currentYear"></span> <a>P&BENTREPRISE</a>.</strong>
+        <footer class="main-footer pb-app-footer">
+            <strong class="pb-app-footer__copy">Copyright &copy; <span id="currentYear"></span> <a>P&BENTREPRISE</a>.</strong>
+            <span class="pb-app-footer__brand d-none d-sm-inline">Thrive One</span>
         </footer>
         <script>
             document.getElementById("currentYear").textContent = new Date().getFullYear();
         </script>
     </div>
 
-    {% block custom_js %}
-    <script type="text/javascript">
-        document.getElementById('printButton').addEventListener('click', function() {
-            var printContents = document.getElementById('example1').outerHTML;
-            var originalContents = document.body.innerHTML;
-
-            document.body.innerHTML = printContents;
-            window.print();
-            document.body.innerHTML = originalContents;
-        });
-    </script>
-
-    {% endblock custom_js %}
     <script src="{% static 'pb/plugins/jquery/jquery.min.js' %} "></script>
     <!-- Bootstrap 4 -->
     <script src="{% static 'pb/plugins/bootstrap/js/bootstrap.bundle.min.js' %} "></script>
     <!-- AdminLTE App -->
     <script src="{% static 'pb/dists/js/adminlte.min.js' %} "></script>
+    <script>
+        (function () {
+            function pbReleaseSidebarScroll() {
+                var host = document.querySelector('.pb-sidebar-glass > .sidebar, .pb-sidebar > .sidebar');
+                if (!host || typeof window.jQuery === 'undefined') return;
+                var $host = window.jQuery(host);
+                try {
+                    if (typeof $host.overlayScrollbars === 'function') {
+                        var instance = $host.overlayScrollbars();
+                        if (instance && typeof instance.destroy === 'function') instance.destroy();
+                    }
+                } catch (e) {}
+            }
+            if (document.readyState === 'complete') {
+                pbReleaseSidebarScroll();
+            } else {
+                window.addEventListener('load', function () {
+                    pbReleaseSidebarScroll();
+                    setTimeout(pbReleaseSidebarScroll, 50);
+                });
+            }
+        })();
+    </script>
 
     <script>
         $(function() {
@@ -464,10 +482,21 @@
 
     <!-- SweetAlert2 -->
     <script src="{% static 'assets/vendors/sweetalert2/sweetalert2.min.js' %}"></script>
+    <script src="{% static 'pb/js/pb-live-table-actions.js' %}?v=2"></script>
+    <script src="{% static 'pb/js/pb-permissions-picker.js' %}?v=1"></script>
+    <script src="{% static 'pb/js/monthly-grid.js' %}?v=4"></script>
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            var myModal = new bootstrap.Modal(document.getElementById('modal-default'));
+            // #modal-default n'existe que sur les pages qui l'incluent explicitement.
+            // Sans ce garde-fou, bootstrap.Modal reçoit null et lève
+            // « Cannot read properties of null (reading 'querySelector') »
+            // sur toutes les autres pages (tableau de bord, etc.).
+            var modalEl = document.getElementById('modal-default');
+            if (!modalEl || typeof bootstrap === 'undefined') {
+                return;
+            }
+            var myModal = new bootstrap.Modal(modalEl);
             myModal.show();
             setTimeout(function(){
                 myModal.hide();
@@ -491,9 +520,56 @@
             {% endif %}
         });
     </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var sidebar = document.querySelector('.pb-sidebar-glass .nav-sidebar');
+            if (!sidebar) return;
+            var current = window.location.pathname.replace(/\/+$/, '') || '/';
+            var links = Array.prototype.slice.call(sidebar.querySelectorAll('a.nav-link[href]'));
+            var best = null;
+            var bestLen = -1;
+            links.forEach(function(link) {
+                var href = link.getAttribute('href');
+                if (!href || href === '#' || href.indexOf('javascript:') === 0) return;
+                var path;
+                try { path = new URL(link.href, window.location.origin).pathname.replace(/\/+$/, ''); }
+                catch (e) { return; }
+                if (!path) return;
+                if (current === path || (path.length > 12 && current.indexOf(path) === 0)) {
+                    if (path.length > bestLen) {
+                        best = link;
+                        bestLen = path.length;
+                    }
+                }
+            });
+            if (!best) return;
+            best.classList.add('active');
+            var parent = best.closest('.has-treeview');
+            if (parent) parent.classList.add('menu-open');
+        });
+    </script>
     {% if user.is_authenticated %}
-    <script src="{% static 'userauths/js/notifications.js' %}"></script>
+    <script src="{% static 'userauths/js/notifications.js' %}?v=inbox-1"></script>
+    <script src="{% static 'userauths/js/notifications-inbox.js' %}?v=1"></script>
     {% endif %}
+    <script type="application/json" id="pb-live-messages">[{% for msg in messages %}{"tags":"{{ msg.tags|escapejs }}","text":"{{ msg|escapejs }}"}{% if not forloop.last %},{% endif %}{% endfor %}]</script>
+    <div data-live-custom-js>
+    {% block custom_js %}
+    <script type="text/javascript">
+        var pbPrintButton = document.getElementById('printButton');
+        var pbPrintTable = document.getElementById('example1');
+        if (pbPrintButton && pbPrintTable) pbPrintButton.addEventListener('click', function() {
+            var printContents = pbPrintTable.outerHTML;
+            var originalContents = document.body.innerHTML;
+            document.body.innerHTML = printContents;
+            window.print();
+            document.body.innerHTML = originalContents;
+        });
+    </script>
+    {% endblock custom_js %}
+    </div>
+    <script src="{% static 'pb/js/pb-live-app.js' %}?v=6"></script>
+    <script defer src="{% static 'pb/js/alpine.min.js' %}"></script>
 </body>
 
 </html>
