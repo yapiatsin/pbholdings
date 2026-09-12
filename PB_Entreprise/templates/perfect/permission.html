@@ -29,7 +29,7 @@
 {% block main_content %}
 {% url 'create_permission' as create_permission_action %}
 {% url 'import_permissions_excel' as import_permissions_action %}
-{% include 'perfect/partials/modal_default.html' with modal_id='modal-lg' modal_size='lg' modal_title='Nouvelle permission' form_method='post' form_action=create_permission_action form_id='permissionCreateForm' body_template='perfect/partials/saisie/permission_create_body.html' submit_label='Enregistrer' %}
+{% include 'perfect/partials/modal_default.html' with modal_id='modal-lg' modal_size='lg' modal_title='Nouvelle permission' form_method='post' form_action=create_permission_action form_id='permissionCreateForm' body_template='perfect/partials/saisie/permission_create_body.html' submit_label='Enregistrer' form=form %}
 {% include 'perfect/partials/modal_default.html' with modal_id='modal-import' modal_size='md' modal_title='Importer depuis Excel' form_method='post' form_action=import_permissions_action form_id='permissionImportForm' enctype='multipart/form-data' body_template='perfect/partials/saisie/permission_import_excel_body.html' submit_label='Importer' %}
 
 <div class="col-md-12">

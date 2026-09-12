@@ -52,7 +52,6 @@ from openpyxl.utils.datetime import from_excel as openpyxl_from_excel
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side, Protection
 from openpyxl.comments import Comment
 from openpyxl.worksheet.datavalidation import DataValidation
-from xhtml2pdf import pisa
 from django.conf import settings
 import os
 
@@ -9780,8 +9779,8 @@ class ExportReparationPDFView(LoginRequiredMixin, CustomPermissionRequiredMixin,
             from xhtml2pdf import pisa
             from django.conf import settings
             import os
-        except ImportError:
-            messages.error(request, "La bibliothèque xhtml2pdf n'est pas installée. Veuillez installer: pip install xhtml2pdf")
+        except (ImportError, OSError):
+            messages.error(request, "La génération PDF est indisponible (xhtml2pdf / Cairo).")
             return redirect('detail_reparat', pk=pk)
         
         reparation = get_object_or_404(Reparation, pk=pk)

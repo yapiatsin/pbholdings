@@ -1,0 +1,87 @@
+/* Boutons verre P&B — même effet que Tableau de bord / Enregistrer (profil). */
+:root {
+    --pb-btn-red: #a83232;
+    --pb-btn-glass: rgba(255, 255, 255, 0.28);
+    --pb-btn-glass-hover: rgba(168, 50, 50, 0.12);
+}
+
+.btn:not(.btn-tool):not(.btn-link):not(.close):not(.navbar-toggler),
+a.btn:not(.btn-tool):not(.btn-link),
+.profile-btn--primary,
+.profile-save-btn,
+.pb-modal-default__btn-submit,
+.pb-modal-default__btn-cancel,
+.pb-panel__action,
+.pb-notif-btn,
+.pb-notif-btn--primary,
+.pb-notif-filter,
+.auth-btn,
+.page-404__btn,
+.swal2-styled.swal2-confirm,
+.swal2-styled.swal2-cancel,
+.content button[type="submit"]:not(.btn-tool):not(.close),
+.content input[type="submit"] {
+    border-radius: 25px !important;
+    border: 1.5px solid var(--pb-btn-red) !important;
+    background: var(--pb-btn-glass) !important;
+    color: var(--pb-btn-red) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    font-weight: 700;
+}
+
+.btn:not(.btn-tool):not(.btn-link):not(.close):not(.navbar-toggler):hover,
+.btn:not(.btn-tool):not(.btn-link):not(.close):not(.navbar-toggler):focus,
+a.btn:not(.btn-tool):not(.btn-link):hover,
+a.btn:not(.btn-tool):not(.btn-link):focus,
+.profile-btn--primary:hover,
+.profile-save-btn:hover,
+.pb-modal-default__btn-submit:hover,
+.pb-modal-default__btn-cancel:hover,
+.pb-panel__action:hover,
+.pb-panel__action:focus,
+.pb-notif-btn:hover,
+.pb-notif-btn--primary:hover,
+.pb-notif-filter:hover,
+.auth-btn:hover,
+.page-404__btn:hover,
+.swal2-styled.swal2-confirm:hover,
+.swal2-styled.swal2-cancel:hover,
+.content button[type="submit"]:not(.btn-tool):not(.close):hover,
+.content input[type="submit"]:hover {
+    background: var(--pb-btn-glass-hover) !important;
+    color: var(--pb-btn-red) !important;
+    border-color: var(--pb-btn-red) !important;
+}
+
+.btn:not(.btn-tool):not(.btn-link):not(.close):not(.navbar-toggler):focus,
+.btn:not(.btn-tool):not(.btn-link):not(.close):not(.navbar-toggler):focus-visible,
+.auth-btn:focus,
+.auth-btn:focus-visible {
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55), 0 0 0 3px rgba(168, 50, 50, 0.16);
+    outline: none;
+}
+
+.btn:not(.btn-tool):not(.btn-link) i,
+.btn:not(.btn-tool):not(.btn-link) .fa,
+.btn:not(.btn-tool):not(.btn-link) .fas,
+.btn:not(.btn-tool):not(.btn-link) .far,
+.profile-btn--primary i,
+.pb-panel__action i {
+    color: inherit;
+}
+
+.btn:disabled,
+.btn.disabled,
+.auth-btn:disabled,
+.content button[type="submit"]:disabled,
+.content input[type="submit"]:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.pb-notif-filter.is-active {
+    background: var(--pb-btn-glass-hover) !important;
+    color: var(--pb-btn-red) !important;
+}

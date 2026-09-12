@@ -792,7 +792,11 @@ class PermissionListView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['categories'] = TypeCustomPermission.objects.all()
-        context['form'] = CustomPermissionForm()
+        create_form = CustomPermissionForm()
+        create_form.fields['name'].widget.attrs['id'] = 'id_perm_create_name'
+        create_form.fields['categorie'].widget.attrs['id'] = 'id_perm_create_categorie'
+        create_form.fields['url'].widget.attrs['id'] = 'id_perm_create_url'
+        context['form'] = create_form
         permissions = list(context['permissions'])
         for perm in permissions:
             edit_form = CustomPermissionForm(instance=perm)
@@ -803,19 +807,46 @@ class PermissionListView(LoginRequiredMixin, ListView):
         context['permissions'] = permissions
         return context
 
+def _is_live_request(request):
+    return (
+        request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+        or request.headers.get('X-PB-Live-Nav') == '1'
+    )
+
+
+def _form_error_message(form, fallback):
+    if form.non_field_errors():
+        return ' '.join(str(err) for err in form.non_field_errors())
+    parts = []
+    for field, errors in form.errors.items():
+        label = form.fields[field].label if field in form.fields else field
+        parts.append(f"{label}: {errors[0]}")
+    return ' '.join(parts) if parts else fallback
+
+
 class PermissionCreateView(LoginRequiredMixin, CreateView):
     model = CustomPermission
     form_class = CustomPermissionForm
     template_name = 'perfect/permission.html'
     success_url = reverse_lazy('list_permissions')
-    
+    success_message = 'Permission créée avec succès ✓✓'
+
+    def get(self, request, *args, **kwargs):
+        return redirect(self.success_url)
+
     def form_valid(self, form):
-        messages.success(self.request, 'Permission créée avec succès ✓✓')
-        return super().form_valid(form)
-    
+        self.object = form.save()
+        if _is_live_request(self.request):
+            return JsonResponse({'success': True, 'message': self.success_message})
+        messages.success(self.request, self.success_message)
+        return redirect(self.success_url)
+
     def form_invalid(self, form):
-        messages.error(self.request, 'Erreur lors de la création de la permission ✘✘')
-        return super().form_invalid(form)
+        error = _form_error_message(form, 'Erreur lors de la création de la permission ✘✘')
+        if _is_live_request(self.request):
+            return JsonResponse({'success': False, 'error': error, 'errors': form.errors})
+        messages.error(self.request, error)
+        return redirect(self.success_url)
 
 class PermissionUpdateView(LoginRequiredMixin, UpdateView):
     model = CustomPermission
@@ -823,14 +854,20 @@ class PermissionUpdateView(LoginRequiredMixin, UpdateView):
     template_name = 'perfect/partials/permission_form.html'
     success_url = reverse_lazy('list_permissions')
     success_message = 'Permission modifiée avec succès ✓✓'
-    
+
     def form_valid(self, form):
+        self.object = form.save()
+        if _is_live_request(self.request):
+            return JsonResponse({'success': True, 'message': self.success_message})
         messages.success(self.request, self.success_message)
-        return super().form_valid(form)
-    
+        return redirect(self.success_url)
+
     def form_invalid(self, form):
-        messages.error(self.request, 'Erreur lors de la modification ✘✘')
-        return super().form_invalid(form)
+        error = _form_error_message(form, 'Erreur lors de la modification ✘✘')
+        if _is_live_request(self.request):
+            return JsonResponse({'success': False, 'error': error, 'errors': form.errors})
+        messages.error(self.request, error)
+        return redirect(self.success_url)
 
 @login_required
 def delete_permission(request, pk):

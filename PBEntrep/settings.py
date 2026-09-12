@@ -13,13 +13,13 @@ TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
 SECRET_KEY = config('SECRET_KEY')
 # DEBUG = True--  django-insecure-of03a0_f)5yamk9g&p9p2f^a*l8!6t#+r_c4oq42+sb&#y5znt
 
-ALLOWED_HOSTS = ['*']
-# ALLOWED_HOSTS = ['localhost','127.0.0.1','192.168.100.157']
+# ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['localhost','127.0.0.1','192.168.100.157']
 
-# ALLOWED_HOSTS = ['pbholdingsite.com','www.pbholdingsite.com','45.92.109.86']
-# CSRF_TRUSTED_ORIGINS = [
-#     'https://pbholdingsite.com',
-# ]
+ALLOWED_HOSTS = ['pbholdingsite.com','www.pbholdingsite.com','45.92.109.86']
+CSRF_TRUSTED_ORIGINS = [
+    'https://pbholdingsite.com',
+]
 
 handler403 = 'PB_Entreprise.views.permission_denied_view'
 handler404 = 'PB_Entreprise.views.custom_404_view'
@@ -109,18 +109,18 @@ DEBUG = False
 # DEBUG = config('DEBUG') 
 
 DATABASES = {
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.postgresql',
-    #     'NAME': config('DB_NAME'),
-    #     'USER':config('DB_USER'),
-    #     'PASSWORD': config('DB_PASSWORD'),
-    #     'HOST':config('DB_HOST'),
-    #     'PORT':config('DB_PORT'),
-    # }
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': config('DB_NAME'),
+        'USER':config('DB_USER'),
+        'PASSWORD': config('DB_PASSWORD'),
+        'HOST':config('DB_HOST'),
+        'PORT':config('DB_PORT'),
+    },
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'NAME': BASE_DIR / 'db.sqlite3',
+    # }
 }
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -217,8 +217,8 @@ JAZZMIN_SETTINGS = {
     'use_google_fonts_cdn': True,
     'custom_css': 'admin/css/pb_jazzmin_fix.css',
     'topmenu_links': [
-        {'name': 'Tableau de bord', 'url': 'dash', 'permissions': ['userauths.User']},
-        {'model': 'userauths.User'},
+        {'name': 'Tableau de bord', 'url': 'dash'},
+        {'model': 'userauths.CustomUser'},
     ],
 }
 AUTH_USER_MODEL = 'userauths.CustomUser'

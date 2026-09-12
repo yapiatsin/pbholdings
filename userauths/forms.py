@@ -21,14 +21,17 @@ class ChangePasswordForm(PasswordChangeForm):
 
 class CustomPermissionForm(forms.ModelForm):
     name = forms.CharField(
+        label='Nom',
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nom de la permission'})
     )
     categorie = forms.ModelChoiceField(
+        label='Catégorie',
         queryset=TypeCustomPermission.objects.all(),
         widget=forms.Select(attrs={'class': 'form-control'}),
         empty_label="Sélectionner une catégorie"
     )
     url = forms.CharField(
+        label='URL',
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'URL (ex: dash)'})
     )
 
