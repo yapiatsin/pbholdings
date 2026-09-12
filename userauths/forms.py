@@ -3,6 +3,7 @@ from django.contrib.auth.forms import PasswordChangeForm
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from io import BytesIO
 import os
+import re
 from PIL import Image, UnidentifiedImageError
 from userauths.models import *
 from .models import GENDER_SELECTION, USER
@@ -31,7 +32,7 @@ class CustomPermissionForm(forms.ModelForm):
     )
     categorie = forms.ModelChoiceField(
         label='Catégorie',
-        queryset=TypeCustomPermission.objects.none(),
+        queryset=TypeCustomPermission.objects.all().order_by('categorie'),
         widget=forms.Select(attrs={'class': 'form-control'}),
         empty_label='Sélectionner une catégorie',
     )
@@ -40,53 +41,55 @@ class CustomPermissionForm(forms.ModelForm):
         max_length=255,
         widget=forms.TextInput(attrs={
             'class': 'form-control',
-            'placeholder': 'Nom d’URL Django (ex: dash)',
+            'placeholder': 'URL name Django (ex: dash)',
             'autocomplete': 'off',
         }),
-        help_text='Doit correspondre au name= de l’URL Django (ex: dash, list_permissions).',
+        help_text='Nom de route Django, ex. dash, list_permissions, rec_day',
     )
 
     class Meta:
         model = CustomPermission
         fields = ['name', 'categorie', 'url']
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['categorie'].queryset = TypeCustomPermission.objects.order_by('categorie')
-
     def clean_name(self):
         name = (self.cleaned_data.get('name') or '').strip()
         if not name:
-            raise forms.ValidationError('Le nom est obligatoire.')
+            raise forms.ValidationError('Le nom de la permission est obligatoire.')
         return name
 
     def clean_url(self):
-        url_name = (self.cleaned_data.get('url') or '').strip()
-        if not url_name:
-            raise forms.ValidationError('L’URL est obligatoire.')
-        # Accepte "dash" ou "/dash/" → stocke le name Django sans slash
-        url_name = url_name.strip('/')
-        if ' ' in url_name:
-            raise forms.ValidationError('L’URL ne doit pas contenir d’espaces.')
-        return url_name
+        url = (self.cleaned_data.get('url') or '').strip()
+        if not url:
+            raise forms.ValidationError("L'URL (name Django) est obligatoire.")
+        # Autorise dash, list_permissions, add_recettes, etc.
+        if not re.fullmatch(r'[A-Za-z_][A-Za-z0-9_]*', url):
+            raise forms.ValidationError(
+                "Format invalide. Utilisez un name Django (lettres, chiffres, _)."
+            )
+        return url
 
     def clean(self):
         cleaned = super().clean()
         name = cleaned.get('name')
         categorie = cleaned.get('categorie')
-        url_name = cleaned.get('url')
-        if name and categorie and url_name:
-            qs = CustomPermission.objects.filter(
-                name__iexact=name,
-                categorie=categorie,
-                url__iexact=url_name,
+        url = cleaned.get('url')
+        if not (name and categorie and url):
+            return cleaned
+
+        qs = CustomPermission.objects.filter(categorie=categorie)
+        if self.instance and self.instance.pk:
+            qs = qs.exclude(pk=self.instance.pk)
+
+        if qs.filter(name__iexact=name).exists():
+            self.add_error(
+                'name',
+                'Une permission avec ce nom existe déjà dans cette catégorie.',
             )
-            if self.instance and self.instance.pk:
-                qs = qs.exclude(pk=self.instance.pk)
-            if qs.exists():
-                raise forms.ValidationError(
-                    'Cette permission existe déjà pour cette catégorie.'
-                )
+        if qs.filter(url__iexact=url).exists():
+            self.add_error(
+                'url',
+                'Une permission avec cette URL existe déjà dans cette catégorie.',
+            )
         return cleaned
 
 

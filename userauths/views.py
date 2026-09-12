@@ -772,6 +772,40 @@ class PasswordChangeDoneView(View):
          return render(request, 'password_change_done.html')
 
 # ==================== GESTION DES PERMISSIONS ====================
+class PermissionListView(LoginRequiredMixin, ListView):
+    model = CustomPermission
+    template_name = 'perfect/permission.html'
+    context_object_name = 'permissions'
+    
+    def get_queryset(self):
+        queryset = CustomPermission.objects.select_related('categorie').all()
+        search = self.request.GET.get('search', '')
+        categorie_filter = self.request.GET.get('categorie', '')
+        
+        if search:
+            queryset = queryset.filter(name__icontains=search)
+        if categorie_filter:
+            queryset = queryset.filter(categorie__id=categorie_filter)
+        
+        return queryset.order_by('id','categorie__categorie', 'name')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['categories'] = TypeCustomPermission.objects.all()
+        create_form = CustomPermissionForm()
+        create_form.fields['name'].widget.attrs['id'] = 'id_perm_create_name'
+        create_form.fields['categorie'].widget.attrs['id'] = 'id_perm_create_categorie'
+        create_form.fields['url'].widget.attrs['id'] = 'id_perm_create_url'
+        context['form'] = create_form
+        permissions = list(context['permissions'])
+        for perm in permissions:
+            edit_form = CustomPermissionForm(instance=perm)
+            edit_form.fields['name'].widget.attrs['id'] = f'id_name_{perm.pk}'
+            edit_form.fields['categorie'].widget.attrs['id'] = f'id_categorie_{perm.pk}'
+            edit_form.fields['url'].widget.attrs['id'] = f'id_url_{perm.pk}'
+            perm.edit_form = edit_form
+        context['permissions'] = permissions
+        return context
 
 def _is_live_request(request):
     return (
@@ -786,67 +820,36 @@ def _form_error_message(form, fallback):
         return ' '.join(str(err) for err in form.non_field_errors())
     parts = []
     for field, errors in form.errors.items():
-        if field == '__all__':
-            parts.extend(str(err) for err in errors)
-            continue
         label = form.fields[field].label if field in form.fields else field
-        parts.append(f'{label}: {errors[0]}')
+        parts.append(f"{label}: {errors[0]}")
     return ' '.join(parts) if parts else fallback
 
 
-def _permission_create_form():
-    form = CustomPermissionForm()
-    form.fields['name'].widget.attrs['id'] = 'id_perm_create_name'
-    form.fields['categorie'].widget.attrs['id'] = 'id_perm_create_categorie'
-    form.fields['url'].widget.attrs['id'] = 'id_perm_create_url'
-    return form
-
-
-class PermissionListView(LoginRequiredMixin, ListView):
-    model = CustomPermission
-    template_name = 'perfect/permission.html'
-    context_object_name = 'permissions'
-    login_url = 'login'
-
-    def get_queryset(self):
-        queryset = CustomPermission.objects.select_related('categorie').all()
-        search = (self.request.GET.get('search') or '').strip()
-        categorie_filter = (self.request.GET.get('categorie') or '').strip()
-
-        if search:
-            queryset = queryset.filter(name__icontains=search)
-        if categorie_filter.isdigit():
-            queryset = queryset.filter(categorie_id=int(categorie_filter))
-
-        return queryset.order_by('id', 'categorie__categorie', 'name')
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['categories'] = TypeCustomPermission.objects.order_by('categorie')
-        context['form'] = _permission_create_form()
-        permissions = list(context['permissions'])
-        for perm in permissions:
-            edit_form = CustomPermissionForm(instance=perm)
-            edit_form.fields['name'].widget.attrs['id'] = f'id_name_{perm.pk}'
-            edit_form.fields['categorie'].widget.attrs['id'] = f'id_categorie_{perm.pk}'
-            edit_form.fields['url'].widget.attrs['id'] = f'id_url_{perm.pk}'
-            perm.edit_form = edit_form
-        context['permissions'] = permissions
-        return context
-
-
 class PermissionCreateView(LoginRequiredMixin, View):
-    """Création d'une CustomPermission (modal page Permissions)."""
+    """Création d'une CustomPermission via le modal de /auth/permissions/.
+
+    - POST uniquement (GET → redirection liste)
+    - Réservé au staff
+    - Réponse JSON pour la navigation live, sinon redirect + message
+    - Aucune modification de schéma : name, categorie, url uniquement
+    """
 
     login_url = 'login'
     success_url = reverse_lazy('list_permissions')
     success_message = 'Permission créée avec succès ✓✓'
+    error_message = 'Erreur lors de la création de la permission ✘✘'
 
     def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return self.handle_no_permission()
-        if not (request.user.is_staff or str(request.user.user_type) == '1'):
-            return render(request, 'no_acces.html', status=403)
+        if request.user.is_authenticated and not (
+            request.user.is_staff or str(request.user.user_type) == '1'
+        ):
+            if _is_live_request(request):
+                return JsonResponse(
+                    {'success': False, 'error': 'Accès refusé.'},
+                    status=403,
+                )
+            messages.error(request, 'Accès refusé.')
+            return redirect(self.success_url)
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
@@ -854,45 +857,51 @@ class PermissionCreateView(LoginRequiredMixin, View):
 
     def post(self, request, *args, **kwargs):
         form = CustomPermissionForm(request.POST)
-        live = _is_live_request(request)
-
         if not form.is_valid():
-            error = _form_error_message(
-                form, 'Erreur lors de la création de la permission ✘✘'
-            )
-            if live:
-                return JsonResponse(
-                    {'success': False, 'error': error, 'errors': form.errors},
-                    status=400,
-                )
-            messages.error(request, error)
-            return redirect(self.success_url)
+            return self._error_response(request, form)
 
         try:
             with transaction.atomic():
                 permission = form.save()
-        except Exception as exc:
-            error = f'Impossible d’enregistrer la permission : {exc}'
-            if live:
-                return JsonResponse({'success': False, 'error': error}, status=500)
-            messages.error(request, error)
+        except Exception:
+            if _is_live_request(request):
+                return JsonResponse(
+                    {
+                        'success': False,
+                        'error': 'Impossible d’enregistrer la permission. Réessayez.',
+                    },
+                    status=500,
+                )
+            messages.error(request, self.error_message)
             return redirect(self.success_url)
 
-        if live:
+        message = f'{self.success_message} ({permission.name})'
+        if _is_live_request(request):
             return JsonResponse({
                 'success': True,
-                'message': self.success_message,
+                'message': message,
                 'permission': {
                     'id': permission.pk,
                     'name': permission.name,
+                    'categorie_id': permission.categorie_id,
                     'categorie': permission.categorie.categorie,
                     'url': permission.url,
                 },
             })
 
-        messages.success(request, self.success_message)
+        messages.success(request, message)
         return redirect(self.success_url)
 
+    def _error_response(self, request, form):
+        error = _form_error_message(form, self.error_message)
+        if _is_live_request(request):
+            return JsonResponse({
+                'success': False,
+                'error': error,
+                'errors': form.errors.get_json_data(),
+            })
+        messages.error(request, error)
+        return redirect(self.success_url)
 
 class PermissionUpdateView(LoginRequiredMixin, UpdateView):
     model = CustomPermission
@@ -900,26 +909,9 @@ class PermissionUpdateView(LoginRequiredMixin, UpdateView):
     template_name = 'perfect/partials/permission_form.html'
     success_url = reverse_lazy('list_permissions')
     success_message = 'Permission modifiée avec succès ✓✓'
-    login_url = 'login'
-
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return self.handle_no_permission()
-        if not (request.user.is_staff or str(request.user.user_type) == '1'):
-            return render(request, 'no_acces.html', status=403)
-        return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
-        try:
-            with transaction.atomic():
-                self.object = form.save()
-        except Exception as exc:
-            error = f'Impossible de modifier la permission : {exc}'
-            if _is_live_request(self.request):
-                return JsonResponse({'success': False, 'error': error}, status=500)
-            messages.error(self.request, error)
-            return redirect(self.success_url)
-
+        self.object = form.save()
         if _is_live_request(self.request):
             return JsonResponse({'success': True, 'message': self.success_message})
         messages.success(self.request, self.success_message)
@@ -928,10 +920,7 @@ class PermissionUpdateView(LoginRequiredMixin, UpdateView):
     def form_invalid(self, form):
         error = _form_error_message(form, 'Erreur lors de la modification ✘✘')
         if _is_live_request(self.request):
-            return JsonResponse(
-                {'success': False, 'error': error, 'errors': form.errors},
-                status=400,
-            )
+            return JsonResponse({'success': False, 'error': error, 'errors': form.errors})
         messages.error(self.request, error)
         return redirect(self.success_url)
 
