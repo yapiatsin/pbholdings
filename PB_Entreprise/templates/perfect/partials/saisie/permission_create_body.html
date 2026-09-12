@@ -2,23 +2,32 @@
     <div class="col-12">
         <div class="pb-modal-panel">
             <div class="pb-modal-panel__title">Informations de la permission</div>
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger py-2 px-3 mb-3">
+                    {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+                </div>
+            {% endif %}
             <div class="row">
                 <div class="col-12">
                     <div class="pb-modal-field">
                         <label class="pb-modal-field__label" for="{{ form.name.id_for_label }}">Nom de la permission</label>
                         {{ form.name }}
+                        {% if form.name.errors %}<small class="text-danger d-block mt-1">{{ form.name.errors.0 }}</small>{% endif %}
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="pb-modal-field">
                         <label class="pb-modal-field__label" for="{{ form.categorie.id_for_label }}">Catégorie</label>
                         {{ form.categorie }}
+                        {% if form.categorie.errors %}<small class="text-danger d-block mt-1">{{ form.categorie.errors.0 }}</small>{% endif %}
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="pb-modal-field pb-modal-field--last">
-                        <label class="pb-modal-field__label" for="{{ form.url.id_for_label }}">URL</label>
+                        <label class="pb-modal-field__label" for="{{ form.url.id_for_label }}">URL (name Django)</label>
                         {{ form.url }}
+                        {% if form.url.errors %}<small class="text-danger d-block mt-1">{{ form.url.errors.0 }}</small>{% endif %}
+                        <small class="text-muted d-block mt-1">Ex. : <code>dash</code>, <code>list_permissions</code>, <code>rec_day</code></small>
                     </div>
                 </div>
             </div>

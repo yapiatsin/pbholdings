@@ -89,14 +89,37 @@ class CustomUser(AbstractUser):
 class TypeCustomPermission(models.Model):
     cid = ShortUUIDField(unique=True, length=6, prefix='pb-', alphabet="abcd1234", editable=False)
     categorie = models.CharField(max_length=100)
+
+    class Meta:
+        verbose_name = 'Catégorie de permission'
+        verbose_name_plural = 'Catégories de permissions'
+        ordering = ['categorie']
+
     def __str__(self):
         return self.categorie
 
+
 class CustomPermission(models.Model):
-    name = models.CharField(max_length=100)
-    categorie = models.ForeignKey(TypeCustomPermission, on_delete=models.CASCADE, related_name='cat_permis')
-    url = models.CharField(max_length=255)
-    users = models.ManyToManyField(CustomUser, related_name='custom_permissions', blank=True)
+    name = models.CharField(max_length=100, verbose_name='Nom')
+    categorie = models.ForeignKey(
+        TypeCustomPermission,
+        on_delete=models.CASCADE,
+        related_name='cat_permis',
+        verbose_name='Catégorie',
+    )
+    url = models.CharField(max_length=255, verbose_name='URL')
+    users = models.ManyToManyField(
+        CustomUser,
+        related_name='custom_permissions',
+        blank=True,
+        verbose_name='Utilisateurs',
+    )
+
+    class Meta:
+        verbose_name = 'Permission'
+        verbose_name_plural = 'Permissions'
+        ordering = ['categorie__categorie', 'name']
+
     def __str__(self):
         return self.name
 
