@@ -2,11 +2,11 @@
 {% load static %}
 {% block title %}Notifications{% endblock title %}
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'pb/css/notifications-inbox.css' %}?v=1">
+<link rel="stylesheet" href="{% static 'pb/css/notifications-inbox.css' %}?v=gutter-1">
 {% endblock extra_css %}
 {% block page_title %}Notifications{% endblock page_title %}
 {% block main_content %}
-<div class="col-12 px-0 pb-notif-page">
+<div class="col-12 pb-notif-page">
     <div class="pb-kpi-grid pb-kpi-grid--4" id="pb-notif-stats">
         {% include 'perfect/partials/stats/kpi_card.html' with label="Total" subtitle="Boîte de réception" value="—" sublabel="Toutes les notifications" icon="fa-bell" %}
         {% include 'perfect/partials/stats/kpi_card.html' with label="Non lues" subtitle="À traiter" value="—" sublabel="En attente de lecture" icon="fa-envelope" %}
@@ -14,13 +14,8 @@
         {% include 'perfect/partials/stats/kpi_card.html' with label="Alertes" subtitle="Véhicules" value="—" sublabel="Échéances et urgences" icon="fa-exclamation-triangle" %}
     </div>
 
-    <div class="pb-notif-inbox"
-         id="pb-notif-inbox"
-         data-inbox-url="{% url 'notifications_inbox' %}"
-         data-read-url-template="{% url 'notification_mark_read' 0 %}"
-         data-unread-url-template="{% url 'notification_mark_unread' 0 %}"
-         data-read-all-url="{% url 'notifications_mark_all_read' %}"
-         data-selected-id="{{ selected_notification_id }}">
+    <div class="pb-notif-inbox" id="pb-notif-inbox" data-inbox-url="{% url 'notifications_inbox' %}" data-read-url-template="{% url 'notification_mark_read' 0 %}"
+         data-unread-url-template="{% url 'notification_mark_unread' 0 %}" data-read-all-url="{% url 'notifications_mark_all_read' %}" data-selected-id="{{ selected_notification_id }}">
         <aside class="pb-notif-list">
             <div class="pb-notif-list__head">
                 <h2>Notifications</h2>

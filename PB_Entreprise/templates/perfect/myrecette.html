@@ -2,7 +2,7 @@
 {% load static %}
 {% block title %}Recettes Mensuelles{% endblock title %}
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'pb/css/myrecette.css' %}?v=grid-json">
+<link rel="stylesheet" href="{% static 'pb/css/myrecette.css' %}?v=recap-row">
 {% endblock extra_css %}
 {% block page_title %}Recettes{% endblock page_title %}
 {% block search_form %}
@@ -95,7 +95,7 @@
                         <tfoot></tfoot>
                     </table>
                 </div>
-                <div class="temparret-legend" id="myrecette-recap" hidden></div>
+                <div class="temparret-legend temparret-legend--row" id="myrecette-recap" hidden></div>
             </div>
         </div>
     </div>

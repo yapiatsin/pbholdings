@@ -322,6 +322,7 @@
                 recap.innerHTML = '<h3 class="temparret-legend__heading">Récapitulatif par catégorie</h3><div class="temparret-legend__chips">' +
                     items.map(function (cat) {
                         return '<article class="temparret-legend__chip temparret-legend__chip--primary">' +
+                            '<span class="temparret-legend__dot" aria-hidden="true"></span>' +
                             '<span class="temparret-legend__meta">' +
                                 '<span class="temparret-legend__code">' + escapeHtml(cat.nb_vehicules) + ' véh.</span>' +
                                 '<span class="temparret-legend__label">' + escapeHtml(cat.categorie) + '</span>' +

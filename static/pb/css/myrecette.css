@@ -455,6 +455,38 @@ html, body {
     gap: 0.7rem 1.1rem;
 }
 
+.temparret-legend--row {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    width: 100%;
+    gap: 0.45rem;
+    padding: 0.55rem 1rem 0.7rem;
+}
+
+.temparret-legend--row .temparret-legend__chips {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    gap: 0.4rem;
+    overflow-x: auto;
+    scrollbar-width: thin;
+}
+
+.temparret-legend--row .temparret-legend__chip {
+    flex: 1 1 0;
+    min-width: 148px;
+    min-height: 46px;
+    padding: 0.35rem 0.55rem;
+}
+
+.temparret-legend--row .temparret-legend__label {
+    font-size: 0.72rem;
+}
+
+.temparret-legend--row .temparret-legend__value {
+    font-size: 1.05rem;
+}
+
 .temparret-legend__group {
     display: flex;
     flex-direction: column;
@@ -602,6 +634,10 @@ html, body {
     .temparret-legend--header {
         padding: 0;
         gap: 0.45rem;
+    }
+
+    .temparret-legend--row .temparret-legend__chips {
+        flex-wrap: wrap;
     }
 
     .temparret-legend__chips,

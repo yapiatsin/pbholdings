@@ -2,339 +2,298 @@
 {% load static %}
 
 {% block search_form %}{% endblock search_form %}
-{% block page_title %}Mon Profil{% endblock page_title %}
+{% block page_title %}Mon profil{% endblock page_title %}
 {% block page_title_info %}{% endblock page_title_info %}
 {% block active_page %}Profile{% endblock active_page %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'userauths/css/profil.css' %}">
+<link rel="stylesheet" href="{% static 'userauths/css/profil.css' %}?v=redesign-1">
 {% endblock extra_css %}
 {% block navbar_nav %}
 {% endblock navbar_nav %}
 {% block main_content %}
-<div class="col-md-12 profile-page">
-    {# ── Bannière ── #}
-    <div class="profile-hero">
-        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between">
-            <div class="d-flex align-items-center">
-                <div class="profile-hero__avatar-wrap mr-3">
-                    {% include 'perfect/partials/user_avatar.html' with profile=user_profile user=user avatar_class='profile-hero__avatar' %}
-                    <label for="{{ profile_form.avatar.id_for_label }}" class="profile-hero__avatar-edit" title="Changer la photo de profil">
-                        <i class="fas fa-camera"></i>
-                    </label>
-                </div>
-                <div>
-                    <span class="profile-hero__badge">
-                        {% if user.user_type == "1" %}Espace administrateur
-                        {% elif user.user_type == "2" %}Espace chef exploitation
-                        {% elif user.user_type == "3" %}Espace comptable
-                        {% elif user.user_type == "4" %}Espace gérant
-                        {% else %}Mon espace{% endif %}
-                    </span>
-                    <h2 class="profile-hero__title">Bonjour, {{ user.prenom|default:user.username }} {{ user.nom }} !</h2>
-                    <p class="profile-hero__meta">
-                        {{ user.gender }} &bull; {{ user.username }}
-                        <button type="button" class="profile-hero__photo-submit" id="hero-photo-submit">
-                            <i class="fas fa-check-circle mr-1"></i> Valider la photo
-                        </button>
-                    </p>
-                </div>
+<div class="col-12 profile-page">
+    <div class="profile-shell">
+        <aside class="profile-id">
+            <div class="profile-id__avatar-wrap">
+                {% include 'perfect/partials/user_avatar.html' with profile=user_profile user=user avatar_class='profile-id__avatar' %}
+                <label for="{{ profile_form.avatar.id_for_label }}" class="profile-id__camera" title="Changer la photo de profil">
+                    <i class="fas fa-camera" aria-hidden="true"></i>
+                </label>
             </div>
-            <div class="profile-hero__actions mt-3 mt-md-0">
-                <a href="{% url 'dash' %}" class="profile-btn-primary">
-                    <i class="fas fa-tachometer-alt mr-1"></i> Tableau de bord
+            <p class="profile-id__hello">Bonjour</p>
+            <h1 class="profile-id__name">{{ display_name|default:user.username }}</h1>
+            <p class="profile-id__handle">{{ user.username }}{% if user.gender %} · {{ user.gender }}{% endif %}</p>
+            <div class="profile-id__chips">
+                <span class="profile-chip">{{ role_display|default:"Utilisateur" }}</span>
+                {% if user.is_active %}
+                    <span class="profile-chip profile-chip--ok">Compte actif</span>
+                {% else %}
+                    <span class="profile-chip profile-chip--off">Compte inactif</span>
+                {% endif %}
+            </div>
+            <ul class="profile-facts">
+                <li>
+                    <span>E-mail</span>
+                    <strong>{{ user.email|default:"—" }}</strong>
+                </li>
+                <li>
+                    <span>Téléphone</span>
+                    <strong>{{ user.telephone|default:user_profile.tel1|default:"—" }}</strong>
+                </li>
+                <li>
+                    <span>Adresse</span>
+                    <strong>{{ user.adresse|default:"—" }}</strong>
+                </li>
+                <li>
+                    <span>Langue</span>
+                    <strong>{% if user_profile.langue == 'en' %}English{% else %}Français{% endif %}</strong>
+                </li>
+            </ul>
+            <button type="button" class="profile-btn profile-btn--ghost" id="hero-photo-submit" hidden>
+                <i class="fas fa-check" aria-hidden="true"></i> Valider la photo
+            </button>
+            {% if user.user_type == '4' %}
+                <a href="{% url 'dashgarage' %}" class="profile-btn profile-btn--primary">
+                    <i class="fas fa-tachometer-alt" aria-hidden="true"></i> Tableau de bord
                 </a>
-                <a href="#edit-profile" class="profile-btn-outline">
-                    <i class="fas fa-user-edit mr-1"></i> Modifier mon profil
+            {% else %}
+                <a href="{% url 'dash' %}" class="profile-btn profile-btn--primary">
+                    <i class="fas fa-tachometer-alt" aria-hidden="true"></i> Tableau de bord
                 </a>
-            </div>
-        </div>
-    </div>
-    {# ── Cartes résumé ── #}
-    <div class="row">
-        <div class="col-md-4 mb-3">
-            <div class="profile-card">
-                <div class="profile-card__head"><i class="fas fa-id-card"></i> Mon compte</div>
-                <div class="profile-card__body">
-                    <div class="profile-row">
-                        <span class="profile-row__label">E-mail</span>
-                        <span class="profile-row__value">{{ user.email }}</span>
-                    </div>
-                    <div class="profile-row">
-                        <span class="profile-row__label">Téléphone</span>
-                        <span class="profile-row__value">{{ user.telephone|default:user_profile.tel1|default:"—" }}</span>
-                    </div>
-                    <div class="profile-row">
-                        <span class="profile-row__label">Adresse</span>
-                        <span class="profile-row__value">{{ user.adresse|default:"—" }}</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 mb-3">
-            <div class="profile-card">
-                <div class="profile-card__head"><i class="fas fa-shield-alt"></i> Accès &amp; rôle</div>
-                <div class="profile-card__body">
-                    <div class="profile-row">
-                        <span class="profile-row__label">Rôle</span>
-                        <span class="profile-row__value">{{ user.username }}</span>
-                    </div>
-                    <div class="profile-row">
-                        <span class="profile-row__label">Compte</span>
-                        <span class="profile-row__value">
-                            {% if user.is_active %}
-                                <span class="profile-pill"><i class="fas fa-check-circle"></i> Actif</span>
-                            {% else %}
-                                <span class="profile-pill" style="opacity:0.65;"><i class="fas fa-times-circle"></i> Inactif</span>
-                            {% endif %}
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 mb-3">
-            <div class="profile-card">
-                <div class="profile-card__head"><i class="fas fa-bell"></i> Préférences</div>
-                <div class="profile-card__body">
-                    <div class="profile-row">
-                        <span class="profile-row__label">Langue</span>
-                        <span class="profile-row__value">{% if user_profile.langue == 'en' %}English{% else %}Français{% endif %}</span>
-                    </div>
-                    <div class="profile-row">
-                        <span class="profile-row__label">E-mail</span>
-                        <span class="profile-row__value">
-                            {% if user_profile.notif_email %}
-                                <span class="profile-pill">Activées</span>
-                            {% else %}
-                                <span class="profile-pill" style="opacity:0.65;">Désactivées</span>
-                            {% endif %}
-                        </span>
-                    </div>
-                    <div class="profile-row">
-                        <span class="profile-row__label">Sur le site</span>
-                        <span class="profile-row__value">
-                            {% if user_profile.notif_site %}
-                                <span class="profile-pill">Activées</span>
-                            {% else %}
-                                <span class="profile-pill" style="opacity:0.65;">Désactivées</span>
-                            {% endif %}
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+            {% endif %}
+        </aside>
 
-    {# ── Formulaire d'édition ── #}
-    <div class="profile-edit-card" id="edit-profile">
-        <div class="profile-edit-card__head">
-            <h3 class="profile-edit-card__title"><i class="fas fa-edit"></i> Modifier mes informations</h3>
-            <p class="profile-edit-card__subtitle">Mettez à jour vos coordonnées et préférences. Votre rôle et votre e-mail sont gérés par un administrateur.</p>
-        </div>
-        <div class="profile-edit-card__body">
-            <form method="post" enctype="multipart/form-data">
-                {% csrf_token %}
-                <input type="hidden" name="save_profile" value="1">
+        <section class="profile-workspace" id="edit-profile">
+            <nav class="profile-tabs" role="tablist">
+                <button type="button" class="profile-tab is-active" data-tab="identite" role="tab" aria-selected="true">Identité</button>
+                <button type="button" class="profile-tab" data-tab="securite" role="tab" aria-selected="false">Sécurité</button>
+                <button type="button" class="profile-tab" data-tab="acces" role="tab" aria-selected="false">Accès</button>
+            </nav>
 
-                <p class="profile-section-label">Identité</p>
-                <div class="row">
-                    <div class="col-md-4 profile-field mb-3">
-                        <label for="{{ profile_form.prenom.id_for_label }}">{{ profile_form.prenom.label }}</label>
-                        {{ profile_form.prenom }}
-                        <small class="text-danger">{{ profile_form.prenom.errors }}</small>
-                    </div>
-                    <div class="col-md-4 profile-field mb-3">
-                        <label for="{{ profile_form.nom.id_for_label }}">{{ profile_form.nom.label }}</label>
-                        {{ profile_form.nom }}
-                        <small class="text-danger">{{ profile_form.nom.errors }}</small>
-                    </div>
-                    <div class="col-md-4 profile-field mb-3">
-                        <label for="{{ profile_form.telephone.id_for_label }}">{{ profile_form.telephone.label }}</label>
-                        {{ profile_form.telephone }}
-                        <small class="text-danger">{{ profile_form.telephone.errors }}</small>
-                    </div>
-                    <div class="col-md-4 profile-field mb-3">
-                        <label for="{{ profile_form.gender.id_for_label }}">{{ profile_form.gender.label }}</label>
-                        {{ profile_form.gender }}
-                        <small class="text-danger">{{ profile_form.gender.errors }}</small>
-                    </div>
-                    <div class="col-md-4 profile-field mb-3">
-                        <label for="{{ profile_form.date_naissance.id_for_label }}">{{ profile_form.date_naissance.label }}</label>
-                        {{ profile_form.date_naissance }}
-                        <small class="text-danger">{{ profile_form.date_naissance.errors }}</small>
-                    </div>
-                    <div class="col-md-4 profile-field mb-3">
-                        <label for="{{ profile_form.adresse.id_for_label }}">{{ profile_form.adresse.label }}</label>
-                        {{ profile_form.adresse }}
-                        <small class="text-danger">{{ profile_form.adresse.errors }}</small>
-                    </div>
-                    <div class="col-md-6 profile-field mb-3">
-                        <label for="{{ profile_form.commune.id_for_label }}">{{ profile_form.commune.label }}</label>
-                        {{ profile_form.commune }}
-                        <small class="text-danger">{{ profile_form.commune.errors }}</small>
-                    </div>
-                    <div class="col-md-6 profile-field mb-3">
-                        <label for="{{ profile_form.profession.id_for_label }}">{{ profile_form.profession.label }}</label>
-                        {{ profile_form.profession }}
-                        <small class="text-danger">{{ profile_form.profession.errors }}</small>
-                    </div>
-                </div>
-
-                <p class="profile-section-label">Préférences &amp; avatar</p>
-                <div class="row">
-                    <div class="col-md-6 profile-field mb-3">
-                        <label for="{{ profile_form.avatar.id_for_label }}">{{ profile_form.avatar.label }}</label>
-                        <div style="display:none;">
-                            {{ profile_form.avatar }}
-                        </div>
-                        <small class="text-muted d-block">Cliquez sur l'icône caméra de l'avatar en haut pour changer la photo.</small>
-                        <small class="text-danger">{{ profile_form.avatar.errors }}</small>
-                    </div>
-                    <div class="col-md-6 profile-field mb-3">
-                        <label for="{{ profile_form.langue.id_for_label }}">{{ profile_form.langue.label }}</label>
-                        {{ profile_form.langue }}
-                        <small class="text-danger">{{ profile_form.langue.errors }}</small>
-                    </div>
-                    <div class="col-md-12 profile-field mb-3">
-                        <label for="{{ profile_form.bio.id_for_label }}">{{ profile_form.bio.label }}</label>
-                        {{ profile_form.bio }}
-                        <small class="text-danger">{{ profile_form.bio.errors }}</small>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="profile-checks">
-                            <div class="form-check">
-                                {{ profile_form.notif_email }}
-                                <label class="form-check-label" for="{{ profile_form.notif_email.id_for_label }}">{{ profile_form.notif_email.label }}</label>
-                            </div>
-                            <div class="form-check">
-                                {{ profile_form.notif_site }}
-                                <label class="form-check-label" for="{{ profile_form.notif_site.id_for_label }}">{{ profile_form.notif_site.label }}</label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="text-right mt-2">
-                    <button type="submit" class="profile-save-btn">
-                        <i class="fas fa-check mr-1"></i> Enregistrer les modifications
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    {# ── Mot de passe & permissions (repliables) ── #}
-    <div class="profile-extra-card">
-        <div class="card-header" data-toggle="collapse" data-target="#collapse-password" aria-expanded="false">
-            <strong><i class="fas fa-lock mr-1"></i> Changer de mot de passe</strong>
-            <i class="fas fa-chevron-down float-right mt-1" style="color:#a83232;"></i>
-        </div>
-        <div id="collapse-password" class="collapse">
-            <div class="card-body p-4">
-                <form method="post">
+            <div class="profile-panel is-active" data-panel="identite">
+                <header class="profile-panel__head">
+                    <h2>Modifier mes informations</h2>
+                    <p>Mettez à jour vos coordonnées et préférences. Le rôle et l’e-mail sont gérés par un administrateur.</p>
+                </header>
+                <form method="post" enctype="multipart/form-data" class="profile-form">
                     {% csrf_token %}
-                    <div class="row">
-                        <div class="col-md-4 profile-field mb-3">
-                            <label>Ancien mot de passe <span class="text-danger">*</span></label>
-                            {{ form.old_password }}
-                            <small class="text-danger">{{ form.old_password.errors }}</small>
-                        </div>
-                        <div class="col-md-4 profile-field mb-3">
-                            <label>Nouveau mot de passe <span class="text-danger">*</span></label>
-                            {{ form.new_password1 }}
-                            <small class="text-danger">{{ form.new_password1.errors }}</small>
-                        </div>
-                        <div class="col-md-4 profile-field mb-3">
-                            <label>Confirmer <span class="text-danger">*</span></label>
-                            {{ form.new_password2 }}
-                            <small class="text-danger">{{ form.new_password2.errors }}</small>
-                        </div>
+                    <input type="hidden" name="save_profile" value="1">
+                    <div class="profile-form__hidden">
+                        {{ profile_form.avatar }}
                     </div>
-                    <small class="text-muted d-block mb-3">Au moins 8 caractères, 1 majuscule, 1 minuscule, 1 chiffre et 1 caractère spécial.</small>
-                    <button type="submit" class="profile-save-btn btn-sm">Enregistrer le mot de passe</button>
+
+                    <div class="profile-grid">
+                        <label class="profile-field">
+                            <span>{{ profile_form.prenom.label }}</span>
+                            {{ profile_form.prenom }}
+                            {{ profile_form.prenom.errors }}
+                        </label>
+                        <label class="profile-field">
+                            <span>{{ profile_form.nom.label }}</span>
+                            {{ profile_form.nom }}
+                            {{ profile_form.nom.errors }}
+                        </label>
+                        <label class="profile-field">
+                            <span>{{ profile_form.telephone.label }}</span>
+                            {{ profile_form.telephone }}
+                            {{ profile_form.telephone.errors }}
+                        </label>
+                        <label class="profile-field">
+                            <span>{{ profile_form.gender.label }}</span>
+                            {{ profile_form.gender }}
+                            {{ profile_form.gender.errors }}
+                        </label>
+                        <label class="profile-field">
+                            <span>{{ profile_form.date_naissance.label }}</span>
+                            {{ profile_form.date_naissance }}
+                            {{ profile_form.date_naissance.errors }}
+                        </label>
+                        <label class="profile-field">
+                            <span>{{ profile_form.adresse.label }}</span>
+                            {{ profile_form.adresse }}
+                            {{ profile_form.adresse.errors }}
+                        </label>
+                        <label class="profile-field">
+                            <span>{{ profile_form.commune.label }}</span>
+                            {{ profile_form.commune }}
+                            {{ profile_form.commune.errors }}
+                        </label>
+                        <label class="profile-field">
+                            <span>{{ profile_form.profession.label }}</span>
+                            {{ profile_form.profession }}
+                            {{ profile_form.profession.errors }}
+                        </label>
+                        <label class="profile-field">
+                            <span>{{ profile_form.langue.label }}</span>
+                            {{ profile_form.langue }}
+                            {{ profile_form.langue.errors }}
+                        </label>
+                        <label class="profile-field profile-field--wide">
+                            <span>{{ profile_form.bio.label }}</span>
+                            {{ profile_form.bio }}
+                            {{ profile_form.bio.errors }}
+                        </label>
+                    </div>
+
+                    <div class="profile-toggles">
+                        <label class="profile-toggle">
+                            {{ profile_form.notif_email }}
+                            <span>
+                                <strong>{{ profile_form.notif_email.label }}</strong>
+                                <small>Recevoir les alertes par e-mail</small>
+                            </span>
+                        </label>
+                        <label class="profile-toggle">
+                            {{ profile_form.notif_site }}
+                            <span>
+                                <strong>{{ profile_form.notif_site.label }}</strong>
+                                <small>Afficher les notifications dans l’application</small>
+                            </span>
+                        </label>
+                    </div>
+
+                    <div class="profile-form__actions">
+                        <button type="submit" class="profile-btn profile-btn--primary" id="profile-save-btn">
+                            <i class="fas fa-check" aria-hidden="true"></i> Enregistrer
+                        </button>
+                    </div>
                 </form>
             </div>
-        </div>
-    </div>
 
-    <div class="profile-extra-card mb-4">
-        <div class="card-header" data-toggle="collapse" data-target="#collapse-permissions" aria-expanded="false">
-            <strong><i class="fas fa-key mr-1"></i> Mes permissions</strong>
-            <i class="fas fa-chevron-down float-right mt-1" style="color:#a83232;"></i>
-        </div>
-        <div id="collapse-permissions" class="collapse">
-            <div class="card-body p-4">
-                <div class="row">
-                    <div class="col-md-6">
-                        <h6 style="font-weight:700; color:#a83232; font-size:0.9rem;">Permissions personnalisées</h6>
-                        {% if custom_permissions %}
-                            <select multiple class="custom-select mb-3" style="width:100%; height:160px; border-radius:12px;">
-                                {% for perm in custom_permissions %}<option>{{ perm.name }}</option>{% endfor %}
-                            </select>
-                        {% else %}
-                            <p class="text-muted font-italic small">Aucune permission personnalisée</p>
-                        {% endif %}
+            <div class="profile-panel" data-panel="securite" hidden>
+                <header class="profile-panel__head">
+                    <h2>Changer de mot de passe</h2>
+                    <p>Au moins 8 caractères, 1 majuscule, 1 minuscule, 1 chiffre et 1 caractère spécial.</p>
+                </header>
+                <form method="post" class="profile-form">
+                    {% csrf_token %}
+                    <div class="profile-grid profile-grid--3">
+                        <label class="profile-field">
+                            <span>Ancien mot de passe</span>
+                            {{ form.old_password }}
+                            {{ form.old_password.errors }}
+                        </label>
+                        <label class="profile-field">
+                            <span>Nouveau mot de passe</span>
+                            {{ form.new_password1 }}
+                            {{ form.new_password1.errors }}
+                        </label>
+                        <label class="profile-field">
+                            <span>Confirmer</span>
+                            {{ form.new_password2 }}
+                            {{ form.new_password2.errors }}
+                        </label>
                     </div>
-                    <div class="col-md-6">
-                        <h6 style="font-weight:700; color:#a83232; font-size:0.9rem;">Permissions système</h6>
-                        {% if system_permissions %}
-                            {% for perm in system_permissions %}
-                                <div class="d-flex align-items-center mb-2">
-                                    <input type="checkbox" checked disabled class="mr-2" style="accent-color:#a83232;">
-                                    <span style="font-size:0.88rem; font-weight:600;">{{ perm.name|truncatewords:10 }}</span>
-                                </div>
-                            {% endfor %}
-                        {% else %}
-                            <p class="text-muted font-italic small">Aucune permission système</p>
-                        {% endif %}
+                    <div class="profile-form__actions">
+                        <button type="submit" class="profile-btn profile-btn--primary">
+                            <i class="fas fa-lock" aria-hidden="true"></i> Mettre à jour le mot de passe
+                        </button>
                     </div>
-                </div>
+                </form>
             </div>
-        </div>
-    </div>
 
+            <div class="profile-panel" data-panel="acces" hidden>
+                <header class="profile-panel__head">
+                    <h2>Mes permissions</h2>
+                    <p>Droits attribués à votre compte. Seul un administrateur peut les modifier.</p>
+                </header>
+                {% if grouped_permissions %}
+                    {% for category, perms in grouped_permissions.items %}
+                        <div class="profile-perm-group">
+                            <h3>{{ category }}</h3>
+                            <div class="profile-perm-list">
+                                {% for perm in perms %}
+                                    <span class="profile-chip">{{ perm.name }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% elif custom_permissions %}
+                    <div class="profile-perm-group">
+                        <h3>Permissions personnalisées</h3>
+                        <div class="profile-perm-list">
+                            {% for perm in custom_permissions %}
+                                <span class="profile-chip">{{ perm.name }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% else %}
+                    <p class="profile-empty">Aucune permission personnalisée pour ce compte.</p>
+                {% endif %}
+                {% if system_permissions %}
+                    <div class="profile-perm-group">
+                        <h3>Permissions système</h3>
+                        <div class="profile-perm-list">
+                            {% for perm in system_permissions %}
+                                <span class="profile-chip profile-chip--muted">{{ perm.name }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </section>
+    </div>
 </div>
 {% endblock main_content %}
 
 {% block custom_js %}
 <script>
-    setTimeout(function() { $('#message').fadeOut('slow'); }, 3000);
+(function () {
+    var root = document.querySelector('.profile-page');
+    if (!root) return;
 
-    (function () {
-        var heroPhotoSubmit = document.getElementById('hero-photo-submit');
-        var formSubmitBtn = document.querySelector('.profile-save-btn');
-        var avatarInput = document.querySelector('input[type="file"][name="avatar"]');
-        if (heroPhotoSubmit && formSubmitBtn) {
-            heroPhotoSubmit.addEventListener('click', function () {
-                formSubmitBtn.click();
+    root.querySelectorAll('.profile-tab').forEach(function (tab) {
+        tab.addEventListener('click', function () {
+            var name = tab.getAttribute('data-tab');
+            root.querySelectorAll('.profile-tab').forEach(function (item) {
+                var on = item === tab;
+                item.classList.toggle('is-active', on);
+                item.setAttribute('aria-selected', on ? 'true' : 'false');
             });
-        }
-        if (avatarInput) {
-            avatarInput.addEventListener('change', function () {
-                var file = avatarInput.files && avatarInput.files[0];
-                if (!file || !file.type.match(/^image\//)) return;
-                var reader = new FileReader();
-                reader.onload = function (e) {
-                    var url = e.target.result;
-                    document.querySelectorAll('[data-pb-user-avatar]').forEach(function (el) {
-                        if (el.tagName === 'IMG') {
-                            el.src = url;
-                            return;
-                        }
-                        if (el.dataset.pbUserAvatar === 'initials') {
-                            var img = document.createElement('img');
-                            img.src = url;
-                            img.alt = '';
-                            img.loading = 'lazy';
-                            img.className = el.className.replace('pb-user-avatar-initials', '').trim();
-                            img.setAttribute('data-pb-user-avatar', 'image');
-                            el.replaceWith(img);
-                        }
-                    });
-                };
-                reader.readAsDataURL(file);
+            root.querySelectorAll('.profile-panel').forEach(function (panel) {
+                var on = panel.getAttribute('data-panel') === name;
+                panel.classList.toggle('is-active', on);
+                panel.hidden = !on;
             });
-        }
-    })();
+        });
+    });
+
+    var heroPhotoSubmit = document.getElementById('hero-photo-submit');
+    var formSubmitBtn = document.getElementById('profile-save-btn');
+    var avatarInput = document.querySelector('input[type="file"][name="avatar"]');
+    if (heroPhotoSubmit && formSubmitBtn) {
+        heroPhotoSubmit.addEventListener('click', function () {
+            formSubmitBtn.click();
+        });
+    }
+    if (avatarInput) {
+        avatarInput.addEventListener('change', function () {
+            var file = avatarInput.files && avatarInput.files[0];
+            if (!file || !file.type.match(/^image\//)) return;
+            if (heroPhotoSubmit) heroPhotoSubmit.hidden = false;
+            var reader = new FileReader();
+            reader.onload = function (e) {
+                var url = e.target.result;
+                document.querySelectorAll('[data-pb-user-avatar]').forEach(function (el) {
+                    if (el.tagName === 'IMG') {
+                        el.src = url;
+                        return;
+                    }
+                    if (el.dataset.pbUserAvatar === 'initials') {
+                        var img = document.createElement('img');
+                        img.src = url;
+                        img.alt = '';
+                        img.loading = 'lazy';
+                        img.className = el.className.replace('pb-user-avatar-initials', '').trim();
+                        img.setAttribute('data-pb-user-avatar', 'image');
+                        el.replaceWith(img);
+                    }
+                });
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+})();
 </script>
 {% endblock custom_js %}
