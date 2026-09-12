@@ -22,6 +22,20 @@
     scrollbar-width: thin;
 }
 
+.pb-table-wrap--body-scroll {
+    max-height: 360px;
+    overflow: auto;
+    scrollbar-width: thin;
+}
+
+.pb-table-wrap--body-scroll .pb-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: var(--pb-kpi-pill-bg, #f4f5f7);
+    box-shadow: inset 0 -1px 0 var(--pb-kpi-border, #ece9e4);
+}
+
 .pb-panel-row .pb-panel__body {
     padding: 0.4rem 0.65rem 0.5rem;
 }

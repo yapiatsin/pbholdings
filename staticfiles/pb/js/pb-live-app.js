@@ -1,10 +1,12 @@
-(function () {
+(function() {
     var controller = null;
     var applying = false;
 
-    document.addEventListener('alpine:init', function () {
+    document.addEventListener('alpine:init', function() {
         if (!window.Alpine || !Alpine.store) return;
-        Alpine.store('pb', { busy: false });
+        Alpine.store('pb', {
+            busy: false
+        });
     });
 
     function storeBusy(on) {
@@ -73,7 +75,7 @@
         var url = new URL(action, window.location.origin);
         var data = new FormData(form);
         url.search = '';
-        data.forEach(function (value, key) {
+        data.forEach(function(value, key) {
             if (key === 'csrfmiddlewaretoken' || key === 'partial') return;
             if (value !== null && String(value).trim() !== '') url.searchParams.append(key, value);
         });
@@ -93,8 +95,15 @@
         var src = script.getAttribute('src') || '';
         if (src.indexOf('saisie-live-search.js') !== -1) return false;
         if (src.indexOf('live-filter.js') !== -1) return false;
+        if (src.indexOf('pb-live-table-actions.js') !== -1) return false;
+        if (src.indexOf('pb-permissions-picker.js') !== -1) return false;
+        if (src.indexOf('monthly-grid.js') !== -1) return false;
+        if (src.indexOf('notifications.js') !== -1) return false;
+        if (src.indexOf('notifications-inbox.js') !== -1) return false;
         if (src.indexOf('pb-live-app.js') !== -1) return false;
         if (src.indexOf('alpine.min.js') !== -1) return false;
+        if (src.indexOf('chart.js') !== -1 && typeof window.Chart === 'function') return false;
+        if (src.indexOf('dashboard-charts.js') !== -1 && typeof window.pbMakeLineChart === 'function') return false;
         var code = script.textContent || '';
         if (!code.trim() && !src) return false;
         if (/\$\(\s*document\s*\)\.on/.test(code)) return false;
@@ -125,7 +134,7 @@
             if (noms.indexOf(m[1]) === -1) noms.push(m[1]);
         }
         // try/catch : un nom capturé dans un bloc imbriqué n'existe pas ici.
-        var exports = noms.map(function (nom) {
+        var exports = noms.map(function(nom) {
             return 'try { window.' + nom + ' = ' + nom + '; } catch (e) {}';
         }).join('\n');
         return '(function () {\n' + code + '\n' + exports + '\n})();';
@@ -133,18 +142,20 @@
 
     function cloneScript(old) {
         var neu = document.createElement('script');
-        Array.prototype.forEach.call(old.attributes, function (attr) {
+        Array.prototype.forEach.call(old.attributes, function(attr) {
             neu.setAttribute(attr.name, attr.value);
         });
-        var code = old.textContent || '';
-        // Les scripts externes (src) se rechargent tels quels : rien à isoler.
-        neu.textContent = old.getAttribute('src') ? code : scopedCode(code);
+        if (old.getAttribute('src')) {
+            neu.async = false;
+        } else {
+            neu.textContent = scopedCode(old.textContent || '');
+        }
         return neu;
     }
 
     function runScripts(scope) {
         if (!scope) return;
-        scope.querySelectorAll('script').forEach(function (old) {
+        scope.querySelectorAll('script').forEach(function(old) {
             if (!shouldRunScript(old)) return;
             old.parentNode.replaceChild(cloneScript(old), old);
         });
@@ -153,7 +164,7 @@
     function runCustomJs(parsed) {
         var box = parsed.querySelector('[data-live-custom-js]');
         if (!box) return;
-        box.querySelectorAll('script').forEach(function (old) {
+        box.querySelectorAll('script').forEach(function(old) {
             if (!shouldRunScript(old)) return;
             var neu = cloneScript(old);
             document.body.appendChild(neu);
@@ -164,16 +175,18 @@
     function destroyTables() {
         if (!window.jQuery || !window.jQuery.fn || !window.jQuery.fn.DataTable) return;
         var $ = window.jQuery;
-        ['#example1', '#example2'].forEach(function (sel) {
+        ['#example1', '#example2'].forEach(function(sel) {
             if ($.fn.DataTable.isDataTable(sel)) {
-                try { $(sel).DataTable().destroy(); } catch (e) {}
+                try {
+                    $(sel).DataTable().destroy();
+                } catch (e) {}
             }
         });
     }
 
     function destroyCharts(scope) {
         if (!scope || !window.Chart || typeof window.Chart.getChart !== 'function') return;
-        scope.querySelectorAll('canvas').forEach(function (canvas) {
+        scope.querySelectorAll('canvas').forEach(function(canvas) {
             try {
                 var inst = window.Chart.getChart(canvas);
                 if (inst) inst.destroy();
@@ -185,7 +198,9 @@
         if (!window.jQuery || !window.jQuery.fn || !window.jQuery.fn.DataTable) return;
         var $ = window.jQuery;
         if (document.querySelector('#example1')) {
-            try { $('#example1').DataTable(); } catch (e) {}
+            try {
+                $('#example1').DataTable();
+            } catch (e) {}
         }
         if (document.querySelector('#example2')) {
             try {
@@ -205,23 +220,29 @@
         var sidebar = document.querySelector('.pb-sidebar-glass .nav-sidebar, .pb-sidebar .nav-sidebar');
         if (!sidebar) return;
         var current;
-        try { current = new URL(url, window.location.origin).pathname.replace(/\/+$/, '') || '/'; }
-        catch (e) { return; }
-        sidebar.querySelectorAll('a.nav-link').forEach(function (link) {
+        try {
+            current = new URL(url, window.location.origin).pathname.replace(/\/+$/, '') || '/';
+        } catch (e) {
+            return;
+        }
+        sidebar.querySelectorAll('a.nav-link').forEach(function(link) {
             link.classList.remove('active');
         });
-        sidebar.querySelectorAll('.has-treeview').forEach(function (item) {
+        sidebar.querySelectorAll('.has-treeview').forEach(function(item) {
             item.classList.remove('menu-open');
         });
         var links = Array.prototype.slice.call(sidebar.querySelectorAll('a.nav-link[href]'));
         var best = null;
         var bestLen = -1;
-        links.forEach(function (link) {
+        links.forEach(function(link) {
             var href = link.getAttribute('href');
             if (!href || href === '#' || href.indexOf('javascript:') === 0) return;
             var path;
-            try { path = new URL(link.href, window.location.origin).pathname.replace(/\/+$/, ''); }
-            catch (e2) { return; }
+            try {
+                path = new URL(link.href, window.location.origin).pathname.replace(/\/+$/, '');
+            } catch (e2) {
+                return;
+            }
             if (!path) return;
             if (current === path || (path.length > 12 && current.indexOf(path) === 0)) {
                 if (path.length > bestLen) {
@@ -240,9 +261,13 @@
         var el = doc.getElementById('pb-live-messages');
         if (!el || !window.Swal) return;
         var items;
-        try { items = JSON.parse(el.textContent || '[]'); } catch (e) { return; }
+        try {
+            items = JSON.parse(el.textContent || '[]');
+        } catch (e) {
+            return;
+        }
         if (!items || !items.length) return;
-        items.forEach(function (msg) {
+        items.forEach(function(msg) {
             var tags = (msg.tags || '').toString();
             var icon = tags.indexOf('error') !== -1 ? 'error' : (tags.indexOf('warning') !== -1 ? 'warning' : 'success');
             var title = icon === 'error' ? 'Erreur' : (icon === 'warning' ? 'Attention' : 'Succès');
@@ -302,13 +327,23 @@
         markSidebar(url);
         if (opts.showMessages !== false) showMessages(parsed);
         try {
-            if (opts.push) window.history.pushState({ pbLive: 1 }, '', url);
-            else window.history.replaceState({ pbLive: 1 }, '', url);
+            if (opts.push) window.history.pushState({
+                pbLive: 1
+            }, '', url);
+            else window.history.replaceState({
+                pbLive: 1
+            }, '', url);
         } catch (e) {}
-        document.dispatchEvent(new CustomEvent('pb:livepage', { detail: { url: url } }));
+        document.dispatchEvent(new CustomEvent('pb:livepage', {
+            detail: {
+                url: url
+            }
+        }));
         document.dispatchEvent(new CustomEvent('pb:livefilter'));
         if (window.Alpine && typeof Alpine.initTree === 'function') {
-            try { Alpine.initTree(root); } catch (e2) {}
+            try {
+                Alpine.initTree(root);
+            } catch (e2) {}
         }
         return true;
     }
@@ -333,7 +368,7 @@
         if (controller) opts.signal = controller.signal;
 
         return fetch(url.toString(), opts)
-            .then(function (res) {
+            .then(function(res) {
                 var finalUrl = res.url || url.toString();
                 var type = (res.headers.get('content-type') || '').toLowerCase();
                 var disposition = (res.headers.get('content-disposition') || '').toLowerCase();
@@ -342,20 +377,29 @@
                     return null;
                 }
                 if (type.indexOf('application/json') !== -1) {
-                    return res.json().then(function (data) {
-                        return { json: data, url: finalUrl };
+                    return res.json().then(function(data) {
+                        return {
+                            json: data,
+                            url: finalUrl
+                        };
                     });
                 }
                 if (!res.ok) throw new Error('nav');
-                return res.text().then(function (html) {
-                    return { html: html, url: finalUrl };
+                return res.text().then(function(html) {
+                    return {
+                        html: html,
+                        url: finalUrl
+                    };
                 });
             })
-            .then(function (payload) {
+            .then(function(payload) {
                 if (!payload) return;
                 if (payload.json) {
                     if (payload.json.success) {
-                        return loadUrl(window.location.href, { push: false, showMessages: false }).then(function () {
+                        return loadUrl(window.location.href, {
+                            push: false,
+                            showMessages: false
+                        }).then(function() {
                             if (window.Swal && payload.json.message) {
                                 window.Swal.fire({
                                     icon: 'success',
@@ -382,11 +426,11 @@
                 }
                 applyDocument(payload.html, payload.url, applyOpts);
             })
-            .catch(function (err) {
+            .catch(function(err) {
                 if (err && err.name === 'AbortError') return;
                 hardNav(typeof url === 'string' ? url : url.toString());
             })
-            .then(function () {
+            .then(function() {
                 setBusy(false);
                 applying = false;
             });
@@ -395,7 +439,11 @@
     function loadUrl(url, applyOpts) {
         applyOpts = applyOpts || {};
         var abs = new URL(url, window.location.origin);
-        return fetchPage(abs, { headers: { 'X-PB-Live-Filter': '1' } }, applyOpts);
+        return fetchPage(abs, {
+            headers: {
+                'X-PB-Live-Filter': '1'
+            }
+        }, applyOpts);
     }
 
     function isDownloadHref(href) {
@@ -430,7 +478,7 @@
         var proto = window.Location && Location.prototype;
         if (!proto || !proto.reload) return;
         var nativeReload = proto.reload;
-        proto.reload = function () {
+        proto.reload = function() {
             if (typeof window.pbRefreshLivePage === 'function' && document.querySelector('[data-live-filter-root]')) {
                 window.pbRefreshLivePage();
                 return;
@@ -439,12 +487,14 @@
         };
     }
 
-    document.addEventListener('submit', function (e) {
+    document.addEventListener('submit', function(e) {
         var form = e.target;
         if (!form || form.tagName !== 'FORM') return;
         if (isFilterForm(form)) {
             e.preventDefault();
-            loadUrl(formToUrl(form), { push: false });
+            loadUrl(formToUrl(form), {
+                push: false
+            });
             return;
         }
         if (isLivePostForm(form)) {
@@ -453,18 +503,24 @@
             fetchPage(new URL(action, window.location.origin), {
                 method: 'POST',
                 body: new FormData(form),
-                headers: { 'X-PB-Live-Filter': '1' }
-            }, { push: false });
+                headers: {
+                    'X-PB-Live-Filter': '1'
+                }
+            }, {
+                push: false
+            });
         }
     });
 
-    document.addEventListener('click', function (e) {
+    document.addEventListener('click', function(e) {
         var reset = e.target.closest('[data-live-filter-reset], a.pb-modal-default__btn-reset');
         if (reset) {
             var resetHref = reset.getAttribute('href');
             if (resetHref && resetHref !== '#') {
                 e.preventDefault();
-                loadUrl(new URL(resetHref, window.location.origin), { push: false });
+                loadUrl(new URL(resetHref, window.location.origin), {
+                    push: false
+                });
                 return;
             }
         }
@@ -475,41 +531,57 @@
         e.preventDefault();
         var next = new URL(anchor.getAttribute('href'), window.location.origin);
         var same = next.pathname === window.location.pathname && next.search === window.location.search;
-        loadUrl(next, { push: !same });
+        loadUrl(next, {
+            push: !same
+        });
     });
 
-    document.addEventListener('change', function (e) {
+    document.addEventListener('change', function(e) {
         if (e.target.id === 'period-select') {
             if (e.target.value === 'custom') return;
             var periodForm = e.target.closest('form');
             if (!isFilterForm(periodForm)) return;
-            loadUrl(formToUrl(periodForm), { push: false });
+            loadUrl(formToUrl(periodForm), {
+                push: false
+            });
             return;
         }
         var autoForm = e.target.closest('form.pb-panel__filter, form[data-live-filter-auto]');
         if (!autoForm || !isFilterForm(autoForm)) return;
-        loadUrl(formToUrl(autoForm), { push: false });
+        loadUrl(formToUrl(autoForm), {
+            push: false
+        });
     });
 
-    window.addEventListener('popstate', function () {
+    window.addEventListener('popstate', function() {
         if (applying) return;
-        loadUrl(window.location.href, { push: false, showMessages: false });
+        loadUrl(window.location.href, {
+            push: false,
+            showMessages: false
+        });
     });
 
-    window.pbApplyLiveFilter = function (url) {
-        return loadUrl(url, { push: false });
+    window.pbApplyLiveFilter = function(url) {
+        return loadUrl(url, {
+            push: false
+        });
     };
-    window.pbRefreshLivePage = function () {
-        return loadUrl(window.location.href, { push: false, showMessages: false });
+    window.pbRefreshLivePage = function() {
+        return loadUrl(window.location.href, {
+            push: false,
+            showMessages: false
+        });
     };
-    window.pbNavigateLive = function (url, push) {
-        return loadUrl(url, { push: !!push });
+    window.pbNavigateLive = function(url, push) {
+        return loadUrl(url, {
+            push: !!push
+        });
     };
     window.pbMarkSidebar = markSidebar;
 
     patchReload();
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             markSidebar(window.location.href);
         });
     } else {

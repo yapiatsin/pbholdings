@@ -1,0 +1,20 @@
+.content-wrapper {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.123), rgba(221, 221, 221, 0.197));
+    background-size: 200% 200%;
+    animation: iceEffect 10s ease infinite;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    padding: 2px;
+}
+
+@keyframes iceEffect {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}

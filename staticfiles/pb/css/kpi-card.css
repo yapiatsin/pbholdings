@@ -218,15 +218,29 @@
     transition: background 0.15s ease;
 }
 
+.pb-kpi__pill--danger {
+    background: rgba(220, 38, 38, 0.12);
+    color: var(--pb-kpi-down);
+}
+
 a.pb-kpi__pill:hover {
     background: var(--pb-kpi-accent-soft);
     color: var(--pb-kpi-value);
     text-decoration: none;
 }
 
+a.pb-kpi__pill--danger:hover {
+    background: rgba(220, 38, 38, 0.2);
+    color: var(--pb-kpi-down);
+}
+
 .pb-kpi__pill i {
     font-size: 0.9rem;
     color: var(--pb-kpi-accent);
+}
+
+.pb-kpi__pill--danger i {
+    color: var(--pb-kpi-down);
 }
 
 /* Mini-graphique optionnel, à la place du bloc secondaire */
@@ -946,6 +960,11 @@ a.pb-table__key:hover {
     font-size: 0.78rem;
     font-weight: 700;
     color: var(--pb-kpi-value);
+}
+
+.pb-list__count--danger {
+    background: rgba(220, 38, 38, 0.12);
+    color: var(--pb-kpi-down);
 }
 
 /* Entrée correspondant à la page affichée */
